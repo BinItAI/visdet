@@ -40,36 +40,12 @@
 
 </div>
 
-<table>
-<tr>
-<td width="33%" align="center">
+**Simplified Installation & Dependencies**
+- **Integrated Dependencies**: MMCV and MMEngine are bundled directly into the package, eliminating complex multi-package dependency management
+- **No Custom CUDA Required**: All custom CUDA operations have been removed, making installation straightforward with just `pip install visdet`
+- **Python-Only Implementation**: Pure Python/PyTorch implementation means faster installation and better compatibility across different environments
 
-### 📦 **Integrated Dependencies**
-MMCV and MMEngine bundled directly into the package
-
-</td>
-<td width="33%" align="center">
-
-### ⚡ **No Custom CUDA**
-Removed all custom CUDA operations for easier installation
-
-</td>
-<td width="33%" align="center">
-
-### 🐍 **Python-Only**
-Pure Python/PyTorch for better compatibility
-
-</td>
-</tr>
-</table>
-
-<div align="center">
-
-**Just run:** `pip install visdet` or `uv pip install visdet`
-
-*No complex dependency coordination. No CUDA compilation headaches.*
-
-</div>
+This makes visdet significantly easier to install and deploy compared to the original MMDetection, which required careful coordination of multiple packages and custom CUDA compilation.
 
 ---
 
