@@ -3,16 +3,17 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "mmdet"
+name = "visdet"
 version = "2.28.2"
-description = "OpenMMLab Detection Toolbox and Benchmark"
+description = "Visia's fork of MMDetection - Object Detection Toolbox and Benchmark"
 readme = "README.md"
 requires-python = ">=3.10,<3.13"
 license = {text = "Apache License 2.0"}
 authors = [
+    {name = "George Pearse", email = "george@visia.ai"},
     {name = "MMDetection Contributors", email = "openmmlab@gmail.com"},
 ]
-keywords = ["computer vision", "object detection"]
+keywords = ["computer vision", "object detection", "mmdetection"]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "License :: OSI Approved :: Apache Software License",
@@ -83,8 +84,10 @@ all = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/open-mmlab/mmdetection"
-Repository = "https://github.com/open-mmlab/mmdetection"
+Homepage = "https://binitai.github.io/visdet/"
+Repository = "https://github.com/BinItAI/visdet"
+Documentation = "https://binitai.github.io/visdet/"
+"Original Project" = "https://github.com/open-mmlab/mmdetection"
 
 [tool.hatch.build.targets.wheel]
 packages = ["mmdet"]

@@ -2,13 +2,12 @@
   <img src="resources/visia-logo-white.svg" width="600"/>
   <div>&nbsp;</div>
 
-[![PyPI](https://img.shields.io/pypi/v/mmdet)](https://pypi.org/project/mmdet)
-[![docs](https://img.shields.io/badge/docs-latest-blue)](https://mmdetection.readthedocs.io/en/latest/)
-[![badge](https://github.com/open-mmlab/mmdetection/workflows/build/badge.svg)](https://github.com/open-mmlab/mmdetection/actions)
-[![codecov](https://codecov.io/gh/open-mmlab/mmdetection/branch/master/graph/badge.svg)](https://codecov.io/gh/open-mmlab/mmdetection)
-[![license](https://img.shields.io/github/license/open-mmlab/mmdetection.svg)](https://github.com/open-mmlab/mmdetection/blob/master/LICENSE)
-[![open issues](https://isitmaintained.com/badge/open/open-mmlab/mmdetection.svg)](https://github.com/open-mmlab/mmdetection/issues)
-[![issue resolution](https://isitmaintained.com/badge/resolution/open-mmlab/mmdetection.svg)](https://github.com/open-mmlab/mmdetection/issues)
+[![PyPI](https://img.shields.io/pypi/v/visdet)](https://pypi.org/project/visdet)
+[![docs](https://img.shields.io/badge/docs-latest-blue)](https://binitai.github.io/visdet/)
+[![PyPI Publishing](https://github.com/BinItAI/visdet/actions/workflows/publish-pypi.yml/badge.svg)](https://github.com/BinItAI/visdet/actions/workflows/publish-pypi.yml)
+[![license](https://img.shields.io/github/license/BinItAI/visdet.svg)](https://github.com/BinItAI/visdet/blob/master/LICENSE)
+[![open issues](https://isitmaintained.com/badge/open/BinItAI/visdet.svg)](https://github.com/BinItAI/visdet/issues)
+[![issue resolution](https://isitmaintained.com/badge/resolution/BinItAI/visdet.svg)](https://github.com/BinItAI/visdet/issues)
 
 [📘Documentation](https://binitai.github.io/visdet/) |
 [🛠️Installation](https://binitai.github.io/visdet/getting-started/installation/) |
@@ -124,6 +123,12 @@ Install visdet using [uv](https://docs.astral.sh/uv/):
 
 ```bash
 uv pip install visdet
+```
+
+Or with pip:
+
+```bash
+pip install visdet
 ```
 
 For detailed installation instructions including development setup, please refer to [Installation](https://binitai.github.io/visdet/getting-started/installation/).

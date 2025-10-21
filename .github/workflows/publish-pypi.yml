@@ -40,7 +40,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: pypi
-      url: https://pypi.org/p/mmdet
+      url: https://pypi.org/p/visdet
     permissions:
       id-token: write
     steps:
