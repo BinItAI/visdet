@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """
-Import open issues from the mmdetection repository.
+Import only open issues from the mmdetection repository.
 
-This script fetches all open issues from the upstream mmdetection repository and creates
+This script fetches only open issues from the upstream mmdetection repository and creates
 corresponding issues in the visdet repository, with links back to the originals.
+Closed issues are not imported.
 """
 
 import json
@@ -65,8 +66,8 @@ def ensure_label_exists() -> None:
 
 
 def fetch_upstream_issues() -> list[dict[str, Any]]:
-    """Fetch all issues (open and closed) from the upstream repository using GraphQL pagination."""
-    print(f"Fetching all issues from {UPSTREAM_REPO}...")
+    """Fetch only open issues from the upstream repository using GraphQL pagination."""
+    print(f"Fetching open issues from {UPSTREAM_REPO}...")
 
     owner, repo = UPSTREAM_REPO.split("/")
     all_issues = []
@@ -77,12 +78,12 @@ def fetch_upstream_issues() -> list[dict[str, Any]]:
     while has_next_page:
         print(f"  Fetching page {page}...")
 
-        # Build GraphQL query with pagination
+        # Build GraphQL query with pagination - filtering for OPEN issues only
         after_clause = f', after: "{cursor}"' if cursor else ""
         query = f"""
         {{
           repository(owner: "{owner}", name: "{repo}") {{
-            issues(first: 100{after_clause}, orderBy: {{field: CREATED_AT, direction: ASC}}) {{
+            issues(first: 100{after_clause}, states: OPEN, orderBy: {{field: CREATED_AT, direction: ASC}}) {{
               pageInfo {{
                 hasNextPage
                 endCursor
@@ -256,25 +257,7 @@ def create_issue(issue: dict[str, Any]) -> str:
                 # Label doesn't exist in fork, skip it
                 pass
 
-    # Close the issue if it was closed in upstream
-    if issue.get("state") == "CLOSED":
-        try:
-            run_gh_command(
-                [
-                    "issue",
-                    "close",
-                    issue_number,
-                    "--repo",
-                    FORK_REPO,
-                    "--reason",
-                    "completed",
-                ]
-            )
-            print(f"  ✓ Created and closed: {fork_issue_url}")
-        except subprocess.CalledProcessError:
-            print(f"  ✓ Created (failed to close): {fork_issue_url}")
-    else:
-        print(f"  ✓ Created: {fork_issue_url}")
+    print(f"  ✓ Created: {fork_issue_url}")
 
     return fork_issue_url
 
