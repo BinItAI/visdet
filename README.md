@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="resources/mmdet-logo.png" width="600"/>
+  <img src="https://ik.imagekit.io/binit/visia-website/visia-logo-black-1.svg" width="600"/>
   <div>&nbsp;</div>
   <div align="center">
     <b><font size="5">OpenMMLab website</font></b>
