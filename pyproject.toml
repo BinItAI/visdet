@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "visdet"
-version = "2.28.3"
+version = "2.28.4"
 description = "Visia's fork of MMDetection - Object Detection Toolbox and Benchmark"
 readme = "README.md"
 requires-python = ">=3.10,<3.13"
