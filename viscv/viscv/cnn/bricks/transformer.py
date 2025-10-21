@@ -109,8 +109,14 @@ class AdaptivePadding(nn.Module):
         stride_h, stride_w = self.stride
         output_h = math.ceil(input_h / stride_h)
         output_w = math.ceil(input_w / stride_w)
-        pad_h = max((output_h - 1) * stride_h + (kernel_h - 1) * self.dilation[0] + 1 - input_h, 0)
-        pad_w = max((output_w - 1) * stride_w + (kernel_w - 1) * self.dilation[1] + 1 - input_w, 0)
+        pad_h = max(
+            (output_h - 1) * stride_h + (kernel_h - 1) * self.dilation[0] + 1 - input_h,
+            0,
+        )
+        pad_w = max(
+            (output_w - 1) * stride_w + (kernel_w - 1) * self.dilation[1] + 1 - input_w,
+            0,
+        )
         return pad_h, pad_w
 
     def forward(self, x):
@@ -184,7 +190,12 @@ class PatchEmbed(BaseModule):
         dilation = to_2tuple(dilation)
 
         if isinstance(padding, str):
-            self.adaptive_padding = AdaptivePadding(kernel_size=kernel_size, stride=stride, dilation=dilation, padding=padding)
+            self.adaptive_padding = AdaptivePadding(
+                kernel_size=kernel_size,
+                stride=stride,
+                dilation=dilation,
+                padding=padding,
+            )
             # disable the padding of conv
             padding = 0
         else:
@@ -285,7 +296,16 @@ class PatchMerging(BaseModule):
     """
 
     def __init__(
-        self, in_channels, out_channels, kernel_size=2, stride=None, padding="corner", dilation=1, bias=False, norm_cfg=dict(type="LN"), init_cfg=None
+        self,
+        in_channels,
+        out_channels,
+        kernel_size=2,
+        stride=None,
+        padding="corner",
+        dilation=1,
+        bias=False,
+        norm_cfg=dict(type="LN"),
+        init_cfg=None,
     ):
         super().__init__(init_cfg=init_cfg)
         self.in_channels = in_channels
@@ -300,7 +320,12 @@ class PatchMerging(BaseModule):
         dilation = to_2tuple(dilation)
 
         if isinstance(padding, str):
-            self.adaptive_padding = AdaptivePadding(kernel_size=kernel_size, stride=stride, dilation=dilation, padding=padding)
+            self.adaptive_padding = AdaptivePadding(
+                kernel_size=kernel_size,
+                stride=stride,
+                dilation=dilation,
+                padding=padding,
+            )
             # disable the padding of unfold
             padding = 0
         else:
@@ -349,8 +374,12 @@ class PatchMerging(BaseModule):
         # if kernel_size=2 and stride=2, x should has shape (B, 4*C, H/2*W/2)
         x = self.sampler(x)
 
-        out_h = (H + 2 * self.sampler.padding[0] - self.sampler.dilation[0] * (self.sampler.kernel_size[0] - 1) - 1) // self.sampler.stride[0] + 1
-        out_w = (W + 2 * self.sampler.padding[1] - self.sampler.dilation[1] * (self.sampler.kernel_size[1] - 1) - 1) // self.sampler.stride[1] + 1
+        out_h = (
+            H + 2 * self.sampler.padding[0] - self.sampler.dilation[0] * (self.sampler.kernel_size[0] - 1) - 1
+        ) // self.sampler.stride[0] + 1
+        out_w = (
+            W + 2 * self.sampler.padding[1] - self.sampler.dilation[1] * (self.sampler.kernel_size[1] - 1) - 1
+        ) // self.sampler.stride[1] + 1
 
         output_size = (out_h, out_w)
         x = x.transpose(1, 2)  # B, H/2*W/2, 4*C
@@ -415,7 +444,18 @@ class MultiheadAttention(BaseModule):
         self.dropout_layer = build_dropout(dropout_layer) if dropout_layer else nn.Identity()
 
     @deprecated_api_warning({"residual": "identity"}, cls_name="MultiheadAttention")
-    def forward(self, query, key=None, value=None, identity=None, query_pos=None, key_pos=None, attn_mask=None, key_padding_mask=None, **kwargs):
+    def forward(
+        self,
+        query,
+        key=None,
+        value=None,
+        identity=None,
+        query_pos=None,
+        key_pos=None,
+        attn_mask=None,
+        key_padding_mask=None,
+        **kwargs,
+    ):
         """Forward function for `MultiheadAttention`.
 
         **kwargs allow passing a more general data flow when combining
@@ -485,7 +525,13 @@ class MultiheadAttention(BaseModule):
             key = key.transpose(0, 1)
             value = value.transpose(0, 1)
 
-        out = self.attn(query=query, key=key, value=value, attn_mask=attn_mask, key_padding_mask=key_padding_mask)[0]
+        out = self.attn(
+            query=query,
+            key=key,
+            value=value,
+            attn_mask=attn_mask,
+            key_padding_mask=key_padding_mask,
+        )[0]
 
         if self.batch_first:
             out = out.transpose(0, 1)
@@ -540,7 +586,13 @@ class FFN(BaseModule):
         layers = []
         in_channels = embed_dims
         for _ in range(num_fcs - 1):
-            layers.append(Sequential(Linear(in_channels, feedforward_channels), build_activation_layer(act_cfg), nn.Dropout(ffn_drop)))
+            layers.append(
+                Sequential(
+                    Linear(in_channels, feedforward_channels),
+                    build_activation_layer(act_cfg),
+                    nn.Dropout(ffn_drop),
+                )
+            )
             in_channels = feedforward_channels
         layers.append(Linear(feedforward_channels, embed_dims))
         layers.append(nn.Dropout(ffn_drop))
@@ -622,7 +674,11 @@ class BaseTransformerLayer(BaseModule):
         batch_first=False,
         **kwargs,
     ):
-        deprecated_args = dict(feedforward_channels="feedforward_channels", ffn_dropout="ffn_drop", ffn_num_fcs="num_fcs")
+        deprecated_args = dict(
+            feedforward_channels="feedforward_channels",
+            ffn_dropout="ffn_drop",
+            ffn_num_fcs="num_fcs",
+        )
         for ori_name, new_name in deprecated_args.items():
             if ori_name in kwargs:
                 warnings.warn(
@@ -692,7 +748,16 @@ class BaseTransformerLayer(BaseModule):
             self.norms.append(build_norm_layer(norm_cfg, self.embed_dims)[1])
 
     def forward(
-        self, query, key=None, value=None, query_pos=None, key_pos=None, attn_masks=None, query_key_padding_mask=None, key_padding_mask=None, **kwargs
+        self,
+        query,
+        key=None,
+        value=None,
+        query_pos=None,
+        key_pos=None,
+        attn_masks=None,
+        query_key_padding_mask=None,
+        key_padding_mask=None,
+        **kwargs,
     ):
         """Forward function for `TransformerDecoderLayer`.
 
@@ -815,7 +880,18 @@ class TransformerLayerSequence(BaseModule):
         self.embed_dims = self.layers[0].embed_dims
         self.pre_norm = self.layers[0].pre_norm
 
-    def forward(self, query, key, value, query_pos=None, key_pos=None, attn_masks=None, query_key_padding_mask=None, key_padding_mask=None, **kwargs):
+    def forward(
+        self,
+        query,
+        key,
+        value,
+        query_pos=None,
+        key_pos=None,
+        attn_masks=None,
+        query_key_padding_mask=None,
+        key_padding_mask=None,
+        **kwargs,
+    ):
         """Forward function for `TransformerCoder`.
 
         Args:

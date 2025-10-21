@@ -8,7 +8,13 @@ test_cfg = {"type": "TestLoop"}
 
 # learning rate
 param_scheduler = [
-    {"type": "LinearLR", "start_factor": 0.001, "by_epoch": False, "begin": 0, "end": 500},
+    {
+        "type": "LinearLR",
+        "start_factor": 0.001,
+        "by_epoch": False,
+        "begin": 0,
+        "end": 500,
+    },
     {
         "type": "MultiStepLR",
         "begin": 0,

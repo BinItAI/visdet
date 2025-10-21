@@ -19,7 +19,11 @@ def _fake_roi_head(with_shared_head=False):
                 "type": "StandardRoIHead",
                 "bbox_roi_extractor": {
                     "type": "SingleRoIExtractor",
-                    "roi_layer": {"type": "RoIAlign", "output_size": 7, "sampling_ratio": 0},
+                    "roi_layer": {
+                        "type": "RoIAlign",
+                        "output_size": 7,
+                        "sampling_ratio": 0,
+                    },
                     "out_channels": 1,
                     "featmap_strides": [4, 8, 16, 32],
                 },
@@ -41,7 +45,11 @@ def _fake_roi_head(with_shared_head=False):
                 },
                 "mask_roi_extractor": {
                     "type": "SingleRoIExtractor",
-                    "roi_layer": {"type": "RoIAlign", "output_size": 14, "sampling_ratio": 0},
+                    "roi_layer": {
+                        "type": "RoIAlign",
+                        "output_size": 14,
+                        "sampling_ratio": 0,
+                    },
                     "out_channels": 1,
                     "featmap_strides": [4, 8, 16, 32],
                 },
@@ -54,7 +62,7 @@ def _fake_roi_head(with_shared_head=False):
                     "loss_mask": {
                         "type": "CrossEntropyLoss",
                         "use_mask": True,
-                        "loss_weight": 1.0
+                        "loss_weight": 1.0,
                     },
                 },
                 "train_cfg": {
@@ -155,5 +163,13 @@ class TestStandardRoIHead(TestCase):
         empty_bbox_loss = out["loss_bbox"]
         empty_mask_loss = out["loss_mask"]
         self.assertGreater(empty_cls_loss.sum(), 0, "cls loss should be non-zero")
-        self.assertEqual(empty_bbox_loss.sum(), 0, "there should be no box loss when there are no true boxes")
-        self.assertEqual(empty_mask_loss.sum(), 0, "there should be no mask loss when there are no true boxes")
+        self.assertEqual(
+            empty_bbox_loss.sum(),
+            0,
+            "there should be no box loss when there are no true boxes",
+        )
+        self.assertEqual(
+            empty_mask_loss.sum(),
+            0,
+            "there should be no mask loss when there are no true boxes",
+        )

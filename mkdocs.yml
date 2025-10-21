@@ -5,7 +5,10 @@ site_url: https://binitai.github.io/visdet/
 
 repo_name: BinItAI/visdet
 repo_url: https://github.com/BinItAI/visdet
-edit_uri: edit/master/docs/
+edit_uri: edit/master/mkdocs_docs/
+
+docs_dir: mkdocs_docs
+site_dir: site
 
 theme:
   name: material
@@ -29,6 +32,7 @@ theme:
   features:
     - navigation.tabs
     - navigation.sections
+    - navigation.expand
     - navigation.top
     - navigation.tracking
     - search.suggest
@@ -50,7 +54,10 @@ plugins:
             show_source: true
             show_root_heading: true
             show_root_full_path: false
+            show_symbol_type_heading: true
+            show_symbol_type_toc: true
             members_order: source
+            heading_level: 2
   - git-revision-date-localized:
       enable_creation_date: true
       type: timeago
@@ -58,19 +65,27 @@ plugins:
 markdown_extensions:
   - pymdownx.highlight:
       anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
   - pymdownx.inlinehilite
   - pymdownx.snippets
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
   - admonition
+  - pymdownx.details
   - pymdownx.arithmatex:
       generic: true
   - footnotes
-  - pymdownx.details
-  - pymdownx.superfences
   - pymdownx.mark
-  - attr_list
   - pymdownx.emoji:
       emoji_index: !!python/name:material.extensions.emoji.twemoji
       emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
 
 nav:
   - Home: index.md
@@ -81,11 +96,22 @@ nav:
       - Training: user-guide/training.md
       - Inference: user-guide/inference.md
       - Configuration: user-guide/configuration.md
+  - Tutorials:
+      - Configuration: tutorials/config.md
+      - Datasets: tutorials/customize_dataset.md
+      - Models: tutorials/customize_models.md
+      - Training: tutorials/training.md
   - API Reference:
       - Overview: api-reference/index.md
+      - Core: api/core.md
+      - Models: api/models.md
+      - Datasets: api/datasets.md
   - Development:
       - Contributing: development/contributing.md
       - Architecture: development/architecture.md
+  - About:
+      - Changelog: about/changelog.md
+      - License: about/license.md
 
 extra:
   social:

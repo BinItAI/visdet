@@ -263,7 +263,12 @@ def interpolate_as(source, target, mode="bilinear", align_corners=False):
         target_h, target_w = target.shape[-2:]
         source_h, source_w = source.shape[-2:]
         if target_h != source_h or target_w != source_w:
-            source = F.interpolate(source, size=(target_h, target_w), mode=mode, align_corners=align_corners)
+            source = F.interpolate(
+                source,
+                size=(target_h, target_w),
+                mode=mode,
+                align_corners=align_corners,
+            )
         return source
 
     if len(source.shape) == 3:
@@ -650,6 +655,7 @@ def samplelist_boxtype2tensor(batch_data_samples: SampleList) -> SampleList:
             if isinstance(bboxes, BaseBoxes):
                 data_samples.ignored_instances.bboxes = bboxes.tensor
 
+
 def floordiv(dividend, divisor, rounding_mode="trunc"):
     return torch.div(dividend, divisor, rounding_mode=rounding_mode)
 
@@ -694,7 +700,11 @@ def _filter_gt_instances_by_size(batch_data_samples: SampleList, wh_thr: tuple) 
     return batch_data_samples
 
 
-def filter_gt_instances(batch_data_samples: SampleList, score_thr: float | None = None, wh_thr: tuple | None = None):
+def filter_gt_instances(
+    batch_data_samples: SampleList,
+    score_thr: float | None = None,
+    wh_thr: tuple | None = None,
+):
     """Filter ground truth (GT) instances by score and/or size.
 
     Args:

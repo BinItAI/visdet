@@ -1,6 +1,6 @@
-
 # Copyright (c) OpenMMLab. All rights reserved.
 import torch
+
 
 def torch_meshgrid(*tensors):
     """A wrapper of torch.meshgrid to compat different PyTorch versions.
@@ -17,4 +17,3 @@ def torch_meshgrid(*tensors):
         Sequence[Tensor]: Sequence of meshgrid tensors.
     """
     return torch.meshgrid(*tensors, indexing="ij")
-

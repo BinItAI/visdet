@@ -1,5 +1,6 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 """pytest tests/test_loss_compatibility.py."""
+
 import copy
 from os.path import dirname, exists, join
 
@@ -16,16 +17,18 @@ def _get_config_directory():
     except NameError:
         # For IPython development when this __file__ is not defined
         import mmdet
+
         repo_dpath = dirname(dirname(mmdet.__file__))
-    config_dpath = join(repo_dpath, 'configs')
+    config_dpath = join(repo_dpath, "configs")
     if not exists(config_dpath):
-        raise Exception('Cannot find config path')
+        raise Exception("Cannot find config path")
     return config_dpath
 
 
 def _get_config_module(fname):
     """Load a configuration as a python module."""
     from mmcv import Config
+
     config_dpath = _get_config_directory()
     config_fpath = join(config_dpath, fname)
     config_mod = Config.fromfile(config_fpath)
@@ -43,18 +46,21 @@ def _get_detector_cfg(fname):
     return model
 
 
-@pytest.mark.parametrize('loss_bbox', [
-    dict(type='L1Loss', loss_weight=1.0),
-    dict(type='GHMR', mu=0.02, bins=10, momentum=0.7, loss_weight=10.0),
-    dict(type='IoULoss', loss_weight=1.0),
-    dict(type='BoundedIoULoss', loss_weight=1.0),
-    dict(type='GIoULoss', loss_weight=1.0),
-    dict(type='DIoULoss', loss_weight=1.0),
-    dict(type='CIoULoss', loss_weight=1.0),
-    dict(type='MSELoss', loss_weight=1.0),
-    dict(type='SmoothL1Loss', loss_weight=1.0),
-    dict(type='BalancedL1Loss', loss_weight=1.0)
-])
+@pytest.mark.parametrize(
+    "loss_bbox",
+    [
+        dict(type="L1Loss", loss_weight=1.0),
+        dict(type="GHMR", mu=0.02, bins=10, momentum=0.7, loss_weight=10.0),
+        dict(type="IoULoss", loss_weight=1.0),
+        dict(type="BoundedIoULoss", loss_weight=1.0),
+        dict(type="GIoULoss", loss_weight=1.0),
+        dict(type="DIoULoss", loss_weight=1.0),
+        dict(type="CIoULoss", loss_weight=1.0),
+        dict(type="MSELoss", loss_weight=1.0),
+        dict(type="SmoothL1Loss", loss_weight=1.0),
+        dict(type="BalancedL1Loss", loss_weight=1.0),
+    ],
+)
 def test_bbox_loss_compatibility(loss_bbox):
     """Test loss_bbox compatibility.
 
@@ -62,20 +68,21 @@ def test_bbox_loss_compatibility(loss_bbox):
     file to verify the compatibility of Loss APIS
     """
     # Faster R-CNN config dict
-    config_path = '_base_/models/faster_rcnn_r50_fpn.py'
+    config_path = "_base_/models/faster_rcnn_r50_fpn.py"
     cfg_model = _get_detector_cfg(config_path)
 
     input_shape = (1, 3, 256, 256)
     mm_inputs = _demo_mm_inputs(input_shape, num_items=[10])
-    imgs = mm_inputs.pop('imgs')
-    img_metas = mm_inputs.pop('img_metas')
+    imgs = mm_inputs.pop("imgs")
+    img_metas = mm_inputs.pop("img_metas")
 
-    if 'IoULoss' in loss_bbox['type']:
+    if "IoULoss" in loss_bbox["type"]:
         cfg_model.roi_head.bbox_head.reg_decoded_bbox = True
 
     cfg_model.roi_head.bbox_head.loss_bbox = loss_bbox
 
     from mmdet.models import build_detector
+
     detector = build_detector(cfg_model)
 
     loss = detector.forward(imgs, img_metas, return_loss=True, **mm_inputs)
@@ -84,17 +91,14 @@ def test_bbox_loss_compatibility(loss_bbox):
     assert float(loss.item()) > 0
 
 
-@pytest.mark.parametrize('loss_cls', [
-    dict(type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0),
-    dict(
-        type='FocalLoss',
-        use_sigmoid=True,
-        gamma=2.0,
-        alpha=0.25,
-        loss_weight=1.0),
-    dict(
-        type='GHMC', bins=30, momentum=0.75, use_sigmoid=True, loss_weight=1.0)
-])
+@pytest.mark.parametrize(
+    "loss_cls",
+    [
+        dict(type="CrossEntropyLoss", use_sigmoid=False, loss_weight=1.0),
+        dict(type="FocalLoss", use_sigmoid=True, gamma=2.0, alpha=0.25, loss_weight=1.0),
+        dict(type="GHMC", bins=30, momentum=0.75, use_sigmoid=True, loss_weight=1.0),
+    ],
+)
 def test_cls_loss_compatibility(loss_cls):
     """Test loss_cls compatibility.
 
@@ -102,19 +106,20 @@ def test_cls_loss_compatibility(loss_cls):
     file to verify the compatibility of Loss APIS
     """
     # Faster R-CNN config dict
-    config_path = '_base_/models/faster_rcnn_r50_fpn.py'
+    config_path = "_base_/models/faster_rcnn_r50_fpn.py"
     cfg_model = _get_detector_cfg(config_path)
 
     input_shape = (1, 3, 256, 256)
     mm_inputs = _demo_mm_inputs(input_shape, num_items=[10])
-    imgs = mm_inputs.pop('imgs')
-    img_metas = mm_inputs.pop('img_metas')
+    imgs = mm_inputs.pop("imgs")
+    img_metas = mm_inputs.pop("img_metas")
 
     # verify class loss function compatibility
     # for loss_cls in loss_clses:
     cfg_model.roi_head.bbox_head.loss_cls = loss_cls
 
     from mmdet.models import build_detector
+
     detector = build_detector(cfg_model)
 
     loss = detector.forward(imgs, img_metas, return_loss=True, **mm_inputs)
@@ -146,15 +151,18 @@ def _demo_mm_inputs(input_shape=(1, 3, 300, 300),
 
     imgs = rng.rand(*input_shape)
 
-    img_metas = [{
-        'img_shape': (H, W, C),
-        'ori_shape': (H, W, C),
-        'pad_shape': (H, W, C),
-        'filename': '<demo>.png',
-        'scale_factor': np.array([1.1, 1.2, 1.1, 1.2]),
-        'flip': False,
-        'flip_direction': None,
-    } for _ in range(N)]
+    img_metas = [
+        {
+            "img_shape": (H, W, C),
+            "ori_shape": (H, W, C),
+            "pad_shape": (H, W, C),
+            "filename": "<demo>.png",
+            "scale_factor": np.array([1.1, 1.2, 1.1, 1.2]),
+            "flip": False,
+            "flip_direction": None,
+        }
+        for _ in range(N)
+    ]
 
     gt_bboxes = []
     gt_labels = []
@@ -183,19 +191,17 @@ def _demo_mm_inputs(input_shape=(1, 3, 300, 300),
     gt_masks.append(BitmapMasks(mask, H, W))
 
     mm_inputs = {
-        'imgs': torch.FloatTensor(imgs).requires_grad_(True),
-        'img_metas': img_metas,
-        'gt_bboxes': gt_bboxes,
-        'gt_labels': gt_labels,
-        'gt_bboxes_ignore': None,
-        'gt_masks': gt_masks,
+        "imgs": torch.FloatTensor(imgs).requires_grad_(True),
+        "img_metas": img_metas,
+        "gt_bboxes": gt_bboxes,
+        "gt_labels": gt_labels,
+        "gt_bboxes_ignore": None,
+        "gt_masks": gt_masks,
     }
 
     if with_semantic:
         # assume gt_semantic_seg using scale 1/8 of the img
-        gt_semantic_seg = np.random.randint(
-            0, num_classes, (1, 1, H // 8, W // 8), dtype=np.uint8)
-        mm_inputs.update(
-            {'gt_semantic_seg': torch.ByteTensor(gt_semantic_seg)})
+        gt_semantic_seg = np.random.randint(0, num_classes, (1, 1, H // 8, W // 8), dtype=np.uint8)
+        mm_inputs.update({"gt_semantic_seg": torch.ByteTensor(gt_semantic_seg)})
 
     return mm_inputs

@@ -10,15 +10,17 @@ class SOLOv2(SingleStageInstanceSegmentor):
 
     """
 
-    def __init__(self,
-                 backbone,
-                 neck=None,
-                 bbox_head=None,
-                 mask_head=None,
-                 train_cfg=None,
-                 test_cfg=None,
-                 init_cfg=None,
-                 pretrained=None):
+    def __init__(
+        self,
+        backbone,
+        neck=None,
+        bbox_head=None,
+        mask_head=None,
+        train_cfg=None,
+        test_cfg=None,
+        init_cfg=None,
+        pretrained=None,
+    ):
         super().__init__(
             backbone=backbone,
             neck=neck,
@@ -27,4 +29,5 @@ class SOLOv2(SingleStageInstanceSegmentor):
             train_cfg=train_cfg,
             test_cfg=test_cfg,
             init_cfg=init_cfg,
-            pretrained=pretrained)
+            pretrained=pretrained,
+        )

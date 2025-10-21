@@ -1,12 +1,13 @@
-from collections import OrderedDict, defaultdict
 import sys
+from collections import OrderedDict, defaultdict
+
+import cv2
 import numpy as np
 import torch
-
-from visengine.version import __version__ as visengine_version
-from visengine.device import is_cuda_available
 import torchvision
-import cv2
+
+from visengine.device import is_cuda_available
+from visengine.version import __version__ as visengine_version
 
 
 def collect_env():
@@ -30,7 +31,6 @@ def collect_env():
             - OpenCV (optional): OpenCV version.
             - MMENGINE: MMENGINE version.
     """
-
 
     env_info = OrderedDict()
     env_info["sys.platform"] = sys.platform

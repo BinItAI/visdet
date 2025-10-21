@@ -140,7 +140,9 @@ class ManagerMixin(metaclass=ManagerMeta):
         """
         _accquire_lock()
         if not cls._instance_dict:
-            raise RuntimeError(f"Before calling {cls.__name__}.get_current_instance(), you should call get_instance(name=xxx) at least once.")
+            raise RuntimeError(
+                f"Before calling {cls.__name__}.get_current_instance(), you should call get_instance(name=xxx) at least once."
+            )
         name = next(iter(reversed(cls._instance_dict)))
         _release_lock()
         return cls._instance_dict[name]

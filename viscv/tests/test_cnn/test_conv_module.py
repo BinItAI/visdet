@@ -11,7 +11,18 @@ from visengine.registry import MODELS
 
 @MODELS.register_module()
 class ExampleConv(nn.Module):
-    def __init__(self, in_channels, out_channels, kernel_size, stride=1, padding=0, dilation=1, groups=1, bias=True, norm_cfg=None):
+    def __init__(
+        self,
+        in_channels,
+        out_channels,
+        kernel_size,
+        stride=1,
+        padding=0,
+        dilation=1,
+        groups=1,
+        bias=True,
+        norm_cfg=None,
+    ):
         super().__init__()
         self.in_channels = in_channels
         self.out_channels = out_channels
@@ -65,7 +76,11 @@ def test_conv_module():
     # conv + norm with efficient mode
     efficient_conv = ConvModule(3, 8, 2, norm_cfg=dict(type="BN"), efficient_conv_bn_eval=True).eval()
     plain_conv = ConvModule(3, 8, 2, norm_cfg=dict(type="BN"), efficient_conv_bn_eval=False).eval()
-    for efficient_param, plain_param in zip(efficient_conv.state_dict().values(), plain_conv.state_dict().values(), strict=False):
+    for efficient_param, plain_param in zip(
+        efficient_conv.state_dict().values(),
+        plain_conv.state_dict().values(),
+        strict=False,
+    ):
         plain_param.copy_(efficient_param)
 
     efficient_mode_output = efficient_conv(x)

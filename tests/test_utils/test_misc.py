@@ -8,8 +8,13 @@ import torch
 
 from mmdet.core.bbox import distance2bbox
 from mmdet.core.mask.structures import BitmapMasks, PolygonMasks
-from mmdet.core.utils import (center_of_mass, filter_scores_and_topk,
-                              flip_tensor, mask2ndarray, select_single_mlvl)
+from mmdet.core.utils import (
+    center_of_mass,
+    filter_scores_and_topk,
+    flip_tensor,
+    mask2ndarray,
+    select_single_mlvl,
+)
 from mmdet.utils import find_latest_checkpoint
 
 
@@ -55,14 +60,24 @@ def test_mask2ndarray():
 
 
 def test_distance2bbox():
-    point = torch.Tensor([[74., 61.], [-29., 106.], [138., 61.], [29., 170.]])
+    point = torch.Tensor([[74.0, 61.0], [-29.0, 106.0], [138.0, 61.0], [29.0, 170.0]])
 
-    distance = torch.Tensor([[0., 0, 1., 1.], [1., 2., 10., 6.],
-                             [22., -29., 138., 61.], [54., -29., 170., 61.]])
-    expected_decode_bboxes = torch.Tensor([[74., 61., 75., 62.],
-                                           [0., 104., 0., 112.],
-                                           [100., 90., 100., 120.],
-                                           [0., 120., 100., 120.]])
+    distance = torch.Tensor(
+        [
+            [0.0, 0, 1.0, 1.0],
+            [1.0, 2.0, 10.0, 6.0],
+            [22.0, -29.0, 138.0, 61.0],
+            [54.0, -29.0, 170.0, 61.0],
+        ]
+    )
+    expected_decode_bboxes = torch.Tensor(
+        [
+            [74.0, 61.0, 75.0, 62.0],
+            [0.0, 104.0, 0.0, 112.0],
+            [100.0, 90.0, 100.0, 120.0],
+            [0.0, 120.0, 100.0, 120.0],
+        ]
+    )
     out_bbox = distance2bbox(point, distance, max_shape=(120, 100))
     assert expected_decode_bboxes.allclose(out_bbox)
     out = distance2bbox(point, distance, max_shape=torch.Tensor((120, 100)))
@@ -70,11 +85,9 @@ def test_distance2bbox():
 
     batch_point = point.unsqueeze(0).repeat(2, 1, 1)
     batch_distance = distance.unsqueeze(0).repeat(2, 1, 1)
-    batch_out = distance2bbox(
-        batch_point, batch_distance, max_shape=(120, 100))[0]
+    batch_out = distance2bbox(batch_point, batch_distance, max_shape=(120, 100))[0]
     assert out.allclose(batch_out)
-    batch_out = distance2bbox(
-        batch_point, batch_distance, max_shape=[(120, 100), (120, 100)])[0]
+    batch_out = distance2bbox(batch_point, batch_distance, max_shape=[(120, 100), (120, 100)])[0]
     assert out.allclose(batch_out)
 
     batch_out = distance2bbox(point, batch_distance, max_shape=(120, 100))[0]
@@ -82,10 +95,7 @@ def test_distance2bbox():
 
     # test max_shape is not equal to batch
     with pytest.raises(AssertionError):
-        distance2bbox(
-            batch_point,
-            batch_distance,
-            max_shape=[(120, 100), (120, 100), (32, 32)])
+        distance2bbox(batch_point, batch_distance, max_shape=[(120, 100), (120, 100), (32, 32)])
 
     rois = torch.zeros((0, 4))
     deltas = torch.zeros((0, 4))
@@ -98,21 +108,22 @@ def test_distance2bbox():
     assert rois.shape == out.shape
 
 
-@pytest.mark.parametrize('mask', [
-    torch.ones((28, 28)),
-    torch.zeros((28, 28)),
-    torch.rand(28, 28) > 0.5,
-    torch.tensor([[0, 0, 0, 0], [0, 1, 1, 0], [0, 1, 1, 0], [0, 0, 0, 0]])
-])
+@pytest.mark.parametrize(
+    "mask",
+    [
+        torch.ones((28, 28)),
+        torch.zeros((28, 28)),
+        torch.rand(28, 28) > 0.5,
+        torch.tensor([[0, 0, 0, 0], [0, 1, 1, 0], [0, 1, 1, 0], [0, 0, 0, 0]]),
+    ],
+)
 def test_center_of_mass(mask):
     center_h, center_w = center_of_mass(mask)
     if mask.shape[0] == 4:
         assert center_h == 1.5
         assert center_w == 1.5
-    assert isinstance(center_h, torch.Tensor) \
-           and isinstance(center_w, torch.Tensor)
-    assert 0 <= center_h <= 28 \
-           and 0 <= center_w <= 28
+    assert isinstance(center_h, torch.Tensor) and isinstance(center_w, torch.Tensor)
+    assert 0 <= center_h <= 28 and 0 <= center_w <= 28
 
 
 def test_flip_tensor():
@@ -121,21 +132,21 @@ def test_flip_tensor():
 
     # test flip_direction parameter error
     with pytest.raises(AssertionError):
-        flip_tensor(src_tensor, 'flip')
+        flip_tensor(src_tensor, "flip")
 
     # test tensor dimension
     with pytest.raises(AssertionError):
-        flip_tensor(src_tensor[0], 'vertical')
+        flip_tensor(src_tensor[0], "vertical")
 
-    hfilp_tensor = flip_tensor(src_tensor, 'horizontal')
+    hfilp_tensor = flip_tensor(src_tensor, "horizontal")
     expected_hflip_tensor = torch.from_numpy(img[..., ::-1, :].copy())
     expected_hflip_tensor.allclose(hfilp_tensor)
 
-    vfilp_tensor = flip_tensor(src_tensor, 'vertical')
+    vfilp_tensor = flip_tensor(src_tensor, "vertical")
     expected_vflip_tensor = torch.from_numpy(img[..., ::-1].copy())
     expected_vflip_tensor.allclose(vfilp_tensor)
 
-    diag_filp_tensor = flip_tensor(src_tensor, 'diagonal')
+    diag_filp_tensor = flip_tensor(src_tensor, "diagonal")
     expected_diag_filp_tensor = torch.from_numpy(img[..., ::-1, ::-1].copy())
     expected_diag_filp_tensor.allclose(diag_filp_tensor)
 
@@ -147,23 +158,20 @@ def test_select_single_mlvl():
 
 
 def test_filter_scores_and_topk():
-    score = torch.tensor([[0.1, 0.3, 0.2], [0.12, 0.7, 0.9], [0.02, 0.8, 0.08],
-                          [0.4, 0.1, 0.08]])
+    score = torch.tensor([[0.1, 0.3, 0.2], [0.12, 0.7, 0.9], [0.02, 0.8, 0.08], [0.4, 0.1, 0.08]])
     bbox_pred = torch.tensor([[0.2, 0.3], [0.4, 0.7], [0.1, 0.1], [0.5, 0.1]])
     score_thr = 0.15
     nms_pre = 4
     # test results type error
     with pytest.raises(NotImplementedError):
-        filter_scores_and_topk(score, score_thr, nms_pre, (score, ))
+        filter_scores_and_topk(score, score_thr, nms_pre, (score,))
 
-    filtered_results = filter_scores_and_topk(
-        score, score_thr, nms_pre, results=dict(bbox_pred=bbox_pred))
+    filtered_results = filter_scores_and_topk(score, score_thr, nms_pre, results=dict(bbox_pred=bbox_pred))
     filtered_score, labels, keep_idxs, results = filtered_results
     assert filtered_score.allclose(torch.tensor([0.9, 0.8, 0.7, 0.4]))
     assert labels.allclose(torch.tensor([2, 1, 1, 0]))
     assert keep_idxs.allclose(torch.tensor([1, 2, 1, 3]))
-    assert results['bbox_pred'].allclose(
-        torch.tensor([[0.4, 0.7], [0.1, 0.1], [0.4, 0.7], [0.5, 0.1]]))
+    assert results["bbox_pred"].allclose(torch.tensor([[0.4, 0.7], [0.1, 0.1], [0.4, 0.7], [0.5, 0.1]]))
 
 
 def test_find_latest_checkpoint():
@@ -173,32 +181,32 @@ def test_find_latest_checkpoint():
         # There are no checkpoints in the path.
         assert latest is None
 
-        path = osp.join(tmpdir, 'none')
+        path = osp.join(tmpdir, "none")
         latest = find_latest_checkpoint(path)
         # The path does not exist.
         assert latest is None
 
     with tempfile.TemporaryDirectory() as tmpdir:
-        with open(osp.join(tmpdir, 'latest.pth'), 'w') as f:
-            f.write('latest')
+        with open(osp.join(tmpdir, "latest.pth"), "w") as f:
+            f.write("latest")
         path = tmpdir
         latest = find_latest_checkpoint(path)
-        assert latest == osp.join(tmpdir, 'latest.pth')
+        assert latest == osp.join(tmpdir, "latest.pth")
 
     with tempfile.TemporaryDirectory() as tmpdir:
-        with open(osp.join(tmpdir, 'iter_4000.pth'), 'w') as f:
-            f.write('iter_4000')
-        with open(osp.join(tmpdir, 'iter_8000.pth'), 'w') as f:
-            f.write('iter_8000')
+        with open(osp.join(tmpdir, "iter_4000.pth"), "w") as f:
+            f.write("iter_4000")
+        with open(osp.join(tmpdir, "iter_8000.pth"), "w") as f:
+            f.write("iter_8000")
         path = tmpdir
         latest = find_latest_checkpoint(path)
-        assert latest == osp.join(tmpdir, 'iter_8000.pth')
+        assert latest == osp.join(tmpdir, "iter_8000.pth")
 
     with tempfile.TemporaryDirectory() as tmpdir:
-        with open(osp.join(tmpdir, 'epoch_1.pth'), 'w') as f:
-            f.write('epoch_1')
-        with open(osp.join(tmpdir, 'epoch_2.pth'), 'w') as f:
-            f.write('epoch_2')
+        with open(osp.join(tmpdir, "epoch_1.pth"), "w") as f:
+            f.write("epoch_1")
+        with open(osp.join(tmpdir, "epoch_2.pth"), "w") as f:
+            f.write("epoch_2")
         path = tmpdir
         latest = find_latest_checkpoint(path)
-        assert latest == osp.join(tmpdir, 'epoch_2.pth')
+        assert latest == osp.join(tmpdir, "epoch_2.pth")

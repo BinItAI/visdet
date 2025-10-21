@@ -1,6 +1,7 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 from mmdet.models.builder import HEADS
 from mmdet.models.utils import ResLayer, SimplifiedBasicBlock
+
 from .fused_semantic_head import FusedSemanticHead
 
 
@@ -24,5 +25,6 @@ class SCNetSemanticHead(FusedSemanticHead):
                 self.conv_out_channels,
                 num_res_blocks,
                 conv_cfg=self.conv_cfg,
-                norm_cfg=self.norm_cfg)
+                norm_cfg=self.norm_cfg,
+            )
             self.num_convs = num_res_blocks

@@ -25,21 +25,17 @@ def split_batch(img, img_metas, kwargs):
 
     # only stack img in the batch
     def fuse_list(obj_list, obj):
-        return torch.stack(obj_list) if isinstance(obj,
-                                                   torch.Tensor) else obj_list
+        return torch.stack(obj_list) if isinstance(obj, torch.Tensor) else obj_list
 
     # select data with tag from data_batch
     def select_group(data_batch, current_tag):
-        group_flag = [tag == current_tag for tag in data_batch['tag']]
-        return {
-            k: fuse_list([vv for vv, gf in zip(v, group_flag) if gf], v)
-            for k, v in data_batch.items()
-        }
+        group_flag = [tag == current_tag for tag in data_batch["tag"]]
+        return {k: fuse_list([vv for vv, gf in zip(v, group_flag) if gf], v) for k, v in data_batch.items()}
 
-    kwargs.update({'img': img, 'img_metas': img_metas})
-    kwargs.update({'tag': [meta['tag'] for meta in img_metas]})
-    tags = list(set(kwargs['tag']))
+    kwargs.update({"img": img, "img_metas": img_metas})
+    kwargs.update({"tag": [meta["tag"] for meta in img_metas]})
+    tags = list(set(kwargs["tag"]))
     data_groups = {tag: select_group(kwargs, tag) for tag in tags}
     for tag, group in data_groups.items():
-        group.pop('tag')
+        group.pop("tag")
     return data_groups

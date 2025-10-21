@@ -8,30 +8,30 @@ from .anchor_head import AnchorHead
 
 @HEADS.register_module()
 class RetinaSepBNHead(AnchorHead):
-    """"RetinaHead with separate BN.
+    """ "RetinaHead with separate BN.
 
     In RetinaHead, conv/norm layers are shared across different FPN levels,
     while in RetinaSepBNHead, conv layers are shared across different FPN
     levels, but BN layers are separated.
     """
 
-    def __init__(self,
-                 num_classes,
-                 num_ins,
-                 in_channels,
-                 stacked_convs=4,
-                 conv_cfg=None,
-                 norm_cfg=None,
-                 init_cfg=None,
-                 **kwargs):
-        assert init_cfg is None, 'To prevent abnormal initialization ' \
-                                 'behavior, init_cfg is not allowed to be set'
+    def __init__(
+        self,
+        num_classes,
+        num_ins,
+        in_channels,
+        stacked_convs=4,
+        conv_cfg=None,
+        norm_cfg=None,
+        init_cfg=None,
+        **kwargs,
+    ):
+        assert init_cfg is None, "To prevent abnormal initialization behavior, init_cfg is not allowed to be set"
         self.stacked_convs = stacked_convs
         self.conv_cfg = conv_cfg
         self.norm_cfg = norm_cfg
         self.num_ins = num_ins
-        super(RetinaSepBNHead, self).__init__(
-            num_classes, in_channels, init_cfg=init_cfg, **kwargs)
+        super(RetinaSepBNHead, self).__init__(num_classes, in_channels, init_cfg=init_cfg, **kwargs)
 
     def _init_layers(self):
         """Initialize layers of the head."""
@@ -51,7 +51,9 @@ class RetinaSepBNHead(AnchorHead):
                         stride=1,
                         padding=1,
                         conv_cfg=self.conv_cfg,
-                        norm_cfg=self.norm_cfg))
+                        norm_cfg=self.norm_cfg,
+                    )
+                )
                 reg_convs.append(
                     ConvModule(
                         chn,
@@ -60,7 +62,9 @@ class RetinaSepBNHead(AnchorHead):
                         stride=1,
                         padding=1,
                         conv_cfg=self.conv_cfg,
-                        norm_cfg=self.norm_cfg))
+                        norm_cfg=self.norm_cfg,
+                    )
+                )
             self.cls_convs.append(cls_convs)
             self.reg_convs.append(reg_convs)
         for i in range(self.stacked_convs):
@@ -71,9 +75,9 @@ class RetinaSepBNHead(AnchorHead):
             self.feat_channels,
             self.num_base_priors * self.cls_out_channels,
             3,
-            padding=1)
-        self.retina_reg = nn.Conv2d(
-            self.feat_channels, self.num_base_priors * 4, 3, padding=1)
+            padding=1,
+        )
+        self.retina_reg = nn.Conv2d(self.feat_channels, self.num_base_priors * 4, 3, padding=1)
 
     def init_weights(self):
         """Initialize weights of the head."""

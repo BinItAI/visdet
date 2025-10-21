@@ -8,17 +8,17 @@ from .single_stage import SingleStageDetector
 
 @DETECTORS.register_module()
 class YOLOV3(SingleStageDetector):
-
-    def __init__(self,
-                 backbone,
-                 neck,
-                 bbox_head,
-                 train_cfg=None,
-                 test_cfg=None,
-                 pretrained=None,
-                 init_cfg=None):
-        super(YOLOV3, self).__init__(backbone, neck, bbox_head, train_cfg,
-                                     test_cfg, pretrained, init_cfg)
+    def __init__(
+        self,
+        backbone,
+        neck,
+        bbox_head,
+        train_cfg=None,
+        test_cfg=None,
+        pretrained=None,
+        init_cfg=None,
+    ):
+        super(YOLOV3, self).__init__(backbone, neck, bbox_head, train_cfg, test_cfg, pretrained, init_cfg)
 
     def onnx_export(self, img, img_metas):
         """Test function for exporting to ONNX, without test time augmentation.
@@ -35,7 +35,7 @@ class YOLOV3(SingleStageDetector):
         outs = self.bbox_head.forward(x)
         # get shape as tensor
         img_shape = torch._shape_as_tensor(img)[2:]
-        img_metas[0]['img_shape_for_onnx'] = img_shape
+        img_metas[0]["img_shape_for_onnx"] = img_shape
 
         det_bboxes, det_labels = self.bbox_head.onnx_export(*outs, img_metas)
 

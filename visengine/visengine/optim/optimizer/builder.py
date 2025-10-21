@@ -5,7 +5,6 @@ import torch
 import torch.nn as nn
 
 from visengine.config import Config, ConfigDict
-from visengine.device import is_cuda_available
 from visengine.registry import OPTIM_WRAPPER_CONSTRUCTORS, OPTIMIZERS
 
 from .optimizer_wrapper import OptimWrapper
@@ -124,10 +123,11 @@ def register_bitsandbytes_optimizers() -> list[str]:
     """
     dadaptation_optimizers = []
     import bitsandbytes as bnb
+
     optim_classes = inspect.getmembers(
-            bnb.optim,
-            lambda _optim: (inspect.isclass(_optim) and issubclass(_optim, torch.optim.Optimizer)),
-        )
+        bnb.optim,
+        lambda _optim: (inspect.isclass(_optim) and issubclass(_optim, torch.optim.Optimizer)),
+    )
     for name, optim_cls in optim_classes:
         if name in OPTIMIZERS:
             name = f"bnb_{name}"

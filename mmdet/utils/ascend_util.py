@@ -46,10 +46,7 @@ def batch_images_to_levels(target, num_levels):
     return level_targets
 
 
-def get_max_num_gt_division_factor(gt_nums,
-                                   min_num_gt=32,
-                                   max_num_gt=1024,
-                                   division_factor=2):
+def get_max_num_gt_division_factor(gt_nums, min_num_gt=32, max_num_gt=1024, division_factor=2):
     """Count max num of gt.
 
     Args:

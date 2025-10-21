@@ -5,13 +5,15 @@ from mmcv.ops.nms import batched_nms
 from mmdet.core.bbox.iou_calculators import bbox_overlaps
 
 
-def multiclass_nms(multi_bboxes,
-                   multi_scores,
-                   score_thr,
-                   nms_cfg,
-                   max_num=-1,
-                   score_factors=None,
-                   return_inds=False):
+def multiclass_nms(
+    multi_bboxes,
+    multi_scores,
+    score_thr,
+    nms_cfg,
+    max_num=-1,
+    score_factors=None,
+    return_inds=False,
+):
     """NMS for multi-class bboxes.
 
     Args:
@@ -37,8 +39,7 @@ def multiclass_nms(multi_bboxes,
     if multi_bboxes.shape[1] > 4:
         bboxes = multi_bboxes.view(multi_scores.size(0), -1, 4)
     else:
-        bboxes = multi_bboxes[:, None].expand(
-            multi_scores.size(0), num_classes, 4)
+        bboxes = multi_bboxes[:, None].expand(multi_scores.size(0), num_classes, 4)
 
     scores = multi_scores[:, :-1]
 
@@ -57,8 +58,7 @@ def multiclass_nms(multi_bboxes,
     # mAP by 1% for YOLOv3
     if score_factors is not None:
         # expand the shape to match original shape of score
-        score_factors = score_factors.view(-1, 1).expand(
-            multi_scores.size(0), num_classes)
+        score_factors = score_factors.view(-1, 1).expand(multi_scores.size(0), num_classes)
         score_factors = score_factors.reshape(-1)
         scores = scores * score_factors
 
@@ -75,8 +75,7 @@ def multiclass_nms(multi_bboxes,
 
     if bboxes.numel() == 0:
         if torch.onnx.is_in_onnx_export():
-            raise RuntimeError('[ONNX Error] Can not record NMS '
-                               'as it has not been executed this time')
+            raise RuntimeError("[ONNX Error] Can not record NMS as it has not been executed this time")
         dets = torch.cat([bboxes, scores[:, None]], -1)
         if return_inds:
             return dets, labels, inds
@@ -95,13 +94,7 @@ def multiclass_nms(multi_bboxes,
         return dets, labels[keep]
 
 
-def fast_nms(multi_bboxes,
-             multi_scores,
-             multi_coeffs,
-             score_thr,
-             iou_thr,
-             top_k,
-             max_num=-1):
+def fast_nms(multi_bboxes, multi_scores, multi_coeffs, score_thr, iou_thr, top_k, max_num=-1):
     """Fast NMS in `YOLACT <https://arxiv.org/abs/1904.02689>`_.
 
     Fast NMS allows already-removed detections to suppress other detections so
@@ -149,8 +142,7 @@ def fast_nms(multi_bboxes,
     keep *= scores > score_thr
 
     # Assign each kept detection to its corresponding class
-    classes = torch.arange(
-        num_classes, device=boxes.device)[:, None].expand_as(keep)
+    classes = torch.arange(num_classes, device=boxes.device)[:, None].expand_as(keep)
     classes = classes[keep]
 
     boxes = boxes[keep]

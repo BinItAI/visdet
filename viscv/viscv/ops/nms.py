@@ -5,7 +5,13 @@ from torch import Tensor
 from torchvision.ops import nms as torch_nms
 
 
-def batched_nms(boxes: Tensor, scores: Tensor, idxs: Tensor, nms_cfg: dict | None, class_agnostic: bool = False) -> tuple[Tensor, Tensor]:
+def batched_nms(
+    boxes: Tensor,
+    scores: Tensor,
+    idxs: Tensor,
+    nms_cfg: dict | None,
+    class_agnostic: bool = False,
+) -> tuple[Tensor, Tensor]:
     r"""Performs non-maximum suppression in a batched fashion.
 
     Modified from `torchvision/ops/boxes.py#L39
@@ -128,7 +134,14 @@ def batched_nms(boxes: Tensor, scores: Tensor, idxs: Tensor, nms_cfg: dict | Non
     return boxes, keep
 
 
-def nms(boxes: Tensor, scores: Tensor, iou_threshold: float, offset: int = 0, score_threshold: float = 0, max_num: int = -1) -> tuple[Tensor, Tensor]:
+def nms(
+    boxes: Tensor,
+    scores: Tensor,
+    iou_threshold: float,
+    offset: int = 0,
+    score_threshold: float = 0,
+    max_num: int = -1,
+) -> tuple[Tensor, Tensor]:
     """Dispatch to torchvision NMS implementation.
 
     The input can be either torch tensor. This implementation uses

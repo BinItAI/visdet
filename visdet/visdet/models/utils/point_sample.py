@@ -74,7 +74,13 @@ def get_uncertain_point_coords_with_randomness(
     point_coords_normalized = point_coords_normalized.unsqueeze(1)  # (N, 1, num_points, 2)
     # Sample from mask_preds using bilinear interpolation
     # mask_preds shape: (N, C, H, W), where C is num_classes
-    point_logits = F.grid_sample(mask_preds, point_coords_normalized, mode="bilinear", padding_mode="border", align_corners=False)
+    point_logits = F.grid_sample(
+        mask_preds,
+        point_coords_normalized,
+        mode="bilinear",
+        padding_mode="border",
+        align_corners=False,
+    )
     # Reshape to (N, C, num_points)
     point_logits = point_logits.squeeze(2)  # Remove H dimension
     # Transpose to (N, num_points, C) to match expected output

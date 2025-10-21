@@ -22,33 +22,28 @@ class KnowledgeDistillationSingleStageDetector(SingleStageDetector):
             If left as None, the model will not load any weights.
     """
 
-    def __init__(self,
-                 backbone,
-                 neck,
-                 bbox_head,
-                 teacher_config,
-                 teacher_ckpt=None,
-                 eval_teacher=True,
-                 train_cfg=None,
-                 test_cfg=None,
-                 pretrained=None):
-        super().__init__(backbone, neck, bbox_head, train_cfg, test_cfg,
-                         pretrained)
+    def __init__(
+        self,
+        backbone,
+        neck,
+        bbox_head,
+        teacher_config,
+        teacher_ckpt=None,
+        eval_teacher=True,
+        train_cfg=None,
+        test_cfg=None,
+        pretrained=None,
+    ):
+        super().__init__(backbone, neck, bbox_head, train_cfg, test_cfg, pretrained)
         self.eval_teacher = eval_teacher
         # Build teacher model
         if isinstance(teacher_config, (str, Path)):
             teacher_config = mmcv.Config.fromfile(teacher_config)
-        self.teacher_model = build_detector(teacher_config['model'])
+        self.teacher_model = build_detector(teacher_config["model"])
         if teacher_ckpt is not None:
-            load_checkpoint(
-                self.teacher_model, teacher_ckpt, map_location='cpu')
+            load_checkpoint(self.teacher_model, teacher_ckpt, map_location="cpu")
 
-    def forward_train(self,
-                      img,
-                      img_metas,
-                      gt_bboxes,
-                      gt_labels,
-                      gt_bboxes_ignore=None):
+    def forward_train(self, img, img_metas, gt_bboxes, gt_labels, gt_bboxes_ignore=None):
         """
         Args:
             img (Tensor): Input images of shape (N, C, H, W).
@@ -70,9 +65,7 @@ class KnowledgeDistillationSingleStageDetector(SingleStageDetector):
         with torch.no_grad():
             teacher_x = self.teacher_model.extract_feat(img)
             out_teacher = self.teacher_model.bbox_head(teacher_x)
-        losses = self.bbox_head.forward_train(x, out_teacher, img_metas,
-                                              gt_bboxes, gt_labels,
-                                              gt_bboxes_ignore)
+        losses = self.bbox_head.forward_train(x, out_teacher, img_metas, gt_bboxes, gt_labels, gt_bboxes_ignore)
         return losses
 
     def cuda(self, device=None):
@@ -97,7 +90,7 @@ class KnowledgeDistillationSingleStageDetector(SingleStageDetector):
         the teacher parameters will not show up when calling
         ``self.parameters``, ``self.modules``, ``self.children`` methods.
         """
-        if name == 'teacher_model':
+        if name == "teacher_model":
             object.__setattr__(self, name, value)
         else:
             super().__setattr__(name, value)

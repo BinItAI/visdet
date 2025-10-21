@@ -14,16 +14,16 @@ class MMdetHandler(BaseHandler):
 
     def initialize(self, context):
         properties = context.system_properties
-        self.map_location = 'cuda' if torch.cuda.is_available() else 'cpu'
-        self.device = torch.device(self.map_location + ':' +
-                                   str(properties.get('gpu_id')) if torch.cuda.
-                                   is_available() else self.map_location)
+        self.map_location = "cuda" if torch.cuda.is_available() else "cpu"
+        self.device = torch.device(
+            self.map_location + ":" + str(properties.get("gpu_id")) if torch.cuda.is_available() else self.map_location
+        )
         self.manifest = context.manifest
 
-        model_dir = properties.get('model_dir')
-        serialized_file = self.manifest['model']['serializedFile']
+        model_dir = properties.get("model_dir")
+        serialized_file = self.manifest["model"]["serializedFile"]
         checkpoint = os.path.join(model_dir, serialized_file)
-        self.config_file = os.path.join(model_dir, 'config.py')
+        self.config_file = os.path.join(model_dir, "config.py")
 
         self.model = init_detector(self.config_file, checkpoint, self.device)
         self.initialized = True
@@ -32,7 +32,7 @@ class MMdetHandler(BaseHandler):
         images = []
 
         for row in data:
-            image = row.get('data') or row.get('body')
+            image = row.get("data") or row.get("body")
             if isinstance(image, str):
                 image = base64.b64decode(image)
             image = mmcv.imfrombytes(image)
@@ -62,10 +62,12 @@ class MMdetHandler(BaseHandler):
                     bbox_coords = bbox[:-1].tolist()
                     score = float(bbox[-1])
                     if score >= self.threshold:
-                        output[image_index].append({
-                            'class_name': class_name,
-                            'bbox': bbox_coords,
-                            'score': score
-                        })
+                        output[image_index].append(
+                            {
+                                "class_name": class_name,
+                                "bbox": bbox_coords,
+                                "score": score,
+                            }
+                        )
 
         return output

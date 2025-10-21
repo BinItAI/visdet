@@ -434,7 +434,9 @@ class BaseDataset(Dataset):
         # `self.root=None` or relative path if `self.root=/path/to/data/`.
         annotations = load(self.ann_file)
         if not isinstance(annotations, dict):
-            raise TypeError(f"The annotations loaded from annotation file should be a dict, but got {type(annotations)}!")
+            raise TypeError(
+                f"The annotations loaded from annotation file should be a dict, but got {type(annotations)}!"
+            )
         if "data_list" not in annotations or "metainfo" not in annotations:
             raise ValueError("Annotation must have data_list and metainfo keys")
         metainfo = annotations["metainfo"]

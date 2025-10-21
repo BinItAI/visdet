@@ -1,7 +1,6 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 from mmcv.runner.hooks import HOOKS
-from mmcv.runner.hooks.lr_updater import (CosineAnnealingLrUpdaterHook,
-                                          annealing_cos)
+from mmcv.runner.hooks.lr_updater import CosineAnnealingLrUpdaterHook, annealing_cos
 
 
 @HOOKS.register_module()
@@ -25,11 +24,9 @@ class YOLOXLrUpdaterHook(CosineAnnealingLrUpdaterHook):
         super(YOLOXLrUpdaterHook, self).__init__(**kwargs)
 
     def get_warmup_lr(self, cur_iters):
-
         def _get_warmup_lr(cur_iters, regular_lr):
             # exp warmup scheme
-            k = self.warmup_ratio * pow(
-                (cur_iters + 1) / float(self.warmup_iters), 2)
+            k = self.warmup_ratio * pow((cur_iters + 1) / float(self.warmup_iters), 2)
             warmup_lr = [_lr * k for _lr in regular_lr]
             return warmup_lr
 
@@ -63,5 +60,7 @@ class YOLOXLrUpdaterHook(CosineAnnealingLrUpdaterHook):
             return target_lr
         else:
             return annealing_cos(
-                base_lr, target_lr, (progress - self.warmup_iters) /
-                (max_progress - self.warmup_iters - last_iter))
+                base_lr,
+                target_lr,
+                (progress - self.warmup_iters) / (max_progress - self.warmup_iters - last_iter),
+            )

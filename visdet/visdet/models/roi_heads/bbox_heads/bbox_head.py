@@ -32,7 +32,10 @@ class BBoxHead(BaseModule):
         in_channels: int = 256,
         num_classes: int = 80,
         bbox_coder: ConfigType = dict(
-            type="DeltaXYWHBBoxCoder", clip_border=True, target_means=[0.0, 0.0, 0.0, 0.0], target_stds=[0.1, 0.1, 0.2, 0.2]
+            type="DeltaXYWHBBoxCoder",
+            clip_border=True,
+            target_means=[0.0, 0.0, 0.0, 0.0],
+            target_stds=[0.1, 0.1, 0.2, 0.2],
         ),
         predict_box_type: str = "hbox",
         reg_class_agnostic: bool = False,
@@ -138,7 +141,14 @@ class BBoxHead(BaseModule):
         bbox_pred = self.fc_reg(x) if self.with_reg else None
         return cls_score, bbox_pred
 
-    def _get_targets_single(self, pos_priors: Tensor, neg_priors: Tensor, pos_gt_bboxes: Tensor, pos_gt_labels: Tensor, cfg: ConfigDict) -> tuple:
+    def _get_targets_single(
+        self,
+        pos_priors: Tensor,
+        neg_priors: Tensor,
+        pos_gt_bboxes: Tensor,
+        pos_gt_labels: Tensor,
+        cfg: ConfigDict,
+    ) -> tuple:
         """Calculate the ground truth for proposals in the single image
         according to the sampling results.
 
@@ -202,7 +212,12 @@ class BBoxHead(BaseModule):
 
         return labels, label_weights, bbox_targets, bbox_weights
 
-    def get_targets(self, sampling_results: list[SamplingResult], rcnn_train_cfg: ConfigDict, concat: bool = True) -> tuple:
+    def get_targets(
+        self,
+        sampling_results: list[SamplingResult],
+        rcnn_train_cfg: ConfigDict,
+        concat: bool = True,
+    ) -> tuple:
         """Calculate the ground truth for all samples in a batch according to
         the sampling_results.
 
@@ -245,7 +260,12 @@ class BBoxHead(BaseModule):
         pos_gt_bboxes_list = [res.pos_gt_bboxes for res in sampling_results]
         pos_gt_labels_list = [res.pos_gt_labels for res in sampling_results]
         labels, label_weights, bbox_targets, bbox_weights = multi_apply(
-            self._get_targets_single, pos_priors_list, neg_priors_list, pos_gt_bboxes_list, pos_gt_labels_list, cfg=rcnn_train_cfg
+            self._get_targets_single,
+            pos_priors_list,
+            neg_priors_list,
+            pos_gt_bboxes_list,
+            pos_gt_labels_list,
+            cfg=rcnn_train_cfg,
         )
 
         if concat:
@@ -294,7 +314,13 @@ class BBoxHead(BaseModule):
         """
 
         cls_reg_targets = self.get_targets(sampling_results, rcnn_train_cfg, concat=concat)
-        losses = self.loss(cls_score, bbox_pred, rois, *cls_reg_targets, reduction_override=reduction_override)
+        losses = self.loss(
+            cls_score,
+            bbox_pred,
+            rois,
+            *cls_reg_targets,
+            reduction_override=reduction_override,
+        )
 
         # cls_reg_targets is only for cascade rcnn
         return dict(loss_bbox=losses, bbox_targets=cls_reg_targets)
@@ -346,7 +372,13 @@ class BBoxHead(BaseModule):
         if cls_score is not None:
             avg_factor = max(torch.sum(label_weights > 0).float().item(), 1.0)
             if cls_score.numel() > 0:
-                loss_cls_ = self.loss_cls(cls_score, labels, label_weights, avg_factor=avg_factor, reduction_override=reduction_override)
+                loss_cls_ = self.loss_cls(
+                    cls_score,
+                    labels,
+                    label_weights,
+                    avg_factor=avg_factor,
+                    reduction_override=reduction_override,
+                )
                 if isinstance(loss_cls_, dict):
                     losses.update(loss_cls_)
                 else:
@@ -442,7 +474,13 @@ class BBoxHead(BaseModule):
         return result_list
 
     def _predict_by_feat_single(
-        self, roi: Tensor, cls_score: Tensor, bbox_pred: Tensor, img_meta: dict, rescale: bool = False, rcnn_test_cfg: ConfigDict | None = None
+        self,
+        roi: Tensor,
+        cls_score: Tensor,
+        bbox_pred: Tensor,
+        img_meta: dict,
+        rescale: bool = False,
+        rcnn_test_cfg: ConfigDict | None = None,
     ) -> InstanceData:
         """Transform a single image's features extracted from the head into
         bbox results.
@@ -522,14 +560,24 @@ class BBoxHead(BaseModule):
             results.scores = scores
         else:
             det_bboxes, det_labels = multiclass_nms(
-                bboxes, scores, rcnn_test_cfg['score_thr'], rcnn_test_cfg['nms'], rcnn_test_cfg['max_per_img'], box_dim=box_dim
+                bboxes,
+                scores,
+                rcnn_test_cfg["score_thr"],
+                rcnn_test_cfg["nms"],
+                rcnn_test_cfg["max_per_img"],
+                box_dim=box_dim,
             )
             results.bboxes = det_bboxes[:, :-1]
             results.scores = det_bboxes[:, -1]
             results.labels = det_labels
         return results
 
-    def refine_bboxes(self, sampling_results: list[SamplingResult] | InstanceList, bbox_results: dict, batch_img_metas: list[dict]) -> InstanceList:
+    def refine_bboxes(
+        self,
+        sampling_results: list[SamplingResult] | InstanceList,
+        bbox_results: dict,
+        batch_img_metas: list[dict],
+    ) -> InstanceList:
         """Refine bboxes during training.
 
         Args:
@@ -601,7 +649,9 @@ class BBoxHead(BaseModule):
             # remove background class
             cls_scores = cls_scores[:, :-1]
         elif cls_scores.shape[-1] != self.num_classes:
-            raise ValueError(f"The last dim of `cls_scores` should equal to `num_classes` or `num_classes + 1`,but got {cls_scores.shape[-1]}.")
+            raise ValueError(
+                f"The last dim of `cls_scores` should equal to `num_classes` or `num_classes + 1`,but got {cls_scores.shape[-1]}."
+            )
         labels = torch.where(labels == self.num_classes, cls_scores.argmax(1), labels)
 
         img_ids = rois[:, 0].long().unique(sorted=True)

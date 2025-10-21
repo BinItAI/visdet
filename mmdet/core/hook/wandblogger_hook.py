@@ -92,22 +92,23 @@ class MMDetWandbHook(WandbLoggerHook):
             Defaults to 0.3.
     """
 
-    def __init__(self,
-                 init_kwargs=None,
-                 interval=50,
-                 log_checkpoint=False,
-                 log_checkpoint_metadata=False,
-                 num_eval_images=100,
-                 bbox_score_thr=0.3,
-                 **kwargs):
+    def __init__(
+        self,
+        init_kwargs=None,
+        interval=50,
+        log_checkpoint=False,
+        log_checkpoint_metadata=False,
+        num_eval_images=100,
+        bbox_score_thr=0.3,
+        **kwargs,
+    ):
         super(MMDetWandbHook, self).__init__(init_kwargs, interval, **kwargs)
 
         self.log_checkpoint = log_checkpoint
-        self.log_checkpoint_metadata = (
-            log_checkpoint and log_checkpoint_metadata)
+        self.log_checkpoint_metadata = log_checkpoint and log_checkpoint_metadata
         self.num_eval_images = num_eval_images
         self.bbox_score_thr = bbox_score_thr
-        self.log_evaluation = (num_eval_images > 0)
+        self.log_evaluation = num_eval_images > 0
         self.ckpt_hook: CheckpointHook = None
         self.eval_hook: EvalHook = None
 
@@ -118,16 +119,16 @@ class MMDetWandbHook(WandbLoggerHook):
 
             # Fix ResourceWarning when calling wandb.log in wandb v0.12.10.
             # https://github.com/wandb/client/issues/2837
-            if digit_version(wandb.__version__) < digit_version('0.12.10'):
+            if digit_version(wandb.__version__) < digit_version("0.12.10"):
                 warnings.warn(
-                    f'The current wandb {wandb.__version__} is '
-                    f'lower than v0.12.10 will cause ResourceWarning '
-                    f'when calling wandb.log, Please run '
-                    f'"pip install --upgrade wandb"')
+                    f"The current wandb {wandb.__version__} is "
+                    f"lower than v0.12.10 will cause ResourceWarning "
+                    f"when calling wandb.log, Please run "
+                    f'"pip install --upgrade wandb"'
+                )
 
         except ImportError:
-            raise ImportError(
-                'Please run "pip install "wandb>=0.12.10"" to install wandb')
+            raise ImportError('Please run "pip install "wandb>=0.12.10"" to install wandb')
         self.wandb = wandb
 
     @master_only
@@ -135,15 +136,13 @@ class MMDetWandbHook(WandbLoggerHook):
         super(MMDetWandbHook, self).before_run(runner)
 
         # Save and Log config.
-        if runner.meta is not None and runner.meta.get('exp_name',
-                                                       None) is not None:
-            src_cfg_path = osp.join(runner.work_dir,
-                                    runner.meta.get('exp_name', None))
+        if runner.meta is not None and runner.meta.get("exp_name", None) is not None:
+            src_cfg_path = osp.join(runner.work_dir, runner.meta.get("exp_name", None))
             if osp.exists(src_cfg_path):
                 self.wandb.save(src_cfg_path, base_path=runner.work_dir)
                 self._update_wandb_config(runner)
         else:
-            runner.logger.warning('No meta information found in the runner. ')
+            runner.logger.warning("No meta information found in the runner. ")
 
         # Inspect CheckpointHook and EvalHook
         for hook in runner.hooks:
@@ -158,8 +157,9 @@ class MMDetWandbHook(WandbLoggerHook):
                 self.log_checkpoint = False
                 self.log_checkpoint_metadata = False
                 runner.logger.warning(
-                    'To log checkpoint in MMDetWandbHook, `CheckpointHook` is'
-                    'required, please check hooks in the runner.')
+                    "To log checkpoint in MMDetWandbHook, `CheckpointHook` is"
+                    "required, please check hooks in the runner."
+                )
             else:
                 self.ckpt_interval = self.ckpt_hook.interval
 
@@ -169,10 +169,11 @@ class MMDetWandbHook(WandbLoggerHook):
                 self.log_evaluation = False
                 self.log_checkpoint_metadata = False
                 runner.logger.warning(
-                    'To log evaluation or checkpoint metadata in '
-                    'MMDetWandbHook, `EvalHook` or `DistEvalHook` in mmdet '
-                    'is required, please check whether the validation '
-                    'is enabled.')
+                    "To log evaluation or checkpoint metadata in "
+                    "MMDetWandbHook, `EvalHook` or `DistEvalHook` in mmdet "
+                    "is required, please check whether the validation "
+                    "is enabled."
+                )
             else:
                 self.eval_interval = self.eval_hook.interval
                 self.val_dataset = self.eval_hook.dataloader.dataset
@@ -180,18 +181,20 @@ class MMDetWandbHook(WandbLoggerHook):
                 if self.num_eval_images > len(self.val_dataset):
                     self.num_eval_images = len(self.val_dataset)
                     runner.logger.warning(
-                        f'The num_eval_images ({self.num_eval_images}) is '
-                        'greater than the total number of validation samples '
-                        f'({len(self.val_dataset)}). The complete validation '
-                        'dataset will be logged.')
+                        f"The num_eval_images ({self.num_eval_images}) is "
+                        "greater than the total number of validation samples "
+                        f"({len(self.val_dataset)}). The complete validation "
+                        "dataset will be logged."
+                    )
 
         # Check conditions to log checkpoint metadata
         if self.log_checkpoint_metadata:
-            assert self.ckpt_interval % self.eval_interval == 0, \
-                'To log checkpoint metadata in MMDetWandbHook, the interval ' \
-                f'of checkpoint saving ({self.ckpt_interval}) should be ' \
-                'divisible by the interval of evaluation ' \
-                f'({self.eval_interval}).'
+            assert self.ckpt_interval % self.eval_interval == 0, (
+                "To log checkpoint metadata in MMDetWandbHook, the interval "
+                f"of checkpoint saving ({self.ckpt_interval}) should be "
+                "divisible by the interval of evaluation "
+                f"({self.eval_interval})."
+            )
 
         # Initialize evaluation table
         if self.log_evaluation:
@@ -210,19 +213,17 @@ class MMDetWandbHook(WandbLoggerHook):
             return
 
         # Log checkpoint and metadata.
-        if (self.log_checkpoint
-                and self.every_n_epochs(runner, self.ckpt_interval)
-                or (self.ckpt_hook.save_last and self.is_last_epoch(runner))):
+        if (
+            self.log_checkpoint
+            and self.every_n_epochs(runner, self.ckpt_interval)
+            or (self.ckpt_hook.save_last and self.is_last_epoch(runner))
+        ):
             if self.log_checkpoint_metadata and self.eval_hook:
-                metadata = {
-                    'epoch': runner.epoch + 1,
-                    **self._get_eval_results()
-                }
+                metadata = {"epoch": runner.epoch + 1, **self._get_eval_results()}
             else:
                 metadata = None
-            aliases = [f'epoch_{runner.epoch + 1}', 'latest']
-            model_path = osp.join(self.ckpt_hook.out_dir,
-                                  f'epoch_{runner.epoch + 1}.pth')
+            aliases = [f"epoch_{runner.epoch + 1}", "latest"]
+            model_path = osp.join(self.ckpt_hook.out_dir, f"epoch_{runner.epoch + 1}.pth")
             self._log_ckpt_as_artifact(model_path, aliases, metadata)
 
         # Save prediction table
@@ -238,7 +239,7 @@ class MMDetWandbHook(WandbLoggerHook):
     # for the reason of this double-layered structure, refer to
     # https://github.com/open-mmlab/mmdetection/issues/8145#issuecomment-1345343076
     def after_train_iter(self, runner):
-        if self.get_mode(runner) == 'train':
+        if self.get_mode(runner) == "train":
             # An ugly patch. The iter-based eval hook will call the
             # `after_train_iter` method of all logger hooks before evaluation.
             # Use this trick to skip that call.
@@ -254,19 +255,17 @@ class MMDetWandbHook(WandbLoggerHook):
             return
 
         # Save checkpoint and metadata
-        if (self.log_checkpoint
-                and self.every_n_iters(runner, self.ckpt_interval)
-                or (self.ckpt_hook.save_last and self.is_last_iter(runner))):
+        if (
+            self.log_checkpoint
+            and self.every_n_iters(runner, self.ckpt_interval)
+            or (self.ckpt_hook.save_last and self.is_last_iter(runner))
+        ):
             if self.log_checkpoint_metadata and self.eval_hook:
-                metadata = {
-                    'iter': runner.iter + 1,
-                    **self._get_eval_results()
-                }
+                metadata = {"iter": runner.iter + 1, **self._get_eval_results()}
             else:
                 metadata = None
-            aliases = [f'iter_{runner.iter + 1}', 'latest']
-            model_path = osp.join(self.ckpt_hook.out_dir,
-                                  f'iter_{runner.iter + 1}.pth')
+            aliases = [f"iter_{runner.iter + 1}", "latest"]
+            model_path = osp.join(self.ckpt_hook.out_dir, f"iter_{runner.iter + 1}.pth")
             self._log_ckpt_as_artifact(model_path, aliases, metadata)
 
         # Save prediction table
@@ -287,10 +286,10 @@ class MMDetWandbHook(WandbLoggerHook):
         """Update wandb config."""
         # Import the config file.
         sys.path.append(runner.work_dir)
-        config_filename = runner.meta['exp_name'][:-3]
+        config_filename = runner.meta["exp_name"][:-3]
         configs = importlib.import_module(config_filename)
         # Prepare a nested dict of config variables.
-        config_keys = [key for key in dir(configs) if not key.startswith('__')]
+        config_keys = [key for key in dir(configs) if not key.startswith("__")]
         config_dict = {key: getattr(configs, key) for key in config_keys}
         # Update the W&B config.
         self.wandb.config.update(config_dict)
@@ -303,31 +302,30 @@ class MMDetWandbHook(WandbLoggerHook):
             aliases (list): List of the aliases associated with this artifact.
             metadata (dict, optional): Metadata associated with this artifact.
         """
-        model_artifact = self.wandb.Artifact(
-            f'run_{self.wandb.run.id}_model', type='model', metadata=metadata)
+        model_artifact = self.wandb.Artifact(f"run_{self.wandb.run.id}_model", type="model", metadata=metadata)
         model_artifact.add_file(model_path)
         self.wandb.log_artifact(model_artifact, aliases=aliases)
 
     def _get_eval_results(self):
         """Get model evaluation results."""
         results = self.eval_hook.latest_results
-        eval_results = self.val_dataset.evaluate(
-            results, logger='silent', **self.eval_hook.eval_kwargs)
+        eval_results = self.val_dataset.evaluate(results, logger="silent", **self.eval_hook.eval_kwargs)
         return eval_results
 
     def _init_data_table(self):
         """Initialize the W&B Tables for validation data."""
-        columns = ['image_name', 'image']
+        columns = ["image_name", "image"]
         self.data_table = self.wandb.Table(columns=columns)
 
     def _init_pred_table(self):
         """Initialize the W&B Tables for model evaluation."""
-        columns = ['image_name', 'ground_truth', 'prediction']
+        columns = ["image_name", "ground_truth", "prediction"]
         self.eval_table = self.wandb.Table(columns=columns)
 
     def _add_ground_truth(self, runner):
         # Get image loading pipeline
         from mmdet.datasets.pipelines import LoadImageFromFile
+
         img_loader = None
         for t in self.val_dataset.pipeline.transforms:
             if isinstance(t, LoadImageFromFile):
@@ -335,9 +333,7 @@ class MMDetWandbHook(WandbLoggerHook):
 
         if img_loader is None:
             self.log_evaluation = False
-            runner.logger.warning(
-                'LoadImageFromFile is required to add images '
-                'to W&B Tables.')
+            runner.logger.warning("LoadImageFromFile is required to add images to W&B Tables.")
             return
 
         # Select the images to be logged.
@@ -345,35 +341,28 @@ class MMDetWandbHook(WandbLoggerHook):
         # Set seed so that same validation set is logged each time.
         np.random.seed(42)
         np.random.shuffle(self.eval_image_indexs)
-        self.eval_image_indexs = self.eval_image_indexs[:self.num_eval_images]
+        self.eval_image_indexs = self.eval_image_indexs[: self.num_eval_images]
 
         CLASSES = self.val_dataset.CLASSES
-        self.class_id_to_label = {
-            id + 1: name
-            for id, name in enumerate(CLASSES)
-        }
-        self.class_set = self.wandb.Classes([{
-            'id': id,
-            'name': name
-        } for id, name in self.class_id_to_label.items()])
+        self.class_id_to_label = {id + 1: name for id, name in enumerate(CLASSES)}
+        self.class_set = self.wandb.Classes([{"id": id, "name": name} for id, name in self.class_id_to_label.items()])
 
         img_prefix = self.val_dataset.img_prefix
 
         for idx in self.eval_image_indexs:
             img_info = self.val_dataset.data_infos[idx]
-            image_name = img_info.get('filename', f'img_{idx}')
-            img_height, img_width = img_info['height'], img_info['width']
+            image_name = img_info.get("filename", f"img_{idx}")
+            img_height, img_width = img_info["height"], img_info["width"]
 
-            img_meta = img_loader(
-                dict(img_info=img_info, img_prefix=img_prefix))
+            img_meta = img_loader(dict(img_info=img_info, img_prefix=img_prefix))
 
             # Get image and convert from BGR to RGB
-            image = mmcv.bgr2rgb(img_meta['img'])
+            image = mmcv.bgr2rgb(img_meta["img"])
 
             data_ann = self.val_dataset.get_ann_info(idx)
-            bboxes = data_ann['bboxes']
-            labels = data_ann['labels']
-            masks = data_ann.get('masks', None)
+            bboxes = data_ann["bboxes"]
+            labels = data_ann["labels"]
+            masks = data_ann.get("masks", None)
 
             # Get dict of bounding boxes to be logged.
             assert len(bboxes) == len(labels)
@@ -382,11 +371,8 @@ class MMDetWandbHook(WandbLoggerHook):
             # Get dict of masks to be logged.
             if masks is not None:
                 wandb_masks = self._get_wandb_masks(
-                    masks,
-                    labels,
-                    is_poly_mask=True,
-                    height=img_height,
-                    width=img_width)
+                    masks, labels, is_poly_mask=True, height=img_height, width=img_width
+                )
             else:
                 wandb_masks = None
             # TODO: Panoramic segmentation visualization.
@@ -394,11 +380,8 @@ class MMDetWandbHook(WandbLoggerHook):
             # Log a row to the data table.
             self.data_table.add_data(
                 image_name,
-                self.wandb.Image(
-                    image,
-                    boxes=wandb_boxes,
-                    masks=wandb_masks,
-                    classes=self.class_set))
+                self.wandb.Image(image, boxes=wandb_boxes, masks=wandb_masks, classes=self.class_set),
+            )
 
     def _log_predictions(self, results):
         table_idxs = self.data_table_ref.get_index()
@@ -417,10 +400,7 @@ class MMDetWandbHook(WandbLoggerHook):
 
             # Get labels
             bboxes = np.vstack(bbox_result)
-            labels = [
-                np.full(bbox.shape[0], i, dtype=np.int32)
-                for i, bbox in enumerate(bbox_result)
-            ]
+            labels = [np.full(bbox.shape[0], i, dtype=np.int32) for i, bbox in enumerate(bbox_result)]
             labels = np.concatenate(labels)
 
             # Get segmentation mask if available.
@@ -458,7 +438,9 @@ class MMDetWandbHook(WandbLoggerHook):
                     self.data_table_ref.data[ndx][1],
                     boxes=wandb_boxes,
                     masks=wandb_masks,
-                    classes=self.class_set))
+                    classes=self.class_set,
+                ),
+            )
 
     def _get_wandb_bboxes(self, bboxes, labels, log_gt=True):
         """Get list of structured dict for logging bounding boxes to W&B.
@@ -483,7 +465,7 @@ class MMDetWandbHook(WandbLoggerHook):
             if len(bbox) == 5:
                 confidence = float(bbox[4])
                 class_name = self.class_id_to_label[label]
-                box_caption = f'{class_name} {confidence:.2f}'
+                box_caption = f"{class_name} {confidence:.2f}"
             else:
                 box_caption = str(self.class_id_to_label[label])
 
@@ -491,33 +473,28 @@ class MMDetWandbHook(WandbLoggerHook):
                 minX=int(bbox[0]),
                 minY=int(bbox[1]),
                 maxX=int(bbox[2]),
-                maxY=int(bbox[3]))
+                maxY=int(bbox[3]),
+            )
 
-            box_data.append({
-                'position': position,
-                'class_id': label,
-                'box_caption': box_caption,
-                'domain': 'pixel'
-            })
+            box_data.append(
+                {
+                    "position": position,
+                    "class_id": label,
+                    "box_caption": box_caption,
+                    "domain": "pixel",
+                }
+            )
 
-        wandb_bbox_dict = {
-            'box_data': box_data,
-            'class_labels': self.class_id_to_label
-        }
+        wandb_bbox_dict = {"box_data": box_data, "class_labels": self.class_id_to_label}
 
         if log_gt:
-            wandb_boxes['ground_truth'] = wandb_bbox_dict
+            wandb_boxes["ground_truth"] = wandb_bbox_dict
         else:
-            wandb_boxes['predictions'] = wandb_bbox_dict
+            wandb_boxes["predictions"] = wandb_bbox_dict
 
         return wandb_boxes
 
-    def _get_wandb_masks(self,
-                         masks,
-                         labels,
-                         is_poly_mask=False,
-                         height=None,
-                         width=None):
+    def _get_wandb_masks(self, masks, labels, is_poly_mask=False, height=None, width=None):
         """Get list of structured dict for logging masks to W&B.
 
         Args:
@@ -542,8 +519,7 @@ class MMDetWandbHook(WandbLoggerHook):
             if label not in mask_label_dict.keys():
                 mask_label_dict[label] = mask
             else:
-                mask_label_dict[label] = np.logical_or(mask_label_dict[label],
-                                                       mask)
+                mask_label_dict[label] = np.logical_or(mask_label_dict[label], mask)
 
         wandb_masks = dict()
         for key, value in mask_label_dict.items():
@@ -554,8 +530,8 @@ class MMDetWandbHook(WandbLoggerHook):
             # Create dict of masks for logging.
             class_name = self.class_id_to_label[key]
             wandb_masks[class_name] = {
-                'mask_data': value,
-                'class_labels': self.class_id_to_label
+                "mask_data": value,
+                "class_labels": self.class_id_to_label,
             }
 
         return wandb_masks
@@ -567,13 +543,13 @@ class MMDetWandbHook(WandbLoggerHook):
 
         This allows the data to be uploaded just once.
         """
-        data_artifact = self.wandb.Artifact('val', type='dataset')
-        data_artifact.add(self.data_table, 'val_data')
+        data_artifact = self.wandb.Artifact("val", type="dataset")
+        data_artifact.add(self.data_table, "val_data")
 
         if not self.wandb.run.offline:
             self.wandb.run.use_artifact(data_artifact)
             data_artifact.wait()
-            self.data_table_ref = data_artifact.get('val_data')
+            self.data_table_ref = data_artifact.get("val_data")
         else:
             self.data_table_ref = self.data_table
 
@@ -583,11 +559,10 @@ class MMDetWandbHook(WandbLoggerHook):
         The table will be logged multiple times creating new version. Use this
         to compare models at different intervals interactively.
         """
-        pred_artifact = self.wandb.Artifact(
-            f'run_{self.wandb.run.id}_pred', type='evaluation')
-        pred_artifact.add(self.eval_table, 'eval_data')
+        pred_artifact = self.wandb.Artifact(f"run_{self.wandb.run.id}_pred", type="evaluation")
+        pred_artifact.add(self.eval_table, "eval_data")
         if self.by_epoch:
-            aliases = ['latest', f'epoch_{idx}']
+            aliases = ["latest", f"epoch_{idx}"]
         else:
-            aliases = ['latest', f'iter_{idx}']
+            aliases = ["latest", f"iter_{idx}"]
         self.wandb.run.log_artifact(pred_artifact, aliases=aliases)

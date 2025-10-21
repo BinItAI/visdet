@@ -1,5 +1,4 @@
 # Copyright (c) OpenMMLab. All rights reserved.
-from typing import Optional, Sequence
 
 import numpy as np
 from viscv.transforms import to_tensor
@@ -41,15 +40,25 @@ class PackDetInputs(BaseTransform):
             Default: ``('img_id', 'img_path', 'ori_shape', 'img_shape',
             'scale_factor', 'flip', 'flip_direction')``
     """
+
     mapping_table = {
-        'gt_bboxes': 'bboxes',
-        'gt_bboxes_labels': 'labels',
-        'gt_masks': 'masks'
+        "gt_bboxes": "bboxes",
+        "gt_bboxes_labels": "labels",
+        "gt_masks": "masks",
     }
 
-    def __init__(self,
-                 meta_keys=('img_id', 'img_path', 'ori_shape', 'img_shape',
-                            'scale_factor', 'flip', 'flip_direction')):
+    def __init__(
+        self,
+        meta_keys=(
+            "img_id",
+            "img_path",
+            "ori_shape",
+            "img_shape",
+            "scale_factor",
+            "flip",
+            "flip_direction",
+        ),
+    ):
         self.meta_keys = meta_keys
 
     def transform(self, results: dict) -> dict:
@@ -66,8 +75,8 @@ class PackDetInputs(BaseTransform):
                 sample.
         """
         packed_results = dict()
-        if 'img' in results:
-            img = results['img']
+        if "img" in results:
+            img = results["img"]
             if len(img.shape) < 3:
                 img = np.expand_dims(img, -1)
             # To improve the computational speed by by 3-5 times, apply:
@@ -83,11 +92,11 @@ class PackDetInputs(BaseTransform):
             else:
                 img = to_tensor(img).permute(2, 0, 1).contiguous()
 
-            packed_results['inputs'] = img
+            packed_results["inputs"] = img
 
-        if 'gt_ignore_flags' in results:
-            valid_idx = np.where(results['gt_ignore_flags'] == 0)[0]
-            ignore_idx = np.where(results['gt_ignore_flags'] == 1)[0]
+        if "gt_ignore_flags" in results:
+            valid_idx = np.where(results["gt_ignore_flags"] == 0)[0]
+            ignore_idx = np.where(results["gt_ignore_flags"] == 1)[0]
 
         data_sample = DetDataSample()
         instance_data = InstanceData()
@@ -96,38 +105,33 @@ class PackDetInputs(BaseTransform):
         for key in self.mapping_table.keys():
             if key not in results:
                 continue
-            if key == 'gt_masks' or isinstance(results[key], BaseBoxes):
-                if 'gt_ignore_flags' in results:
-                    instance_data[
-                        self.mapping_table[key]] = results[key][valid_idx]
-                    ignore_instance_data[
-                        self.mapping_table[key]] = results[key][ignore_idx]
+            if key == "gt_masks" or isinstance(results[key], BaseBoxes):
+                if "gt_ignore_flags" in results:
+                    instance_data[self.mapping_table[key]] = results[key][valid_idx]
+                    ignore_instance_data[self.mapping_table[key]] = results[key][ignore_idx]
                 else:
                     instance_data[self.mapping_table[key]] = results[key]
             else:
-                if 'gt_ignore_flags' in results:
-                    instance_data[self.mapping_table[key]] = to_tensor(
-                        results[key][valid_idx])
-                    ignore_instance_data[self.mapping_table[key]] = to_tensor(
-                        results[key][ignore_idx])
+                if "gt_ignore_flags" in results:
+                    instance_data[self.mapping_table[key]] = to_tensor(results[key][valid_idx])
+                    ignore_instance_data[self.mapping_table[key]] = to_tensor(results[key][ignore_idx])
                 else:
-                    instance_data[self.mapping_table[key]] = to_tensor(
-                        results[key])
+                    instance_data[self.mapping_table[key]] = to_tensor(results[key])
         data_sample.gt_instances = instance_data
         data_sample.ignored_instances = ignore_instance_data
 
-        if 'proposals' in results:
+        if "proposals" in results:
             proposals = InstanceData(
-                bboxes=to_tensor(results['proposals']),
-                scores=to_tensor(results['proposals_scores']))
+                bboxes=to_tensor(results["proposals"]),
+                scores=to_tensor(results["proposals_scores"]),
+            )
             data_sample.proposals = proposals
 
-        if 'gt_seg_map' in results:
-            gt_sem_seg_data = dict(
-                sem_seg=to_tensor(results['gt_seg_map'][None, ...].copy()))
+        if "gt_seg_map" in results:
+            gt_sem_seg_data = dict(sem_seg=to_tensor(results["gt_seg_map"][None, ...].copy()))
             gt_sem_seg_data = PixelData(**gt_sem_seg_data)
-            if 'ignore_index' in results:
-                metainfo = dict(ignore_index=results['ignore_index'])
+            if "ignore_index" in results:
+                metainfo = dict(ignore_index=results["ignore_index"])
                 gt_sem_seg_data.set_metainfo(metainfo)
             data_sample.gt_sem_seg = gt_sem_seg_data
 
@@ -136,13 +140,13 @@ class PackDetInputs(BaseTransform):
             if key in results:
                 img_meta[key] = results[key]
         data_sample.set_metainfo(img_meta)
-        packed_results['data_samples'] = data_sample
+        packed_results["data_samples"] = data_sample
 
         return packed_results
 
     def __repr__(self) -> str:
         repr_str = self.__class__.__name__
-        repr_str += f'(meta_keys={self.meta_keys})'
+        repr_str += f"(meta_keys={self.meta_keys})"
         return repr_str
 
 
@@ -172,7 +176,7 @@ class ToTensor:
         return results
 
     def __repr__(self):
-        return self.__class__.__name__ + f'(keys={self.keys})'
+        return self.__class__.__name__ + f"(keys={self.keys})"
 
 
 @TRANSFORMS.register_module()
@@ -210,7 +214,7 @@ class ImageToTensor:
         return results
 
     def __repr__(self):
-        return self.__class__.__name__ + f'(keys={self.keys})'
+        return self.__class__.__name__ + f"(keys={self.keys})"
 
 
 @TRANSFORMS.register_module()
@@ -241,8 +245,7 @@ class Transpose:
         return results
 
     def __repr__(self):
-        return self.__class__.__name__ + \
-            f'(keys={self.keys}, order={self.order})'
+        return self.__class__.__name__ + f"(keys={self.keys}, order={self.order})"
 
 
 @TRANSFORMS.register_module()
@@ -283,10 +286,4 @@ class WrapFieldsToLists:
         return results
 
     def __repr__(self):
-        return f'{self.__class__.__name__}()'
-
-
-
-
-
-
+        return f"{self.__class__.__name__}()"

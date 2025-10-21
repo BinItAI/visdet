@@ -51,7 +51,9 @@ def test_patch_merging_matches_unfold():
     expected = reduction(x_normed)
 
     # Compare outputs
-    assert torch.allclose(output, expected, atol=1e-5), f"Outputs don't match! Max diff: {(output - expected).abs().max()}"
+    assert torch.allclose(output, expected, atol=1e-5), (
+        f"Outputs don't match! Max diff: {(output - expected).abs().max()}"
+    )
 
     # Check output shape
     assert h_out == height // stride

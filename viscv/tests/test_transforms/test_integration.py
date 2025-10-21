@@ -42,7 +42,11 @@ def test_end_to_end_image_loading():
 
         # Method 2: Using registry
         print("\nTesting registry build...")
-        config = {"type": "LoadImageFromFile", "to_float32": True, "color_type": "color"}
+        config = {
+            "type": "LoadImageFromFile",
+            "to_float32": True,
+            "color_type": "color",
+        }
         loader2 = TRANSFORMS.build(config)
         result2 = loader2({"img_path": temp_path})
 

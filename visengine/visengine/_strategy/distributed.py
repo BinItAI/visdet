@@ -94,7 +94,10 @@ class DDPStrategy(SingleDeviceStrategy):
         if self.model_wrapper is None:
             # set broadcast_buffers as False to keep compatibility with
             # OpenMMLab repos
-            self.model_wrapper = {"type": "MMDistributedDataParallel", "broadcast_buffers": False}
+            self.model_wrapper = {
+                "type": "MMDistributedDataParallel",
+                "broadcast_buffers": False,
+            }
 
         default_args = {
             "type": "MMDistributedDataParallel",

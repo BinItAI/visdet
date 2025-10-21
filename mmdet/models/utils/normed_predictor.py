@@ -7,7 +7,7 @@ from mmcv.cnn import CONV_LAYERS
 from .builder import LINEAR_LAYERS
 
 
-@LINEAR_LAYERS.register_module(name='NormedLinear')
+@LINEAR_LAYERS.register_module(name="NormedLinear")
 class NormedLinear(nn.Linear):
     """Normalized Linear Layer.
 
@@ -31,15 +31,14 @@ class NormedLinear(nn.Linear):
             nn.init.constant_(self.bias, 0)
 
     def forward(self, x):
-        weight_ = self.weight / (
-            self.weight.norm(dim=1, keepdim=True).pow(self.power) + self.eps)
+        weight_ = self.weight / (self.weight.norm(dim=1, keepdim=True).pow(self.power) + self.eps)
         x_ = x / (x.norm(dim=1, keepdim=True).pow(self.power) + self.eps)
         x_ = x_ * self.tempearture
 
         return F.linear(x_, weight_, self.bias)
 
 
-@CONV_LAYERS.register_module(name='NormedConv2d')
+@CONV_LAYERS.register_module(name="NormedConv2d")
 class NormedConv2d(nn.Conv2d):
     """Normalized Conv2d Layer.
 
@@ -52,13 +51,15 @@ class NormedConv2d(nn.Conv2d):
              Default to False.
     """
 
-    def __init__(self,
-                 *args,
-                 tempearture=20,
-                 power=1.0,
-                 eps=1e-6,
-                 norm_over_kernel=False,
-                 **kwargs):
+    def __init__(
+        self,
+        *args,
+        tempearture=20,
+        power=1.0,
+        eps=1e-6,
+        norm_over_kernel=False,
+        **kwargs,
+    ):
         super(NormedConv2d, self).__init__(*args, **kwargs)
         self.tempearture = tempearture
         self.power = power
@@ -67,21 +68,19 @@ class NormedConv2d(nn.Conv2d):
 
     def forward(self, x):
         if not self.norm_over_kernel:
-            weight_ = self.weight / (
-                self.weight.norm(dim=1, keepdim=True).pow(self.power) +
-                self.eps)
+            weight_ = self.weight / (self.weight.norm(dim=1, keepdim=True).pow(self.power) + self.eps)
         else:
             weight_ = self.weight / (
-                self.weight.view(self.weight.size(0), -1).norm(
-                    dim=1, keepdim=True).pow(self.power)[..., None, None] +
-                self.eps)
+                self.weight.view(self.weight.size(0), -1).norm(dim=1, keepdim=True).pow(self.power)[..., None, None]
+                + self.eps
+            )
         x_ = x / (x.norm(dim=1, keepdim=True).pow(self.power) + self.eps)
         x_ = x_ * self.tempearture
 
-        if hasattr(self, 'conv2d_forward'):
+        if hasattr(self, "conv2d_forward"):
             x_ = self.conv2d_forward(x_, weight_)
         else:
-            if torch.__version__ >= '1.8':
+            if torch.__version__ >= "1.8":
                 x_ = self._conv_forward(x_, weight_, self.bias)
             else:
                 x_ = self._conv_forward(x_, weight_)

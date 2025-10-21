@@ -47,14 +47,23 @@ class BaseDetector(BaseModel, metaclass=ABCMeta):
     @property
     def with_bbox(self) -> bool:
         """bool: whether the detector has a bbox head"""
-        return (hasattr(self, "roi_head") and self.roi_head.with_bbox) or (hasattr(self, "bbox_head") and self.bbox_head is not None)
+        return (hasattr(self, "roi_head") and self.roi_head.with_bbox) or (
+            hasattr(self, "bbox_head") and self.bbox_head is not None
+        )
 
     @property
     def with_mask(self) -> bool:
         """bool: whether the detector has a mask head"""
-        return (hasattr(self, "roi_head") and self.roi_head.with_mask) or (hasattr(self, "mask_head") and self.mask_head is not None)
+        return (hasattr(self, "roi_head") and self.roi_head.with_mask) or (
+            hasattr(self, "mask_head") and self.mask_head is not None
+        )
 
-    def forward(self, inputs: torch.Tensor, data_samples: OptSampleList = None, mode: str = "tensor") -> ForwardResults:
+    def forward(
+        self,
+        inputs: torch.Tensor,
+        data_samples: OptSampleList = None,
+        mode: str = "tensor",
+    ) -> ForwardResults:
         """The unified entry for a forward process in both training and test.
 
         The method should accept three modes: "tensor", "predict" and "loss":

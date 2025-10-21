@@ -4,11 +4,10 @@ from functools import partial
 
 import torch
 import torch.nn as nn
-from visengine.model import constant_init, kaiming_init
-from visengine.registry import MODELS
-
 from torch.nn.modules.batchnorm import _BatchNorm
 from torch.nn.modules.instancenorm import _InstanceNorm
+from visengine.model import constant_init, kaiming_init
+from visengine.registry import MODELS
 
 from .activation import build_activation_layer
 from .conv import build_conv_layer
@@ -168,7 +167,15 @@ class ConvModule(nn.Module):
         conv_padding = 0 if self.with_explicit_padding else padding
         # build convolution layer
         self.conv = build_conv_layer(
-            conv_cfg, in_channels, out_channels, kernel_size, stride=stride, padding=conv_padding, dilation=dilation, groups=groups, bias=bias
+            conv_cfg,
+            in_channels,
+            out_channels,
+            kernel_size,
+            stride=stride,
+            padding=conv_padding,
+            dilation=dilation,
+            groups=groups,
+            bias=bias,
         )
         # export the attributes of self.conv to a higher level for convenience
         self.in_channels = self.conv.in_channels
@@ -205,7 +212,14 @@ class ConvModule(nn.Module):
         if self.with_activation:
             act_cfg_ = act_cfg.copy()  # type: ignore
             # nn.Tanh has no 'inplace' argument
-            if act_cfg_["type"] not in ["Tanh", "PReLU", "Sigmoid", "HSigmoid", "Swish", "GELU"]:
+            if act_cfg_["type"] not in [
+                "Tanh",
+                "PReLU",
+                "Sigmoid",
+                "HSigmoid",
+                "Swish",
+                "GELU",
+            ]:
                 act_cfg_.setdefault("inplace", inplace)
             self.activate = build_activation_layer(act_cfg_)
 
@@ -282,7 +296,9 @@ class ConvModule(nn.Module):
 
     @staticmethod
     def create_from_conv_bn(
-        conv: torch.nn.modules.conv._ConvNd, bn: torch.nn.modules.batchnorm._BatchNorm, efficient_conv_bn_eval=True
+        conv: torch.nn.modules.conv._ConvNd,
+        bn: torch.nn.modules.batchnorm._BatchNorm,
+        efficient_conv_bn_eval=True,
     ) -> "ConvModule":
         """Create a ConvModule from a conv and a bn module."""
         self = ConvModule.__new__(ConvModule)

@@ -4,7 +4,6 @@ import random
 import warnings
 from collections.abc import Iterable, Sequence
 from itertools import product
-from typing import Union
 
 import numpy as np
 from visengine.utils import is_list_of, is_seq_of, is_tuple_of
@@ -66,7 +65,11 @@ class Normalize(BaseTransform):
         """
 
         results["img"] = imnormalize(results["img"], self.mean, self.std, self.to_rgb)
-        results["img_norm_cfg"] = {"mean": self.mean, "std": self.std, "to_rgb": self.to_rgb}
+        results["img_norm_cfg"] = {
+            "mean": self.mean,
+            "std": self.std,
+            "to_rgb": self.to_rgb,
+        }
         return results
 
     def __repr__(self) -> str:
@@ -184,7 +187,9 @@ class Resize(BaseTransform):
                 img_path=results.get("img_path", "unknown"),
                 bbox_type=str(type(results["gt_bboxes"])),
                 bbox_shape=str(results["gt_bboxes"].shape if hasattr(results["gt_bboxes"], "shape") else "no shape"),
-                bbox_sample=str(results["gt_bboxes"][:2] if hasattr(results["gt_bboxes"], "__getitem__") else "no getitem"),
+                bbox_sample=str(
+                    results["gt_bboxes"][:2] if hasattr(results["gt_bboxes"], "__getitem__") else "no getitem"
+                ),
                 level="WARNING",
             )
 
@@ -345,7 +350,12 @@ class Pad(BaseTransform):
             pad_val = self.pad_val.get("seg", 255)
             if isinstance(pad_val, int) and results["gt_seg_map"].ndim == 3:
                 pad_val = tuple(pad_val for _ in range(results["gt_seg_map"].shape[2]))
-            results["gt_seg_map"] = impad(results["gt_seg_map"], shape=results["pad_shape"][:2], pad_val=pad_val, padding_mode=self.padding_mode)
+            results["gt_seg_map"] = impad(
+                results["gt_seg_map"],
+                shape=results["pad_shape"][:2],
+                pad_val=pad_val,
+                padding_mode=self.padding_mode,
+            )
 
     def transform(self, results: dict) -> dict:
         """Call function to pad images, masks, semantic segmentation maps.
@@ -412,7 +422,11 @@ class CenterCrop(BaseTransform):
     """
 
     def __init__(
-        self, crop_size: int | tuple[int, int], auto_pad: bool = False, pad_cfg: dict = dict(type="Pad"), clip_object_border: bool = True
+        self,
+        crop_size: int | tuple[int, int],
+        auto_pad: bool = False,
+        pad_cfg: dict = dict(type="Pad"),
+        clip_object_border: bool = True,
     ) -> None:
         super().__init__()
         assert isinstance(crop_size, int) or (isinstance(crop_size, tuple) and len(crop_size) == 2), (
@@ -429,7 +443,9 @@ class CenterCrop(BaseTransform):
         self.pad_cfg = pad_cfg.copy()
         # size will be overwritten
         if "size" in self.pad_cfg and auto_pad:
-            warnings.warn("``size`` is set in ``pad_cfg``,however this argument will be overwritten according to crop size and image size")
+            warnings.warn(
+                "``size`` is set in ``pad_cfg``,however this argument will be overwritten according to crop size and image size"
+            )
 
         self.clip_object_border = clip_object_border
 
@@ -503,7 +519,10 @@ class CenterCrop(BaseTransform):
             # set gt_kepoints out of the result image invisible
             height, width = results["img"].shape[:2]
             valid_pos = (
-                (gt_keypoints[:, :, 0] >= 0) * (gt_keypoints[:, :, 0] < width) * (gt_keypoints[:, :, 1] >= 0) * (gt_keypoints[:, :, 1] < height)
+                (gt_keypoints[:, :, 0] >= 0)
+                * (gt_keypoints[:, :, 0] < width)
+                * (gt_keypoints[:, :, 1] >= 0)
+                * (gt_keypoints[:, :, 1] < height)
             )
             gt_keypoints[:, :, 2] = np.where(valid_pos, gt_keypoints[:, :, 2], 0)
             gt_keypoints[:, :, 0] = np.clip(gt_keypoints[:, :, 0], 0, results["img"].shape[1])
@@ -598,7 +617,11 @@ class RandomGrayscale(BaseTransform):
     """
 
     def __init__(
-        self, prob: float = 0.1, keep_channels: bool = False, channel_weights: Sequence[float] = (1.0, 1.0, 1.0), color_format: str = "bgr"
+        self,
+        prob: float = 0.1,
+        keep_channels: bool = False,
+        channel_weights: Sequence[float] = (1.0, 1.0, 1.0),
+        color_format: str = "bgr",
     ) -> None:
         super().__init__()
         assert 0.0 <= prob <= 1.0, "The range of ``prob`` value is [0., 1.]," + f" but got {prob} instead"
@@ -629,7 +652,9 @@ class RandomGrayscale(BaseTransform):
         num_output_channels = img.shape[2]
         if self._random_prob() < self.prob:
             if num_output_channels > 1:
-                assert num_output_channels == len(self.channel_weights), "The length of ``channel_weights`` are supposed to be "
+                assert num_output_channels == len(self.channel_weights), (
+                    "The length of ``channel_weights`` are supposed to be "
+                )
                 f"num_output_channels, but got {len(self.channel_weights)}"
                 " instead."
                 normalized_weights = np.array(self.channel_weights) / sum(self.channel_weights)
@@ -1267,7 +1292,9 @@ class RandomFlip(BaseTransform):
 
         # flip keypoints
         if results.get("gt_keypoints", None) is not None:
-            results["gt_keypoints"] = self._flip_keypoints(results["gt_keypoints"], img_shape, results["flip_direction"])
+            results["gt_keypoints"] = self._flip_keypoints(
+                results["gt_keypoints"], img_shape, results["flip_direction"]
+            )
 
         # flip seg map
         if results.get("gt_seg_map", None) is not None:

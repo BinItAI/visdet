@@ -8,9 +8,9 @@ def test_efficientnet_backbone():
     """Test EfficientNet backbone."""
     with pytest.raises(AssertionError):
         # EfficientNet arch should be a key in EfficientNet.arch_settings
-        EfficientNet(arch='c3')
+        EfficientNet(arch="c3")
 
-    model = EfficientNet(arch='b0', out_indices=(0, 1, 2, 3, 4, 5, 6))
+    model = EfficientNet(arch="b0", out_indices=(0, 1, 2, 3, 4, 5, 6))
     model.train()
 
     imgs = torch.randn(2, 3, 32, 32)

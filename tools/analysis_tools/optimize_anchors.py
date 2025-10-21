@@ -18,6 +18,7 @@ Example:
         --input-shape ${INPUT_SHAPE [WIDTH HEIGHT]} \
         --output-dir ${OUTPUT_DIR}
 """
+
 import argparse
 import os.path as osp
 
@@ -33,31 +34,28 @@ from mmdet.utils import get_root_logger, replace_cfg_vals, update_data_root
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description='Optimize anchor parameters.')
-    parser.add_argument('config', help='Train config file path.')
+    parser = argparse.ArgumentParser(description="Optimize anchor parameters.")
+    parser.add_argument("config", help="Train config file path.")
+    parser.add_argument("--device", default="cuda:0", help="Device used for calculating.")
     parser.add_argument(
-        '--device', default='cuda:0', help='Device used for calculating.')
-    parser.add_argument(
-        '--input-shape',
+        "--input-shape",
         type=int,
-        nargs='+',
+        nargs="+",
         default=[608, 608],
-        help='input image size')
+        help="input image size",
+    )
     parser.add_argument(
-        '--algorithm',
-        default='differential_evolution',
-        help='Algorithm used for anchor optimizing.'
-        'Support k-means and differential_evolution for YOLO.')
+        "--algorithm",
+        default="differential_evolution",
+        help="Algorithm used for anchor optimizing.Support k-means and differential_evolution for YOLO.",
+    )
+    parser.add_argument("--iters", default=1000, type=int, help="Maximum iterations for optimizer.")
     parser.add_argument(
-        '--iters',
-        default=1000,
-        type=int,
-        help='Maximum iterations for optimizer.')
-    parser.add_argument(
-        '--output-dir',
+        "--output-dir",
         default=None,
         type=str,
-        help='Path to save anchor optimize result.')
+        help="Path to save anchor optimize result.",
+    )
 
     args = parser.parse_args()
     return args
@@ -77,12 +75,7 @@ class BaseAnchorOptimizer:
             Default: None
     """
 
-    def __init__(self,
-                 dataset,
-                 input_shape,
-                 logger,
-                 device='cuda:0',
-                 out_dir=None):
+    def __init__(self, dataset, input_shape, logger, device="cuda:0", out_dir=None):
         self.dataset = dataset
         self.input_shape = input_shape
         self.logger = logger
@@ -101,24 +94,24 @@ class BaseAnchorOptimizer:
             tuple[np.ndarray]: Array of bbox shapes and array of image
             shapes with shape (num_bboxes, 2) in [width, height] format.
         """
-        self.logger.info('Collecting bboxes from annotation...')
+        self.logger.info("Collecting bboxes from annotation...")
         bbox_whs = []
         img_shapes = []
         prog_bar = mmcv.ProgressBar(len(self.dataset))
         for idx in range(len(self.dataset)):
             ann = self.dataset.get_ann_info(idx)
             data_info = self.dataset.data_infos[idx]
-            img_shape = np.array([data_info['width'], data_info['height']])
-            gt_bboxes = ann['bboxes']
+            img_shape = np.array([data_info["width"], data_info["height"]])
+            gt_bboxes = ann["bboxes"]
             for bbox in gt_bboxes:
                 wh = bbox[2:4] - bbox[0:2]
                 img_shapes.append(img_shape)
                 bbox_whs.append(wh)
             prog_bar.update()
-        print('\n')
+        print("\n")
         bbox_whs = np.array(bbox_whs)
         img_shapes = np.array(img_shapes)
-        self.logger.info(f'Collected {bbox_whs.shape[0]} bboxes.')
+        self.logger.info(f"Collected {bbox_whs.shape[0]} bboxes.")
         return bbox_whs, img_shapes
 
     def get_zero_center_bbox_tensor(self):
@@ -128,10 +121,8 @@ class BaseAnchorOptimizer:
             Tensor: Tensor of bboxes with shape (num_bboxes, 4)
             in [xmin, ymin, xmax, ymax] format.
         """
-        whs = torch.from_numpy(self.bbox_whs).to(
-            self.device, dtype=torch.float32)
-        bboxes = bbox_cxcywh_to_xyxy(
-            torch.cat([torch.zeros_like(whs), whs], dim=1))
+        whs = torch.from_numpy(self.bbox_whs).to(self.device, dtype=torch.float32)
+        bboxes = bbox_cxcywh_to_xyxy(torch.cat([torch.zeros_like(whs), whs], dim=1))
         return bboxes
 
     def optimize(self):
@@ -141,11 +132,11 @@ class BaseAnchorOptimizer:
         anchor_results = []
         for w, h in anchors:
             anchor_results.append([round(w), round(h)])
-        self.logger.info(f'Anchor optimize result:{anchor_results}')
+        self.logger.info(f"Anchor optimize result:{anchor_results}")
         if path:
-            json_path = osp.join(path, 'anchor_optimize_result.json')
+            json_path = osp.join(path, "anchor_optimize_result.json")
             mmcv.dump(anchor_results, json_path)
-            self.logger.info(f'Result saved in {json_path}')
+            self.logger.info(f"Result saved in {json_path}")
 
 
 class YOLOKMeansAnchorOptimizer(BaseAnchorOptimizer):
@@ -158,7 +149,6 @@ class YOLOKMeansAnchorOptimizer(BaseAnchorOptimizer):
     """
 
     def __init__(self, num_anchors, iters, **kwargs):
-
         super(YOLOKMeansAnchorOptimizer, self).__init__(**kwargs)
         self.num_anchors = num_anchors
         self.iters = iters
@@ -168,38 +158,32 @@ class YOLOKMeansAnchorOptimizer(BaseAnchorOptimizer):
         self.save_result(anchors, self.out_dir)
 
     def kmeans_anchors(self):
-        self.logger.info(
-            f'Start cluster {self.num_anchors} YOLO anchors with K-means...')
+        self.logger.info(f"Start cluster {self.num_anchors} YOLO anchors with K-means...")
         bboxes = self.get_zero_center_bbox_tensor()
-        cluster_center_idx = torch.randint(
-            0, bboxes.shape[0], (self.num_anchors, )).to(self.device)
+        cluster_center_idx = torch.randint(0, bboxes.shape[0], (self.num_anchors,)).to(self.device)
 
-        assignments = torch.zeros((bboxes.shape[0], )).to(self.device)
+        assignments = torch.zeros((bboxes.shape[0],)).to(self.device)
         cluster_centers = bboxes[cluster_center_idx]
         if self.num_anchors == 1:
-            cluster_centers = self.kmeans_maximization(bboxes, assignments,
-                                                       cluster_centers)
+            cluster_centers = self.kmeans_maximization(bboxes, assignments, cluster_centers)
             anchors = bbox_xyxy_to_cxcywh(cluster_centers)[:, 2:].cpu().numpy()
             anchors = sorted(anchors, key=lambda x: x[0] * x[1])
             return anchors
 
         prog_bar = mmcv.ProgressBar(self.iters)
         for i in range(self.iters):
-            converged, assignments = self.kmeans_expectation(
-                bboxes, assignments, cluster_centers)
+            converged, assignments = self.kmeans_expectation(bboxes, assignments, cluster_centers)
             if converged:
-                self.logger.info(f'K-means process has converged at iter {i}.')
+                self.logger.info(f"K-means process has converged at iter {i}.")
                 break
-            cluster_centers = self.kmeans_maximization(bboxes, assignments,
-                                                       cluster_centers)
+            cluster_centers = self.kmeans_maximization(bboxes, assignments, cluster_centers)
             prog_bar.update()
-        print('\n')
-        avg_iou = bbox_overlaps(bboxes,
-                                cluster_centers).max(1)[0].mean().item()
+        print("\n")
+        avg_iou = bbox_overlaps(bboxes, cluster_centers).max(1)[0].mean().item()
 
         anchors = bbox_xyxy_to_cxcywh(cluster_centers)[:, 2:].cpu().numpy()
         anchors = sorted(anchors, key=lambda x: x[0] * x[1])
-        self.logger.info(f'Anchor cluster finish. Average IOU: {avg_iou}')
+        self.logger.info(f"Anchor cluster finish. Average IOU: {avg_iou}")
 
         return anchors
 
@@ -207,7 +191,7 @@ class YOLOKMeansAnchorOptimizer(BaseAnchorOptimizer):
         """Maximization part of EM algorithm(Expectation-Maximization)"""
         new_centers = torch.zeros_like(centers)
         for i in range(centers.shape[0]):
-            mask = (assignments == i)
+            mask = assignments == i
             if mask.sum():
                 new_centers[i, :] = bboxes[mask].mean(0)
         return new_centers
@@ -255,16 +239,17 @@ class YOLODEAnchorOptimizer(BaseAnchorOptimizer):
             Default: 0.7.
     """
 
-    def __init__(self,
-                 num_anchors,
-                 iters,
-                 strategy='best1bin',
-                 population_size=15,
-                 convergence_thr=0.0001,
-                 mutation=(0.5, 1),
-                 recombination=0.7,
-                 **kwargs):
-
+    def __init__(
+        self,
+        num_anchors,
+        iters,
+        strategy="best1bin",
+        population_size=15,
+        convergence_thr=0.0001,
+        mutation=(0.5, 1),
+        recombination=0.7,
+        **kwargs,
+    ):
         super(YOLODEAnchorOptimizer, self).__init__(**kwargs)
 
         self.num_anchors = num_anchors
@@ -289,17 +274,17 @@ class YOLODEAnchorOptimizer(BaseAnchorOptimizer):
         result = differential_evolution(
             func=self.avg_iou_cost,
             bounds=bounds,
-            args=(bboxes, ),
+            args=(bboxes,),
             strategy=self.strategy,
             maxiter=self.iters,
             popsize=self.population_size,
             tol=self.convergence_thr,
             mutation=self.mutation,
             recombination=self.recombination,
-            updating='immediate',
-            disp=True)
-        self.logger.info(
-            f'Anchor evolution finish. Average IOU: {1 - result.fun}')
+            updating="immediate",
+            disp=True,
+        )
+        self.logger.info(f"Anchor evolution finish. Average IOU: {1 - result.fun}")
         anchors = [(w, h) for w, h in zip(result.x[::2], result.x[1::2])]
         anchors = sorted(anchors, key=lambda x: x[0] * x[1])
         return anchors
@@ -307,12 +292,10 @@ class YOLODEAnchorOptimizer(BaseAnchorOptimizer):
     @staticmethod
     def avg_iou_cost(anchor_params, bboxes):
         assert len(anchor_params) % 2 == 0
-        anchor_whs = torch.tensor(
-            [[w, h]
-             for w, h in zip(anchor_params[::2], anchor_params[1::2])]).to(
-                 bboxes.device, dtype=bboxes.dtype)
-        anchor_boxes = bbox_cxcywh_to_xyxy(
-            torch.cat([torch.zeros_like(anchor_whs), anchor_whs], dim=1))
+        anchor_whs = torch.tensor([[w, h] for w, h in zip(anchor_params[::2], anchor_params[1::2])]).to(
+            bboxes.device, dtype=bboxes.dtype
+        )
+        anchor_boxes = bbox_cxcywh_to_xyxy(torch.cat([torch.zeros_like(anchor_whs), anchor_whs], dim=1))
         ious = bbox_overlaps(bboxes, anchor_boxes)
         max_ious, _ = ious.max(1)
         cost = 1 - max_ious.mean().item()
@@ -335,18 +318,17 @@ def main():
     assert len(input_shape) == 2
 
     anchor_type = cfg.model.bbox_head.anchor_generator.type
-    assert anchor_type == 'YOLOAnchorGenerator', \
-        f'Only support optimize YOLOAnchor, but get {anchor_type}.'
+    assert anchor_type == "YOLOAnchorGenerator", f"Only support optimize YOLOAnchor, but get {anchor_type}."
 
     base_sizes = cfg.model.bbox_head.anchor_generator.base_sizes
     num_anchors = sum([len(sizes) for sizes in base_sizes])
 
     train_data_cfg = cfg.data.train
-    while 'dataset' in train_data_cfg:
-        train_data_cfg = train_data_cfg['dataset']
+    while "dataset" in train_data_cfg:
+        train_data_cfg = train_data_cfg["dataset"]
     dataset = build_dataset(train_data_cfg)
 
-    if args.algorithm == 'k-means':
+    if args.algorithm == "k-means":
         optimizer = YOLOKMeansAnchorOptimizer(
             dataset=dataset,
             input_shape=input_shape,
@@ -354,8 +336,9 @@ def main():
             num_anchors=num_anchors,
             iters=args.iters,
             logger=logger,
-            out_dir=args.output_dir)
-    elif args.algorithm == 'differential_evolution':
+            out_dir=args.output_dir,
+        )
+    elif args.algorithm == "differential_evolution":
         optimizer = YOLODEAnchorOptimizer(
             dataset=dataset,
             input_shape=input_shape,
@@ -363,14 +346,13 @@ def main():
             num_anchors=num_anchors,
             iters=args.iters,
             logger=logger,
-            out_dir=args.output_dir)
+            out_dir=args.output_dir,
+        )
     else:
-        raise NotImplementedError(
-            f'Only support k-means and differential_evolution, '
-            f'but get {args.algorithm}')
+        raise NotImplementedError(f"Only support k-means and differential_evolution, but get {args.algorithm}")
 
     optimizer.optimize()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

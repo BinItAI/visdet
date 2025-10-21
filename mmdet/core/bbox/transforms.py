@@ -14,12 +14,11 @@ def find_inside_bboxes(bboxes, img_h, img_w):
     Returns:
         Tensor: Index of the remaining bboxes.
     """
-    inside_inds = (bboxes[:, 0] < img_w) & (bboxes[:, 2] > 0) \
-        & (bboxes[:, 1] < img_h) & (bboxes[:, 3] > 0)
+    inside_inds = (bboxes[:, 0] < img_w) & (bboxes[:, 2] > 0) & (bboxes[:, 1] < img_h) & (bboxes[:, 3] > 0)
     return inside_inds
 
 
-def bbox_flip(bboxes, img_shape, direction='horizontal'):
+def bbox_flip(bboxes, img_shape, direction="horizontal"):
     """Flip bboxes horizontally or vertically.
 
     Args:
@@ -32,12 +31,12 @@ def bbox_flip(bboxes, img_shape, direction='horizontal'):
         Tensor: Flipped bboxes.
     """
     assert bboxes.shape[-1] % 4 == 0
-    assert direction in ['horizontal', 'vertical', 'diagonal']
+    assert direction in ["horizontal", "vertical", "diagonal"]
     flipped = bboxes.clone()
-    if direction == 'horizontal':
+    if direction == "horizontal":
         flipped[..., 0::4] = img_shape[1] - bboxes[..., 2::4]
         flipped[..., 2::4] = img_shape[1] - bboxes[..., 0::4]
-    elif direction == 'vertical':
+    elif direction == "vertical":
         flipped[..., 1::4] = img_shape[0] - bboxes[..., 3::4]
         flipped[..., 3::4] = img_shape[0] - bboxes[..., 1::4]
     else:
@@ -48,11 +47,7 @@ def bbox_flip(bboxes, img_shape, direction='horizontal'):
     return flipped
 
 
-def bbox_mapping(bboxes,
-                 img_shape,
-                 scale_factor,
-                 flip,
-                 flip_direction='horizontal'):
+def bbox_mapping(bboxes, img_shape, scale_factor, flip, flip_direction="horizontal"):
     """Map bboxes from the original image scale to testing scale."""
     new_bboxes = bboxes * bboxes.new_tensor(scale_factor)
     if flip:
@@ -60,14 +55,9 @@ def bbox_mapping(bboxes,
     return new_bboxes
 
 
-def bbox_mapping_back(bboxes,
-                      img_shape,
-                      scale_factor,
-                      flip,
-                      flip_direction='horizontal'):
+def bbox_mapping_back(bboxes, img_shape, scale_factor, flip, flip_direction="horizontal"):
     """Map bboxes from testing scale to original image scale."""
-    new_bboxes = bbox_flip(bboxes, img_shape,
-                           flip_direction) if flip else bboxes
+    new_bboxes = bbox_flip(bboxes, img_shape, flip_direction) if flip else bboxes
     new_bboxes = new_bboxes.view(-1, 4) / new_bboxes.new_tensor(scale_factor)
     return new_bboxes.view(bboxes.shape)
 
@@ -107,7 +97,7 @@ def roi2bbox(rois):
     bbox_list = []
     img_ids = torch.unique(rois[:, 0].cpu(), sorted=True)
     for img_id in img_ids:
-        inds = (rois[:, 0] == img_id.item())
+        inds = rois[:, 0] == img_id.item()
         bbox = rois[inds, 1:]
         bbox_list.append(bbox)
     return bbox_list
@@ -167,6 +157,7 @@ def distance2bbox(points, distance, max_shape=None):
         # clip bboxes with dynamic `min` and `max` for onnx
         if torch.onnx.is_in_onnx_export():
             from mmdet.core.export import dynamic_clip_for_onnx
+
             x1, y1, x2, y2 = dynamic_clip_for_onnx(x1, y1, x2, y2, max_shape)
             bboxes = torch.stack([x1, y1, x2, y2], dim=-1)
             return bboxes
@@ -178,8 +169,7 @@ def distance2bbox(points, distance, max_shape=None):
             assert max_shape.size(0) == bboxes.size(0)
 
         min_xy = x1.new_tensor(0)
-        max_xy = torch.cat([max_shape, max_shape],
-                           dim=-1).flip(-1).unsqueeze(-2)
+        max_xy = torch.cat([max_shape, max_shape], dim=-1).flip(-1).unsqueeze(-2)
         bboxes = torch.where(bboxes < min_xy, min_xy, bboxes)
         bboxes = torch.where(bboxes > max_xy, max_xy, bboxes)
 

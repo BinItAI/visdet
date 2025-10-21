@@ -17,7 +17,6 @@ from torch.distributed.fsdp.sharded_grad_scaler import ShardedGradScaler
 from visengine.runner.amp import autocast
 
 
-
 # There's also an APEX implementation that came before this,
 # but the torch implementation (here) is recommended.
 # https://discuss.pytorch.org/t/torch-cuda-amp-vs-nvidia-apex/74994
@@ -102,7 +101,9 @@ class AmpOptimWrapper(OptimWrapper):
             assert dtype in self.valid_dtypes, f"dtype should be any of {self.valid_dtypes}, got {dtype}"
             dtype = getattr(torch, dtype)
 
-        assert dtype is None or isinstance(dtype, torch.dtype), f"dtype should be None or instance of torch.dtype, got {dtype}"
+        assert dtype is None or isinstance(dtype, torch.dtype), (
+            f"dtype should be None or instance of torch.dtype, got {dtype}"
+        )
         self.cast_dtype = dtype
 
     def backward(self, loss: torch.Tensor, **kwargs):

@@ -7,12 +7,21 @@ from torch import Tensor
 from visengine.structures import InstanceData
 
 from visdet.models.dense_heads.base_dense_head import BaseDenseHead
-from visdet.models.task_modules.prior_generators import AnchorGenerator, anchor_inside_flags
+from visdet.models.task_modules.prior_generators import (
+    AnchorGenerator,
+    anchor_inside_flags,
+)
 from visdet.models.task_modules.samplers import PseudoSampler
 from visdet.models.utils import images_to_levels, multi_apply, unmap
 from visdet.registry import MODELS, TASK_UTILS
 from visdet.structures.bbox import BaseBoxes, cat_boxes, get_box_tensor
-from visdet.utils import ConfigType, InstanceList, OptConfigType, OptInstanceList, OptMultiConfig
+from visdet.utils import (
+    ConfigType,
+    InstanceList,
+    OptConfigType,
+    OptInstanceList,
+    OptMultiConfig,
+)
 
 
 @MODELS.register_module()
@@ -43,9 +52,17 @@ class AnchorHead(BaseDenseHead):
         num_classes: int,
         in_channels: int,
         feat_channels: int = 256,
-        anchor_generator: ConfigType = dict(type="AnchorGenerator", scales=[8, 16, 32], ratios=[0.5, 1.0, 2.0], strides=[4, 8, 16, 32, 64]),
+        anchor_generator: ConfigType = dict(
+            type="AnchorGenerator",
+            scales=[8, 16, 32],
+            ratios=[0.5, 1.0, 2.0],
+            strides=[4, 8, 16, 32, 64],
+        ),
         bbox_coder: ConfigType = dict(
-            type="DeltaXYWHBBoxCoder", clip_border=True, target_means=(0.0, 0.0, 0.0, 0.0), target_stds=(1.0, 1.0, 1.0, 1.0)
+            type="DeltaXYWHBBoxCoder",
+            clip_border=True,
+            target_means=(0.0, 0.0, 0.0, 0.0),
+            target_stds=(1.0, 1.0, 1.0, 1.0),
         ),
         reg_decoded_bbox: bool = False,
         loss_cls: ConfigType = dict(type="CrossEntropyLoss", use_sigmoid=True, loss_weight=1.0),
@@ -92,7 +109,9 @@ class AnchorHead(BaseDenseHead):
 
     @property
     def num_anchors(self) -> int:
-        warnings.warn("DeprecationWarning: `num_anchors` is deprecated, for consistency or also use `num_base_priors` instead")
+        warnings.warn(
+            "DeprecationWarning: `num_anchors` is deprecated, for consistency or also use `num_base_priors` instead"
+        )
         return self.prior_generator.num_base_priors[0]
 
     @property
@@ -143,7 +162,10 @@ class AnchorHead(BaseDenseHead):
         return multi_apply(self.forward_single, x)
 
     def get_anchors(
-        self, featmap_sizes: list[tuple], batch_img_metas: list[dict], device: torch.device | str = "cuda"
+        self,
+        featmap_sizes: list[tuple],
+        batch_img_metas: list[dict],
+        device: torch.device | str = "cuda",
     ) -> tuple[list[list[Tensor]], list[list[Tensor]]]:
         """Get anchors according to feature map sizes.
 
@@ -216,7 +238,12 @@ class AnchorHead(BaseDenseHead):
                 - neg_inds (Tensor): negative samples indexes.
                 - sampling_result (:obj:`SamplingResult`): Sampling results.
         """
-        inside_flags = anchor_inside_flags(flat_anchors, valid_flags, img_meta["img_shape"][:2], self.train_cfg["allowed_border"])
+        inside_flags = anchor_inside_flags(
+            flat_anchors,
+            valid_flags,
+            img_meta["img_shape"][:2],
+            self.train_cfg["allowed_border"],
+        )
         if not inside_flags.any():
             raise ValueError(
                 "There is no valid anchor inside the image boundary. Please "
@@ -271,7 +298,15 @@ class AnchorHead(BaseDenseHead):
             bbox_targets = unmap(bbox_targets, num_total_anchors, inside_flags)
             bbox_weights = unmap(bbox_weights, num_total_anchors, inside_flags)
 
-        return (labels, label_weights, bbox_targets, bbox_weights, pos_inds, neg_inds, sampling_result)
+        return (
+            labels,
+            label_weights,
+            bbox_targets,
+            bbox_weights,
+            pos_inds,
+            neg_inds,
+            sampling_result,
+        )
 
     def get_targets(
         self,
@@ -354,7 +389,15 @@ class AnchorHead(BaseDenseHead):
             batch_gt_instances_ignore,
             unmap_outputs=unmap_outputs,
         )
-        (all_labels, all_label_weights, all_bbox_targets, all_bbox_weights, pos_inds_list, neg_inds_list, sampling_results_list) = results[:7]
+        (
+            all_labels,
+            all_label_weights,
+            all_bbox_targets,
+            all_bbox_weights,
+            pos_inds_list,
+            neg_inds_list,
+            sampling_results_list,
+        ) = results[:7]
         rest_results = list(results[7:])  # user-added return values
         # Get `avg_factor` of all images, which calculate in `SamplingResult`.
         # When using sampling method, avg_factor is usually the sum of
@@ -369,7 +412,13 @@ class AnchorHead(BaseDenseHead):
         label_weights_list = images_to_levels(all_label_weights, num_level_anchors)
         bbox_targets_list = images_to_levels(all_bbox_targets, num_level_anchors)
         bbox_weights_list = images_to_levels(all_bbox_weights, num_level_anchors)
-        res = (labels_list, label_weights_list, bbox_targets_list, bbox_weights_list, avg_factor)
+        res = (
+            labels_list,
+            label_weights_list,
+            bbox_targets_list,
+            bbox_weights_list,
+            avg_factor,
+        )
         if return_sampling_results:
             res = res + (sampling_results_list,)
         for i, r in enumerate(rest_results):  # user-added return values
@@ -467,9 +516,19 @@ class AnchorHead(BaseDenseHead):
 
         anchor_list, valid_flag_list = self.get_anchors(featmap_sizes, batch_img_metas, device=device)
         cls_reg_targets = self.get_targets(
-            anchor_list, valid_flag_list, batch_gt_instances, batch_img_metas, batch_gt_instances_ignore=batch_gt_instances_ignore
+            anchor_list,
+            valid_flag_list,
+            batch_gt_instances,
+            batch_img_metas,
+            batch_gt_instances_ignore=batch_gt_instances_ignore,
         )
-        (labels_list, label_weights_list, bbox_targets_list, bbox_weights_list, avg_factor) = cls_reg_targets
+        (
+            labels_list,
+            label_weights_list,
+            bbox_targets_list,
+            bbox_weights_list,
+            avg_factor,
+        ) = cls_reg_targets
 
         # anchor number of multi levels
         num_level_anchors = [anchors.size(0) for anchors in anchor_list[0]]

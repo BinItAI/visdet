@@ -4,6 +4,7 @@ from scipy.optimize import linear_sum_assignment
 
 from mmdet.core.bbox.builder import BBOX_ASSIGNERS
 from mmdet.core.bbox.match_costs.builder import build_match_cost
+
 from .assign_result import AssignResult
 from .base_assigner import BaseAssigner
 
@@ -30,23 +31,26 @@ class MaskHungarianAssigner(BaseAssigner):
         dice_cost (:obj:`mmcv.ConfigDict` | dict): Dice cost config.
     """
 
-    def __init__(self,
-                 cls_cost=dict(type='ClassificationCost', weight=1.0),
-                 mask_cost=dict(
-                     type='FocalLossCost', weight=1.0, binary_input=True),
-                 dice_cost=dict(type='DiceCost', weight=1.0)):
+    def __init__(
+        self,
+        cls_cost=dict(type="ClassificationCost", weight=1.0),
+        mask_cost=dict(type="FocalLossCost", weight=1.0, binary_input=True),
+        dice_cost=dict(type="DiceCost", weight=1.0),
+    ):
         self.cls_cost = build_match_cost(cls_cost)
         self.mask_cost = build_match_cost(mask_cost)
         self.dice_cost = build_match_cost(dice_cost)
 
-    def assign(self,
-               cls_pred,
-               mask_pred,
-               gt_labels,
-               gt_mask,
-               img_meta,
-               gt_bboxes_ignore=None,
-               eps=1e-7):
+    def assign(
+        self,
+        cls_pred,
+        mask_pred,
+        gt_labels,
+        gt_mask,
+        img_meta,
+        gt_bboxes_ignore=None,
+        eps=1e-7,
+    ):
         """Computes one-to-one matching based on the weighted costs.
 
         Args:
@@ -64,26 +68,20 @@ class MaskHungarianAssigner(BaseAssigner):
         Returns:
             :obj:`AssignResult`: The assigned result.
         """
-        assert gt_bboxes_ignore is None, \
-            'Only case when gt_bboxes_ignore is None is supported.'
+        assert gt_bboxes_ignore is None, "Only case when gt_bboxes_ignore is None is supported."
         # K-Net sometimes passes cls_pred=None to this assigner.
         # So we should use the shape of mask_pred
         num_gt, num_query = gt_labels.shape[0], mask_pred.shape[0]
 
         # 1. assign -1 by default
-        assigned_gt_inds = mask_pred.new_full((num_query, ),
-                                              -1,
-                                              dtype=torch.long)
-        assigned_labels = mask_pred.new_full((num_query, ),
-                                             -1,
-                                             dtype=torch.long)
+        assigned_gt_inds = mask_pred.new_full((num_query,), -1, dtype=torch.long)
+        assigned_labels = mask_pred.new_full((num_query,), -1, dtype=torch.long)
         if num_gt == 0 or num_query == 0:
             # No ground truth or boxes, return empty assignment
             if num_gt == 0:
                 # No ground truth, assign all to background
                 assigned_gt_inds[:] = 0
-            return AssignResult(
-                num_gt, assigned_gt_inds, None, labels=assigned_labels)
+            return AssignResult(num_gt, assigned_gt_inds, None, labels=assigned_labels)
 
         # 2. compute the weighted costs
         # classification and maskcost.
@@ -110,10 +108,8 @@ class MaskHungarianAssigner(BaseAssigner):
         cost = cost.detach().cpu()
 
         matched_row_inds, matched_col_inds = linear_sum_assignment(cost)
-        matched_row_inds = torch.from_numpy(matched_row_inds).to(
-            mask_pred.device)
-        matched_col_inds = torch.from_numpy(matched_col_inds).to(
-            mask_pred.device)
+        matched_row_inds = torch.from_numpy(matched_row_inds).to(mask_pred.device)
+        matched_col_inds = torch.from_numpy(matched_col_inds).to(mask_pred.device)
 
         # 4. assign backgrounds and foregrounds
         # assign all indices to backgrounds first
@@ -121,5 +117,4 @@ class MaskHungarianAssigner(BaseAssigner):
         # assign foregrounds based on matching results
         assigned_gt_inds[matched_row_inds] = matched_col_inds + 1
         assigned_labels[matched_row_inds] = gt_labels[matched_col_inds]
-        return AssignResult(
-            num_gt, assigned_gt_inds, None, labels=assigned_labels)
+        return AssignResult(num_gt, assigned_gt_inds, None, labels=assigned_labels)

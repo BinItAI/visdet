@@ -7,6 +7,7 @@ import torch
 from mmcv.image import tensor2imgs
 
 from mmdet.core import bbox_mapping
+
 from ..builder import DETECTORS, build_backbone, build_head, build_neck
 from .base import BaseDetector
 
@@ -15,18 +16,19 @@ from .base import BaseDetector
 class RPN(BaseDetector):
     """Implementation of Region Proposal Network."""
 
-    def __init__(self,
-                 backbone,
-                 neck,
-                 rpn_head,
-                 train_cfg,
-                 test_cfg,
-                 pretrained=None,
-                 init_cfg=None):
+    def __init__(
+        self,
+        backbone,
+        neck,
+        rpn_head,
+        train_cfg,
+        test_cfg,
+        pretrained=None,
+        init_cfg=None,
+    ):
         super(RPN, self).__init__(init_cfg)
         if pretrained:
-            warnings.warn('DeprecationWarning: pretrained is deprecated, '
-                          'please use "init_cfg" instead')
+            warnings.warn('DeprecationWarning: pretrained is deprecated, please use "init_cfg" instead')
             backbone.pretrained = pretrained
         self.backbone = build_backbone(backbone)
         self.neck = build_neck(neck) if neck is not None else None
@@ -58,11 +60,7 @@ class RPN(BaseDetector):
         rpn_outs = self.rpn_head(x)
         return rpn_outs
 
-    def forward_train(self,
-                      img,
-                      img_metas,
-                      gt_bboxes=None,
-                      gt_bboxes_ignore=None):
+    def forward_train(self, img, img_metas, gt_bboxes=None, gt_bboxes_ignore=None):
         """
         Args:
             img (Tensor): Input images of shape (N, C, H, W).
@@ -80,13 +78,11 @@ class RPN(BaseDetector):
         Returns:
             dict[str, Tensor]: A dictionary of loss components.
         """
-        if (isinstance(self.train_cfg.rpn, dict)
-                and self.train_cfg.rpn.get('debug', False)):
+        if isinstance(self.train_cfg.rpn, dict) and self.train_cfg.rpn.get("debug", False):
             self.rpn_head.debug_imgs = tensor2imgs(img)
 
         x = self.extract_feat(img)
-        losses = self.rpn_head.forward_train(x, img_metas, gt_bboxes, None,
-                                             gt_bboxes_ignore)
+        losses = self.rpn_head.forward_train(x, img_metas, gt_bboxes, None, gt_bboxes_ignore)
         return losses
 
     def simple_test(self, img, img_metas, rescale=False):
@@ -105,11 +101,11 @@ class RPN(BaseDetector):
         # get origin input shape to onnx dynamic input shape
         if torch.onnx.is_in_onnx_export():
             img_shape = torch._shape_as_tensor(img)[2:]
-            img_metas[0]['img_shape_for_onnx'] = img_shape
+            img_metas[0]["img_shape_for_onnx"] = img_shape
         proposal_list = self.rpn_head.simple_test_rpn(x, img_metas)
         if rescale:
             for proposals, meta in zip(proposal_list, img_metas):
-                proposals[:, :4] /= proposals.new_tensor(meta['scale_factor'])
+                proposals[:, :4] /= proposals.new_tensor(meta["scale_factor"])
         if torch.onnx.is_in_onnx_export():
             return proposal_list
 
@@ -127,17 +123,14 @@ class RPN(BaseDetector):
         Returns:
             list[np.ndarray]: proposals
         """
-        proposal_list = self.rpn_head.aug_test_rpn(
-            self.extract_feats(imgs), img_metas)
+        proposal_list = self.rpn_head.aug_test_rpn(self.extract_feats(imgs), img_metas)
         if not rescale:
             for proposals, img_meta in zip(proposal_list, img_metas[0]):
-                img_shape = img_meta['img_shape']
-                scale_factor = img_meta['scale_factor']
-                flip = img_meta['flip']
-                flip_direction = img_meta['flip_direction']
-                proposals[:, :4] = bbox_mapping(proposals[:, :4], img_shape,
-                                                scale_factor, flip,
-                                                flip_direction)
+                img_shape = img_meta["img_shape"]
+                scale_factor = img_meta["scale_factor"]
+                flip = img_meta["flip"]
+                flip_direction = img_meta["flip_direction"]
+                proposals[:, :4] = bbox_mapping(proposals[:, :4], img_shape, scale_factor, flip, flip_direction)
         return [proposal.cpu().numpy() for proposal in proposal_list]
 
     def show_result(self, data, result, top_k=20, **kwargs):
@@ -154,7 +147,7 @@ class RPN(BaseDetector):
             np.ndarray: The image with bboxes drawn on it.
         """
         if kwargs is not None:
-            kwargs['colors'] = 'green'
+            kwargs["colors"] = "green"
             sig = signature(mmcv.imshow_bboxes)
             for k in list(kwargs.keys()):
                 if k not in sig.parameters:

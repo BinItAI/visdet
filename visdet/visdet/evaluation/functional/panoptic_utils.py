@@ -29,7 +29,15 @@ except ImportError:
     OFFSET = 256 * 256 * 256
 
 
-def pq_compute_single_core(proc_id, annotation_set, gt_folder, pred_folder, categories, backend_args=None, print_log=False):
+def pq_compute_single_core(
+    proc_id,
+    annotation_set,
+    gt_folder,
+    pred_folder,
+    categories,
+    backend_args=None,
+    print_log=False,
+):
     """The single core function to evaluate the metric of Panoptic
     Segmentation.
 
@@ -46,7 +54,9 @@ def pq_compute_single_core(proc_id, annotation_set, gt_folder, pred_folder, cate
         print_log (bool): Whether to print the log. Defaults to False.
     """
     if PQStat is None:
-        raise RuntimeError("panopticapi is not installed, please install it by: pip install git+https://github.com/cocodataset/panopticapi.git.")
+        raise RuntimeError(
+            "panopticapi is not installed, please install it by: pip install git+https://github.com/cocodataset/panopticapi.git."
+        )
 
     pq_stat = PQStat()
 
@@ -62,7 +72,11 @@ def pq_compute_single_core(proc_id, annotation_set, gt_folder, pred_folder, cate
         pan_gt = rgb2id(pan_gt)
 
         # The predictions can only be on the local dist now.
-        pan_pred = viscv.imread(os.path.join(pred_folder, pred_ann["file_name"]), flag="color", channel_order="rgb")
+        pan_pred = viscv.imread(
+            os.path.join(pred_folder, pred_ann["file_name"]),
+            flag="color",
+            channel_order="rgb",
+        )
         pan_pred = rgb2id(pan_pred)
 
         gt_segms = {el["id"]: el for el in gt_ann["segments_info"]}
@@ -76,7 +90,9 @@ def pq_compute_single_core(proc_id, annotation_set, gt_folder, pred_folder, cate
                 if label == VOID:
                     continue
                 raise KeyError(
-                    "In the image with ID {} segment with ID {} is presented in PNG and not presented in JSON.".format(gt_ann["image_id"], label)
+                    "In the image with ID {} segment with ID {} is presented in PNG and not presented in JSON.".format(
+                        gt_ann["image_id"], label
+                    )
                 )
             pred_segms[label]["area"] = label_cnt
             pred_labels_set.remove(label)
@@ -116,7 +132,12 @@ def pq_compute_single_core(proc_id, annotation_set, gt_folder, pred_folder, cate
             if gt_segms[gt_label]["category_id"] != pred_segms[pred_label]["category_id"]:
                 continue
 
-            union = pred_segms[pred_label]["area"] + gt_segms[gt_label]["area"] - intersection - gt_pred_map.get((VOID, pred_label), 0)
+            union = (
+                pred_segms[pred_label]["area"]
+                + gt_segms[gt_label]["area"]
+                - intersection
+                - gt_pred_map.get((VOID, pred_label), 0)
+            )
             iou = intersection / union
             if iou > 0.5:
                 pq_stat[gt_segms[gt_label]["category_id"]].tp += 1
@@ -155,7 +176,14 @@ def pq_compute_single_core(proc_id, annotation_set, gt_folder, pred_folder, cate
     return pq_stat
 
 
-def pq_compute_multi_core(matched_annotations_list, gt_folder, pred_folder, categories, backend_args=None, nproc=32):
+def pq_compute_multi_core(
+    matched_annotations_list,
+    gt_folder,
+    pred_folder,
+    categories,
+    backend_args=None,
+    nproc=32,
+):
     """Evaluate the metrics of Panoptic Segmentation with multithreading.
 
     Same as the function with the same name in `panopticapi`.
@@ -174,7 +202,9 @@ def pq_compute_multi_core(matched_annotations_list, gt_folder, pred_folder, cate
             the number of cpu cores is used.
     """
     if PQStat is None:
-        raise RuntimeError("panopticapi is not installed, please install it by: pip install git+https://github.com/cocodataset/panopticapi.git.")
+        raise RuntimeError(
+            "panopticapi is not installed, please install it by: pip install git+https://github.com/cocodataset/panopticapi.git."
+        )
 
     cpu_num = min(nproc, multiprocessing.cpu_count())
 

@@ -87,7 +87,13 @@ class EMAHook(Hook):
                 f"self.begin_iter should be smaller than or equal to runner.max_iters: {runner.max_iters}, but got begin_iter: {self.begin_iter}"
             )
 
-    def after_train_iter(self, runner, batch_idx: int, data_batch: DATA_BATCH = None, outputs: dict | None = None) -> None:
+    def after_train_iter(
+        self,
+        runner,
+        batch_idx: int,
+        data_batch: DATA_BATCH = None,
+        outputs: dict | None = None,
+    ) -> None:
         """Update ema parameter.
 
         Args:
@@ -194,7 +200,9 @@ class EMAHook(Hook):
             else self.ema_model.module.parameters()
         )
         src_param = (
-            itertools.chain(self.src_model.parameters(), self.src_model.buffers()) if self.ema_model.update_buffers else self.src_model.parameters()
+            itertools.chain(self.src_model.parameters(), self.src_model.buffers())
+            if self.ema_model.update_buffers
+            else self.src_model.parameters()
         )
         for p_avg, p_src in zip(avg_param, src_param, strict=False):
             tmp = p_avg.data.clone()

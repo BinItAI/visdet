@@ -104,17 +104,14 @@ class WindowMSA(BaseModule):
         q, k, v = qkv[0], qkv[1], qkv[2]
 
         relative_position_bias = self.relative_position_bias_table[self.relative_position_index.view(-1)].view(
-            self.window_size[0] * self.window_size[1], self.window_size[0] * self.window_size[1], -1
+            self.window_size[0] * self.window_size[1],
+            self.window_size[0] * self.window_size[1],
+            -1,
         )  # Wh*Ww,Wh*Ww,nH
         relative_position_bias = relative_position_bias.permute(2, 0, 1).contiguous()  # nH, Wh*Ww, Wh*Ww
         relative_position_bias = relative_position_bias.to(dtype=q.dtype, device=q.device)
 
-        use_flash = (
-            self.backend == "flash"
-            and x.is_cuda
-            and self.attn_drop.p == 0.0
-            and head_dim % 16 == 0
-        )
+        use_flash = self.backend == "flash" and x.is_cuda and self.attn_drop.p == 0.0 and head_dim % 16 == 0
 
         if use_flash:
             out = self._forward_flash(q, k, v, relative_position_bias, mask, B, N, C)
@@ -273,8 +270,16 @@ class ShiftWindowMSA(BaseModule):
 
             # calculate attention mask for SW-MSA
             img_mask = torch.zeros((1, H_pad, W_pad, 1), device=query.device)
-            h_slices = (slice(0, -self.window_size), slice(-self.window_size, -self.shift_size), slice(-self.shift_size, None))
-            w_slices = (slice(0, -self.window_size), slice(-self.window_size, -self.shift_size), slice(-self.shift_size, None))
+            h_slices = (
+                slice(0, -self.window_size),
+                slice(-self.window_size, -self.shift_size),
+                slice(-self.shift_size, None),
+            )
+            w_slices = (
+                slice(0, -self.window_size),
+                slice(-self.window_size, -self.shift_size),
+                slice(-self.shift_size, None),
+            )
             cnt = 0
             for h in h_slices:
                 for w in w_slices:
@@ -631,7 +636,9 @@ class SwinTransformer(BaseModule):
         elif isinstance(pretrain_img_size, tuple):
             if len(pretrain_img_size) == 1:
                 pretrain_img_size = to_2tuple(pretrain_img_size[0])
-            assert len(pretrain_img_size) == 2, f"The size of image should have length 1 or 2, but got {len(pretrain_img_size)}"
+            assert len(pretrain_img_size) == 2, (
+                f"The size of image should have length 1 or 2, but got {len(pretrain_img_size)}"
+            )
 
         assert not (init_cfg and pretrained), "init_cfg and pretrained cannot be specified at the same time"
         if isinstance(pretrained, str):
@@ -754,7 +761,9 @@ class SwinTransformer(BaseModule):
                 elif isinstance(m, nn.LayerNorm):
                     constant_init(m, 1.0)
         else:
-            assert "checkpoint" in self.init_cfg, f"Only support specify `Pretrained` in `init_cfg` in {self.__class__.__name__} "
+            assert "checkpoint" in self.init_cfg, (
+                f"Only support specify `Pretrained` in `init_cfg` in {self.__class__.__name__} "
+            )
             ckpt = CheckpointLoader.load_checkpoint(self.init_cfg.checkpoint, logger=logger, map_location="cpu")
             if "state_dict" in ckpt:
                 _state_dict = ckpt["state_dict"]
@@ -783,7 +792,9 @@ class SwinTransformer(BaseModule):
                 if N1 != N2 or C1 != C2 or L != H * W:
                     logger.warning("Error in loading absolute_pos_embed, pass")
                 else:
-                    state_dict["absolute_pos_embed"] = absolute_pos_embed.view(N2, H, W, C2).permute(0, 3, 1, 2).contiguous()
+                    state_dict["absolute_pos_embed"] = (
+                        absolute_pos_embed.view(N2, H, W, C2).permute(0, 3, 1, 2).contiguous()
+                    )
 
             # interpolate position bias table if needed
             relative_position_bias_table_keys = [k for k in state_dict.keys() if "relative_position_bias_table" in k]
@@ -797,7 +808,11 @@ class SwinTransformer(BaseModule):
                 elif L1 != L2:
                     S1 = int(L1**0.5)
                     S2 = int(L2**0.5)
-                    table_pretrained_resized = F.interpolate(table_pretrained.permute(1, 0).reshape(1, nH1, S1, S1), size=(S2, S2), mode="bicubic")
+                    table_pretrained_resized = F.interpolate(
+                        table_pretrained.permute(1, 0).reshape(1, nH1, S1, S1),
+                        size=(S2, S2),
+                        mode="bicubic",
+                    )
                     state_dict[table_key] = table_pretrained_resized.view(nH2, L2).permute(1, 0).contiguous()
 
             # load state_dict

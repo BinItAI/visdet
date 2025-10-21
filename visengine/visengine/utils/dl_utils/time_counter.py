@@ -105,7 +105,9 @@ class TimeCounter:
 
     @master_only
     def __enter__(self):
-        assert self.tag is not None, "In order to clearly distinguish printing information in different contexts, please specify the tag parameter"
+        assert self.tag is not None, (
+            "In order to clearly distinguish printing information in different contexts, please specify the tag parameter"
+        )
 
         self.__count += 1
 

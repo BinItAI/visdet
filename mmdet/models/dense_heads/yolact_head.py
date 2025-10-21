@@ -8,6 +8,7 @@ from mmcv.runner import BaseModule, ModuleList, force_fp32
 
 from mmdet.core import build_sampler, fast_nms, images_to_levels, multi_apply
 from mmdet.core.utils import select_single_mlvl
+
 from ..builder import HEADS, build_loss
 from .anchor_head import AnchorHead
 
@@ -41,33 +42,32 @@ class YOLACTHead(AnchorHead):
         init_cfg (dict or list[dict], optional): Initialization config dict.
     """
 
-    def __init__(self,
-                 num_classes,
-                 in_channels,
-                 anchor_generator=dict(
-                     type='AnchorGenerator',
-                     octave_base_scale=3,
-                     scales_per_octave=1,
-                     ratios=[0.5, 1.0, 2.0],
-                     strides=[8, 16, 32, 64, 128]),
-                 loss_cls=dict(
-                     type='CrossEntropyLoss',
-                     use_sigmoid=False,
-                     reduction='none',
-                     loss_weight=1.0),
-                 loss_bbox=dict(
-                     type='SmoothL1Loss', beta=1.0, loss_weight=1.5),
-                 num_head_convs=1,
-                 num_protos=32,
-                 use_ohem=True,
-                 conv_cfg=None,
-                 norm_cfg=None,
-                 init_cfg=dict(
-                     type='Xavier',
-                     distribution='uniform',
-                     bias=0,
-                     layer='Conv2d'),
-                 **kwargs):
+    def __init__(
+        self,
+        num_classes,
+        in_channels,
+        anchor_generator=dict(
+            type="AnchorGenerator",
+            octave_base_scale=3,
+            scales_per_octave=1,
+            ratios=[0.5, 1.0, 2.0],
+            strides=[8, 16, 32, 64, 128],
+        ),
+        loss_cls=dict(
+            type="CrossEntropyLoss",
+            use_sigmoid=False,
+            reduction="none",
+            loss_weight=1.0,
+        ),
+        loss_bbox=dict(type="SmoothL1Loss", beta=1.0, loss_weight=1.5),
+        num_head_convs=1,
+        num_protos=32,
+        use_ohem=True,
+        conv_cfg=None,
+        norm_cfg=None,
+        init_cfg=dict(type="Xavier", distribution="uniform", bias=0, layer="Conv2d"),
+        **kwargs,
+    ):
         self.num_head_convs = num_head_convs
         self.num_protos = num_protos
         self.use_ohem = use_ohem
@@ -80,9 +80,10 @@ class YOLACTHead(AnchorHead):
             loss_bbox=loss_bbox,
             anchor_generator=anchor_generator,
             init_cfg=init_cfg,
-            **kwargs)
+            **kwargs,
+        )
         if self.use_ohem:
-            sampler_cfg = dict(type='PseudoSampler')
+            sampler_cfg = dict(type="PseudoSampler")
             self.sampler = build_sampler(sampler_cfg, context=self)
             self.sampling = False
 
@@ -100,19 +101,17 @@ class YOLACTHead(AnchorHead):
                     stride=1,
                     padding=1,
                     conv_cfg=self.conv_cfg,
-                    norm_cfg=self.norm_cfg))
+                    norm_cfg=self.norm_cfg,
+                )
+            )
         self.conv_cls = nn.Conv2d(
             self.feat_channels,
             self.num_base_priors * self.cls_out_channels,
             3,
-            padding=1)
-        self.conv_reg = nn.Conv2d(
-            self.feat_channels, self.num_base_priors * 4, 3, padding=1)
-        self.conv_coeff = nn.Conv2d(
-            self.feat_channels,
-            self.num_base_priors * self.num_protos,
-            3,
-            padding=1)
+            padding=1,
+        )
+        self.conv_reg = nn.Conv2d(self.feat_channels, self.num_base_priors * 4, 3, padding=1)
+        self.conv_coeff = nn.Conv2d(self.feat_channels, self.num_base_priors * self.num_protos, 3, padding=1)
 
     def forward_single(self, x):
         """Forward feature of a single scale level.
@@ -136,14 +135,16 @@ class YOLACTHead(AnchorHead):
         coeff_pred = self.conv_coeff(x).tanh()
         return cls_score, bbox_pred, coeff_pred
 
-    @force_fp32(apply_to=('cls_scores', 'bbox_preds'))
-    def loss(self,
-             cls_scores,
-             bbox_preds,
-             gt_bboxes,
-             gt_labels,
-             img_metas,
-             gt_bboxes_ignore=None):
+    @force_fp32(apply_to=("cls_scores", "bbox_preds"))
+    def loss(
+        self,
+        cls_scores,
+        bbox_preds,
+        gt_bboxes,
+        gt_labels,
+        img_metas,
+        gt_bboxes_ignore=None,
+    ):
         """A combination of the func:``AnchorHead.loss`` and
         func:``SSDHead.loss``.
 
@@ -174,8 +175,7 @@ class YOLACTHead(AnchorHead):
 
         device = cls_scores[0].device
 
-        anchor_list, valid_flag_list = self.get_anchors(
-            featmap_sizes, img_metas, device=device)
+        anchor_list, valid_flag_list = self.get_anchors(featmap_sizes, img_metas, device=device)
         label_channels = self.cls_out_channels if self.use_sigmoid_cls else 1
         cls_reg_targets = self.get_targets(
             anchor_list,
@@ -186,29 +186,34 @@ class YOLACTHead(AnchorHead):
             gt_labels_list=gt_labels,
             label_channels=label_channels,
             unmap_outputs=not self.use_ohem,
-            return_sampling_results=True)
+            return_sampling_results=True,
+        )
         if cls_reg_targets is None:
             return None
-        (labels_list, label_weights_list, bbox_targets_list, bbox_weights_list,
-         num_total_pos, num_total_neg, sampling_results) = cls_reg_targets
+        (
+            labels_list,
+            label_weights_list,
+            bbox_targets_list,
+            bbox_weights_list,
+            num_total_pos,
+            num_total_neg,
+            sampling_results,
+        ) = cls_reg_targets
 
         if self.use_ohem:
             num_images = len(img_metas)
-            all_cls_scores = torch.cat([
-                s.permute(0, 2, 3, 1).reshape(
-                    num_images, -1, self.cls_out_channels) for s in cls_scores
-            ], 1)
+            all_cls_scores = torch.cat(
+                [s.permute(0, 2, 3, 1).reshape(num_images, -1, self.cls_out_channels) for s in cls_scores],
+                1,
+            )
             all_labels = torch.cat(labels_list, -1).view(num_images, -1)
-            all_label_weights = torch.cat(label_weights_list,
-                                          -1).view(num_images, -1)
-            all_bbox_preds = torch.cat([
-                b.permute(0, 2, 3, 1).reshape(num_images, -1, 4)
-                for b in bbox_preds
-            ], -2)
-            all_bbox_targets = torch.cat(bbox_targets_list,
-                                         -2).view(num_images, -1, 4)
-            all_bbox_weights = torch.cat(bbox_weights_list,
-                                         -2).view(num_images, -1, 4)
+            all_label_weights = torch.cat(label_weights_list, -1).view(num_images, -1)
+            all_bbox_preds = torch.cat(
+                [b.permute(0, 2, 3, 1).reshape(num_images, -1, 4) for b in bbox_preds],
+                -2,
+            )
+            all_bbox_targets = torch.cat(bbox_targets_list, -2).view(num_images, -1, 4)
+            all_bbox_weights = torch.cat(bbox_weights_list, -2).view(num_images, -1, 4)
 
             # concat all level anchors to a single tensor
             all_anchors = []
@@ -216,10 +221,8 @@ class YOLACTHead(AnchorHead):
                 all_anchors.append(torch.cat(anchor_list[i]))
 
             # check NaN and Inf
-            assert torch.isfinite(all_cls_scores).all().item(), \
-                'classification scores become infinite or NaN!'
-            assert torch.isfinite(all_bbox_preds).all().item(), \
-                'bbox predications become infinite or NaN!'
+            assert torch.isfinite(all_cls_scores).all().item(), "classification scores become infinite or NaN!"
+            assert torch.isfinite(all_bbox_preds).all().item(), "bbox predications become infinite or NaN!"
 
             losses_cls, losses_bbox = multi_apply(
                 self.loss_single_OHEM,
@@ -230,11 +233,10 @@ class YOLACTHead(AnchorHead):
                 all_label_weights,
                 all_bbox_targets,
                 all_bbox_weights,
-                num_total_samples=num_total_pos)
+                num_total_samples=num_total_pos,
+            )
         else:
-            num_total_samples = (
-                num_total_pos +
-                num_total_neg if self.sampling else num_total_pos)
+            num_total_samples = num_total_pos + num_total_neg if self.sampling else num_total_pos
 
             # anchor number of multi levels
             num_level_anchors = [anchors.size(0) for anchors in anchor_list[0]]
@@ -242,8 +244,7 @@ class YOLACTHead(AnchorHead):
             concat_anchor_list = []
             for i in range(len(anchor_list)):
                 concat_anchor_list.append(torch.cat(anchor_list[i]))
-            all_anchor_list = images_to_levels(concat_anchor_list,
-                                               num_level_anchors)
+            all_anchor_list = images_to_levels(concat_anchor_list, num_level_anchors)
             losses_cls, losses_bbox = multi_apply(
                 self.loss_single,
                 cls_scores,
@@ -253,22 +254,28 @@ class YOLACTHead(AnchorHead):
                 label_weights_list,
                 bbox_targets_list,
                 bbox_weights_list,
-                num_total_samples=num_total_samples)
+                num_total_samples=num_total_samples,
+            )
 
-        return dict(
-            loss_cls=losses_cls, loss_bbox=losses_bbox), sampling_results
+        return dict(loss_cls=losses_cls, loss_bbox=losses_bbox), sampling_results
 
-    def loss_single_OHEM(self, cls_score, bbox_pred, anchors, labels,
-                         label_weights, bbox_targets, bbox_weights,
-                         num_total_samples):
-        """"See func:``SSDHead.loss``."""
+    def loss_single_OHEM(
+        self,
+        cls_score,
+        bbox_pred,
+        anchors,
+        labels,
+        label_weights,
+        bbox_targets,
+        bbox_weights,
+        num_total_samples,
+    ):
+        """ "See func:``SSDHead.loss``."""
         loss_cls_all = self.loss_cls(cls_score, labels, label_weights)
 
         # FG cat_id: [0, num_classes -1], BG cat_id: num_classes
-        pos_inds = ((labels >= 0) & (labels < self.num_classes)).nonzero(
-            as_tuple=False).reshape(-1)
-        neg_inds = (labels == self.num_classes).nonzero(
-            as_tuple=False).view(-1)
+        pos_inds = ((labels >= 0) & (labels < self.num_classes)).nonzero(as_tuple=False).reshape(-1)
+        neg_inds = (labels == self.num_classes).nonzero(as_tuple=False).view(-1)
 
         num_pos_samples = pos_inds.size(0)
         if num_pos_samples == 0:
@@ -286,22 +293,12 @@ class YOLACTHead(AnchorHead):
             # is applied directly on the decoded bounding boxes, it
             # decodes the already encoded coordinates to absolute format.
             bbox_pred = self.bbox_coder.decode(anchors, bbox_pred)
-        loss_bbox = self.loss_bbox(
-            bbox_pred,
-            bbox_targets,
-            bbox_weights,
-            avg_factor=num_total_samples)
+        loss_bbox = self.loss_bbox(bbox_pred, bbox_targets, bbox_weights, avg_factor=num_total_samples)
         return loss_cls[None], loss_bbox
 
-    @force_fp32(apply_to=('cls_scores', 'bbox_preds', 'coeff_preds'))
-    def get_bboxes(self,
-                   cls_scores,
-                   bbox_preds,
-                   coeff_preds,
-                   img_metas,
-                   cfg=None,
-                   rescale=False):
-        """"Similar to func:``AnchorHead.get_bboxes``, but additionally
+    @force_fp32(apply_to=("cls_scores", "bbox_preds", "coeff_preds"))
+    def get_bboxes(self, cls_scores, bbox_preds, coeff_preds, img_metas, cfg=None, rescale=False):
+        """ "Similar to func:``AnchorHead.get_bboxes``, but additionally
         processes coeff_preds.
 
         Args:
@@ -334,8 +331,7 @@ class YOLACTHead(AnchorHead):
 
         device = cls_scores[0].device
         featmap_sizes = [cls_scores[i].shape[-2:] for i in range(num_levels)]
-        mlvl_anchors = self.prior_generator.grid_priors(
-            featmap_sizes, device=device)
+        mlvl_anchors = self.prior_generator.grid_priors(featmap_sizes, device=device)
 
         det_bboxes = []
         det_labels = []
@@ -344,27 +340,35 @@ class YOLACTHead(AnchorHead):
             cls_score_list = select_single_mlvl(cls_scores, img_id)
             bbox_pred_list = select_single_mlvl(bbox_preds, img_id)
             coeff_pred_list = select_single_mlvl(coeff_preds, img_id)
-            img_shape = img_metas[img_id]['img_shape']
-            scale_factor = img_metas[img_id]['scale_factor']
-            bbox_res = self._get_bboxes_single(cls_score_list, bbox_pred_list,
-                                               coeff_pred_list, mlvl_anchors,
-                                               img_shape, scale_factor, cfg,
-                                               rescale)
+            img_shape = img_metas[img_id]["img_shape"]
+            scale_factor = img_metas[img_id]["scale_factor"]
+            bbox_res = self._get_bboxes_single(
+                cls_score_list,
+                bbox_pred_list,
+                coeff_pred_list,
+                mlvl_anchors,
+                img_shape,
+                scale_factor,
+                cfg,
+                rescale,
+            )
             det_bboxes.append(bbox_res[0])
             det_labels.append(bbox_res[1])
             det_coeffs.append(bbox_res[2])
         return det_bboxes, det_labels, det_coeffs
 
-    def _get_bboxes_single(self,
-                           cls_score_list,
-                           bbox_pred_list,
-                           coeff_preds_list,
-                           mlvl_anchors,
-                           img_shape,
-                           scale_factor,
-                           cfg,
-                           rescale=False):
-        """"Similar to func:``AnchorHead._get_bboxes_single``, but additionally
+    def _get_bboxes_single(
+        self,
+        cls_score_list,
+        bbox_pred_list,
+        coeff_preds_list,
+        mlvl_anchors,
+        img_shape,
+        scale_factor,
+        cfg,
+        rescale=False,
+    ):
+        """ "Similar to func:``AnchorHead._get_bboxes_single``, but additionally
         processes coeff_preds_list and uses fast NMS instead of traditional
         NMS.
 
@@ -397,23 +401,21 @@ class YOLACTHead(AnchorHead):
         """
         cfg = self.test_cfg if cfg is None else cfg
         assert len(cls_score_list) == len(bbox_pred_list) == len(mlvl_anchors)
-        nms_pre = cfg.get('nms_pre', -1)
+        nms_pre = cfg.get("nms_pre", -1)
         mlvl_bboxes = []
         mlvl_scores = []
         mlvl_coeffs = []
-        for cls_score, bbox_pred, coeff_pred, anchors in \
-                zip(cls_score_list, bbox_pred_list,
-                    coeff_preds_list, mlvl_anchors):
+        for cls_score, bbox_pred, coeff_pred, anchors in zip(
+            cls_score_list, bbox_pred_list, coeff_preds_list, mlvl_anchors
+        ):
             assert cls_score.size()[-2:] == bbox_pred.size()[-2:]
-            cls_score = cls_score.permute(1, 2,
-                                          0).reshape(-1, self.cls_out_channels)
+            cls_score = cls_score.permute(1, 2, 0).reshape(-1, self.cls_out_channels)
             if self.use_sigmoid_cls:
                 scores = cls_score.sigmoid()
             else:
                 scores = cls_score.softmax(-1)
             bbox_pred = bbox_pred.permute(1, 2, 0).reshape(-1, 4)
-            coeff_pred = coeff_pred.permute(1, 2,
-                                            0).reshape(-1, self.num_protos)
+            coeff_pred = coeff_pred.permute(1, 2, 0).reshape(-1, self.num_protos)
 
             if 0 < nms_pre < scores.shape[0]:
                 # Get maximum scores for foreground classes.
@@ -429,8 +431,7 @@ class YOLACTHead(AnchorHead):
                 bbox_pred = bbox_pred[topk_inds, :]
                 scores = scores[topk_inds, :]
                 coeff_pred = coeff_pred[topk_inds, :]
-            bboxes = self.bbox_coder.decode(
-                anchors, bbox_pred, max_shape=img_shape)
+            bboxes = self.bbox_coder.decode(anchors, bbox_pred, max_shape=img_shape)
             mlvl_bboxes.append(bboxes)
             mlvl_scores.append(scores)
             mlvl_coeffs.append(coeff_pred)
@@ -445,11 +446,15 @@ class YOLACTHead(AnchorHead):
             # BG cat_id: num_class
             padding = mlvl_scores.new_zeros(mlvl_scores.shape[0], 1)
             mlvl_scores = torch.cat([mlvl_scores, padding], dim=1)
-        det_bboxes, det_labels, det_coeffs = fast_nms(mlvl_bboxes, mlvl_scores,
-                                                      mlvl_coeffs,
-                                                      cfg.score_thr,
-                                                      cfg.iou_thr, cfg.top_k,
-                                                      cfg.max_per_img)
+        det_bboxes, det_labels, det_coeffs = fast_nms(
+            mlvl_bboxes,
+            mlvl_scores,
+            mlvl_coeffs,
+            cfg.score_thr,
+            cfg.iou_thr,
+            cfg.top_k,
+            cfg.max_per_img,
+        )
         return det_bboxes, det_labels, det_coeffs
 
 
@@ -469,17 +474,13 @@ class YOLACTSegmHead(BaseModule):
         init_cfg (dict or list[dict], optional): Initialization config dict.
     """
 
-    def __init__(self,
-                 num_classes,
-                 in_channels=256,
-                 loss_segm=dict(
-                     type='CrossEntropyLoss',
-                     use_sigmoid=True,
-                     loss_weight=1.0),
-                 init_cfg=dict(
-                     type='Xavier',
-                     distribution='uniform',
-                     override=dict(name='segm_conv'))):
+    def __init__(
+        self,
+        num_classes,
+        in_channels=256,
+        loss_segm=dict(type="CrossEntropyLoss", use_sigmoid=True, loss_weight=1.0),
+        init_cfg=dict(type="Xavier", distribution="uniform", override=dict(name="segm_conv")),
+    ):
         super(YOLACTSegmHead, self).__init__(init_cfg)
         self.in_channels = in_channels
         self.num_classes = num_classes
@@ -489,8 +490,7 @@ class YOLACTSegmHead(BaseModule):
 
     def _init_layers(self):
         """Initialize layers of the head."""
-        self.segm_conv = nn.Conv2d(
-            self.in_channels, self.num_classes, kernel_size=1)
+        self.segm_conv = nn.Conv2d(self.in_channels, self.num_classes, kernel_size=1)
 
     def forward(self, x):
         """Forward feature from the upstream network.
@@ -505,7 +505,7 @@ class YOLACTSegmHead(BaseModule):
         """
         return self.segm_conv(x)
 
-    @force_fp32(apply_to=('segm_pred', ))
+    @force_fp32(apply_to=("segm_pred",))
     def loss(self, segm_pred, gt_masks, gt_labels):
         """Compute loss of the head.
 
@@ -525,17 +525,15 @@ class YOLACTSegmHead(BaseModule):
             cur_segm_pred = segm_pred[idx]
             cur_gt_masks = gt_masks[idx].float()
             cur_gt_labels = gt_labels[idx]
-            segm_targets = self.get_targets(cur_segm_pred, cur_gt_masks,
-                                            cur_gt_labels)
+            segm_targets = self.get_targets(cur_segm_pred, cur_gt_masks, cur_gt_labels)
             if segm_targets is None:
-                loss = self.loss_segm(cur_segm_pred,
-                                      torch.zeros_like(cur_segm_pred),
-                                      torch.zeros_like(cur_segm_pred))
-            else:
                 loss = self.loss_segm(
                     cur_segm_pred,
-                    segm_targets,
-                    avg_factor=num_imgs * mask_h * mask_w)
+                    torch.zeros_like(cur_segm_pred),
+                    torch.zeros_like(cur_segm_pred),
+                )
+            else:
+                loss = self.loss_segm(cur_segm_pred, segm_targets, avg_factor=num_imgs * mask_h * mask_w)
             loss_segm.append(loss)
         return dict(loss_segm=loss_segm)
 
@@ -558,22 +556,24 @@ class YOLACTSegmHead(BaseModule):
         num_classes, mask_h, mask_w = segm_pred.size()
         with torch.no_grad():
             downsampled_masks = F.interpolate(
-                gt_masks.unsqueeze(0), (mask_h, mask_w),
-                mode='bilinear',
-                align_corners=False).squeeze(0)
+                gt_masks.unsqueeze(0),
+                (mask_h, mask_w),
+                mode="bilinear",
+                align_corners=False,
+            ).squeeze(0)
             downsampled_masks = downsampled_masks.gt(0.5).float()
             segm_targets = torch.zeros_like(segm_pred, requires_grad=False)
             for obj_idx in range(downsampled_masks.size(0)):
                 segm_targets[gt_labels[obj_idx] - 1] = torch.max(
-                    segm_targets[gt_labels[obj_idx] - 1],
-                    downsampled_masks[obj_idx])
+                    segm_targets[gt_labels[obj_idx] - 1], downsampled_masks[obj_idx]
+                )
             return segm_targets
 
     def simple_test(self, feats, img_metas, rescale=False):
         """Test function without test-time augmentation."""
         raise NotImplementedError(
-            'simple_test of YOLACTSegmHead is not implemented '
-            'because this head is only evaluated during training')
+            "simple_test of YOLACTSegmHead is not implemented because this head is only evaluated during training"
+        )
 
 
 @HEADS.register_module()
@@ -596,19 +596,18 @@ class YOLACTProtonet(BaseModule):
         init_cfg (dict or list[dict], optional): Initialization config dict.
     """
 
-    def __init__(self,
-                 num_classes,
-                 in_channels=256,
-                 proto_channels=(256, 256, 256, None, 256, 32),
-                 proto_kernel_sizes=(3, 3, 3, -2, 3, 1),
-                 include_last_relu=True,
-                 num_protos=32,
-                 loss_mask_weight=1.0,
-                 max_masks_to_train=100,
-                 init_cfg=dict(
-                     type='Xavier',
-                     distribution='uniform',
-                     override=dict(name='protonet'))):
+    def __init__(
+        self,
+        num_classes,
+        in_channels=256,
+        proto_channels=(256, 256, 256, None, 256, 32),
+        proto_kernel_sizes=(3, 3, 3, -2, 3, 1),
+        include_last_relu=True,
+        num_protos=32,
+        loss_mask_weight=1.0,
+        max_masks_to_train=100,
+        init_cfg=dict(type="Xavier", distribution="uniform", override=dict(name="protonet")),
+    ):
         super(YOLACTProtonet, self).__init__(init_cfg)
         self.in_channels = in_channels
         self.proto_channels = proto_channels
@@ -631,30 +630,22 @@ class YOLACTProtonet(BaseModule):
         # (None,-2) -> bilinear interpolate
         in_channels = self.in_channels
         protonets = ModuleList()
-        for num_channels, kernel_size in zip(self.proto_channels,
-                                             self.proto_kernel_sizes):
+        for num_channels, kernel_size in zip(self.proto_channels, self.proto_kernel_sizes):
             if kernel_size > 0:
-                layer = nn.Conv2d(
-                    in_channels,
-                    num_channels,
-                    kernel_size,
-                    padding=kernel_size // 2)
+                layer = nn.Conv2d(in_channels, num_channels, kernel_size, padding=kernel_size // 2)
             else:
                 if num_channels is None:
-                    layer = InterpolateModule(
-                        scale_factor=-kernel_size,
-                        mode='bilinear',
-                        align_corners=False)
+                    layer = InterpolateModule(scale_factor=-kernel_size, mode="bilinear", align_corners=False)
                 else:
                     layer = nn.ConvTranspose2d(
                         in_channels,
                         num_channels,
                         -kernel_size,
-                        padding=kernel_size // 2)
+                        padding=kernel_size // 2,
+                    )
             protonets.append(layer)
             protonets.append(nn.ReLU(inplace=True))
-            in_channels = num_channels if num_channels is not None \
-                else in_channels
+            in_channels = num_channels if num_channels is not None else in_channels
         if not self.include_last_relu:
             protonets = protonets[:-1]
         return nn.Sequential(*protonets)
@@ -694,15 +685,13 @@ class YOLACTProtonet(BaseModule):
         # val workflow will have a dimension mismatch error.
         # Note that this writing method is very tricky.
         # Fix https://github.com/open-mmlab/mmdetection/issues/5978
-        is_train_or_val_workflow = (coeff_pred[0].dim() == 4)
+        is_train_or_val_workflow = coeff_pred[0].dim() == 4
 
         # Train or val workflow
         if is_train_or_val_workflow:
             coeff_pred_list = []
             for coeff_pred_per_level in coeff_pred:
-                coeff_pred_per_level = \
-                    coeff_pred_per_level.permute(
-                        0, 2, 3, 1).reshape(num_imgs, -1, self.num_protos)
+                coeff_pred_per_level = coeff_pred_per_level.permute(0, 2, 3, 1).reshape(num_imgs, -1, self.num_protos)
                 coeff_pred_list.append(coeff_pred_per_level)
             coeff_pred = torch.cat(coeff_pred_list, dim=1)
 
@@ -718,8 +707,7 @@ class YOLACTProtonet(BaseModule):
                 bboxes_for_cropping = cur_bboxes
             else:
                 cur_sampling_results = sampling_results[idx]
-                pos_assigned_gt_inds = \
-                    cur_sampling_results.pos_assigned_gt_inds
+                pos_assigned_gt_inds = cur_sampling_results.pos_assigned_gt_inds
                 bboxes_for_cropping = cur_bboxes[pos_assigned_gt_inds].clone()
                 pos_inds = cur_sampling_results.pos_inds
                 cur_coeff_pred = cur_coeff_pred[pos_inds]
@@ -728,7 +716,7 @@ class YOLACTProtonet(BaseModule):
             mask_pred = cur_prototypes @ cur_coeff_pred.t()
             mask_pred = torch.sigmoid(mask_pred)
 
-            h, w = cur_img_meta['img_shape'][:2]
+            h, w = cur_img_meta["img_shape"][:2]
             bboxes_for_cropping[:, 0] /= w
             bboxes_for_cropping[:, 1] /= h
             bboxes_for_cropping[:, 2] /= w
@@ -739,7 +727,7 @@ class YOLACTProtonet(BaseModule):
             mask_pred_list.append(mask_pred)
         return mask_pred_list
 
-    @force_fp32(apply_to=('mask_pred', ))
+    @force_fp32(apply_to=("mask_pred",))
     def loss(self, mask_pred, gt_masks, gt_bboxes, img_meta, sampling_results):
         """Compute loss of the head.
 
@@ -775,7 +763,7 @@ class YOLACTProtonet(BaseModule):
             # Thus we select only a subset.
             if num_pos > self.max_masks_to_train:
                 perm = torch.randperm(num_pos)
-                select = perm[:self.max_masks_to_train]
+                select = perm[: self.max_masks_to_train]
                 cur_mask_pred = cur_mask_pred[select]
                 pos_assigned_gt_inds = pos_assigned_gt_inds[select]
                 num_pos = self.max_masks_to_train
@@ -783,27 +771,23 @@ class YOLACTProtonet(BaseModule):
 
             gt_bboxes_for_reweight = cur_gt_bboxes[pos_assigned_gt_inds]
 
-            mask_targets = self.get_targets(cur_mask_pred, cur_gt_masks,
-                                            pos_assigned_gt_inds)
+            mask_targets = self.get_targets(cur_mask_pred, cur_gt_masks, pos_assigned_gt_inds)
             if num_pos == 0:
-                loss = cur_mask_pred.sum() * 0.
+                loss = cur_mask_pred.sum() * 0.0
             elif mask_targets is None:
-                loss = F.binary_cross_entropy(cur_mask_pred,
-                                              torch.zeros_like(cur_mask_pred),
-                                              torch.zeros_like(cur_mask_pred))
+                loss = F.binary_cross_entropy(
+                    cur_mask_pred,
+                    torch.zeros_like(cur_mask_pred),
+                    torch.zeros_like(cur_mask_pred),
+                )
             else:
                 cur_mask_pred = torch.clamp(cur_mask_pred, 0, 1)
-                loss = F.binary_cross_entropy(
-                    cur_mask_pred, mask_targets,
-                    reduction='none') * self.loss_mask_weight
+                loss = F.binary_cross_entropy(cur_mask_pred, mask_targets, reduction="none") * self.loss_mask_weight
 
-                h, w = cur_img_meta['img_shape'][:2]
-                gt_bboxes_width = (gt_bboxes_for_reweight[:, 2] -
-                                   gt_bboxes_for_reweight[:, 0]) / w
-                gt_bboxes_height = (gt_bboxes_for_reweight[:, 3] -
-                                    gt_bboxes_for_reweight[:, 1]) / h
-                loss = loss.mean(dim=(1,
-                                      2)) / gt_bboxes_width / gt_bboxes_height
+                h, w = cur_img_meta["img_shape"][:2]
+                gt_bboxes_width = (gt_bboxes_for_reweight[:, 2] - gt_bboxes_for_reweight[:, 0]) / w
+                gt_bboxes_height = (gt_bboxes_for_reweight[:, 3] - gt_bboxes_for_reweight[:, 1]) / h
+                loss = loss.mean(dim=(1, 2)) / gt_bboxes_width / gt_bboxes_height
                 loss = torch.sum(loss)
             loss_mask.append(loss)
 
@@ -831,9 +815,11 @@ class YOLACTProtonet(BaseModule):
             return None
         mask_h, mask_w = mask_pred.shape[-2:]
         gt_masks = F.interpolate(
-            gt_masks.unsqueeze(0), (mask_h, mask_w),
-            mode='bilinear',
-            align_corners=False).squeeze(0)
+            gt_masks.unsqueeze(0),
+            (mask_h, mask_w),
+            mode="bilinear",
+            align_corners=False,
+        ).squeeze(0)
         gt_masks = gt_masks.gt(0.5).float()
         mask_targets = gt_masks[pos_assigned_gt_inds]
         return mask_targets
@@ -851,8 +837,8 @@ class YOLACTProtonet(BaseModule):
         Returns:
             list[ndarray]: Mask predictions grouped by their predicted classes.
         """
-        ori_shape = img_meta['ori_shape']
-        scale_factor = img_meta['scale_factor']
+        ori_shape = img_meta["ori_shape"]
+        scale_factor = img_meta["scale_factor"]
         if rescale:
             img_h, img_w = ori_shape[:2]
         else:
@@ -863,10 +849,15 @@ class YOLACTProtonet(BaseModule):
         if mask_pred.size(0) == 0:
             return cls_segms
 
-        mask_pred = F.interpolate(
-            mask_pred.unsqueeze(0), (img_h, img_w),
-            mode='bilinear',
-            align_corners=False).squeeze(0) > 0.5
+        mask_pred = (
+            F.interpolate(
+                mask_pred.unsqueeze(0),
+                (img_h, img_w),
+                mode="bilinear",
+                align_corners=False,
+            ).squeeze(0)
+            > 0.5
+        )
         mask_pred = mask_pred.cpu().numpy().astype(np.uint8)
 
         for m, l in zip(mask_pred, label_pred):
@@ -886,17 +877,11 @@ class YOLACTProtonet(BaseModule):
             Tensor: The cropped masks.
         """
         h, w, n = masks.size()
-        x1, x2 = self.sanitize_coordinates(
-            boxes[:, 0], boxes[:, 2], w, padding, cast=False)
-        y1, y2 = self.sanitize_coordinates(
-            boxes[:, 1], boxes[:, 3], h, padding, cast=False)
+        x1, x2 = self.sanitize_coordinates(boxes[:, 0], boxes[:, 2], w, padding, cast=False)
+        y1, y2 = self.sanitize_coordinates(boxes[:, 1], boxes[:, 3], h, padding, cast=False)
 
-        rows = torch.arange(
-            w, device=masks.device, dtype=x1.dtype).view(1, -1,
-                                                         1).expand(h, w, n)
-        cols = torch.arange(
-            h, device=masks.device, dtype=x1.dtype).view(-1, 1,
-                                                         1).expand(h, w, n)
+        rows = torch.arange(w, device=masks.device, dtype=x1.dtype).view(1, -1, 1).expand(h, w, n)
+        cols = torch.arange(h, device=masks.device, dtype=x1.dtype).view(-1, 1, 1).expand(h, w, n)
 
         masks_left = rows >= x1.view(1, 1, -1)
         masks_right = rows < x2.view(1, 1, -1)
@@ -938,13 +923,7 @@ class YOLACTProtonet(BaseModule):
         x2 = torch.clamp(x2 + padding, max=img_size)
         return x1, x2
 
-    def simple_test(self,
-                    feats,
-                    det_bboxes,
-                    det_labels,
-                    det_coeffs,
-                    img_metas,
-                    rescale=False):
+    def simple_test(self, feats, det_bboxes, det_labels, det_coeffs, img_metas, rescale=False):
         """Test function without test-time augmentation.
 
         Args:
@@ -970,21 +949,18 @@ class YOLACTProtonet(BaseModule):
                 class label c.
         """
         num_imgs = len(img_metas)
-        scale_factors = tuple(meta['scale_factor'] for meta in img_metas)
+        scale_factors = tuple(meta["scale_factor"] for meta in img_metas)
         if all(det_bbox.shape[0] == 0 for det_bbox in det_bboxes):
-            segm_results = [[[] for _ in range(self.num_classes)]
-                            for _ in range(num_imgs)]
+            segm_results = [[[] for _ in range(self.num_classes)] for _ in range(num_imgs)]
         else:
             # if det_bboxes is rescaled to the original image size, we need to
             # rescale it back to the testing scale to obtain RoIs.
             if rescale and not isinstance(scale_factors[0], float):
                 scale_factors = [
-                    torch.from_numpy(scale_factor).to(det_bboxes[0].device)
-                    for scale_factor in scale_factors
+                    torch.from_numpy(scale_factor).to(det_bboxes[0].device) for scale_factor in scale_factors
                 ]
             _bboxes = [
-                det_bboxes[i][:, :4] *
-                scale_factors[i] if rescale else det_bboxes[i][:, :4]
+                det_bboxes[i][:, :4] * scale_factors[i] if rescale else det_bboxes[i][:, :4]
                 for i in range(len(det_bboxes))
             ]
             mask_preds = self.forward(feats[0], det_coeffs, _bboxes, img_metas)
@@ -994,9 +970,7 @@ class YOLACTProtonet(BaseModule):
                 if det_bboxes[i].shape[0] == 0:
                     segm_results.append([[] for _ in range(self.num_classes)])
                 else:
-                    segm_result = self.get_seg_masks(mask_preds[i],
-                                                     det_labels[i],
-                                                     img_metas[i], rescale)
+                    segm_result = self.get_seg_masks(mask_preds[i], det_labels[i], img_metas[i], rescale)
                     segm_results.append(segm_result)
         return segm_results
 

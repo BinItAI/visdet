@@ -856,7 +856,10 @@ class FlexibleRunner:
         elif isinstance(batch_sampler_cfg, dict):
             batch_sampler = DATA_SAMPLERS.build(
                 batch_sampler_cfg,
-                default_args={"sampler": sampler, "batch_size": dataloader_cfg.pop("batch_size")},
+                default_args={
+                    "sampler": sampler,
+                    "batch_size": dataloader_cfg.pop("batch_size"),
+                },
             )
         else:
             # fallback to raise error in dataloader
@@ -956,7 +959,10 @@ class FlexibleRunner:
             raise RuntimeError("Only one of `type` or `by_epoch` can exist in `loop_cfg`.")
 
         if "type" in loop_cfg:
-            loop = LOOPS.build(loop_cfg, default_args={"runner": self, "dataloader": self._train_dataloader})
+            loop = LOOPS.build(
+                loop_cfg,
+                default_args={"runner": self, "dataloader": self._train_dataloader},
+            )
         else:
             by_epoch = loop_cfg.pop("by_epoch")
             if by_epoch:
@@ -1463,7 +1469,9 @@ class FlexibleRunner:
             previous_gpu_ids = config.get("gpu_ids", None)
             if previous_gpu_ids is not None and len(previous_gpu_ids) > 0 and len(previous_gpu_ids) != self.world_size:
                 # TODO, should we modify the iteration?
-                self.logger.info("Number of GPU used for current experiment is not consistent with resuming from checkpoint")
+                self.logger.info(
+                    "Number of GPU used for current experiment is not consistent with resuming from checkpoint"
+                )
                 if self._auto_scale_lr is None or not self._auto_scale_lr.get("enable", False):
                     raise RuntimeError(
                         "Cannot automatically rescale lr in resuming. Please "
@@ -1629,7 +1637,15 @@ class FlexibleRunner:
         runtime_env_info = "\n    " + "\n    ".join(f"{k}: {v}" for k, v in runtime_env.items())
         dash_line = "-" * 60
         self.logger.info(
-            "\n" + dash_line + "\nSystem environment:" + env_info + "\n\nRuntime environment:" + runtime_env_info + "\n" + dash_line + "\n"
+            "\n"
+            + dash_line
+            + "\nSystem environment:"
+            + env_info
+            + "\n\nRuntime environment:"
+            + runtime_env_info
+            + "\n"
+            + dash_line
+            + "\n"
         )
 
         if self.cfg._cfg_dict:

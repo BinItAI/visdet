@@ -23,17 +23,19 @@ class ResLayer(Sequential):
             False for Hourglass, True for ResNet. Default: True
     """
 
-    def __init__(self,
-                 block,
-                 inplanes,
-                 planes,
-                 num_blocks,
-                 stride=1,
-                 avg_down=False,
-                 conv_cfg=None,
-                 norm_cfg=dict(type='BN'),
-                 downsample_first=True,
-                 **kwargs):
+    def __init__(
+        self,
+        block,
+        inplanes,
+        planes,
+        num_blocks,
+        stride=1,
+        avg_down=False,
+        conv_cfg=None,
+        norm_cfg=dict(type="BN"),
+        downsample_first=True,
+        **kwargs,
+    ):
         self.block = block
 
         downsample = None
@@ -47,17 +49,22 @@ class ResLayer(Sequential):
                         kernel_size=stride,
                         stride=stride,
                         ceil_mode=True,
-                        count_include_pad=False))
-            downsample.extend([
-                build_conv_layer(
-                    conv_cfg,
-                    inplanes,
-                    planes * block.expansion,
-                    kernel_size=1,
-                    stride=conv_stride,
-                    bias=False),
-                build_norm_layer(norm_cfg, planes * block.expansion)[1]
-            ])
+                        count_include_pad=False,
+                    )
+                )
+            downsample.extend(
+                [
+                    build_conv_layer(
+                        conv_cfg,
+                        inplanes,
+                        planes * block.expansion,
+                        kernel_size=1,
+                        stride=conv_stride,
+                        bias=False,
+                    ),
+                    build_norm_layer(norm_cfg, planes * block.expansion)[1],
+                ]
+            )
             downsample = nn.Sequential(*downsample)
 
         layers = []
@@ -70,7 +77,9 @@ class ResLayer(Sequential):
                     downsample=downsample,
                     conv_cfg=conv_cfg,
                     norm_cfg=norm_cfg,
-                    **kwargs))
+                    **kwargs,
+                )
+            )
             inplanes = planes * block.expansion
             for _ in range(1, num_blocks):
                 layers.append(
@@ -80,7 +89,9 @@ class ResLayer(Sequential):
                         stride=1,
                         conv_cfg=conv_cfg,
                         norm_cfg=norm_cfg,
-                        **kwargs))
+                        **kwargs,
+                    )
+                )
 
         else:  # downsample_first=False is for HourglassModule
             for _ in range(num_blocks - 1):
@@ -91,7 +102,9 @@ class ResLayer(Sequential):
                         stride=1,
                         conv_cfg=conv_cfg,
                         norm_cfg=norm_cfg,
-                        **kwargs))
+                        **kwargs,
+                    )
+                )
             layers.append(
                 block(
                     inplanes=inplanes,
@@ -100,7 +113,9 @@ class ResLayer(Sequential):
                     downsample=downsample,
                     conv_cfg=conv_cfg,
                     norm_cfg=norm_cfg,
-                    **kwargs))
+                    **kwargs,
+                )
+            )
         super(ResLayer, self).__init__(*layers)
 
 
@@ -111,25 +126,28 @@ class SimplifiedBasicBlock(BaseModule):
     - Norm layer is now optional
     - Last ReLU in forward function is removed
     """
+
     expansion = 1
 
-    def __init__(self,
-                 inplanes,
-                 planes,
-                 stride=1,
-                 dilation=1,
-                 downsample=None,
-                 style='pytorch',
-                 with_cp=False,
-                 conv_cfg=None,
-                 norm_cfg=dict(type='BN'),
-                 dcn=None,
-                 plugins=None,
-                 init_fg=None):
+    def __init__(
+        self,
+        inplanes,
+        planes,
+        stride=1,
+        dilation=1,
+        downsample=None,
+        style="pytorch",
+        with_cp=False,
+        conv_cfg=None,
+        norm_cfg=dict(type="BN"),
+        dcn=None,
+        plugins=None,
+        init_fg=None,
+    ):
         super(SimplifiedBasicBlock, self).__init__(init_fg)
-        assert dcn is None, 'Not implemented yet.'
-        assert plugins is None, 'Not implemented yet.'
-        assert not with_cp, 'Not implemented yet.'
+        assert dcn is None, "Not implemented yet."
+        assert plugins is None, "Not implemented yet."
+        assert not with_cp, "Not implemented yet."
         self.with_norm = norm_cfg is not None
         with_bias = True if norm_cfg is None else False
         self.conv1 = build_conv_layer(
@@ -140,16 +158,14 @@ class SimplifiedBasicBlock(BaseModule):
             stride=stride,
             padding=dilation,
             dilation=dilation,
-            bias=with_bias)
+            bias=with_bias,
+        )
         if self.with_norm:
-            self.norm1_name, norm1 = build_norm_layer(
-                norm_cfg, planes, postfix=1)
+            self.norm1_name, norm1 = build_norm_layer(norm_cfg, planes, postfix=1)
             self.add_module(self.norm1_name, norm1)
-        self.conv2 = build_conv_layer(
-            conv_cfg, planes, planes, 3, padding=1, bias=with_bias)
+        self.conv2 = build_conv_layer(conv_cfg, planes, planes, 3, padding=1, bias=with_bias)
         if self.with_norm:
-            self.norm2_name, norm2 = build_norm_layer(
-                norm_cfg, planes, postfix=2)
+            self.norm2_name, norm2 = build_norm_layer(norm_cfg, planes, postfix=2)
             self.add_module(self.norm2_name, norm2)
 
         self.relu = nn.ReLU(inplace=True)

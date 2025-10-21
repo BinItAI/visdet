@@ -9,18 +9,19 @@ class PanopticFPN(TwoStagePanopticSegmentor):
     networks <https://arxiv.org/pdf/1901.02446>`_"""
 
     def __init__(
-            self,
-            backbone,
-            neck=None,
-            rpn_head=None,
-            roi_head=None,
-            train_cfg=None,
-            test_cfg=None,
-            pretrained=None,
-            init_cfg=None,
-            # for panoptic segmentation
-            semantic_head=None,
-            panoptic_fusion_head=None):
+        self,
+        backbone,
+        neck=None,
+        rpn_head=None,
+        roi_head=None,
+        train_cfg=None,
+        test_cfg=None,
+        pretrained=None,
+        init_cfg=None,
+        # for panoptic segmentation
+        semantic_head=None,
+        panoptic_fusion_head=None,
+    ):
         super(PanopticFPN, self).__init__(
             backbone=backbone,
             neck=neck,
@@ -31,4 +32,5 @@ class PanopticFPN(TwoStagePanopticSegmentor):
             pretrained=pretrained,
             init_cfg=init_cfg,
             semantic_head=semantic_head,
-            panoptic_fusion_head=panoptic_fusion_head)
+            panoptic_fusion_head=panoptic_fusion_head,
+        )

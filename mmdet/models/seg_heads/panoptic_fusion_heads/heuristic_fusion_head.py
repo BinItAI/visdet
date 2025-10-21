@@ -3,6 +3,7 @@ import torch
 
 from mmdet.core.evaluation.panoptic_utils import INSTANCE_OFFSET
 from mmdet.models.builder import HEADS
+
 from .base_panoptic_fusion_head import BasePanopticFusionHead
 
 
@@ -10,15 +11,17 @@ from .base_panoptic_fusion_head import BasePanopticFusionHead
 class HeuristicFusionHead(BasePanopticFusionHead):
     """Fusion Head with Heuristic method."""
 
-    def __init__(self,
-                 num_things_classes=80,
-                 num_stuff_classes=53,
-                 test_cfg=None,
-                 init_cfg=None,
-                 **kwargs):
-        super(HeuristicFusionHead,
-              self).__init__(num_things_classes, num_stuff_classes, test_cfg,
-                             None, init_cfg, **kwargs)
+    def __init__(
+        self,
+        num_things_classes=80,
+        num_stuff_classes=53,
+        test_cfg=None,
+        init_cfg=None,
+        **kwargs,
+    ):
+        super(HeuristicFusionHead, self).__init__(
+            num_things_classes, num_stuff_classes, test_cfg, None, init_cfg, **kwargs
+        )
 
     def forward_train(self, gt_masks=None, gt_semantic_seg=None, **kwargs):
         """HeuristicFusionHead has no training loss."""
@@ -38,8 +41,7 @@ class HeuristicFusionHead(BasePanopticFusionHead):
             Tensor: The result map, (H, W).
         """
         num_insts = bboxes.shape[0]
-        id_map = torch.zeros(
-            masks.shape[-2:], device=bboxes.device, dtype=torch.long)
+        id_map = torch.zeros(masks.shape[-2:], device=bboxes.device, dtype=torch.long)
         if num_insts == 0:
             return id_map, labels
 
@@ -56,8 +58,7 @@ class HeuristicFusionHead(BasePanopticFusionHead):
         for idx in range(bboxes.shape[0]):
             _cls = labels[idx]
             _mask = segm_masks[idx]
-            instance_id_map = torch.ones_like(
-                _mask, dtype=torch.long) * instance_id
+            instance_id_map = torch.ones_like(_mask, dtype=torch.long) * instance_id
             area = _mask.sum()
             if area == 0:
                 continue
@@ -75,12 +76,11 @@ class HeuristicFusionHead(BasePanopticFusionHead):
         if len(left_labels) > 0:
             instance_labels = torch.stack(left_labels)
         else:
-            instance_labels = bboxes.new_zeros((0, ), dtype=torch.long)
+            instance_labels = bboxes.new_zeros((0,), dtype=torch.long)
         assert instance_id == (len(instance_labels) + 1)
         return id_map, instance_labels
 
-    def simple_test(self, det_bboxes, det_labels, mask_preds, seg_preds,
-                    **kwargs):
+    def simple_test(self, det_bboxes, det_labels, mask_preds, seg_preds, **kwargs):
         """Fuse the results of instance and semantic segmentations.
 
         Args:
@@ -94,8 +94,7 @@ class HeuristicFusionHead(BasePanopticFusionHead):
             Tensor : The panoptic segmentation result, (H, W).
         """
         mask_preds = mask_preds >= self.test_cfg.mask_thr_binary
-        id_map, labels = self._lay_masks(det_bboxes, det_labels, mask_preds,
-                                         self.test_cfg.mask_overlap)
+        id_map, labels = self._lay_masks(det_bboxes, det_labels, mask_preds, self.test_cfg.mask_overlap)
 
         seg_results = seg_preds.argmax(dim=0)
         seg_results = seg_results + self.num_things_classes
@@ -112,15 +111,12 @@ class HeuristicFusionHead(BasePanopticFusionHead):
             pan_results[_mask] = segment_id
             instance_id += 1
 
-        ids, counts = torch.unique(
-            pan_results % INSTANCE_OFFSET, return_counts=True)
+        ids, counts = torch.unique(pan_results % INSTANCE_OFFSET, return_counts=True)
         stuff_ids = ids[ids >= self.num_things_classes]
         stuff_counts = counts[ids >= self.num_things_classes]
-        ignore_stuff_ids = stuff_ids[
-            stuff_counts < self.test_cfg.stuff_area_limit]
+        ignore_stuff_ids = stuff_ids[stuff_counts < self.test_cfg.stuff_area_limit]
 
         assert pan_results.ndim == 2
-        pan_results[(pan_results.unsqueeze(2) == ignore_stuff_ids.reshape(
-            1, 1, -1)).any(dim=2)] = self.num_classes
+        pan_results[(pan_results.unsqueeze(2) == ignore_stuff_ids.reshape(1, 1, -1)).any(dim=2)] = self.num_classes
 
         return pan_results

@@ -266,7 +266,11 @@ class ConfigDict(Dict):
                 if a.pop(DELETE_KEY, False):
                     b.clear()
                 all_keys = list(b.keys()) + list(a.keys())
-                return {key: _merge_a_into_b(a.get(key, default), b.get(key, default)) for key in all_keys if key != DELETE_KEY}
+                return {
+                    key: _merge_a_into_b(a.get(key, default), b.get(key, default))
+                    for key in all_keys
+                    if key != DELETE_KEY
+                }
             else:
                 return a if a is not default else b
 
@@ -453,12 +457,19 @@ class Config:
         """
         filename = str(filename) if isinstance(filename, Path) else filename
         if lazy_import is False or (lazy_import is None and not Config._is_lazy_import(filename)):
-            cfg_dict, cfg_text, env_variables = Config._file2dict(filename, use_predefined_variables, use_environment_variables, lazy_import)
+            cfg_dict, cfg_text, env_variables = Config._file2dict(
+                filename,
+                use_predefined_variables,
+                use_environment_variables,
+                lazy_import,
+            )
             if import_custom_modules and cfg_dict.get("custom_imports", None):
                 try:
                     import_modules_from_strings(**cfg_dict["custom_imports"])
                 except ImportError as e:
-                    err_msg = f"Failed to import custom modules from {cfg_dict['custom_imports']}, the current sys.path is: "
+                    err_msg = (
+                        f"Failed to import custom modules from {cfg_dict['custom_imports']}, the current sys.path is: "
+                    )
                     for p in sys.path:
                         err_msg += f"\n    {p}"
                     err_msg += "\nYou should set `PYTHONPATH` to make `sys.path` include the directory which contains your custom module"
@@ -546,12 +557,18 @@ class Config:
                 assert isinstance(node, ast.ImportFrom), (
                     "Illegal syntax in config file! Only `from ... import ...` could be implemented` in with read_base()`"
                 )
-                assert node.module is not None, "Illegal syntax in config file! Syntax like `from . import xxx` is not allowed in `with read_base()`"
+                assert node.module is not None, (
+                    "Illegal syntax in config file! Syntax like `from . import xxx` is not allowed in `with read_base()`"
+                )
                 base_modules.append(node.level * "." + node.module)
             return base_modules
 
         for idx, node in enumerate(nodes):
-            if isinstance(node, ast.Assign) and isinstance(node.targets[0], ast.Name) and node.targets[0].id == BASE_KEY:
+            if (
+                isinstance(node, ast.Assign)
+                and isinstance(node.targets[0], ast.Name)
+                and node.targets[0].id == BASE_KEY
+            ):
                 raise ConfigParsingError(
                     "The configuration file type in the inheritance chain "
                     "must match the current configuration file type, either "
@@ -715,7 +732,9 @@ class Config:
                     logger="current",
                 )
             if not value:
-                raise KeyError(f"`{var_name}` cannot be found in `os.environ`. Please set `{var_name}` in environment or give a default value.")
+                raise KeyError(
+                    f"`{var_name}` cannot be found in `os.environ`. Please set `{var_name}` in environment or give a default value."
+                )
             config_file = re.sub(regexp, value, config_file)
 
         with open(temp_config_name, "w", encoding="utf-8") as tmp_config_file:
@@ -880,7 +899,11 @@ class Config:
                     global_locals_var = {BASE_KEY: base_cfg_dict}
                     ori_keys = set(global_locals_var.keys())
                     eval(codeobj, global_locals_var, global_locals_var)
-                    cfg_dict = {key: value for key, value in global_locals_var.items() if (key not in ori_keys and not key.startswith("__"))}
+                    cfg_dict = {
+                        key: value
+                        for key, value in global_locals_var.items()
+                        if (key not in ori_keys and not key.startswith("__"))
+                    }
                 elif filename.endswith((".yml", ".yaml", ".json")):
                     cfg_dict = load(temp_config_file.name)
                 # close temp file
@@ -1150,7 +1173,9 @@ class Config:
                 parsed_codes = ast.parse(f.read()).body
 
                 def is_base_line(c):
-                    return isinstance(c, ast.Assign) and isinstance(c.targets[0], ast.Name) and c.targets[0].id == BASE_KEY
+                    return (
+                        isinstance(c, ast.Assign) and isinstance(c.targets[0], ast.Name) and c.targets[0].id == BASE_KEY
+                    )
 
                 base_code = next((c for c in parsed_codes if is_base_line(c)), None)
                 if base_code is not None:
@@ -1581,7 +1606,11 @@ class Config:
             codes_str = f.read()
             parsed_codes = ast.parse(codes_str)
         for node in ast.walk(parsed_codes):
-            if isinstance(node, ast.Assign) and isinstance(node.targets[0], ast.Name) and node.targets[0].id == BASE_KEY:
+            if (
+                isinstance(node, ast.Assign)
+                and isinstance(node.targets[0], ast.Name)
+                and node.targets[0].id == BASE_KEY
+            ):
                 return False
 
             if isinstance(node, ast.With):
@@ -1686,7 +1715,9 @@ class DictAction(Action):
             chars inside '()' and '[]' are treated as one element and thus ','
             inside these brackets are ignored.
             """
-            assert (string.count("(") == string.count(")")) and (string.count("[") == string.count("]")), f"Imbalanced brackets exist in {string}"
+            assert (string.count("(") == string.count(")")) and (string.count("[") == string.count("]")), (
+                f"Imbalanced brackets exist in {string}"
+            )
             end = len(string)
             for idx, char in enumerate(string):
                 pre = string[:idx]

@@ -30,7 +30,12 @@ class EmptyCacheHook(Hook):
 
     priority = "NORMAL"
 
-    def __init__(self, before_epoch: bool = False, after_epoch: bool = True, after_iter: bool = False) -> None:
+    def __init__(
+        self,
+        before_epoch: bool = False,
+        after_epoch: bool = True,
+        after_iter: bool = False,
+    ) -> None:
         self._do_before_epoch = before_epoch
         self._do_after_epoch = after_epoch
         self._do_after_iter = after_iter

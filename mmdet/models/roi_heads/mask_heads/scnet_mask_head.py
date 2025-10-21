@@ -1,6 +1,7 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 from mmdet.models.builder import HEADS
 from mmdet.models.utils import ResLayer, SimplifiedBasicBlock
+
 from .fcn_mask_head import FCNMaskHead
 
 
@@ -25,4 +26,5 @@ class SCNetMaskHead(FCNMaskHead):
                 self.conv_out_channels,
                 self.num_res_blocks,
                 conv_cfg=self.conv_cfg,
-                norm_cfg=self.norm_cfg)
+                norm_cfg=self.norm_cfg,
+            )

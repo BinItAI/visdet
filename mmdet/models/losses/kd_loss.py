@@ -9,10 +9,7 @@ from .utils import weighted_loss
 
 @mmcv.jit(derivate=True, coderize=True)
 @weighted_loss
-def knowledge_distillation_kl_div_loss(pred,
-                                       soft_label,
-                                       T,
-                                       detach_target=True):
+def knowledge_distillation_kl_div_loss(pred, soft_label, T, detach_target=True):
     r"""Loss function for knowledge distilling using KL divergence.
 
     Args:
@@ -29,9 +26,7 @@ def knowledge_distillation_kl_div_loss(pred,
     if detach_target:
         target = target.detach()
 
-    kd_loss = F.kl_div(
-        F.log_softmax(pred / T, dim=1), target, reduction='none').mean(1) * (
-            T * T)
+    kd_loss = F.kl_div(F.log_softmax(pred / T, dim=1), target, reduction="none").mean(1) * (T * T)
 
     return kd_loss
 
@@ -46,19 +41,14 @@ class KnowledgeDistillationKLDivLoss(nn.Module):
         T (int): Temperature for distillation.
     """
 
-    def __init__(self, reduction='mean', loss_weight=1.0, T=10):
+    def __init__(self, reduction="mean", loss_weight=1.0, T=10):
         super(KnowledgeDistillationKLDivLoss, self).__init__()
         assert T >= 1
         self.reduction = reduction
         self.loss_weight = loss_weight
         self.T = T
 
-    def forward(self,
-                pred,
-                soft_label,
-                weight=None,
-                avg_factor=None,
-                reduction_override=None):
+    def forward(self, pred, soft_label, weight=None, avg_factor=None, reduction_override=None):
         """Forward function.
 
         Args:
@@ -72,10 +62,9 @@ class KnowledgeDistillationKLDivLoss(nn.Module):
                 override the original reduction method of the loss.
                 Defaults to None.
         """
-        assert reduction_override in (None, 'none', 'mean', 'sum')
+        assert reduction_override in (None, "none", "mean", "sum")
 
-        reduction = (
-            reduction_override if reduction_override else self.reduction)
+        reduction = reduction_override if reduction_override else self.reduction
 
         loss_kd = self.loss_weight * knowledge_distillation_kl_div_loss(
             pred,
@@ -83,6 +72,7 @@ class KnowledgeDistillationKLDivLoss(nn.Module):
             weight,
             reduction=reduction,
             avg_factor=avg_factor,
-            T=self.T)
+            T=self.T,
+        )
 
         return loss_kd

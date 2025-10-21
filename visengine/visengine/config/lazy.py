@@ -40,7 +40,12 @@ class LazyObject:
             module statement happened.
     """
 
-    def __init__(self, module: Union[str, list, tuple], imported: Optional[str] = None, location: Optional[str] = None):
+    def __init__(
+        self,
+        module: Union[str, list, tuple],
+        imported: Optional[str] = None,
+        location: Optional[str] = None,
+    ):
         if not isinstance(module, str) and not is_seq_of(module, str):
             raise TypeError(
                 "module should be `str`, `list`, or `tuple`"

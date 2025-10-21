@@ -17,13 +17,15 @@ class AscendAssignResult(util_mixins.NiceRepr):
             of all anchors
     """
 
-    def __init__(self,
-                 batch_num_gts,
-                 batch_pos_mask,
-                 batch_neg_mask,
-                 batch_max_overlaps,
-                 batch_anchor_gt_indes=None,
-                 batch_anchor_gt_labels=None):
+    def __init__(
+        self,
+        batch_num_gts,
+        batch_pos_mask,
+        batch_neg_mask,
+        batch_max_overlaps,
+        batch_anchor_gt_indes=None,
+        batch_anchor_gt_labels=None,
+    ):
         self.batch_num_gts = batch_num_gts
         self.batch_pos_mask = batch_pos_mask
         self.batch_neg_mask = batch_neg_mask

@@ -153,8 +153,6 @@ class DetDataSample(BaseDataElement):
     def pred_instances(self):
         del self._pred_instances
 
-
-
     @property
     def ignored_instances(self) -> InstanceData:
         return getattr(self, "_ignored_instances", None)

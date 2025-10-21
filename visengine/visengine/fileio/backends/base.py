@@ -23,7 +23,11 @@ class BaseStorageBackend(metaclass=ABCMeta):
 
     @property
     def allow_symlink(self):
-        print_log("allow_symlink will be deprecated in future", logger="current", level=logging.WARNING)
+        print_log(
+            "allow_symlink will be deprecated in future",
+            logger="current",
+            level=logging.WARNING,
+        )
         return self._allow_symlink
 
     @property

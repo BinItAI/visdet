@@ -24,28 +24,28 @@ class AscendRetinaHead(RetinaHead, AscendAnchorHead):
         >>> assert box_per_anchor == 4
     """
 
-    def __init__(self,
-                 num_classes,
-                 in_channels,
-                 stacked_convs=4,
-                 conv_cfg=None,
-                 norm_cfg=None,
-                 anchor_generator=dict(
-                     type='AnchorGenerator',
-                     octave_base_scale=4,
-                     scales_per_octave=3,
-                     ratios=[0.5, 1.0, 2.0],
-                     strides=[8, 16, 32, 64, 128]),
-                 init_cfg=dict(
-                     type='Normal',
-                     layer='Conv2d',
-                     std=0.01,
-                     override=dict(
-                         type='Normal',
-                         name='retina_cls',
-                         std=0.01,
-                         bias_prob=0.01)),
-                 **kwargs):
+    def __init__(
+        self,
+        num_classes,
+        in_channels,
+        stacked_convs=4,
+        conv_cfg=None,
+        norm_cfg=None,
+        anchor_generator=dict(
+            type="AnchorGenerator",
+            octave_base_scale=4,
+            scales_per_octave=3,
+            ratios=[0.5, 1.0, 2.0],
+            strides=[8, 16, 32, 64, 128],
+        ),
+        init_cfg=dict(
+            type="Normal",
+            layer="Conv2d",
+            std=0.01,
+            override=dict(type="Normal", name="retina_cls", std=0.01, bias_prob=0.01),
+        ),
+        **kwargs,
+    ):
         super(AscendRetinaHead, self).__init__(
             num_classes=num_classes,
             in_channels=in_channels,
@@ -54,19 +54,22 @@ class AscendRetinaHead(RetinaHead, AscendAnchorHead):
             norm_cfg=norm_cfg,
             anchor_generator=anchor_generator,
             init_cfg=init_cfg,
-            **kwargs)
+            **kwargs,
+        )
 
-    def get_targets(self,
-                    anchor_list,
-                    valid_flag_list,
-                    gt_bboxes_list,
-                    img_metas,
-                    gt_bboxes_ignore_list=None,
-                    gt_labels_list=None,
-                    label_channels=1,
-                    unmap_outputs=True,
-                    return_sampling_results=False,
-                    return_level=True):
+    def get_targets(
+        self,
+        anchor_list,
+        valid_flag_list,
+        gt_bboxes_list,
+        img_metas,
+        gt_bboxes_ignore_list=None,
+        gt_labels_list=None,
+        label_channels=1,
+        unmap_outputs=True,
+        return_sampling_results=False,
+        return_level=True,
+    ):
         """Compute regression and classification targets for anchors in
         multiple images.
 
@@ -110,6 +113,15 @@ class AscendRetinaHead(RetinaHead, AscendAnchorHead):
                 The results will be concatenated after the end
         """
         return AscendAnchorHead.get_targets(
-            self, anchor_list, valid_flag_list, gt_bboxes_list, img_metas,
-            gt_bboxes_ignore_list, gt_labels_list, label_channels,
-            unmap_outputs, return_sampling_results, return_level)
+            self,
+            anchor_list,
+            valid_flag_list,
+            gt_bboxes_list,
+            img_metas,
+            gt_bboxes_ignore_list,
+            gt_labels_list,
+            label_channels,
+            unmap_outputs,
+            return_sampling_results,
+            return_level,
+        )

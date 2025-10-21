@@ -28,7 +28,13 @@ class ProgressBar:
         >>>    time.sleep(1)
     """
 
-    def __init__(self, task_num: int = 0, bar_width: int = 50, start: bool = True, file=sys.stdout):
+    def __init__(
+        self,
+        task_num: int = 0,
+        bar_width: int = 50,
+        start: bool = True,
+        file=sys.stdout,
+    ):
         self.task_num = task_num
         self.bar_width = bar_width
         self.completed = 0

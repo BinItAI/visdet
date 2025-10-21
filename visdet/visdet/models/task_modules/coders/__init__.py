@@ -7,7 +7,12 @@ from visdet.registry import TASK_UTILS
 class DeltaXYWHBBoxCoder:
     """Delta XYWH BBox coder."""
 
-    def __init__(self, target_means=(0.0, 0.0, 0.0, 0.0), target_stds=(1.0, 1.0, 1.0, 1.0), clip_border=True):
+    def __init__(
+        self,
+        target_means=(0.0, 0.0, 0.0, 0.0),
+        target_stds=(1.0, 1.0, 1.0, 1.0),
+        clip_border=True,
+    ):
         self.means = target_means
         self.stds = target_stds
         self.clip_border = clip_border

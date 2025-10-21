@@ -1,16 +1,15 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import torch.nn as nn
 import torch.utils.checkpoint as cp
-from mmcv.cnn import (build_conv_layer, build_norm_layer, constant_init,
-                      kaiming_init)
+from mmcv.cnn import build_conv_layer, build_norm_layer, constant_init, kaiming_init
 from mmcv.runner import Sequential, load_checkpoint
 from torch.nn.modules.batchnorm import _BatchNorm
 
 from mmdet.utils import get_root_logger
+
 from ..builder import BACKBONES
-from .resnet import BasicBlock
+from .resnet import BasicBlock, ResNet
 from .resnet import Bottleneck as _Bottleneck
-from .resnet import ResNet
 
 
 class Bottleneck(_Bottleneck):
@@ -31,17 +30,11 @@ class Bottleneck(_Bottleneck):
          init_cfg (dict or list[dict], optional): Initialization config dict.
             Default: None
     """
+
     expansion = 4
 
-    def __init__(self,
-                 inplanes,
-                 planes,
-                 rfp_inplanes=None,
-                 sac=None,
-                 init_cfg=None,
-                 **kwargs):
-        super(Bottleneck, self).__init__(
-            inplanes, planes, init_cfg=init_cfg, **kwargs)
+    def __init__(self, inplanes, planes, rfp_inplanes=None, sac=None, init_cfg=None, **kwargs):
+        super(Bottleneck, self).__init__(inplanes, planes, init_cfg=init_cfg, **kwargs)
 
         assert sac is None or isinstance(sac, dict)
         self.sac = sac
@@ -55,20 +48,14 @@ class Bottleneck(_Bottleneck):
                 stride=self.conv2_stride,
                 padding=self.dilation,
                 dilation=self.dilation,
-                bias=False)
+                bias=False,
+            )
 
         self.rfp_inplanes = rfp_inplanes
         if self.rfp_inplanes:
-            self.rfp_conv = build_conv_layer(
-                None,
-                self.rfp_inplanes,
-                planes * self.expansion,
-                1,
-                stride=1,
-                bias=True)
+            self.rfp_conv = build_conv_layer(None, self.rfp_inplanes, planes * self.expansion, 1, stride=1, bias=True)
             if init_cfg is None:
-                self.init_cfg = dict(
-                    type='Constant', val=0, override=dict(name='rfp_conv'))
+                self.init_cfg = dict(type="Constant", val=0, override=dict(name="rfp_conv"))
 
     def rfp_forward(self, x, rfp_feat):
         """The forward function that also takes the RFP features as input."""
@@ -143,21 +130,22 @@ class ResLayer(Sequential):
             base class.
     """
 
-    def __init__(self,
-                 block,
-                 inplanes,
-                 planes,
-                 num_blocks,
-                 stride=1,
-                 avg_down=False,
-                 conv_cfg=None,
-                 norm_cfg=dict(type='BN'),
-                 downsample_first=True,
-                 rfp_inplanes=None,
-                 **kwargs):
+    def __init__(
+        self,
+        block,
+        inplanes,
+        planes,
+        num_blocks,
+        stride=1,
+        avg_down=False,
+        conv_cfg=None,
+        norm_cfg=dict(type="BN"),
+        downsample_first=True,
+        rfp_inplanes=None,
+        **kwargs,
+    ):
         self.block = block
-        assert downsample_first, f'downsample_first={downsample_first} is ' \
-                                 'not supported in DetectoRS'
+        assert downsample_first, f"downsample_first={downsample_first} is not supported in DetectoRS"
 
         downsample = None
         if stride != 1 or inplanes != planes * block.expansion:
@@ -170,17 +158,22 @@ class ResLayer(Sequential):
                         kernel_size=stride,
                         stride=stride,
                         ceil_mode=True,
-                        count_include_pad=False))
-            downsample.extend([
-                build_conv_layer(
-                    conv_cfg,
-                    inplanes,
-                    planes * block.expansion,
-                    kernel_size=1,
-                    stride=conv_stride,
-                    bias=False),
-                build_norm_layer(norm_cfg, planes * block.expansion)[1]
-            ])
+                        count_include_pad=False,
+                    )
+                )
+            downsample.extend(
+                [
+                    build_conv_layer(
+                        conv_cfg,
+                        inplanes,
+                        planes * block.expansion,
+                        kernel_size=1,
+                        stride=conv_stride,
+                        bias=False,
+                    ),
+                    build_norm_layer(norm_cfg, planes * block.expansion)[1],
+                ]
+            )
             downsample = nn.Sequential(*downsample)
 
         layers = []
@@ -193,7 +186,9 @@ class ResLayer(Sequential):
                 conv_cfg=conv_cfg,
                 norm_cfg=norm_cfg,
                 rfp_inplanes=rfp_inplanes,
-                **kwargs))
+                **kwargs,
+            )
+        )
         inplanes = planes * block.expansion
         for _ in range(1, num_blocks):
             layers.append(
@@ -203,7 +198,9 @@ class ResLayer(Sequential):
                     stride=1,
                     conv_cfg=conv_cfg,
                     norm_cfg=norm_cfg,
-                    **kwargs))
+                    **kwargs,
+                )
+            )
 
         super(ResLayer, self).__init__(*layers)
 
@@ -228,29 +225,28 @@ class DetectoRS_ResNet(ResNet):
     arch_settings = {
         50: (Bottleneck, (3, 4, 6, 3)),
         101: (Bottleneck, (3, 4, 23, 3)),
-        152: (Bottleneck, (3, 8, 36, 3))
+        152: (Bottleneck, (3, 8, 36, 3)),
     }
 
-    def __init__(self,
-                 sac=None,
-                 stage_with_sac=(False, False, False, False),
-                 rfp_inplanes=None,
-                 output_img=False,
-                 pretrained=None,
-                 init_cfg=None,
-                 **kwargs):
-        assert not (init_cfg and pretrained), \
-            'init_cfg and pretrained cannot be specified at the same time'
+    def __init__(
+        self,
+        sac=None,
+        stage_with_sac=(False, False, False, False),
+        rfp_inplanes=None,
+        output_img=False,
+        pretrained=None,
+        init_cfg=None,
+        **kwargs,
+    ):
+        assert not (init_cfg and pretrained), "init_cfg and pretrained cannot be specified at the same time"
         self.pretrained = pretrained
         if init_cfg is not None:
-            assert isinstance(init_cfg, dict), \
-                f'init_cfg must be a dict, but got {type(init_cfg)}'
-            if 'type' in init_cfg:
-                assert init_cfg.get('type') == 'Pretrained', \
-                    'Only can initialize module by loading a pretrained model'
+            assert isinstance(init_cfg, dict), f"init_cfg must be a dict, but got {type(init_cfg)}"
+            if "type" in init_cfg:
+                assert init_cfg.get("type") == "Pretrained", "Only can initialize module by loading a pretrained model"
             else:
                 raise KeyError('`init_cfg` must contain the key "type"')
-            self.pretrained = init_cfg.get('checkpoint')
+            self.pretrained = init_cfg.get("checkpoint")
         self.sac = sac
         self.stage_with_sac = stage_with_sac
         self.rfp_inplanes = rfp_inplanes
@@ -284,9 +280,10 @@ class DetectoRS_ResNet(ResNet):
                 dcn=dcn,
                 sac=sac,
                 rfp_inplanes=rfp_inplanes if i > 0 else None,
-                plugins=stage_plugins)
+                plugins=stage_plugins,
+            )
             self.inplanes = planes * self.block.expansion
-            layer_name = f'layer{i + 1}'
+            layer_name = f"layer{i + 1}"
             self.add_module(layer_name, res_layer)
             self.res_layers.append(layer_name)
 
@@ -309,8 +306,7 @@ class DetectoRS_ResNet(ResNet):
 
             if self.dcn is not None:
                 for m in self.modules():
-                    if isinstance(m, Bottleneck) and hasattr(
-                            m.conv2, 'conv_offset'):
+                    if isinstance(m, Bottleneck) and hasattr(m.conv2, "conv_offset"):
                         constant_init(m.conv2.conv_offset, 0)
 
             if self.zero_init_residual:
@@ -320,7 +316,7 @@ class DetectoRS_ResNet(ResNet):
                     elif isinstance(m, BasicBlock):
                         constant_init(m.norm2, 0)
         else:
-            raise TypeError('pretrained must be a str or None')
+            raise TypeError("pretrained must be a str or None")
 
     def make_res_layer(self, **kwargs):
         """Pack all blocks in a stage into a ``ResLayer`` for DetectoRS."""

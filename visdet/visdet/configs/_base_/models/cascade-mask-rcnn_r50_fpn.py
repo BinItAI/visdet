@@ -43,7 +43,11 @@ model = {
             "target_means": [0.0, 0.0, 0.0, 0.0],
             "target_stds": [1.0, 1.0, 1.0, 1.0],
         },
-        "loss_cls": {"type": "CrossEntropyLoss", "use_sigmoid": True, "loss_weight": 1.0},
+        "loss_cls": {
+            "type": "CrossEntropyLoss",
+            "use_sigmoid": True,
+            "loss_weight": 1.0,
+        },
         "loss_bbox": {"type": "SmoothL1Loss", "beta": 1.0, "loss_weight": 1.0},
     },
     "roi_head": {
@@ -69,7 +73,11 @@ model = {
                     "target_stds": [0.1, 0.1, 0.2, 0.2],
                 },
                 "reg_class_agnostic": True,
-                "loss_cls": {"type": "CrossEntropyLoss", "use_sigmoid": False, "loss_weight": 1.0},
+                "loss_cls": {
+                    "type": "CrossEntropyLoss",
+                    "use_sigmoid": False,
+                    "loss_weight": 1.0,
+                },
                 "loss_bbox": {"type": "SmoothL1Loss", "beta": 1.0, "loss_weight": 1.0},
             },
             {
@@ -84,7 +92,11 @@ model = {
                     "target_stds": [0.05, 0.05, 0.1, 0.1],
                 },
                 "reg_class_agnostic": True,
-                "loss_cls": {"type": "CrossEntropyLoss", "use_sigmoid": False, "loss_weight": 1.0},
+                "loss_cls": {
+                    "type": "CrossEntropyLoss",
+                    "use_sigmoid": False,
+                    "loss_weight": 1.0,
+                },
                 "loss_bbox": {"type": "SmoothL1Loss", "beta": 1.0, "loss_weight": 1.0},
             },
             {
@@ -99,7 +111,11 @@ model = {
                     "target_stds": [0.033, 0.033, 0.067, 0.067],
                 },
                 "reg_class_agnostic": True,
-                "loss_cls": {"type": "CrossEntropyLoss", "use_sigmoid": False, "loss_weight": 1.0},
+                "loss_cls": {
+                    "type": "CrossEntropyLoss",
+                    "use_sigmoid": False,
+                    "loss_weight": 1.0,
+                },
                 "loss_bbox": {"type": "SmoothL1Loss", "beta": 1.0, "loss_weight": 1.0},
             },
         ],
@@ -116,7 +132,11 @@ model = {
                 "in_channels": 256,
                 "conv_out_channels": 256,
                 "num_classes": 80,
-                "loss_mask": {"type": "CrossEntropyLoss", "use_mask": True, "loss_weight": 1.0},
+                "loss_mask": {
+                    "type": "CrossEntropyLoss",
+                    "use_mask": True,
+                    "loss_weight": 1.0,
+                },
             },
             {
                 "type": "FCNMaskHead",
@@ -124,7 +144,11 @@ model = {
                 "in_channels": 256,
                 "conv_out_channels": 256,
                 "num_classes": 80,
-                "loss_mask": {"type": "CrossEntropyLoss", "use_mask": True, "loss_weight": 1.0},
+                "loss_mask": {
+                    "type": "CrossEntropyLoss",
+                    "use_mask": True,
+                    "loss_weight": 1.0,
+                },
             },
             {
                 "type": "FCNMaskHead",
@@ -132,7 +156,11 @@ model = {
                 "in_channels": 256,
                 "conv_out_channels": 256,
                 "num_classes": 80,
-                "loss_mask": {"type": "CrossEntropyLoss", "use_mask": True, "loss_weight": 1.0},
+                "loss_mask": {
+                    "type": "CrossEntropyLoss",
+                    "use_mask": True,
+                    "loss_weight": 1.0,
+                },
             },
         ],
     },

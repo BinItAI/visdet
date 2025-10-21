@@ -217,8 +217,10 @@ class LogProcessor:
             eta = runner.message_hub.get_info("eta")
             eta_str = str(datetime.timedelta(seconds=int(eta)))
             log_str += f"eta: {eta_str}  "
-            log_str += f"time: {log_tag['time']:.{self.num_digits}f}  data_time: {log_tag['data_time']:.{self.num_digits}f}  "
-            
+            log_str += (
+                f"time: {log_tag['time']:.{self.num_digits}f}  data_time: {log_tag['data_time']:.{self.num_digits}f}  "
+            )
+
             # Calculate and add images/second for both train and val
             if mode == "train":
                 batch_size = _get_batch_size(runner._train_dataloader)
@@ -226,12 +228,12 @@ class LogProcessor:
                 batch_size = _get_batch_size(runner._val_dataloader)
             else:
                 batch_size = None
-                
+
             if batch_size:
                 images_per_second = batch_size / log_tag["time"]
-                log_str += f"img/s: {images_per_second:.{self.num_digits-2}f}  "
+                log_str += f"img/s: {images_per_second:.{self.num_digits - 2}f}  "
                 tag["images_per_second"] = images_per_second
-            
+
             # Pop recorded keys
             log_tag.pop("time")
             log_tag.pop("data_time")
@@ -413,7 +415,9 @@ class LogProcessor:
         def _check_window_size():
             for log_cfg in self.custom_cfg:
                 if not self.by_epoch:
-                    assert log_cfg["window_size"] != "epoch", "window_size cannot be epoch if LoggerHook.by_epoch is False."
+                    assert log_cfg["window_size"] != "epoch", (
+                        "window_size cannot be epoch if LoggerHook.by_epoch is False."
+                    )
 
         def _check_repeated_log_name():
             # The `log_name` of the same data_src should not be repeated.

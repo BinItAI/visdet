@@ -231,7 +231,9 @@ class InstanceData(BaseDataElement):
                         new_value = v.cat(r_list)
                     new_data[k] = new_value
                 else:
-                    raise ValueError(f"The type of `{k}` is `{type(v)}`, which has no attribute of `cat`, so it does not support slice with `bool`")
+                    raise ValueError(
+                        f"The type of `{k}` is `{type(v)}`, which has no attribute of `cat`, so it does not support slice with `bool`"
+                    )
 
         else:
             # item is a slice
@@ -261,9 +263,9 @@ class InstanceData(BaseDataElement):
         # metainfo and data_fields must be exactly the
         # same for each element to avoid exceptions.
         field_keys_list = [instances.all_keys() for instances in instances_list]
-        assert len({len(field_keys) for field_keys in field_keys_list}) == 1 and len(set(itertools.chain(*field_keys_list))) == len(
-            field_keys_list[0]
-        ), (
+        assert len({len(field_keys) for field_keys in field_keys_list}) == 1 and len(
+            set(itertools.chain(*field_keys_list))
+        ) == len(field_keys_list[0]), (
             "There are different keys in "
             "`instances_list`, which may "
             "cause the cat operation "

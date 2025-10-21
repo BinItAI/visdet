@@ -10,7 +10,16 @@ from .hsigmoid import HSigmoid
 from .hswish import HSwish
 from .swish import Swish
 
-for module in [nn.ReLU, nn.LeakyReLU, nn.PReLU, nn.RReLU, nn.ReLU6, nn.ELU, nn.Sigmoid, nn.Tanh]:
+for module in [
+    nn.ReLU,
+    nn.LeakyReLU,
+    nn.PReLU,
+    nn.RReLU,
+    nn.ReLU6,
+    nn.ELU,
+    nn.Sigmoid,
+    nn.Tanh,
+]:
     MODELS.register_module(module=module)
 
 # Register custom activation modules
@@ -19,6 +28,7 @@ MODELS.register_module(module=HSwish)
 MODELS.register_module(module=Swish)
 MODELS.register_module(module=nn.SiLU, name="SiLU")
 MODELS.register_module(module=nn.GELU)
+
 
 @MODELS.register_module(name="Clip")
 @MODELS.register_module()
@@ -76,6 +86,7 @@ class GELU(nn.Module):
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:
         return F.gelu(input)
+
 
 def build_activation_layer(cfg: dict) -> nn.Module:
     """Build activation layer.

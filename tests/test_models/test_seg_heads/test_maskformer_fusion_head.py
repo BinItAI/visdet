@@ -8,17 +8,17 @@ from mmdet.models.seg_heads.panoptic_fusion_heads import MaskFormerFusionHead
 def test_maskformer_fusion_head():
     img_metas = [
         {
-            'batch_input_shape': (128, 160),
-            'img_shape': (126, 160, 3),
-            'ori_shape': (63, 80, 3),
-            'pad_shape': (128, 160, 3)
+            "batch_input_shape": (128, 160),
+            "img_shape": (126, 160, 3),
+            "ori_shape": (63, 80, 3),
+            "pad_shape": (128, 160, 3),
         },
     ]
     num_things_classes = 80
     num_stuff_classes = 53
     num_classes = num_things_classes + num_stuff_classes
     config = ConfigDict(
-        type='MaskFormerFusionHead',
+        type="MaskFormerFusionHead",
         num_things_classes=num_things_classes,
         num_stuff_classes=num_stuff_classes,
         loss_panoptic=None,
@@ -29,8 +29,10 @@ def test_maskformer_fusion_head():
             max_per_image=100,
             object_mask_thr=0.8,
             iou_thr=0.8,
-            filter_low_score=False),
-        init_cfg=None)
+            filter_low_score=False,
+        ),
+        init_cfg=None,
+    )
 
     self = MaskFormerFusionHead(**config)
 
@@ -42,7 +44,7 @@ def test_maskformer_fusion_head():
 
     # test panoptic_postprocess and instance_postprocess
     results = self.simple_test(mask_cls_results, mask_pred_results, img_metas)
-    assert 'ins_results' in results[0] and 'pan_results' in results[0]
+    assert "ins_results" in results[0] and "pan_results" in results[0]
 
     # test semantic_postprocess
     config.test_cfg.semantic_on = True

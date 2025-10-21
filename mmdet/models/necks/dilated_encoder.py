@@ -1,7 +1,6 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import torch.nn as nn
-from mmcv.cnn import (ConvModule, caffe2_xavier_init, constant_init, is_norm,
-                      normal_init)
+from mmcv.cnn import ConvModule, caffe2_xavier_init, constant_init, is_norm, normal_init
 from torch.nn import BatchNorm2d
 
 from ..builder import NECKS
@@ -21,23 +20,24 @@ class Bottleneck(nn.Module):
         norm_cfg (dict): Dictionary to construct and config norm layer.
     """
 
-    def __init__(self,
-                 in_channels,
-                 mid_channels,
-                 dilation,
-                 norm_cfg=dict(type='BN', requires_grad=True)):
+    def __init__(
+        self,
+        in_channels,
+        mid_channels,
+        dilation,
+        norm_cfg=dict(type="BN", requires_grad=True),
+    ):
         super(Bottleneck, self).__init__()
-        self.conv1 = ConvModule(
-            in_channels, mid_channels, 1, norm_cfg=norm_cfg)
+        self.conv1 = ConvModule(in_channels, mid_channels, 1, norm_cfg=norm_cfg)
         self.conv2 = ConvModule(
             mid_channels,
             mid_channels,
             3,
             padding=dilation,
             dilation=dilation,
-            norm_cfg=norm_cfg)
-        self.conv3 = ConvModule(
-            mid_channels, in_channels, 1, norm_cfg=norm_cfg)
+            norm_cfg=norm_cfg,
+        )
+        self.conv3 = ConvModule(mid_channels, in_channels, 1, norm_cfg=norm_cfg)
 
     def forward(self, x):
         identity = x
@@ -65,8 +65,14 @@ class DilatedEncoder(nn.Module):
         block_dilations (list): The list of residual blocks dilation.
     """
 
-    def __init__(self, in_channels, out_channels, block_mid_channels,
-                 num_residual_blocks, block_dilations):
+    def __init__(
+        self,
+        in_channels,
+        out_channels,
+        block_mid_channels,
+        num_residual_blocks,
+        block_dilations,
+    ):
         super(DilatedEncoder, self).__init__()
         self.in_channels = in_channels
         self.out_channels = out_channels
@@ -76,20 +82,14 @@ class DilatedEncoder(nn.Module):
         self._init_layers()
 
     def _init_layers(self):
-        self.lateral_conv = nn.Conv2d(
-            self.in_channels, self.out_channels, kernel_size=1)
+        self.lateral_conv = nn.Conv2d(self.in_channels, self.out_channels, kernel_size=1)
         self.lateral_norm = BatchNorm2d(self.out_channels)
-        self.fpn_conv = nn.Conv2d(
-            self.out_channels, self.out_channels, kernel_size=3, padding=1)
+        self.fpn_conv = nn.Conv2d(self.out_channels, self.out_channels, kernel_size=3, padding=1)
         self.fpn_norm = BatchNorm2d(self.out_channels)
         encoder_blocks = []
         for i in range(self.num_residual_blocks):
             dilation = self.block_dilations[i]
-            encoder_blocks.append(
-                Bottleneck(
-                    self.out_channels,
-                    self.block_mid_channels,
-                    dilation=dilation))
+            encoder_blocks.append(Bottleneck(self.out_channels, self.block_mid_channels, dilation=dilation))
         self.dilated_encoder_blocks = nn.Sequential(*encoder_blocks)
 
     def init_weights(self):
@@ -106,4 +106,4 @@ class DilatedEncoder(nn.Module):
     def forward(self, feature):
         out = self.lateral_norm(self.lateral_conv(feature[-1]))
         out = self.fpn_norm(self.fpn_conv(out))
-        return self.dilated_encoder_blocks(out),
+        return (self.dilated_encoder_blocks(out),)

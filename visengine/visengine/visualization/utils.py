@@ -66,7 +66,9 @@ def check_length(name: str, value: Any, valid_length: int) -> None:
     """
     if isinstance(value, list):
         if len(value) < valid_length:
-            raise AssertionError(f"The length of {name} must equal with or greater than {valid_length}, but got {len(value)}")
+            raise AssertionError(
+                f"The length of {name} must equal with or greater than {valid_length}, but got {len(value)}"
+            )
 
 
 def check_type_and_length(name: str, value: Any, valid_type: type | tuple[type, ...], valid_length: int) -> None:
@@ -132,7 +134,11 @@ def color_str2rgb(color: str) -> tuple:
     return rgb_color
 
 
-def convert_overlay_heatmap(feat_map: np.ndarray | torch.Tensor, img: np.ndarray | None = None, alpha: float = 0.5) -> np.ndarray:
+def convert_overlay_heatmap(
+    feat_map: np.ndarray | torch.Tensor,
+    img: np.ndarray | None = None,
+    alpha: float = 0.5,
+) -> np.ndarray:
     """Convert feat_map to heatmap and overlay on image, if image is not None.
 
     Args:

@@ -33,7 +33,11 @@ from .weight_init import (
     update_init_info,
     xavier_init,
 )
-from .wrappers import MMDistributedDataParallel, MMSeparateDistributedDataParallel, is_model_wrapper
+from .wrappers import (
+    MMDistributedDataParallel,
+    MMSeparateDistributedDataParallel,
+    is_model_wrapper,
+)
 
 __all__ = [
     "BaseDataPreprocessor",

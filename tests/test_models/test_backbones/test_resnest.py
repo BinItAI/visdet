@@ -9,11 +9,10 @@ from mmdet.models.backbones.resnest import Bottleneck as BottleneckS
 def test_resnest_bottleneck():
     with pytest.raises(AssertionError):
         # Style must be in ['pytorch', 'caffe']
-        BottleneckS(64, 64, radix=2, reduction_factor=4, style='tensorflow')
+        BottleneckS(64, 64, radix=2, reduction_factor=4, style="tensorflow")
 
     # Test ResNeSt Bottleneck structure
-    block = BottleneckS(
-        2, 4, radix=2, reduction_factor=4, stride=2, style='pytorch')
+    block = BottleneckS(2, 4, radix=2, reduction_factor=4, stride=2, style="pytorch")
     assert block.avd_layer.stride == 2
     assert block.conv2.channels == 4
 
@@ -30,12 +29,7 @@ def test_resnest_backbone():
         ResNeSt(depth=18)
 
     # Test ResNeSt with radix 2, reduction_factor 4
-    model = ResNeSt(
-        depth=50,
-        base_channels=4,
-        radix=2,
-        reduction_factor=4,
-        out_indices=(0, 1, 2, 3))
+    model = ResNeSt(depth=50, base_channels=4, radix=2, reduction_factor=4, out_indices=(0, 1, 2, 3))
     model.train()
 
     imgs = torch.randn(2, 3, 32, 32)

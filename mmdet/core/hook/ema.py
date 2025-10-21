@@ -29,12 +29,14 @@ class BaseEMAHook(Hook):
             It uses `momentum` as a constant. Defaults to None.
     """
 
-    def __init__(self,
-                 momentum=0.0002,
-                 interval=1,
-                 skip_buffers=False,
-                 resume_from=None,
-                 momentum_fun=None):
+    def __init__(
+        self,
+        momentum=0.0002,
+        interval=1,
+        skip_buffers=False,
+        resume_from=None,
+        momentum_fun=None,
+    ):
         assert 0 < momentum < 1
         self.momentum = momentum
         self.skip_buffers = skip_buffers
@@ -65,8 +67,7 @@ class BaseEMAHook(Hook):
             runner.resume(self.checkpoint)
 
     def get_momentum(self, runner):
-        return self.momentum_fun(runner.iter) if self.momentum_fun else \
-                        self.momentum
+        return self.momentum_fun(runner.iter) if self.momentum_fun else self.momentum
 
     def after_train_iter(self, runner):
         """Update ema parameter every self.interval iterations."""
@@ -78,8 +79,7 @@ class BaseEMAHook(Hook):
             if parameter.dtype.is_floating_point:
                 buffer_name = self.param_ema_buffer[name]
                 buffer_parameter = self.model_buffers[buffer_name]
-                buffer_parameter.mul_(1 - momentum).add_(
-                    parameter.data, alpha=momentum)
+                buffer_parameter.mul_(1 - momentum).add_(parameter.data, alpha=momentum)
 
     def after_train_epoch(self, runner):
         """We load parameter values from ema backup to model before the
@@ -111,8 +111,7 @@ class ExpMomentumEMAHook(BaseEMAHook):
 
     def __init__(self, total_iter=2000, **kwargs):
         super(ExpMomentumEMAHook, self).__init__(**kwargs)
-        self.momentum_fun = lambda x: (1 - self.momentum) * math.exp(-(
-            1 + x) / total_iter) + self.momentum
+        self.momentum_fun = lambda x: (1 - self.momentum) * math.exp(-(1 + x) / total_iter) + self.momentum
 
 
 @HOOKS.register_module()
@@ -126,5 +125,4 @@ class LinearMomentumEMAHook(BaseEMAHook):
 
     def __init__(self, warm_up=100, **kwargs):
         super(LinearMomentumEMAHook, self).__init__(**kwargs)
-        self.momentum_fun = lambda x: min(self.momentum**self.interval,
-                                          (1 + x) / (warm_up + x))
+        self.momentum_fun = lambda x: min(self.momentum**self.interval, (1 + x) / (warm_up + x))

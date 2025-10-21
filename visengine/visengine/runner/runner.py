@@ -46,7 +46,12 @@ from visengine.model import (
     revert_sync_batchnorm,
 )
 from visengine.model.efficient_conv_bn_eval import turn_on_efficient_conv_bn_eval
-from visengine.optim import OptimWrapper, OptimWrapperDict, _ParamScheduler, build_optim_wrapper
+from visengine.optim import (
+    OptimWrapper,
+    OptimWrapperDict,
+    _ParamScheduler,
+    build_optim_wrapper,
+)
 from visengine.registry import (
     DATA_SAMPLERS,
     DATASETS,
@@ -874,7 +879,9 @@ class Runner:
         """
         if is_model_wrapper(model):
             if model_wrapper_cfg is not None:
-                raise TypeError(f'model has been wrapped and "model_wrapper_cfg" should be None, but got {model_wrapper_cfg}')
+                raise TypeError(
+                    f'model has been wrapped and "model_wrapper_cfg" should be None, but got {model_wrapper_cfg}'
+                )
 
             return model
 
@@ -958,7 +965,9 @@ class Runner:
         real_bs = self.world_size * bs
         base_bs = auto_scale_lr["base_batch_size"]
         ratio = float(real_bs) / float(base_bs)
-        self.logger.info(f"LR is set based on batch size of {base_bs} and the current batch size is {real_bs}. Scaling the original LR by {ratio}.")
+        self.logger.info(
+            f"LR is set based on batch size of {base_bs} and the current batch size is {real_bs}. Scaling the original LR by {ratio}."
+        )
 
         def _is_built(schedulers):
             if isinstance(schedulers, dict):
@@ -1123,7 +1132,9 @@ class Runner:
         else:
             raise TypeError(f"optimizer wrapper should be an OptimWrapper object or dict, but got {optim_wrapper}")
 
-    def _build_param_scheduler(self, scheduler: _ParamScheduler | dict | list, optim_wrapper: OptimWrapper) -> list[_ParamScheduler]:
+    def _build_param_scheduler(
+        self, scheduler: _ParamScheduler | dict | list, optim_wrapper: OptimWrapper
+    ) -> list[_ParamScheduler]:
         """Build parameter schedulers for a single optimizer.
 
         Args:
@@ -1158,7 +1169,9 @@ class Runner:
                 if isinstance(self._train_loop, BaseLoop):
                     default_end = self.max_epochs if _scheduler.get("by_epoch", True) else self.max_iters
                     _scheduler.setdefault("end", default_end)
-                    self.logger.debug(f"The `end` of {_scheduler['type']} is not set. Use the max epochs/iters of train loop as default.")
+                    self.logger.debug(
+                        f"The `end` of {_scheduler['type']} is not set. Use the max epochs/iters of train loop as default."
+                    )
 
                 param_schedulers.append(
                     PARAM_SCHEDULERS.build(
@@ -1377,7 +1390,10 @@ class Runner:
         elif isinstance(batch_sampler_cfg, dict):
             batch_sampler = DATA_SAMPLERS.build(
                 batch_sampler_cfg,
-                default_args={"sampler": sampler, "batch_size": dataloader_cfg.pop("batch_size")},
+                default_args={
+                    "sampler": sampler,
+                    "batch_size": dataloader_cfg.pop("batch_size"),
+                },
             )
         else:
             # fallback to raise error in dataloader
@@ -1395,7 +1411,9 @@ class Runner:
             elif callable(worker_init_fn_type):
                 worker_init_fn = worker_init_fn_type
             else:
-                raise TypeError(f"type of worker_init_fn should be string or callable object, but got {type(worker_init_fn_type)}")
+                raise TypeError(
+                    f"type of worker_init_fn should be string or callable object, but got {type(worker_init_fn_type)}"
+                )
             assert callable(worker_init_fn)
             init_fn = partial(worker_init_fn, **worker_init_fn_cfg)  # type: ignore
         else:
@@ -1474,7 +1492,10 @@ class Runner:
             raise RuntimeError("Only one of `type` or `by_epoch` can exist in `loop_cfg`.")
 
         if "type" in loop_cfg:
-            loop = LOOPS.build(loop_cfg, default_args={"runner": self, "dataloader": self._train_dataloader})
+            loop = LOOPS.build(
+                loop_cfg,
+                default_args={"runner": self, "dataloader": self._train_dataloader},
+            )
         else:
             by_epoch = loop_cfg.pop("by_epoch")
             if by_epoch:
@@ -1661,10 +1682,14 @@ class Runner:
             ori_model = self.model.module
         else:
             ori_model = self.model
-        assert hasattr(ori_model, "train_step"), "If you want to train your model, please make sure your model has implemented `train_step`."
+        assert hasattr(ori_model, "train_step"), (
+            "If you want to train your model, please make sure your model has implemented `train_step`."
+        )
 
         if self._val_loop is not None:
-            assert hasattr(ori_model, "val_step"), "If you want to validate your model, please make sure your model has implemented `val_step`."
+            assert hasattr(ori_model, "val_step"), (
+                "If you want to validate your model, please make sure your model has implemented `val_step`."
+            )
 
         if self._train_loop is None:
             raise RuntimeError(
@@ -1787,7 +1812,9 @@ class Runner:
                 try:
                     method = getattr(hook, fn_name)
                     if not callable(method):
-                        raise TypeError(f"Hook method '{fn_name}' on {type(hook).__name__} is not callable, got {type(method)}")
+                        raise TypeError(
+                            f"Hook method '{fn_name}' on {type(hook).__name__} is not callable, got {type(method)}"
+                        )
                     method(self, **kwargs)
                 except TypeError as e:
                     raise TypeError(f"{e} in {hook}") from None
@@ -2027,7 +2054,9 @@ class Runner:
 
         # resume param scheduler
         if resume_param_scheduler and self.param_schedulers is None:
-            self.logger.warning("`resume_param_scheduler` is True but `self.param_schedulers` is None, so skip resuming parameter schedulers")
+            self.logger.warning(
+                "`resume_param_scheduler` is True but `self.param_schedulers` is None, so skip resuming parameter schedulers"
+            )
             resume_param_scheduler = False
         if "param_schedulers" in checkpoint and resume_param_scheduler:
             self.param_schedulers = self.build_param_scheduler(  # type: ignore
@@ -2035,7 +2064,9 @@ class Runner:
             )  # type: ignore
             if isinstance(self.param_schedulers, dict):
                 for name, schedulers in self.param_schedulers.items():
-                    for scheduler, ckpt_scheduler in zip(schedulers, checkpoint["param_schedulers"][name], strict=False):
+                    for scheduler, ckpt_scheduler in zip(
+                        schedulers, checkpoint["param_schedulers"][name], strict=False
+                    ):
                         scheduler.load_state_dict(ckpt_scheduler)
             else:
                 for scheduler, ckpt_scheduler in zip(
@@ -2176,18 +2207,30 @@ class Runner:
         checkpoint = {
             "meta": meta,
             "state_dict": weights_to_cpu(model.state_dict()),
-            "message_hub": apply_to(self.message_hub.state_dict(), lambda x: hasattr(x, "cpu"), lambda x: x.cpu()),
+            "message_hub": apply_to(
+                self.message_hub.state_dict(),
+                lambda x: hasattr(x, "cpu"),
+                lambda x: x.cpu(),
+            ),
         }
         # save optimizer state dict to checkpoint
         if save_optimizer:
             if isinstance(self.optim_wrapper, OptimWrapper):
-                checkpoint["optimizer"] = apply_to(self.optim_wrapper.state_dict(), lambda x: hasattr(x, "cpu"), lambda x: x.cpu())
+                checkpoint["optimizer"] = apply_to(
+                    self.optim_wrapper.state_dict(),
+                    lambda x: hasattr(x, "cpu"),
+                    lambda x: x.cpu(),
+                )
             else:
-                raise TypeError(f"self.optim_wrapper should be an `OptimWrapper` or `OptimWrapperDict` instance, but got {self.optim_wrapper}")
+                raise TypeError(
+                    f"self.optim_wrapper should be an `OptimWrapper` or `OptimWrapperDict` instance, but got {self.optim_wrapper}"
+                )
 
         # save param scheduler state dict
         if save_param_scheduler and self.param_schedulers is None:
-            self.logger.warning("`save_param_scheduler` is True but `self.param_schedulers` is None, so skip saving parameter schedulers")
+            self.logger.warning(
+                "`save_param_scheduler` is True but `self.param_schedulers` is None, so skip saving parameter schedulers"
+            )
             save_param_scheduler = False
         if save_param_scheduler:
             if isinstance(self.param_schedulers, dict):
@@ -2204,7 +2247,12 @@ class Runner:
                     checkpoint["param_schedulers"].append(state_dict)
 
         self.call_hook("before_save_checkpoint", checkpoint=checkpoint)
-        save_checkpoint(checkpoint, filepath, file_client_args=file_client_args, backend_args=backend_args)
+        save_checkpoint(
+            checkpoint,
+            filepath,
+            file_client_args=file_client_args,
+            backend_args=backend_args,
+        )
 
     @master_only
     def dump_config(self) -> None:
@@ -2265,7 +2313,9 @@ class Runner:
 
         if is_seq_of(param_scheduler, dict):
             for _param_scheduler in param_scheduler:
-                assert "type" in _param_scheduler, f"Each parameter scheduler should contain the key type, but got {_param_scheduler}"
+                assert "type" in _param_scheduler, (
+                    f"Each parameter scheduler should contain the key type, but got {_param_scheduler}"
+                )
         elif isinstance(param_scheduler, dict):
             if "type" not in param_scheduler:
                 for _key, _param_scheduler in param_scheduler.items():
@@ -2304,7 +2354,15 @@ class Runner:
         runtime_env_info = "\n    " + "\n    ".join(f"{k}: {v}" for k, v in runtime_env.items())
         dash_line = "-" * 60
         self.logger.info(
-            "\n" + dash_line + "\nSystem environment:" + env_info + "\n\nRuntime environment:" + runtime_env_info + "\n" + dash_line + "\n"
+            "\n"
+            + dash_line
+            + "\nSystem environment:"
+            + env_info
+            + "\n\nRuntime environment:"
+            + runtime_env_info
+            + "\n"
+            + dash_line
+            + "\n"
         )
 
         if self.cfg._cfg_dict:

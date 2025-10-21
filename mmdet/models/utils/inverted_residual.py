@@ -39,27 +39,27 @@ class InvertedResidual(BaseModule):
         Tensor: The output tensor.
     """
 
-    def __init__(self,
-                 in_channels,
-                 out_channels,
-                 mid_channels,
-                 kernel_size=3,
-                 stride=1,
-                 se_cfg=None,
-                 with_expand_conv=True,
-                 conv_cfg=None,
-                 norm_cfg=dict(type='BN'),
-                 act_cfg=dict(type='ReLU'),
-                 drop_path_rate=0.,
-                 with_cp=False,
-                 init_cfg=None):
+    def __init__(
+        self,
+        in_channels,
+        out_channels,
+        mid_channels,
+        kernel_size=3,
+        stride=1,
+        se_cfg=None,
+        with_expand_conv=True,
+        conv_cfg=None,
+        norm_cfg=dict(type="BN"),
+        act_cfg=dict(type="ReLU"),
+        drop_path_rate=0.0,
+        with_cp=False,
+        init_cfg=None,
+    ):
         super(InvertedResidual, self).__init__(init_cfg)
-        self.with_res_shortcut = (stride == 1 and in_channels == out_channels)
-        assert stride in [1, 2], f'stride must in [1, 2]. ' \
-            f'But received {stride}.'
+        self.with_res_shortcut = stride == 1 and in_channels == out_channels
+        assert stride in [1, 2], f"stride must in [1, 2]. But received {stride}."
         self.with_cp = with_cp
-        self.drop_path = DropPath(
-            drop_path_rate) if drop_path_rate > 0 else nn.Identity()
+        self.drop_path = DropPath(drop_path_rate) if drop_path_rate > 0 else nn.Identity()
         self.with_se = se_cfg is not None
         self.with_expand_conv = with_expand_conv
 
@@ -77,7 +77,8 @@ class InvertedResidual(BaseModule):
                 padding=0,
                 conv_cfg=conv_cfg,
                 norm_cfg=norm_cfg,
-                act_cfg=act_cfg)
+                act_cfg=act_cfg,
+            )
         self.depthwise_conv = ConvModule(
             in_channels=mid_channels,
             out_channels=mid_channels,
@@ -87,7 +88,8 @@ class InvertedResidual(BaseModule):
             groups=mid_channels,
             conv_cfg=conv_cfg,
             norm_cfg=norm_cfg,
-            act_cfg=act_cfg)
+            act_cfg=act_cfg,
+        )
 
         if self.with_se:
             self.se = SELayer(**se_cfg)
@@ -100,10 +102,10 @@ class InvertedResidual(BaseModule):
             padding=0,
             conv_cfg=conv_cfg,
             norm_cfg=norm_cfg,
-            act_cfg=None)
+            act_cfg=None,
+        )
 
     def forward(self, x):
-
         def _inner_forward(x):
             out = x
 

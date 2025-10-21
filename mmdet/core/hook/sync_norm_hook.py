@@ -13,7 +13,7 @@ def get_norm_states(module):
     for name, child in module.named_modules():
         if isinstance(child, nn.modules.batchnorm._NormBase):
             for k, v in child.state_dict().items():
-                async_norm_states['.'.join([name, k])] = v
+                async_norm_states[".".join([name, k])] = v
     return async_norm_states
 
 
@@ -48,5 +48,5 @@ class SyncNormHook(Hook):
             norm_states = get_norm_states(module)
             if len(norm_states) == 0:
                 return
-            norm_states = all_reduce_dict(norm_states, op='mean')
+            norm_states = all_reduce_dict(norm_states, op="mean")
             module.load_state_dict(norm_states, strict=False)

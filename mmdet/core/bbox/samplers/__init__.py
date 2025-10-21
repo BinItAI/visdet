@@ -12,8 +12,15 @@ from .sampling_result import SamplingResult
 from .score_hlr_sampler import ScoreHLRSampler
 
 __all__ = [
-    'BaseSampler', 'PseudoSampler', 'RandomSampler',
-    'InstanceBalancedPosSampler', 'IoUBalancedNegSampler', 'CombinedSampler',
-    'OHEMSampler', 'SamplingResult', 'ScoreHLRSampler', 'MaskPseudoSampler',
-    'MaskSamplingResult'
+    "BaseSampler",
+    "PseudoSampler",
+    "RandomSampler",
+    "InstanceBalancedPosSampler",
+    "IoUBalancedNegSampler",
+    "CombinedSampler",
+    "OHEMSampler",
+    "SamplingResult",
+    "ScoreHLRSampler",
+    "MaskPseudoSampler",
+    "MaskSamplingResult",
 ]

@@ -35,7 +35,12 @@ class HistoryBuffer:
 
     _statistics_methods: dict = {}
 
-    def __init__(self, log_history: Sequence = [], count_history: Sequence = [], max_length: int = 1000000):
+    def __init__(
+        self,
+        log_history: Sequence = [],
+        count_history: Sequence = [],
+        max_length: int = 1000000,
+    ):
         self.max_length = max_length
         self._set_default_statistics()
         assert len(log_history) == len(count_history), "The lengths of log_history and count_histroy should be equal"
@@ -69,7 +74,9 @@ class HistoryBuffer:
             ``count`` will be used in smooth statistics.
         """
         if not isinstance(log_val, int | float) or not isinstance(count, int | float):
-            raise TypeError(f"log_val must be int or float but got {type(log_val)}, count must be int but got {type(count)}")
+            raise TypeError(
+                f"log_val must be int or float but got {type(log_val)}, count must be int but got {type(count)}"
+            )
         self._log_history = np.append(self._log_history, log_val)
         self._count_history = np.append(self._count_history, count)
         if len(self._log_history) > self.max_length:

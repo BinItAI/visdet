@@ -5,6 +5,10 @@ from .group_sampler import DistributedGroupSampler, GroupSampler
 from .infinite_sampler import InfiniteBatchSampler, InfiniteGroupBatchSampler
 
 __all__ = [
-    'DistributedSampler', 'DistributedGroupSampler', 'GroupSampler',
-    'InfiniteGroupBatchSampler', 'InfiniteBatchSampler', 'ClassAwareSampler'
+    "DistributedSampler",
+    "DistributedGroupSampler",
+    "GroupSampler",
+    "InfiniteGroupBatchSampler",
+    "InfiniteBatchSampler",
+    "ClassAwareSampler",
 ]

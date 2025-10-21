@@ -295,7 +295,9 @@ class ImgDataPreprocessor(BaseDataPreprocessor):
             pad_w = target_w - w
             batch_inputs = F.pad(_batch_inputs, (0, pad_w, 0, pad_h), "constant", self.pad_value)
         else:
-            raise TypeError(f"Output of `cast_data` should be a dict of list/tuple with inputs and data_samples, but got {type(data)}: {data}")  # type: ignore
+            raise TypeError(
+                f"Output of `cast_data` should be a dict of list/tuple with inputs and data_samples, but got {type(data)}: {data}"
+            )  # type: ignore
         data["inputs"] = batch_inputs  # type: ignore
         data.setdefault("data_samples", None)  # type: ignore
         return data  # type: ignore

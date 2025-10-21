@@ -41,7 +41,12 @@ class TestLoadImageFromFile:
         assert loader.backend_args is None
 
         # Test with custom parameters
-        loader = LoadImageFromFile(to_float32=True, color_type="grayscale", imdecode_backend="pillow", ignore_empty=True)
+        loader = LoadImageFromFile(
+            to_float32=True,
+            color_type="grayscale",
+            imdecode_backend="pillow",
+            ignore_empty=True,
+        )
         assert loader.to_float32 is True
         assert loader.color_type == "grayscale"
         assert loader.imdecode_backend == "pillow"
@@ -112,7 +117,11 @@ class TestLoadImageFromFile:
         assert TRANSFORMS.get("LoadImageFromFile") == LoadImageFromFile
 
         # Test building from config
-        config = {"type": "LoadImageFromFile", "to_float32": True, "color_type": "color"}
+        config = {
+            "type": "LoadImageFromFile",
+            "to_float32": True,
+            "color_type": "color",
+        }
         loader = TRANSFORMS.build(config)
         assert isinstance(loader, LoadImageFromFile)
         assert loader.to_float32 is True

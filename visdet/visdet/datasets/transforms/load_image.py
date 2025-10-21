@@ -3,9 +3,9 @@
 import warnings
 
 import numpy as np
-
 import viscv.fileio as fileio
 from viscv.transforms import BaseTransform
+
 from visdet.registry import TRANSFORMS
 
 
@@ -67,7 +67,10 @@ class LoadImageFromFile(BaseTransform):
         self.file_client_args: dict | None = None
         self.backend_args: dict | None = None
         if file_client_args is not None:
-            warnings.warn('"file_client_args" will be deprecated in future. Please use "backend_args" instead', DeprecationWarning)
+            warnings.warn(
+                '"file_client_args" will be deprecated in future. Please use "backend_args" instead',
+                DeprecationWarning,
+            )
             if backend_args is not None:
                 raise ValueError('"file_client_args" and "backend_args" cannot be set at the same time.')
 
@@ -94,6 +97,7 @@ class LoadImageFromFile(BaseTransform):
             else:
                 img_bytes = fileio.get(filename, backend_args=self.backend_args)
             import viscv
+
             img = viscv.imfrombytes(img_bytes, flag=self.color_type, backend=self.imdecode_backend)
         except Exception as e:
             if self.ignore_empty:

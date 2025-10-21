@@ -1,6 +1,10 @@
 import pytest
 import torch
-from visdet.models.backbones.swin import SwinBlock, SwinTransformer, flash_swin_attn_func
+from visdet.models.backbones.swin import (
+    SwinBlock,
+    SwinTransformer,
+    flash_swin_attn_func,
+)
 
 
 def test_swin_block():

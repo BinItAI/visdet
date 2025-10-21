@@ -13,7 +13,13 @@ def _build_stage_train_cfg(pos_iou_thr: float) -> dict:
             match_low_quality=False,
             ignore_iof_thr=-1,
         ),
-        sampler=dict(type="RandomSampler", num=512, pos_fraction=0.25, neg_pos_ub=-1, add_gt_as_proposals=True),
+        sampler=dict(
+            type="RandomSampler",
+            num=512,
+            pos_fraction=0.25,
+            neg_pos_ub=-1,
+            add_gt_as_proposals=True,
+        ),
         mask_size=28,
         pos_weight=-1,
         debug=False,
@@ -27,7 +33,11 @@ def _build_roi_heads(num_classes: int = 80) -> dict:
         fc_out_channels=1024,
         roi_feat_size=7,
         num_classes=num_classes,
-        bbox_coder=dict(type="DeltaXYWHBBoxCoder", target_means=[0.0, 0.0, 0.0, 0.0], target_stds=[0.1, 0.1, 0.2, 0.2]),
+        bbox_coder=dict(
+            type="DeltaXYWHBBoxCoder",
+            target_means=[0.0, 0.0, 0.0, 0.0],
+            target_stds=[0.1, 0.1, 0.2, 0.2],
+        ),
         reg_class_agnostic=True,
         loss_cls=dict(type="CrossEntropyLoss"),
         loss_bbox=dict(type="SmoothL1Loss", beta=1.0),
@@ -52,8 +62,22 @@ def _build_roi_heads(num_classes: int = 80) -> dict:
         ),
         bbox_head=[
             bbox_head_cfg,
-            bbox_head_cfg | {"bbox_coder": dict(type="DeltaXYWHBBoxCoder", target_means=[0.0, 0.0, 0.0, 0.0], target_stds=[0.05, 0.05, 0.1, 0.1])},
-            bbox_head_cfg | {"bbox_coder": dict(type="DeltaXYWHBBoxCoder", target_means=[0.0, 0.0, 0.0, 0.0], target_stds=[0.033, 0.033, 0.067, 0.067])},
+            bbox_head_cfg
+            | {
+                "bbox_coder": dict(
+                    type="DeltaXYWHBBoxCoder",
+                    target_means=[0.0, 0.0, 0.0, 0.0],
+                    target_stds=[0.05, 0.05, 0.1, 0.1],
+                )
+            },
+            bbox_head_cfg
+            | {
+                "bbox_coder": dict(
+                    type="DeltaXYWHBBoxCoder",
+                    target_means=[0.0, 0.0, 0.0, 0.0],
+                    target_stds=[0.033, 0.033, 0.067, 0.067],
+                )
+            },
         ],
         mask_roi_extractor=dict(
             type="SingleRoIExtractor",
@@ -69,12 +93,22 @@ def _build_training_cfg() -> Config:
     return Config(
         dict(
             rpn=dict(
-                assigner=dict(type="MaxIoUAssigner", pos_iou_thr=0.7, neg_iou_thr=0.3, min_pos_iou=0.3),
+                assigner=dict(
+                    type="MaxIoUAssigner",
+                    pos_iou_thr=0.7,
+                    neg_iou_thr=0.3,
+                    min_pos_iou=0.3,
+                ),
                 sampler=dict(type="RandomSampler", num=256, pos_fraction=0.5),
                 allowed_border=-1,
                 pos_weight=-1,
             ),
-            rpn_proposal=dict(nms_pre=2000, max_per_img=1000, nms=dict(type="nms", iou_threshold=0.7), min_bbox_size=0),
+            rpn_proposal=dict(
+                nms_pre=2000,
+                max_per_img=1000,
+                nms=dict(type="nms", iou_threshold=0.7),
+                min_bbox_size=0,
+            ),
             rcnn=[
                 _build_stage_train_cfg(0.5),
                 _build_stage_train_cfg(0.6),
@@ -87,8 +121,18 @@ def _build_training_cfg() -> Config:
 def _build_testing_cfg() -> Config:
     return Config(
         dict(
-            rpn=dict(nms_pre=1000, max_per_img=1000, nms=dict(type="nms", iou_threshold=0.7), min_bbox_size=0),
-            rcnn=dict(score_thr=0.05, nms=dict(type="nms", iou_threshold=0.5), max_per_img=100, mask_thr_binary=0.5),
+            rpn=dict(
+                nms_pre=1000,
+                max_per_img=1000,
+                nms=dict(type="nms", iou_threshold=0.7),
+                min_bbox_size=0,
+            ),
+            rcnn=dict(
+                score_thr=0.05,
+                nms=dict(type="nms", iou_threshold=0.5),
+                max_per_img=100,
+                mask_thr_binary=0.5,
+            ),
         )
     )
 
@@ -117,8 +161,17 @@ def _build_model_cfg(model_type: str = "CascadeRCNN") -> dict:
             type="RPNHead",
             in_channels=256,
             feat_channels=256,
-            anchor_generator=dict(type="AnchorGenerator", scales=[8], ratios=[0.5, 1.0, 2.0], strides=[4, 8, 16, 32, 64]),
-            bbox_coder=dict(type="DeltaXYWHBBoxCoder", target_means=[0.0, 0.0, 0.0, 0.0], target_stds=[1.0, 1.0, 1.0, 1.0]),
+            anchor_generator=dict(
+                type="AnchorGenerator",
+                scales=[8],
+                ratios=[0.5, 1.0, 2.0],
+                strides=[4, 8, 16, 32, 64],
+            ),
+            bbox_coder=dict(
+                type="DeltaXYWHBBoxCoder",
+                target_means=[0.0, 0.0, 0.0, 0.0],
+                target_stds=[1.0, 1.0, 1.0, 1.0],
+            ),
             loss_cls=dict(type="CrossEntropyLoss", use_sigmoid=True),
             loss_bbox=dict(type="SmoothL1Loss", beta=1.0),
         ),
@@ -155,7 +208,13 @@ def test_cascade_rcnn_forward():
         batch_inputs = torch.randn(1, 3, 224, 224)
         batch_data_samples = [DetDataSample()]
         batch_data_samples[0].set_metainfo(
-            {"img_shape": (224, 224), "ori_shape": (224, 224), "pad_shape": (224, 224), "batch_input_shape": (224, 224), "scale_factor": (1.0, 1.0)}
+            {
+                "img_shape": (224, 224),
+                "ori_shape": (224, 224),
+                "pad_shape": (224, 224),
+                "batch_input_shape": (224, 224),
+                "scale_factor": (1.0, 1.0),
+            }
         )
 
         with torch.no_grad():

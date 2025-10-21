@@ -14,7 +14,9 @@ from visengine.logging import print_log
 from visengine.utils import is_list_of
 
 
-def calc_dynamic_intervals(start_interval: int, dynamic_interval_list: list[tuple[int, int]] | None = None) -> tuple[list[int], list[int]]:
+def calc_dynamic_intervals(
+    start_interval: int, dynamic_interval_list: list[tuple[int, int]] | None = None
+) -> tuple[list[int], list[int]]:
     """Calculate dynamic intervals.
 
     Args:

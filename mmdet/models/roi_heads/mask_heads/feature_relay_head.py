@@ -19,12 +19,14 @@ class FeatureRelayHead(BaseModule):
         init_cfg (dict or list[dict], optional): Initialization config dict.
     """
 
-    def __init__(self,
-                 in_channels=1024,
-                 out_conv_channels=256,
-                 roi_feat_size=7,
-                 scale_factor=2,
-                 init_cfg=dict(type='Kaiming', layer='Linear')):
+    def __init__(
+        self,
+        in_channels=1024,
+        out_conv_channels=256,
+        roi_feat_size=7,
+        scale_factor=2,
+        init_cfg=dict(type="Kaiming", layer="Linear"),
+    ):
         super(FeatureRelayHead, self).__init__(init_cfg)
         assert isinstance(roi_feat_size, int)
 
@@ -36,8 +38,7 @@ class FeatureRelayHead(BaseModule):
         self.fp16_enabled = False
 
         self.fc = nn.Linear(self.in_channels, self.out_channels)
-        self.upsample = nn.Upsample(
-            scale_factor=scale_factor, mode='bilinear', align_corners=True)
+        self.upsample = nn.Upsample(scale_factor=scale_factor, mode="bilinear", align_corners=True)
 
     @auto_fp16()
     def forward(self, x):

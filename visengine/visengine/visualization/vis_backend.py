@@ -240,7 +240,13 @@ class LocalVisBackend(BaseVisBackend):
         cv2.imwrite(osp.join(self._img_save_dir, save_file_name), drawn_image)
 
     @force_init_env
-    def add_scalar(self, name: str, value: int | float | torch.Tensor | np.ndarray, step: int = 0, **kwargs) -> None:
+    def add_scalar(
+        self,
+        name: str,
+        value: int | float | torch.Tensor | np.ndarray,
+        step: int = 0,
+        **kwargs,
+    ) -> None:
         """Record the scalar data to disk.
 
         Args:
@@ -435,7 +441,13 @@ class WandbVisBackend(BaseVisBackend):
         self._wandb.log({name: image}, commit=self._commit)
 
     @force_init_env
-    def add_scalar(self, name: str, value: int | float | torch.Tensor | np.ndarray, step: int = 0, **kwargs) -> None:
+    def add_scalar(
+        self,
+        name: str,
+        value: int | float | torch.Tensor | np.ndarray,
+        step: int = 0,
+        **kwargs,
+    ) -> None:
         """Record the scalar data to wandb.
 
         Args:
@@ -527,7 +539,13 @@ class TensorboardVisBackend(BaseVisBackend):
         self._tensorboard.add_image(name, image, step, dataformats="HWC")
 
     @force_init_env
-    def add_scalar(self, name: str, value: int | float | torch.Tensor | np.ndarray, step: int = 0, **kwargs) -> None:
+    def add_scalar(
+        self,
+        name: str,
+        value: int | float | torch.Tensor | np.ndarray,
+        step: int = 0,
+        **kwargs,
+    ) -> None:
         """Record the scalar data to tensorboard.
 
         Args:
@@ -708,7 +726,13 @@ class MLflowVisBackend(BaseVisBackend):
         self._mlflow.log_image(image, name)
 
     @force_init_env
-    def add_scalar(self, name: str, value: int | float | torch.Tensor | np.ndarray, step: int = 0, **kwargs) -> None:
+    def add_scalar(
+        self,
+        name: str,
+        value: int | float | torch.Tensor | np.ndarray,
+        step: int = 0,
+        **kwargs,
+    ) -> None:
         """Record the scalar data to mlflow.
 
         Args:
@@ -851,7 +875,13 @@ class ClearMLVisBackend(BaseVisBackend):
         self._logger.report_image(title=name, series=name, iteration=step, image=image)
 
     @force_init_env
-    def add_scalar(self, name: str, value: int | float | torch.Tensor | np.ndarray, step: int = 0, **kwargs) -> None:
+    def add_scalar(
+        self,
+        name: str,
+        value: int | float | torch.Tensor | np.ndarray,
+        step: int = 0,
+        **kwargs,
+    ) -> None:
         """Record the scalar data to clearml.
 
         Args:
@@ -1122,7 +1152,13 @@ class DVCLiveVisBackend(BaseVisBackend):
         self._dvclive.log_image(save_file_name, image)
 
     @force_init_env
-    def add_scalar(self, name: str, value: int | float | torch.Tensor | np.ndarray, step: int = 0, **kwargs) -> None:
+    def add_scalar(
+        self,
+        name: str,
+        value: int | float | torch.Tensor | np.ndarray,
+        step: int = 0,
+        **kwargs,
+    ) -> None:
         """Record the scalar data to dvclive.
 
         Args:
@@ -1272,7 +1308,13 @@ class AimVisBackend(BaseVisBackend):
         self._aim_run.track(name=name, value=Image(image), step=step)
 
     @force_init_env
-    def add_scalar(self, name: str, value: int | float | torch.Tensor | np.ndarray, step: int = 0, **kwargs) -> None:
+    def add_scalar(
+        self,
+        name: str,
+        value: int | float | torch.Tensor | np.ndarray,
+        step: int = 0,
+        **kwargs,
+    ) -> None:
         """Record the scalar data to Aim.
 
         Args:

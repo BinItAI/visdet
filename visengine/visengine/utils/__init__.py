@@ -28,9 +28,27 @@ from .misc import (
     to_ntuple,
     tuple_cast,
 )
-from .package_utils import call_command, get_installed_path, install_package, is_installed
-from .path import check_file_exist, fopen, is_abs, is_filepath, mkdir_or_exist, scandir, symlink
-from .progressbar import ProgressBar, track_iter_progress, track_parallel_progress, track_progress
+from .package_utils import (
+    call_command,
+    get_installed_path,
+    install_package,
+    is_installed,
+)
+from .path import (
+    check_file_exist,
+    fopen,
+    is_abs,
+    is_filepath,
+    mkdir_or_exist,
+    scandir,
+    symlink,
+)
+from .progressbar import (
+    ProgressBar,
+    track_iter_progress,
+    track_parallel_progress,
+    track_progress,
+)
 from .progressbar_rich import track_progress_rich
 from .timer import Timer, TimerError, check_time
 from .version_utils import digit_version, get_git_hash

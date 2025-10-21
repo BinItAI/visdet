@@ -34,9 +34,17 @@ class LayerScale(nn.Module):
         scale (float): Initial value of scale factor. Default: 1.0
     """
 
-    def __init__(self, dim: int, inplace: bool = False, data_format: str = "channels_last", scale: float = 1e-5):
+    def __init__(
+        self,
+        dim: int,
+        inplace: bool = False,
+        data_format: str = "channels_last",
+        scale: float = 1e-5,
+    ):
         super().__init__()
-        assert data_format in ("channels_last", "channels_first"), "'data_format' could only be channels_last or channels_first."
+        assert data_format in ("channels_last", "channels_first"), (
+            "'data_format' could only be channels_last or channels_first."
+        )
         self.inplace = inplace
         self.data_format = data_format
         self.weight = nn.Parameter(torch.ones(dim) * scale)

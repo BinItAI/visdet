@@ -11,7 +11,13 @@ from .backends import (
     register_backend,
 )
 from .file_client import FileClient, HardDiskBackend
-from .handlers import BaseFileHandler, JsonHandler, PickleHandler, YamlHandler, register_handler
+from .handlers import (
+    BaseFileHandler,
+    JsonHandler,
+    PickleHandler,
+    YamlHandler,
+    register_handler,
+)
 from .io import (
     copy_if_symlink_fails,
     copyfile,

@@ -34,10 +34,10 @@ def unmap(data, count, inds, fill=0):
     """Unmap a subset of item (data) back to the original set of items (of size
     count)"""
     if data.dim() == 1:
-        ret = data.new_full((count, ), fill)
+        ret = data.new_full((count,), fill)
         ret[inds.type(torch.bool)] = data
     else:
-        new_size = (count, ) + data.size()[1:]
+        new_size = (count,) + data.size()[1:]
         ret = data.new_full(new_size, fill)
         ret[inds.type(torch.bool), :] = data
     return ret
@@ -58,7 +58,7 @@ def mask2ndarray(mask):
     elif isinstance(mask, torch.Tensor):
         mask = mask.detach().cpu().numpy()
     elif not isinstance(mask, np.ndarray):
-        raise TypeError(f'Unsupported {type(mask)} data type')
+        raise TypeError(f"Unsupported {type(mask)} data type")
     return mask
 
 
@@ -74,11 +74,11 @@ def flip_tensor(src_tensor, flip_direction):
         out_tensor (Tensor): Flipped tensor.
     """
     assert src_tensor.ndim == 4
-    valid_directions = ['horizontal', 'vertical', 'diagonal']
+    valid_directions = ["horizontal", "vertical", "diagonal"]
     assert flip_direction in valid_directions
-    if flip_direction == 'horizontal':
+    if flip_direction == "horizontal":
         out_tensor = torch.flip(src_tensor, [3])
-    elif flip_direction == 'vertical':
+    elif flip_direction == "vertical":
         out_tensor = torch.flip(src_tensor, [2])
     else:
         out_tensor = torch.flip(src_tensor, [2, 3])
@@ -106,13 +106,9 @@ def select_single_mlvl(mlvl_tensors, batch_id, detach=True):
     num_levels = len(mlvl_tensors)
 
     if detach:
-        mlvl_tensor_list = [
-            mlvl_tensors[i][batch_id].detach() for i in range(num_levels)
-        ]
+        mlvl_tensor_list = [mlvl_tensors[i][batch_id].detach() for i in range(num_levels)]
     else:
-        mlvl_tensor_list = [
-            mlvl_tensors[i][batch_id] for i in range(num_levels)
-        ]
+        mlvl_tensor_list = [mlvl_tensors[i][batch_id] for i in range(num_levels)]
     return mlvl_tensor_list
 
 
@@ -160,8 +156,7 @@ def filter_scores_and_topk(scores, score_thr, topk, results=None):
         elif isinstance(results, torch.Tensor):
             filtered_results = results[keep_idxs]
         else:
-            raise NotImplementedError(f'Only supports dict or list or Tensor, '
-                                      f'but get {type(results)}.')
+            raise NotImplementedError(f"Only supports dict or list or Tensor, but get {type(results)}.")
     return scores, labels, keep_idxs, filtered_results
 
 
@@ -187,7 +182,7 @@ def center_of_mass(mask, esp=1e-6):
     return center_h, center_w
 
 
-def generate_coordinate(featmap_sizes, device='cuda'):
+def generate_coordinate(featmap_sizes, device="cuda"):
     """Generate the coordinate.
 
     Args:

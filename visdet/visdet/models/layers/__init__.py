@@ -44,8 +44,14 @@ class AdaptivePadding(nn.Module):
         stride_h, stride_w = self.stride
         output_h = math.ceil(input_h / stride_h)
         output_w = math.ceil(input_w / stride_w)
-        pad_h = max((output_h - 1) * stride_h + (kernel_h - 1) * self.dilation[0] + 1 - input_h, 0)
-        pad_w = max((output_w - 1) * stride_w + (kernel_w - 1) * self.dilation[1] + 1 - input_w, 0)
+        pad_h = max(
+            (output_h - 1) * stride_h + (kernel_h - 1) * self.dilation[0] + 1 - input_h,
+            0,
+        )
+        pad_w = max(
+            (output_w - 1) * stride_w + (kernel_w - 1) * self.dilation[1] + 1 - input_w,
+            0,
+        )
         return pad_h, pad_w
 
     def forward(self, x):
@@ -92,7 +98,12 @@ class PatchEmbed(BaseModule):
         dilation = to_2tuple(dilation)
 
         if isinstance(padding, str):
-            self.adap_padding = AdaptivePadding(kernel_size=kernel_size, stride=stride, dilation=dilation, padding=padding)
+            self.adap_padding = AdaptivePadding(
+                kernel_size=kernel_size,
+                stride=stride,
+                dilation=dilation,
+                padding=padding,
+            )
             # disable the padding of conv
             padding = 0
         else:
@@ -100,7 +111,15 @@ class PatchEmbed(BaseModule):
 
         padding = to_2tuple(padding)
 
-        self.proj = nn.Conv2d(in_channels, embed_dims, kernel_size=kernel_size, stride=stride, padding=padding, dilation=dilation, bias=bias)
+        self.proj = nn.Conv2d(
+            in_channels,
+            embed_dims,
+            kernel_size=kernel_size,
+            stride=stride,
+            padding=padding,
+            dilation=dilation,
+            bias=bias,
+        )
 
         if norm_cfg is not None:
             self.norm = nn.LayerNorm(embed_dims)
@@ -124,7 +143,14 @@ class PatchEmbed(BaseModule):
 class PatchMerging(BaseModule):
     """Patch Merging Layer."""
 
-    def __init__(self, in_channels, out_channels, stride=2, norm_cfg=dict(type="LN"), init_cfg=None):
+    def __init__(
+        self,
+        in_channels,
+        out_channels,
+        stride=2,
+        norm_cfg=dict(type="LN"),
+        init_cfg=None,
+    ):
         super().__init__(init_cfg=init_cfg)
         self.in_channels = in_channels
         self.out_channels = out_channels

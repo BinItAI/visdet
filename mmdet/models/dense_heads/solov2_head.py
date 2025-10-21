@@ -13,6 +13,7 @@ from mmdet.core import InstanceData, mask_matrix_nms, multi_apply
 from mmdet.core.utils import center_of_mass, generate_coordinate
 from mmdet.models.builder import HEADS
 from mmdet.utils.misc import floordiv
+
 from .solo_head import SOLOHead
 
 
@@ -39,16 +40,18 @@ class MaskFeatModule(BaseModule):
         init_cfg (dict or list[dict], optional): Initialization config dict.
     """
 
-    def __init__(self,
-                 in_channels,
-                 feat_channels,
-                 start_level,
-                 end_level,
-                 out_channels,
-                 mask_stride=4,
-                 conv_cfg=None,
-                 norm_cfg=None,
-                 init_cfg=[dict(type='Normal', layer='Conv2d', std=0.01)]):
+    def __init__(
+        self,
+        in_channels,
+        feat_channels,
+        start_level,
+        end_level,
+        out_channels,
+        mask_stride=4,
+        conv_cfg=None,
+        norm_cfg=None,
+        init_cfg=[dict(type="Normal", layer="Conv2d", std=0.01)],
+    ):
         super().__init__(init_cfg=init_cfg)
 
         self.in_channels = in_channels
@@ -69,7 +72,7 @@ class MaskFeatModule(BaseModule):
             convs_per_level = nn.Sequential()
             if i == 0:
                 convs_per_level.add_module(
-                    f'conv{i}',
+                    f"conv{i}",
                     ConvModule(
                         self.in_channels,
                         self.feat_channels,
@@ -77,7 +80,9 @@ class MaskFeatModule(BaseModule):
                         padding=1,
                         conv_cfg=self.conv_cfg,
                         norm_cfg=self.norm_cfg,
-                        inplace=False))
+                        inplace=False,
+                    ),
+                )
                 self.convs_all_levels.append(convs_per_level)
                 continue
 
@@ -88,7 +93,7 @@ class MaskFeatModule(BaseModule):
                     else:
                         chn = self.in_channels
                     convs_per_level.add_module(
-                        f'conv{j}',
+                        f"conv{j}",
                         ConvModule(
                             chn,
                             self.feat_channels,
@@ -96,17 +101,17 @@ class MaskFeatModule(BaseModule):
                             padding=1,
                             conv_cfg=self.conv_cfg,
                             norm_cfg=self.norm_cfg,
-                            inplace=False))
+                            inplace=False,
+                        ),
+                    )
                     convs_per_level.add_module(
-                        f'upsample{j}',
-                        nn.Upsample(
-                            scale_factor=2,
-                            mode='bilinear',
-                            align_corners=False))
+                        f"upsample{j}",
+                        nn.Upsample(scale_factor=2, mode="bilinear", align_corners=False),
+                    )
                     continue
 
                 convs_per_level.add_module(
-                    f'conv{j}',
+                    f"conv{j}",
                     ConvModule(
                         self.feat_channels,
                         self.feat_channels,
@@ -114,11 +119,13 @@ class MaskFeatModule(BaseModule):
                         padding=1,
                         conv_cfg=self.conv_cfg,
                         norm_cfg=self.norm_cfg,
-                        inplace=False))
+                        inplace=False,
+                    ),
+                )
                 convs_per_level.add_module(
-                    f'upsample{j}',
-                    nn.Upsample(
-                        scale_factor=2, mode='bilinear', align_corners=False))
+                    f"upsample{j}",
+                    nn.Upsample(scale_factor=2, mode="bilinear", align_corners=False),
+                )
 
             self.convs_all_levels.append(convs_per_level)
 
@@ -128,23 +135,22 @@ class MaskFeatModule(BaseModule):
             1,
             padding=0,
             conv_cfg=self.conv_cfg,
-            norm_cfg=self.norm_cfg)
+            norm_cfg=self.norm_cfg,
+        )
 
     @auto_fp16()
     def forward(self, feats):
-        inputs = feats[self.start_level:self.end_level + 1]
+        inputs = feats[self.start_level : self.end_level + 1]
         assert len(inputs) == (self.end_level - self.start_level + 1)
         feature_add_all_level = self.convs_all_levels[0](inputs[0])
         for i in range(1, len(inputs)):
             input_p = inputs[i]
             if i == len(inputs) - 1:
-                coord_feat = generate_coordinate(input_p.size(),
-                                                 input_p.device)
+                coord_feat = generate_coordinate(input_p.size(), input_p.device)
                 input_p = torch.cat([input_p, coord_feat], 1)
 
             # fix runtime error of "+=" inplace operation in PyTorch 1.10
-            feature_add_all_level = feature_add_all_level + \
-                self.convs_all_levels[i](input_p)
+            feature_add_all_level = feature_add_all_level + self.convs_all_levels[i](input_p)
 
         feature_pred = self.conv_pred(feature_add_all_level)
         return feature_pred
@@ -167,39 +173,38 @@ class SOLOV2Head(SOLOHead):
         init_cfg (dict or list[dict], optional): Initialization config dict.
     """
 
-    def __init__(self,
-                 *args,
-                 mask_feature_head,
-                 dynamic_conv_size=1,
-                 dcn_cfg=None,
-                 dcn_apply_to_all_conv=True,
-                 init_cfg=[
-                     dict(type='Normal', layer='Conv2d', std=0.01),
-                     dict(
-                         type='Normal',
-                         std=0.01,
-                         bias_prob=0.01,
-                         override=dict(name='conv_cls'))
-                 ],
-                 **kwargs):
+    def __init__(
+        self,
+        *args,
+        mask_feature_head,
+        dynamic_conv_size=1,
+        dcn_cfg=None,
+        dcn_apply_to_all_conv=True,
+        init_cfg=[
+            dict(type="Normal", layer="Conv2d", std=0.01),
+            dict(type="Normal", std=0.01, bias_prob=0.01, override=dict(name="conv_cls")),
+        ],
+        **kwargs,
+    ):
         assert dcn_cfg is None or isinstance(dcn_cfg, dict)
         self.dcn_cfg = dcn_cfg
         self.with_dcn = dcn_cfg is not None
         self.dcn_apply_to_all_conv = dcn_apply_to_all_conv
         self.dynamic_conv_size = dynamic_conv_size
-        mask_out_channels = mask_feature_head.get('out_channels')
-        self.kernel_out_channels = \
-            mask_out_channels * self.dynamic_conv_size * self.dynamic_conv_size
+        mask_out_channels = mask_feature_head.get("out_channels")
+        self.kernel_out_channels = mask_out_channels * self.dynamic_conv_size * self.dynamic_conv_size
 
         super().__init__(*args, init_cfg=init_cfg, **kwargs)
 
         # update the in_channels of mask_feature_head
-        if mask_feature_head.get('in_channels', None) is not None:
+        if mask_feature_head.get("in_channels", None) is not None:
             if mask_feature_head.in_channels != self.in_channels:
-                warnings.warn('The `in_channels` of SOLOv2MaskFeatHead and '
-                              'SOLOv2Head should be same, changing '
-                              'mask_feature_head.in_channels to '
-                              f'{self.in_channels}')
+                warnings.warn(
+                    "The `in_channels` of SOLOv2MaskFeatHead and "
+                    "SOLOv2Head should be same, changing "
+                    "mask_feature_head.in_channels to "
+                    f"{self.in_channels}"
+                )
                 mask_feature_head.update(in_channels=self.in_channels)
         else:
             mask_feature_head.update(in_channels=self.in_channels)
@@ -230,7 +235,9 @@ class SOLOV2Head(SOLOHead):
                     padding=1,
                     conv_cfg=conv_cfg,
                     norm_cfg=self.norm_cfg,
-                    bias=self.norm_cfg is None))
+                    bias=self.norm_cfg is None,
+                )
+            )
 
             chn = self.in_channels if i == 0 else self.feat_channels
             self.cls_convs.append(
@@ -242,13 +249,13 @@ class SOLOV2Head(SOLOHead):
                     padding=1,
                     conv_cfg=conv_cfg,
                     norm_cfg=self.norm_cfg,
-                    bias=self.norm_cfg is None))
+                    bias=self.norm_cfg is None,
+                )
+            )
 
-        self.conv_cls = nn.Conv2d(
-            self.feat_channels, self.cls_out_channels, 3, padding=1)
+        self.conv_cls = nn.Conv2d(self.feat_channels, self.cls_out_channels, 3, padding=1)
 
-        self.conv_kernel = nn.Conv2d(
-            self.feat_channels, self.kernel_out_channels, 3, padding=1)
+        self.conv_kernel = nn.Conv2d(self.feat_channels, self.kernel_out_channels, 3, padding=1)
 
     @auto_fp16()
     def forward(self, feats):
@@ -261,8 +268,7 @@ class SOLOV2Head(SOLOHead):
             ins_kernel_feat = feats[i]
             # ins branch
             # concat coord
-            coord_feat = generate_coordinate(ins_kernel_feat.size(),
-                                             ins_kernel_feat.device)
+            coord_feat = generate_coordinate(ins_kernel_feat.size(), ins_kernel_feat.device)
             ins_kernel_feat = torch.cat([ins_kernel_feat, coord_feat], 1)
 
             # kernel branch
@@ -270,8 +276,9 @@ class SOLOV2Head(SOLOHead):
             kernel_feat = F.interpolate(
                 kernel_feat,
                 size=self.num_grids[i],
-                mode='bilinear',
-                align_corners=False)
+                mode="bilinear",
+                align_corners=False,
+            )
 
             cate_feat = kernel_feat[:, :-2, :, :]
 
@@ -291,11 +298,7 @@ class SOLOV2Head(SOLOHead):
 
         return mlvl_kernel_preds, mlvl_cls_preds, mask_feats
 
-    def _get_targets_single(self,
-                            gt_bboxes,
-                            gt_labels,
-                            gt_masks,
-                            featmap_size=None):
+    def _get_targets_single(self, gt_bboxes, gt_labels, gt_masks, featmap_size=None):
         """Compute targets for predictions of single image.
 
         Args:
@@ -330,32 +333,28 @@ class SOLOV2Head(SOLOHead):
         """
 
         device = gt_labels.device
-        gt_areas = torch.sqrt((gt_bboxes[:, 2] - gt_bboxes[:, 0]) *
-                              (gt_bboxes[:, 3] - gt_bboxes[:, 1]))
+        gt_areas = torch.sqrt((gt_bboxes[:, 2] - gt_bboxes[:, 0]) * (gt_bboxes[:, 3] - gt_bboxes[:, 1]))
 
         mlvl_pos_mask_targets = []
         mlvl_pos_indexes = []
         mlvl_labels = []
         mlvl_pos_masks = []
-        for (lower_bound, upper_bound), num_grid \
-                in zip(self.scale_ranges, self.num_grids):
+        for (lower_bound, upper_bound), num_grid in zip(self.scale_ranges, self.num_grids):
             mask_target = []
             # FG cat_id: [0, num_classes -1], BG cat_id: num_classes
             pos_index = []
-            labels = torch.zeros([num_grid, num_grid],
-                                 dtype=torch.int64,
-                                 device=device) + self.num_classes
-            pos_mask = torch.zeros([num_grid**2],
-                                   dtype=torch.bool,
-                                   device=device)
+            labels = torch.zeros([num_grid, num_grid], dtype=torch.int64, device=device) + self.num_classes
+            pos_mask = torch.zeros([num_grid**2], dtype=torch.bool, device=device)
 
-            gt_inds = ((gt_areas >= lower_bound) &
-                       (gt_areas <= upper_bound)).nonzero().flatten()
+            gt_inds = ((gt_areas >= lower_bound) & (gt_areas <= upper_bound)).nonzero().flatten()
             if len(gt_inds) == 0:
                 mlvl_pos_mask_targets.append(
-                    torch.zeros([0, featmap_size[0], featmap_size[1]],
-                                dtype=torch.uint8,
-                                device=device))
+                    torch.zeros(
+                        [0, featmap_size[0], featmap_size[1]],
+                        dtype=torch.uint8,
+                        device=device,
+                    )
+                )
                 mlvl_labels.append(labels)
                 mlvl_pos_masks.append(pos_mask)
                 mlvl_pos_indexes.append([])
@@ -364,30 +363,41 @@ class SOLOV2Head(SOLOHead):
             hit_gt_labels = gt_labels[gt_inds]
             hit_gt_masks = gt_masks[gt_inds, ...]
 
-            pos_w_ranges = 0.5 * (hit_gt_bboxes[:, 2] -
-                                  hit_gt_bboxes[:, 0]) * self.pos_scale
-            pos_h_ranges = 0.5 * (hit_gt_bboxes[:, 3] -
-                                  hit_gt_bboxes[:, 1]) * self.pos_scale
+            pos_w_ranges = 0.5 * (hit_gt_bboxes[:, 2] - hit_gt_bboxes[:, 0]) * self.pos_scale
+            pos_h_ranges = 0.5 * (hit_gt_bboxes[:, 3] - hit_gt_bboxes[:, 1]) * self.pos_scale
 
             # Make sure hit_gt_masks has a value
             valid_mask_flags = hit_gt_masks.sum(dim=-1).sum(dim=-1) > 0
 
-            for gt_mask, gt_label, pos_h_range, pos_w_range, \
-                valid_mask_flag in \
-                    zip(hit_gt_masks, hit_gt_labels, pos_h_ranges,
-                        pos_w_ranges, valid_mask_flags):
+            for gt_mask, gt_label, pos_h_range, pos_w_range, valid_mask_flag in zip(
+                hit_gt_masks,
+                hit_gt_labels,
+                pos_h_ranges,
+                pos_w_ranges,
+                valid_mask_flags,
+            ):
                 if not valid_mask_flag:
                     continue
-                upsampled_size = (featmap_size[0] * self.mask_stride,
-                                  featmap_size[1] * self.mask_stride)
+                upsampled_size = (
+                    featmap_size[0] * self.mask_stride,
+                    featmap_size[1] * self.mask_stride,
+                )
                 center_h, center_w = center_of_mass(gt_mask)
 
                 coord_w = int(
-                    floordiv((center_w / upsampled_size[1]), (1. / num_grid),
-                             rounding_mode='trunc'))
+                    floordiv(
+                        (center_w / upsampled_size[1]),
+                        (1.0 / num_grid),
+                        rounding_mode="trunc",
+                    )
+                )
                 coord_h = int(
-                    floordiv((center_h / upsampled_size[0]), (1. / num_grid),
-                             rounding_mode='trunc'))
+                    floordiv(
+                        (center_h / upsampled_size[0]),
+                        (1.0 / num_grid),
+                        rounding_mode="trunc",
+                    )
+                )
 
                 # left, top, right, down
                 top_box = max(
@@ -395,41 +405,53 @@ class SOLOV2Head(SOLOHead):
                     int(
                         floordiv(
                             (center_h - pos_h_range) / upsampled_size[0],
-                            (1. / num_grid),
-                            rounding_mode='trunc')))
+                            (1.0 / num_grid),
+                            rounding_mode="trunc",
+                        )
+                    ),
+                )
                 down_box = min(
                     num_grid - 1,
                     int(
                         floordiv(
                             (center_h + pos_h_range) / upsampled_size[0],
-                            (1. / num_grid),
-                            rounding_mode='trunc')))
+                            (1.0 / num_grid),
+                            rounding_mode="trunc",
+                        )
+                    ),
+                )
                 left_box = max(
                     0,
                     int(
                         floordiv(
                             (center_w - pos_w_range) / upsampled_size[1],
-                            (1. / num_grid),
-                            rounding_mode='trunc')))
+                            (1.0 / num_grid),
+                            rounding_mode="trunc",
+                        )
+                    ),
+                )
                 right_box = min(
                     num_grid - 1,
                     int(
                         floordiv(
                             (center_w + pos_w_range) / upsampled_size[1],
-                            (1. / num_grid),
-                            rounding_mode='trunc')))
+                            (1.0 / num_grid),
+                            rounding_mode="trunc",
+                        )
+                    ),
+                )
 
                 top = max(top_box, coord_h - 1)
                 down = min(down_box, coord_h + 1)
                 left = max(coord_w - 1, left_box)
                 right = min(right_box, coord_w + 1)
 
-                labels[top:(down + 1), left:(right + 1)] = gt_label
+                labels[top : (down + 1), left : (right + 1)] = gt_label
                 # ins
                 gt_mask = np.uint8(gt_mask.cpu().numpy())
                 # Follow the original implementation, F.interpolate is
                 # different from cv2 and opencv
-                gt_mask = mmcv.imrescale(gt_mask, scale=1. / self.mask_stride)
+                gt_mask = mmcv.imrescale(gt_mask, scale=1.0 / self.mask_stride)
                 gt_mask = torch.from_numpy(gt_mask).to(device=device)
 
                 for i in range(top, down + 1):
@@ -438,9 +460,9 @@ class SOLOV2Head(SOLOHead):
                         this_mask_target = torch.zeros(
                             [featmap_size[0], featmap_size[1]],
                             dtype=torch.uint8,
-                            device=device)
-                        this_mask_target[:gt_mask.shape[0], :gt_mask.
-                                         shape[1]] = gt_mask
+                            device=device,
+                        )
+                        this_mask_target[: gt_mask.shape[0], : gt_mask.shape[1]] = gt_mask
                         mask_target.append(this_mask_target)
                         pos_mask[index] = True
                         pos_index.append(index)
@@ -448,26 +470,28 @@ class SOLOV2Head(SOLOHead):
                 mask_target = torch.zeros(
                     [0, featmap_size[0], featmap_size[1]],
                     dtype=torch.uint8,
-                    device=device)
+                    device=device,
+                )
             else:
                 mask_target = torch.stack(mask_target, 0)
             mlvl_pos_mask_targets.append(mask_target)
             mlvl_labels.append(labels)
             mlvl_pos_masks.append(pos_mask)
             mlvl_pos_indexes.append(pos_index)
-        return (mlvl_pos_mask_targets, mlvl_labels, mlvl_pos_masks,
-                mlvl_pos_indexes)
+        return (mlvl_pos_mask_targets, mlvl_labels, mlvl_pos_masks, mlvl_pos_indexes)
 
-    @force_fp32(apply_to=('mlvl_kernel_preds', 'mlvl_cls_preds', 'mask_feats'))
-    def loss(self,
-             mlvl_kernel_preds,
-             mlvl_cls_preds,
-             mask_feats,
-             gt_labels,
-             gt_masks,
-             img_metas,
-             gt_bboxes=None,
-             **kwargs):
+    @force_fp32(apply_to=("mlvl_kernel_preds", "mlvl_cls_preds", "mask_feats"))
+    def loss(
+        self,
+        mlvl_kernel_preds,
+        mlvl_cls_preds,
+        mask_feats,
+        gt_labels,
+        gt_masks,
+        img_metas,
+        gt_bboxes=None,
+        **kwargs,
+    ):
         """Calculate the loss of total batch.
 
         Args:
@@ -499,21 +523,18 @@ class SOLOV2Head(SOLOHead):
             gt_bboxes,
             gt_labels,
             gt_masks,
-            featmap_size=featmap_size)
+            featmap_size=featmap_size,
+        )
 
-        mlvl_mask_targets = [
-            torch.cat(lvl_mask_targets, 0)
-            for lvl_mask_targets in zip(*pos_mask_targets)
-        ]
+        mlvl_mask_targets = [torch.cat(lvl_mask_targets, 0) for lvl_mask_targets in zip(*pos_mask_targets)]
 
         mlvl_pos_kernel_preds = []
-        for lvl_kernel_preds, lvl_pos_indexes in zip(mlvl_kernel_preds,
-                                                     zip(*pos_indexes)):
+        for lvl_kernel_preds, lvl_pos_indexes in zip(mlvl_kernel_preds, zip(*pos_indexes)):
             lvl_pos_kernel_preds = []
-            for img_lvl_kernel_preds, img_lvl_pos_indexes in zip(
-                    lvl_kernel_preds, lvl_pos_indexes):
-                img_lvl_pos_kernel_preds = img_lvl_kernel_preds.view(
-                    img_lvl_kernel_preds.shape[0], -1)[:, img_lvl_pos_indexes]
+            for img_lvl_kernel_preds, img_lvl_pos_indexes in zip(lvl_kernel_preds, lvl_pos_indexes):
+                img_lvl_pos_kernel_preds = img_lvl_kernel_preds.view(img_lvl_kernel_preds.shape[0], -1)[
+                    :, img_lvl_pos_indexes
+                ]
                 lvl_pos_kernel_preds.append(img_lvl_pos_kernel_preds)
             mlvl_pos_kernel_preds.append(lvl_pos_kernel_preds)
 
@@ -521,8 +542,7 @@ class SOLOV2Head(SOLOHead):
         mlvl_mask_preds = []
         for lvl_pos_kernel_preds in mlvl_pos_kernel_preds:
             lvl_mask_preds = []
-            for img_id, img_lvl_pos_kernel_pred in enumerate(
-                    lvl_pos_kernel_preds):
+            for img_id, img_lvl_pos_kernel_pred in enumerate(lvl_pos_kernel_preds):
                 if img_lvl_pos_kernel_pred.size()[-1] == 0:
                     continue
                 img_mask_feats = mask_feats[[img_id]]
@@ -531,9 +551,10 @@ class SOLOV2Head(SOLOHead):
                 img_lvl_mask_pred = F.conv2d(
                     img_mask_feats,
                     img_lvl_pos_kernel_pred.permute(1, 0).view(
-                        num_kernel, -1, self.dynamic_conv_size,
-                        self.dynamic_conv_size),
-                    stride=1).view(-1, h, w)
+                        num_kernel, -1, self.dynamic_conv_size, self.dynamic_conv_size
+                    ),
+                    stride=1,
+                ).view(-1, h, w)
                 lvl_mask_preds.append(img_lvl_mask_pred)
             if len(lvl_mask_preds) == 0:
                 lvl_mask_preds = None
@@ -547,15 +568,10 @@ class SOLOV2Head(SOLOHead):
                 num_pos += lvl_img_pos_masks.count_nonzero()
 
         loss_mask = []
-        for lvl_mask_preds, lvl_mask_targets in zip(mlvl_mask_preds,
-                                                    mlvl_mask_targets):
+        for lvl_mask_preds, lvl_mask_targets in zip(mlvl_mask_preds, mlvl_mask_targets):
             if lvl_mask_preds is None:
                 continue
-            loss_mask.append(
-                self.loss_mask(
-                    lvl_mask_preds,
-                    lvl_mask_targets,
-                    reduction_override='none'))
+            loss_mask.append(self.loss_mask(lvl_mask_preds, lvl_mask_targets, reduction_override="none"))
         if num_pos > 0:
             loss_mask = torch.cat(loss_mask).sum() / num_pos
         else:
@@ -563,26 +579,20 @@ class SOLOV2Head(SOLOHead):
 
         # cate
         flatten_labels = [
-            torch.cat(
-                [img_lvl_labels.flatten() for img_lvl_labels in lvl_labels])
-            for lvl_labels in zip(*labels)
+            torch.cat([img_lvl_labels.flatten() for img_lvl_labels in lvl_labels]) for lvl_labels in zip(*labels)
         ]
         flatten_labels = torch.cat(flatten_labels)
 
         flatten_cls_preds = [
-            lvl_cls_preds.permute(0, 2, 3, 1).reshape(-1, self.num_classes)
-            for lvl_cls_preds in mlvl_cls_preds
+            lvl_cls_preds.permute(0, 2, 3, 1).reshape(-1, self.num_classes) for lvl_cls_preds in mlvl_cls_preds
         ]
         flatten_cls_preds = torch.cat(flatten_cls_preds)
 
-        loss_cls = self.loss_cls(
-            flatten_cls_preds, flatten_labels, avg_factor=num_pos + 1)
+        loss_cls = self.loss_cls(flatten_cls_preds, flatten_labels, avg_factor=num_pos + 1)
         return dict(loss_mask=loss_mask, loss_cls=loss_cls)
 
-    @force_fp32(
-        apply_to=('mlvl_kernel_preds', 'mlvl_cls_scores', 'mask_feats'))
-    def get_results(self, mlvl_kernel_preds, mlvl_cls_scores, mask_feats,
-                    img_metas, **kwargs):
+    @force_fp32(apply_to=("mlvl_kernel_preds", "mlvl_cls_scores", "mask_feats"))
+    def get_results(self, mlvl_kernel_preds, mlvl_cls_scores, mask_feats, img_metas, **kwargs):
         """Get multi-image mask results.
 
         Args:
@@ -623,14 +633,11 @@ class SOLOV2Head(SOLOHead):
 
         result_list = []
         for img_id in range(len(img_metas)):
-            img_cls_pred = [
-                mlvl_cls_scores[lvl][img_id].view(-1, self.cls_out_channels)
-                for lvl in range(num_levels)
-            ]
+            img_cls_pred = [mlvl_cls_scores[lvl][img_id].view(-1, self.cls_out_channels) for lvl in range(num_levels)]
             img_mask_feats = mask_feats[[img_id]]
             img_kernel_pred = [
-                mlvl_kernel_preds[lvl][img_id].permute(1, 2, 0).view(
-                    -1, self.kernel_out_channels) for lvl in range(num_levels)
+                mlvl_kernel_preds[lvl][img_id].permute(1, 2, 0).view(-1, self.kernel_out_channels)
+                for lvl in range(num_levels)
             ]
             img_cls_pred = torch.cat(img_cls_pred, dim=0)
             img_kernel_pred = torch.cat(img_kernel_pred, dim=0)
@@ -638,16 +645,12 @@ class SOLOV2Head(SOLOHead):
                 img_kernel_pred,
                 img_cls_pred,
                 img_mask_feats,
-                img_meta=img_metas[img_id])
+                img_meta=img_metas[img_id],
+            )
             result_list.append(result)
         return result_list
 
-    def _get_results_single(self,
-                            kernel_preds,
-                            cls_scores,
-                            mask_feats,
-                            img_meta,
-                            cfg=None):
+    def _get_results_single(self, kernel_preds, cls_scores, mask_feats, img_meta, cfg=None):
         """Get processed mask related results of single image.
 
         Args:
@@ -690,11 +693,13 @@ class SOLOV2Head(SOLOHead):
 
         # overall info
         h, w, _ = img_shape
-        upsampled_size = (featmap_size[0] * self.mask_stride,
-                          featmap_size[1] * self.mask_stride)
+        upsampled_size = (
+            featmap_size[0] * self.mask_stride,
+            featmap_size[1] * self.mask_stride,
+        )
 
         # process.
-        score_mask = (cls_scores > cfg.score_thr)
+        score_mask = cls_scores > cfg.score_thr
         cls_scores = cls_scores[score_mask]
         if len(cls_scores) == 0:
             return empty_results(results, cls_scores)
@@ -708,18 +713,14 @@ class SOLOV2Head(SOLOHead):
         lvl_interval = cls_labels.new_tensor(self.num_grids).pow(2).cumsum(0)
         strides = kernel_preds.new_ones(lvl_interval[-1])
 
-        strides[:lvl_interval[0]] *= self.strides[0]
+        strides[: lvl_interval[0]] *= self.strides[0]
         for lvl in range(1, self.num_levels):
-            strides[lvl_interval[lvl -
-                                 1]:lvl_interval[lvl]] *= self.strides[lvl]
+            strides[lvl_interval[lvl - 1] : lvl_interval[lvl]] *= self.strides[lvl]
         strides = strides[inds[:, 0]]
 
         # mask encoding.
-        kernel_preds = kernel_preds.view(
-            kernel_preds.size(0), -1, self.dynamic_conv_size,
-            self.dynamic_conv_size)
-        mask_preds = F.conv2d(
-            mask_feats, kernel_preds, stride=1).squeeze(0).sigmoid()
+        kernel_preds = kernel_preds.view(kernel_preds.size(0), -1, self.dynamic_conv_size, self.dynamic_conv_size)
+        mask_preds = F.conv2d(mask_feats, kernel_preds, stride=1).squeeze(0).sigmoid()
         # mask.
         masks = mask_preds > cfg.mask_thr
         sum_masks = masks.sum((1, 2)).float()
@@ -745,18 +746,16 @@ class SOLOV2Head(SOLOHead):
             max_num=cfg.max_per_img,
             kernel=cfg.kernel,
             sigma=cfg.sigma,
-            filter_thr=cfg.filter_thr)
+            filter_thr=cfg.filter_thr,
+        )
         mask_preds = mask_preds[keep_inds]
         mask_preds = F.interpolate(
             mask_preds.unsqueeze(0),
             size=upsampled_size,
-            mode='bilinear',
-            align_corners=False)[:, :, :h, :w]
-        mask_preds = F.interpolate(
-            mask_preds,
-            size=ori_shape[:2],
-            mode='bilinear',
-            align_corners=False).squeeze(0)
+            mode="bilinear",
+            align_corners=False,
+        )[:, :, :h, :w]
+        mask_preds = F.interpolate(mask_preds, size=ori_shape[:2], mode="bilinear", align_corners=False).squeeze(0)
         masks = mask_preds > cfg.mask_thr
 
         results.masks = masks

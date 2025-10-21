@@ -134,12 +134,18 @@ class DetDataPreprocessor(ImgDataPreprocessor):
 
         # Check for NaN/Inf in preprocessed inputs
         if torch.isnan(inputs).any():
-            logger.error(f"[DetDataPreprocessor] NaN detected in preprocessed inputs! Count: {torch.isnan(inputs).sum()}")
+            logger.error(
+                f"[DetDataPreprocessor] NaN detected in preprocessed inputs! Count: {torch.isnan(inputs).sum()}"
+            )
         if torch.isinf(inputs).any():
-            logger.error(f"[DetDataPreprocessor] Inf detected in preprocessed inputs! Count: {torch.isinf(inputs).sum()}")
+            logger.error(
+                f"[DetDataPreprocessor] Inf detected in preprocessed inputs! Count: {torch.isinf(inputs).sum()}"
+            )
 
         # Log input statistics
-        logger.debug(f"[DetDataPreprocessor] Input stats - min: {inputs.min().item()}, max: {inputs.max().item()}, mean: {inputs.mean().item()}")
+        logger.debug(
+            f"[DetDataPreprocessor] Input stats - min: {inputs.min().item()}, max: {inputs.max().item()}, mean: {inputs.mean().item()}"
+        )
 
         if data_samples is not None:
             # NOTE the batched image size information may be useful, e.g.
@@ -200,7 +206,9 @@ class DetDataPreprocessor(ImgDataPreprocessor):
             pad_w = int(np.ceil(_batch_inputs.shape[3] / self.pad_size_divisor)) * self.pad_size_divisor
             batch_pad_shape = [(pad_h, pad_w)] * _batch_inputs.shape[0]
         else:
-            raise TypeError(f"Output of `cast_data` should be a dict or a tuple with inputs and data_samples, but got{type(data)}: {data}")
+            raise TypeError(
+                f"Output of `cast_data` should be a dict or a tuple with inputs and data_samples, but got{type(data)}: {data}"
+            )
         return batch_pad_shape
 
     def pad_gt_masks(self, batch_data_samples: Sequence[DetDataSample]) -> None:
@@ -239,7 +247,12 @@ class BatchSyncRandomResize(nn.Module):
             Defaults to 32.
     """
 
-    def __init__(self, random_size_range: tuple[int, int], interval: int = 10, size_divisor: int = 32) -> None:
+    def __init__(
+        self,
+        random_size_range: tuple[int, int],
+        interval: int = 10,
+        size_divisor: int = 32,
+    ) -> None:
         super().__init__()
         self.rank, self.world_size = get_dist_info()
         self._input_size = None
@@ -278,8 +291,12 @@ class BatchSyncRandomResize(nn.Module):
                 data_sample.gt_instances.bboxes[..., 0::2] = data_sample.gt_instances.bboxes[..., 0::2] * scale_x
                 data_sample.gt_instances.bboxes[..., 1::2] = data_sample.gt_instances.bboxes[..., 1::2] * scale_y
                 if "ignored_instances" in data_sample:
-                    data_sample.ignored_instances.bboxes[..., 0::2] = data_sample.ignored_instances.bboxes[..., 0::2] * scale_x
-                    data_sample.ignored_instances.bboxes[..., 1::2] = data_sample.ignored_instances.bboxes[..., 1::2] * scale_y
+                    data_sample.ignored_instances.bboxes[..., 0::2] = (
+                        data_sample.ignored_instances.bboxes[..., 0::2] * scale_x
+                    )
+                    data_sample.ignored_instances.bboxes[..., 1::2] = (
+                        data_sample.ignored_instances.bboxes[..., 1::2] * scale_y
+                    )
         message_hub = MessageHub.get_current_instance()
         if (message_hub.get_info("iter") + 1) % self._interval == 0:
             self._input_size = self._get_random_size(aspect_ratio=float(w / h), device=inputs.device)
@@ -291,7 +308,10 @@ class BatchSyncRandomResize(nn.Module):
         tensor = torch.LongTensor(2).to(device)
         if self.rank == 0:
             size = random.randint(*self._random_size_range)
-            size = (self._size_divisor * size, self._size_divisor * int(aspect_ratio * size))
+            size = (
+                self._size_divisor * size,
+                self._size_divisor * int(aspect_ratio * size),
+            )
             tensor[0] = size[0]
             tensor[1] = size[1]
         barrier()
@@ -599,7 +619,12 @@ class BatchResize(nn.Module):
         batch_height, batch_width = inputs.shape[-2:]
         target_height, target_width, scale = self.get_target_size(batch_height, batch_width)
 
-        inputs = F.interpolate(inputs, size=(target_height, target_width), mode="bilinear", align_corners=False)
+        inputs = F.interpolate(
+            inputs,
+            size=(target_height, target_width),
+            mode="bilinear",
+            align_corners=False,
+        )
 
         inputs = self.get_padded_tensor(inputs, self.pad_value)
 
@@ -628,7 +653,10 @@ class BatchResize(nn.Module):
         scale = self.min_size / im_size_min
         if scale * im_size_max > self.max_size:
             scale = self.max_size / im_size_max
-        target_height, target_width = int(round(height * scale)), int(round(width * scale))
+        target_height, target_width = (
+            int(round(height * scale)),
+            int(round(width * scale)),
+        )
         return target_height, target_width, scale
 
     def get_padded_tensor(self, tensor: Tensor, pad_value: int) -> Tensor:
@@ -698,7 +726,11 @@ class BoxInstDataPreprocessor(DetDataPreprocessor):
         diff = inputs[:, :, None] - unfolded_images
         similarity = torch.exp(-torch.norm(diff, dim=1) * 0.5)
 
-        unfolded_weights = unfold_wo_center(image_masks[None, None], kernel_size=self.pairwise_size, dilation=self.pairwise_dilation)
+        unfolded_weights = unfold_wo_center(
+            image_masks[None, None],
+            kernel_size=self.pairwise_size,
+            dilation=self.pairwise_dilation,
+        )
         unfolded_weights = torch.max(unfolded_weights, dim=1)[0]
 
         return similarity * unfolded_weights
@@ -728,7 +760,12 @@ class BoxInstDataPreprocessor(DetDataPreprocessor):
 
             # Get origin rgb image for color similarity
             ori_imgs = inputs * self.std + self.mean
-            downsampled_imgs = F.avg_pool2d(ori_imgs.float(), kernel_size=self.mask_stride, stride=self.mask_stride, padding=0)
+            downsampled_imgs = F.avg_pool2d(
+                ori_imgs.float(),
+                kernel_size=self.mask_stride,
+                stride=self.mask_stride,
+                padding=0,
+            )
 
             # Compute color similarity for pseudo mask generation
             for im_i, data_sample in enumerate(data_samples):

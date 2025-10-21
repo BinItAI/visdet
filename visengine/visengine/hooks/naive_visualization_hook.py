@@ -84,4 +84,11 @@ class NaiveVisualizationHook(Hook):
                     input = self._unpad(input, data_sample.get("scale", ori_shape))
                 origin_image = cv2.resize(input, ori_shape)
                 name = osp.basename(data_sample.img_path)
-                runner.visualizer.add_datasample(name, origin_image, data_sample, output, self.draw_gt, self.draw_pred)
+                runner.visualizer.add_datasample(
+                    name,
+                    origin_image,
+                    data_sample,
+                    output,
+                    self.draw_gt,
+                    self.draw_pred,
+                )

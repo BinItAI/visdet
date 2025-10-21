@@ -73,7 +73,9 @@ class MessageHub(ManagerMixin):
         self._resumed_keys = self._parse_input("resumed_keys", resumed_keys)
 
         for value in self._log_scalars.values():
-            assert isinstance(value, HistoryBuffer), f"The type of log_scalars'value must be HistoryBuffer, but got {type(value)}"
+            assert isinstance(value, HistoryBuffer), (
+                f"The type of log_scalars'value must be HistoryBuffer, but got {type(value)}"
+            )
 
         for key in self._resumed_keys.keys():
             assert key in self._log_scalars or key in self._runtime_info, (
@@ -297,7 +299,9 @@ class MessageHub(ManagerMixin):
             key exists.
         """
         if key not in self.log_scalars:
-            raise KeyError(f"{key} is not found in Messagehub.log_buffers: instance name is: {MessageHub.instance_name}")
+            raise KeyError(
+                f"{key} is not found in Messagehub.log_buffers: instance name is: {MessageHub.instance_name}"
+            )
         return self.log_scalars[key]
 
     def get_info(self, key: str, default: Any | None = None) -> Any:

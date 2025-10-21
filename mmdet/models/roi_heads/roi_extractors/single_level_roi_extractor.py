@@ -3,6 +3,7 @@ import torch
 from mmcv.runner import force_fp32
 
 from mmdet.models.builder import ROI_EXTRACTORS
+
 from .base_roi_extractor import BaseRoIExtractor
 
 
@@ -23,14 +24,8 @@ class SingleRoIExtractor(BaseRoIExtractor):
             Default: None
     """
 
-    def __init__(self,
-                 roi_layer,
-                 out_channels,
-                 featmap_strides,
-                 finest_scale=56,
-                 init_cfg=None):
-        super(SingleRoIExtractor, self).__init__(roi_layer, out_channels,
-                                                 featmap_strides, init_cfg)
+    def __init__(self, roi_layer, out_channels, featmap_strides, finest_scale=56, init_cfg=None):
+        super(SingleRoIExtractor, self).__init__(roi_layer, out_channels, featmap_strides, init_cfg)
         self.finest_scale = finest_scale
 
     def map_roi_levels(self, rois, num_levels):
@@ -48,13 +43,12 @@ class SingleRoIExtractor(BaseRoIExtractor):
         Returns:
             Tensor: Level index (0-based) of each RoI, shape (k, )
         """
-        scale = torch.sqrt(
-            (rois[:, 3] - rois[:, 1]) * (rois[:, 4] - rois[:, 2]))
+        scale = torch.sqrt((rois[:, 3] - rois[:, 1]) * (rois[:, 4] - rois[:, 2]))
         target_lvls = torch.floor(torch.log2(scale / self.finest_scale + 1e-6))
         target_lvls = target_lvls.clamp(min=0, max=num_levels - 1).long()
         return target_lvls
 
-    @force_fp32(apply_to=('feats', ), out_fp16=True)
+    @force_fp32(apply_to=("feats",), out_fp16=True)
     def forward(self, feats, rois, roi_scale_factor=None):
         """Forward function."""
         out_size = self.roi_layers[0].output_size
@@ -67,8 +61,7 @@ class SingleRoIExtractor(BaseRoIExtractor):
             roi_feats = roi_feats.reshape(-1, self.out_channels, *out_size)
             roi_feats = roi_feats * 0
         else:
-            roi_feats = feats[0].new_zeros(
-                rois.size(0), self.out_channels, *out_size)
+            roi_feats = feats[0].new_zeros(rois.size(0), self.out_channels, *out_size)
 
         if num_levels == 1:
             if len(rois) == 0:
@@ -106,7 +99,5 @@ class SingleRoIExtractor(BaseRoIExtractor):
                 # in other GPUs and will cause a hanging error.
                 # Therefore, we add it to ensure each feature pyramid is
                 # included in the computation graph to avoid runtime bugs.
-                roi_feats = roi_feats + sum(
-                    x.view(-1)[0]
-                    for x in self.parameters()) * 0. + feats[i].sum() * 0.
+                roi_feats = roi_feats + sum(x.view(-1)[0] for x in self.parameters()) * 0.0 + feats[i].sum() * 0.0
         return roi_feats

@@ -43,20 +43,21 @@ class YOLOX(SingleStageDetector):
             Default: None.
     """
 
-    def __init__(self,
-                 backbone,
-                 neck,
-                 bbox_head,
-                 train_cfg=None,
-                 test_cfg=None,
-                 pretrained=None,
-                 input_size=(640, 640),
-                 size_multiplier=32,
-                 random_size_range=(15, 25),
-                 random_size_interval=10,
-                 init_cfg=None):
-        super(YOLOX, self).__init__(backbone, neck, bbox_head, train_cfg,
-                                    test_cfg, pretrained, init_cfg)
+    def __init__(
+        self,
+        backbone,
+        neck,
+        bbox_head,
+        train_cfg=None,
+        test_cfg=None,
+        pretrained=None,
+        input_size=(640, 640),
+        size_multiplier=32,
+        random_size_range=(15, 25),
+        random_size_interval=10,
+        init_cfg=None,
+    ):
+        super(YOLOX, self).__init__(backbone, neck, bbox_head, train_cfg, test_cfg, pretrained, init_cfg)
         log_img_scale(input_size, skip_square=True)
         self.rank, self.world_size = get_dist_info()
         self._default_input_size = input_size
@@ -66,12 +67,7 @@ class YOLOX(SingleStageDetector):
         self._size_multiplier = size_multiplier
         self._progress_in_iter = 0
 
-    def forward_train(self,
-                      img,
-                      img_metas,
-                      gt_bboxes,
-                      gt_labels,
-                      gt_bboxes_ignore=None):
+    def forward_train(self, img, img_metas, gt_bboxes, gt_labels, gt_bboxes_ignore=None):
         """
         Args:
             img (Tensor): Input images of shape (N, C, H, W).
@@ -92,8 +88,7 @@ class YOLOX(SingleStageDetector):
         # Multi-scale training
         img, gt_bboxes = self._preprocess(img, gt_bboxes)
 
-        losses = super(YOLOX, self).forward_train(img, img_metas, gt_bboxes,
-                                                  gt_labels, gt_bboxes_ignore)
+        losses = super(YOLOX, self).forward_train(img, img_metas, gt_bboxes, gt_labels, gt_bboxes_ignore)
 
         # random resizing
         if (self._progress_in_iter + 1) % self._random_size_interval == 0:
@@ -106,11 +101,7 @@ class YOLOX(SingleStageDetector):
         scale_y = self._input_size[0] / self._default_input_size[0]
         scale_x = self._input_size[1] / self._default_input_size[1]
         if scale_x != 1 or scale_y != 1:
-            img = F.interpolate(
-                img,
-                size=self._input_size,
-                mode='bilinear',
-                align_corners=False)
+            img = F.interpolate(img, size=self._input_size, mode="bilinear", align_corners=False)
             for gt_bbox in gt_bboxes:
                 gt_bbox[..., 0::2] = gt_bbox[..., 0::2] * scale_x
                 gt_bbox[..., 1::2] = gt_bbox[..., 1::2] * scale_y
@@ -121,10 +112,11 @@ class YOLOX(SingleStageDetector):
 
         if self.rank == 0:
             size = random.randint(*self._random_size_range)
-            aspect_ratio = float(
-                self._default_input_size[1]) / self._default_input_size[0]
-            size = (self._size_multiplier * size,
-                    self._size_multiplier * int(aspect_ratio * size))
+            aspect_ratio = float(self._default_input_size[1]) / self._default_input_size[0]
+            size = (
+                self._size_multiplier * size,
+                self._size_multiplier * int(aspect_ratio * size),
+            )
             tensor[0] = size[0]
             tensor[1] = size[1]
 

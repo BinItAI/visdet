@@ -4,9 +4,9 @@ from abc import ABCMeta, abstractmethod
 import torch
 import torch.nn as nn
 from torch import Tensor
-from viscv import ops
 from visengine.model import BaseModule
 
+from viscv import ops
 from visdet.utils import ConfigType, OptMultiConfig
 
 
@@ -22,7 +22,13 @@ class BaseRoIExtractor(BaseModule, metaclass=ABCMeta):
             dict], optional): Initialization config dict. Defaults to None.
     """
 
-    def __init__(self, roi_layer: ConfigType, out_channels: int, featmap_strides: list[int], init_cfg: OptMultiConfig = None) -> None:
+    def __init__(
+        self,
+        roi_layer: ConfigType,
+        out_channels: int,
+        featmap_strides: list[int],
+        init_cfg: OptMultiConfig = None,
+    ) -> None:
         super().__init__(init_cfg=init_cfg)
         self.roi_layers = self.build_roi_layers(roi_layer, featmap_strides)
         self.out_channels = out_channels

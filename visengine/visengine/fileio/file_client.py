@@ -105,9 +105,13 @@ class FileClient:
         if backend is None and prefix is None:
             backend = "disk"
         if backend is not None and backend not in cls._backends:
-            raise ValueError(f"Backend {backend} is not supported. Currently supported ones are {list(cls._backends.keys())}")
+            raise ValueError(
+                f"Backend {backend} is not supported. Currently supported ones are {list(cls._backends.keys())}"
+            )
         if prefix is not None and prefix not in cls._prefix_to_backends:
-            raise ValueError(f"prefix {prefix} is not supported. Currently supported ones are {list(cls._prefix_to_backends.keys())}")
+            raise ValueError(
+                f"prefix {prefix} is not supported. Currently supported ones are {list(cls._prefix_to_backends.keys())}"
+            )
 
         # concatenate the arguments to a unique key for determining whether
         # objects with the same arguments were created
@@ -200,7 +204,9 @@ class FileClient:
         if not issubclass(backend, BaseStorageBackend):
             raise TypeError(f"backend {backend} is not a subclass of BaseStorageBackend")
         if not force and name in cls._backends:
-            raise KeyError(f'{name} is already registered as a storage backend, add "force=True" if you want to override it')
+            raise KeyError(
+                f'{name} is already registered as a storage backend, add "force=True" if you want to override it'
+            )
 
         if name in cls._backends and force:
             for arg_key, instance in list(cls._instances.items()):
@@ -222,7 +228,9 @@ class FileClient:
                         if isinstance(instance.client, overridden_backend):
                             cls._instances.pop(arg_key)
                 else:
-                    raise KeyError(f'{prefix} is already registered as a storage backend, add "force=True" if you want to override it')
+                    raise KeyError(
+                        f'{prefix} is already registered as a storage backend, add "force=True" if you want to override it'
+                    )
 
     @classmethod
     def register_backend(cls, name, backend=None, force=False, prefixes=None):

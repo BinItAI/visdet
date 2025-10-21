@@ -24,7 +24,11 @@ class TestShared2FCBBoxHead:
                 "target_stds": [0.1, 0.1, 0.2, 0.2],
             },
             "reg_class_agnostic": False,
-            "loss_cls": {"type": "CrossEntropyLoss", "use_sigmoid": False, "loss_weight": 1.0},
+            "loss_cls": {
+                "type": "CrossEntropyLoss",
+                "use_sigmoid": False,
+                "loss_weight": 1.0,
+            },
             "loss_bbox": {"type": "L1Loss", "loss_weight": 1.0},
         }
 
@@ -107,7 +111,10 @@ class TestShared2FCBBoxHead:
         # Check output shapes
         num_rois = roi_feats.shape[0]
         assert cls_score.shape == (num_rois, 81)  # 80 classes + bg
-        assert bbox_pred.shape == (num_rois, 80 * 4)  # class-specific regression (no bg)
+        assert bbox_pred.shape == (
+            num_rois,
+            80 * 4,
+        )  # class-specific regression (no bg)
 
     def test_loss(self, bbox_head_cfg):
         """Test loss calculation."""
@@ -125,7 +132,15 @@ class TestShared2FCBBoxHead:
         bbox_targets = torch.randn(batch_size, 4)
         bbox_weights = torch.ones(batch_size, 4)
 
-        losses = bbox_head.loss(cls_score, bbox_pred, rois, labels, label_weights, bbox_targets, bbox_weights)
+        losses = bbox_head.loss(
+            cls_score,
+            bbox_pred,
+            rois,
+            labels,
+            label_weights,
+            bbox_targets,
+            bbox_weights,
+        )
 
         assert "loss_cls" in losses
         assert "loss_bbox" in losses
@@ -175,7 +190,9 @@ class TestShared2FCBBoxHead:
 
         rcnn_train_cfg = Config({"pos_weight": -1})
 
-        labels, label_weights, bbox_targets, bbox_weights = bbox_head.get_targets(sampling_results, rcnn_train_cfg, concat=True)
+        labels, label_weights, bbox_targets, bbox_weights = bbox_head.get_targets(
+            sampling_results, rcnn_train_cfg, concat=True
+        )
 
         # Total samples = 2 images * 3 proposals each = 6
         assert labels.shape == (6,)
@@ -216,11 +233,13 @@ class TestShared2FCBBoxHead:
             {"img_shape": (640, 640, 3), "scale_factor": (1.0, 1.0)},
             {"img_shape": (640, 640, 3), "scale_factor": (1.0, 1.0)},
         ]
-        rcnn_test_cfg = Config({
-            "score_thr": 0.05,
-            "nms": {"type": "nms", "iou_threshold": 0.5},
-            "max_per_img": 100,
-        })
+        rcnn_test_cfg = Config(
+            {
+                "score_thr": 0.05,
+                "nms": {"type": "nms", "iou_threshold": 0.5},
+                "max_per_img": 100,
+            }
+        )
 
         results = bbox_head.predict_by_feat(rois, cls_scores, bbox_preds, batch_img_metas, rcnn_test_cfg, rescale=False)
 

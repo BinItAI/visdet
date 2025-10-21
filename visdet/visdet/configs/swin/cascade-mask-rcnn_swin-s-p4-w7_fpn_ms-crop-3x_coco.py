@@ -101,7 +101,13 @@ train_cfg = {"max_epochs": max_epochs}
 
 # learning rate
 param_scheduler = [
-    {"type": "LinearLR", "start_factor": 0.001, "by_epoch": False, "begin": 0, "end": 1000},
+    {
+        "type": "LinearLR",
+        "start_factor": 0.001,
+        "by_epoch": False,
+        "begin": 0,
+        "end": 1000,
+    },
     {
         "type": "MultiStepLR",
         "begin": 0,

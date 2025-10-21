@@ -307,7 +307,7 @@ def random_boxes(num_boxes, scale, rng=None):
     x1, y1, x2, y2 = box_coord.T
     swap_idx = x1 > x2
     x1[swap_idx], x2[swap_idx] = x2[swap_idx], x1[swap_idx]
-    swap_idx = y1 > y2  
+    swap_idx = y1 > y2
     y1[swap_idx], y2[swap_idx] = y2[swap_idx], y1[swap_idx]
 
     boxes = np.stack([x1, y1, x2, y2], axis=1)

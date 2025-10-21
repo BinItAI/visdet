@@ -2,12 +2,11 @@
 import inspect
 
 import torch.nn as nn
-from visengine.registry import MODELS
-from visengine.utils import is_tuple_of
-
+from torch.nn import SyncBatchNorm
 from torch.nn.modules.batchnorm import _BatchNorm
 from torch.nn.modules.instancenorm import _InstanceNorm
-from torch.nn import SyncBatchNorm
+from visengine.registry import MODELS
+from visengine.utils import is_tuple_of
 
 MODELS.register_module("BN", module=nn.BatchNorm2d)
 MODELS.register_module("BN1d", module=nn.BatchNorm1d)
@@ -141,7 +140,9 @@ def is_norm(layer: nn.Module, exclude: type | tuple | None = None) -> bool:
         if not isinstance(exclude, tuple):
             exclude = (exclude,)
         if not is_tuple_of(exclude, type):
-            raise TypeError(f'"exclude" must be either None or type or a tuple of types, but got {type(exclude)}: {exclude}')
+            raise TypeError(
+                f'"exclude" must be either None or type or a tuple of types, but got {type(exclude)}: {exclude}'
+            )
 
     if exclude and isinstance(layer, exclude):
         return False
