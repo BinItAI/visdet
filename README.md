@@ -51,7 +51,7 @@ This makes visdet significantly easier to install and deploy compared to the ori
 
 ## 🧠 Modern Training Philosophy
 
-visdet draws inspiration from the pioneering work of **fast.ai**, which demonstrated that common-sense training techniques could dramatically improve both accessibility and performance in deep learning. The abandoned **icevision** project attempted to bring these ideas to object detection but is no longer maintained.
+visdet draws inspiration from the pioneering work of [**fast.ai**](https://www.fast.ai/), which demonstrated that common-sense training techniques could dramatically improve both accessibility and performance in deep learning. The abandoned [**icevision**](https://github.com/airctic/icevision) project attempted to bring these ideas to object detection but is no longer maintained.
 
 **We're continuing that mission** by porting battle-tested techniques from image classification and LLM training:
 
@@ -64,6 +64,8 @@ visdet draws inspiration from the pioneering work of **fast.ai**, which demonstr
 These techniques are proven in image classification and LLM fine-tuning but have been largely absent from object detection frameworks. visdet aims to make them **accessible and practical** for detection tasks, with sensible defaults and clear documentation.
 
 > **Philosophy**: If a technique works reliably for ImageNet classification or LLM fine-tuning, it should work for object detection too. We're bringing the best ideas from across deep learning to vision tasks.
+>
+> See fast.ai's [ImageNet training guide](https://www.fast.ai/posts/2018-08-10-fastai-diu-imagenet.html) for an example of how these techniques work in practice.
 
 ---
 
