@@ -180,6 +180,19 @@ def format_issue_body(issue: dict[str, Any]) -> str:
     return "\n".join(body_parts)
 
 
+def check_issue_exists_in_fork(upstream_number: int) -> bool:
+    """Check if an issue from this upstream number already exists in the fork."""
+    try:
+        # Search for issues in the fork that mention this upstream issue number
+        search_query = f"repo:{FORK_REPO} is:issue {UPSTREAM_REPO}/issues/{upstream_number}"
+        output = run_gh_command(["search", "issues", search_query, "--json", "number,title"])
+        results = json.loads(output)
+        return len(results) > 0
+    except Exception:
+        # If search fails, assume it doesn't exist to avoid blocking import
+        return False
+
+
 def create_issue(issue: dict[str, Any]) -> str:
     """Create an issue in the fork repository."""
     upstream_number = issue["number"]
@@ -288,8 +301,10 @@ def main() -> None:
         print("✓ All issues have already been imported!")
         return
 
-    print(f"Found {len(to_import)} issues to import")
-    print(f"Already imported: {len(imported)}")
+    print(f"Found {len(to_import)} new issues to import")
+    print(f"Already imported (tracked): {len(imported)}")
+    print(f"Total open issues in upstream: {len(upstream_issues)}")
+    print(f"Skipped (already imported): {len(upstream_issues) - len(to_import)}")
     print()
 
     # Import issues
@@ -302,6 +317,19 @@ def main() -> None:
     for issue in tqdm(to_import, desc="Importing issues", unit="issue"):
         upstream_number = issue["number"]
         try:
+            # Double-check if issue already exists in fork (safety check)
+            if check_issue_exists_in_fork(upstream_number):
+                tqdm.write(f"  ⚠ Issue #{upstream_number} already exists in fork, skipping...")
+                # Add to tracking file even if it wasn't there before
+                imported[str(upstream_number)] = {
+                    "fork_url": "unknown (existed before tracking)",
+                    "imported_at": datetime.now().isoformat(),
+                    "title": issue["title"],
+                }
+                tracking_data["imported"] = imported
+                save_tracking_data(tracking_data)
+                continue
+
             fork_url = create_issue(issue)
 
             # Track the import
