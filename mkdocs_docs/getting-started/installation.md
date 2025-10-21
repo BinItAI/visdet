@@ -8,60 +8,50 @@ MMDetection works on Linux, Windows and macOS. It requires Python 3.7+, CUDA 9.2
 If you are experienced with PyTorch and have already installed it, just skip this part and jump to the [next section](#installation). Otherwise, you can follow these steps for the preparation.
 ```
 
-**Step 0.** Download and install Miniconda from the [official website](https://docs.conda.io/en/latest/miniconda.html).
-
-**Step 1.** Create a conda environment and activate it.
+**Step 0.** Install [uv](https://docs.astral.sh/uv/) - a fast Python package manager.
 
 ```shell
-conda create --name openmmlab python=3.8 -y
-conda activate openmmlab
+# On macOS and Linux
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# On Windows
+powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
 
-**Step 2.** Install PyTorch following [official instructions](https://pytorch.org/get-started/locally/), e.g.
-
-On GPU platforms:
-
-```shell
-conda install pytorch torchvision -c pytorch
-```
-
-On CPU platforms:
-
-```shell
-conda install pytorch torchvision cpuonly -c pytorch
-```
+**Step 1.** uv will automatically manage Python versions and virtual environments for you. No separate setup needed!
 
 # Installation
 
-We recommend that users follow our best practices to install MMDetection. However, the whole process is highly customizable. See [Customize Installation](#customize-installation) section for more information.
+We recommend that users follow our best practices to install MMDetection using uv. However, the whole process is highly customizable. See [Customize Installation](#customize-installation) section for more information.
 
 ## Best Practices
 
-**Step 0.** Install [MMCV](https://github.com/open-mmlab/mmcv) using [MIM](https://github.com/open-mmlab/mim).
+**Step 0.** Clone the repository and navigate to it.
 
 ```shell
-pip install -U openmim
-mim install mmcv-full
+git clone https://github.com/BinItAI/visdet.git
+cd visdet
 ```
 
-**Step 1.** Install MMDetection.
+**Step 1.** Install dependencies using uv.
 
-Case a: If you develop and run mmdet directly, install it from source:
+For development (includes all dependencies):
 
 ```shell
-git clone https://github.com/open-mmlab/mmdetection.git
-cd mmdetection
-pip install -v -e .
-# "-v" means verbose, or more output
-# "-e" means installing a project in editable mode,
-# thus any local modifications made to the code will take effect without reinstallation.
+uv sync
 ```
 
-Case b: If you use mmdet as a dependency or third-party package, install it with pip:
+For specific extras (e.g., just documentation):
 
 ```shell
-pip install mmdet
+uv sync --extra mkdocs
 ```
+
+**Step 2.** That's it! uv has:
+- Created a virtual environment
+- Installed Python 3.12 (or the version specified in `.python-version`)
+- Installed all dependencies from `pyproject.toml`
+- Installed the package in editable mode
 
 ## Verify the installation
 
@@ -70,24 +60,23 @@ To verify whether MMDetection is installed correctly, we provide some sample cod
 **Step 1.** We need to download config and checkpoint files.
 
 ```shell
-mim download mmdet --config yolov3_mobilenetv2_320_300e_coco --dest .
+uv run mim download mmdet --config yolov3_mobilenetv2_320_300e_coco --dest .
 ```
 
 The downloading will take several seconds or more, depending on your network environment. When it is done, you will find two files `yolov3_mobilenetv2_320_300e_coco.py` and `yolov3_mobilenetv2_320_300e_coco_20210719_215349-d18dff72.pth` in your current folder.
 
 **Step 2.** Verify the inference demo.
 
-Option (a). If you install mmdetection from source, just run the following command.
-
 ```shell
-python demo/image_demo.py demo/demo.jpg yolov3_mobilenetv2_320_300e_coco.py yolov3_mobilenetv2_320_300e_coco_20210719_215349-d18dff72.pth --device cpu --out-file result.jpg
+uv run python demo/image_demo.py demo/demo.jpg yolov3_mobilenetv2_320_300e_coco.py yolov3_mobilenetv2_320_300e_coco_20210719_215349-d18dff72.pth --device cpu --out-file result.jpg
 ```
 
 You will see a new image `result.jpg` on your current folder, where bounding boxes are plotted on cars, benches, etc.
 
-Option (b). If you install mmdetection with pip, open you python interpreter and copy&paste the following codes.
+Alternatively, you can run Python code directly:
 
 ```python
+# Run with: uv run python
 from mmdet.apis import init_detector, inference_detector
 
 config_file = 'yolov3_mobilenetv2_320_300e_coco.py'
@@ -110,19 +99,22 @@ When installing PyTorch, you need to specify the version of CUDA. If you are not
 Please make sure the GPU driver satisfies the minimum version requirements. See [this table](https://docs.nvidia.com/cuda/cuda-toolkit-release-notes/index.html#cuda-major-component-versions__table-cuda-toolkit-driver-versions) for more information.
 
 ```{note}
-Installing CUDA runtime libraries is enough if you follow our best practices, because no CUDA code will be compiled locally. However if you hope to compile MMCV from source or develop other CUDA operators, you need to install the complete CUDA toolkit from NVIDIA's [website](https://developer.nvidia.com/cuda-downloads), and its version should match the CUDA version of PyTorch. i.e., the specified version of cudatoolkit in `conda install` command.
+uv handles PyTorch installation automatically based on your `pyproject.toml` configuration. For specific CUDA versions, you may need to configure the PyTorch index URL in your project settings.
 ```
 
-### Install MMCV without MIM
+### Installing additional packages
 
-MMCV contains C++ and CUDA extensions, thus depending on PyTorch in a complex way. MIM solves such dependencies automatically and makes the installation easier. However, it is not a must.
-
-To install MMCV with pip instead of MIM, please follow [MMCV installation guides](https://mmcv.readthedocs.io/en/latest/get_started/installation.html). This requires manually specifying a find-url based on PyTorch version and its CUDA version.
-
-For example, the following command install mmcv-full built for PyTorch 1.10.x and CUDA 11.3.
+To add additional packages to your project:
 
 ```shell
-pip install mmcv-full -f https://download.openmmlab.com/mmcv/dist/cu113/torch1.10/index.html
+# Add a new dependency
+uv add package-name
+
+# Add a development dependency
+uv add --dev package-name
+
+# Add an optional dependency to a specific group
+uv add --optional group-name package-name
 ```
 
 ### Install on CPU-only platforms
@@ -156,30 +148,27 @@ The following table lists affected algorithms.
 
 ### Install on Google Colab
 
-[Google Colab](https://research.google.com/) usually has PyTorch installed,
-thus we only need to install MMCV and MMDetection with the following commands.
+[Google Colab](https://research.google.com/) usually has PyTorch installed.
+Here's how to install visdet with uv on Colab:
 
-**Step 1.** Install [MMCV](https://github.com/open-mmlab/mmcv) using [MIM](https://github.com/open-mmlab/mim).
+**Step 1.** Install uv in Colab.
 
 ```shell
-!pip3 install openmim
-!mim install mmcv-full
+!curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
-**Step 2.** Install MMDetection from the source.
+**Step 2.** Clone and install visdet.
 
 ```shell
-!git clone https://github.com/open-mmlab/mmdetection.git
-%cd mmdetection
-!pip install -e .
+!git clone https://github.com/BinItAI/visdet.git
+%cd visdet
+!uv sync
 ```
 
 **Step 3.** Verification.
 
 ```python
-import mmdet
-print(mmdet.__version__)
-# Example output: 2.23.0
+!uv run python -c "import mmdet; print(mmdet.__version__)"
 ```
 
 ```{note}
@@ -188,7 +177,7 @@ Within Jupyter, the exclamation mark `!` is used to call external executables an
 
 ### Using MMDetection with Docker
 
-We provide a [Dockerfile](https://github.com/open-mmlab/mmdetection/blob/master/docker/Dockerfile) to build an image. Ensure that your [docker version](https://docs.docker.com/engine/install/) >=19.03.
+We provide a [Dockerfile](https://github.com/BinItAI/visdet/blob/master/docker/Dockerfile) to build an image. Ensure that your [docker version](https://docs.docker.com/engine/install/) >=19.03.
 
 ```shell
 # build an image with PyTorch 1.6, CUDA 10.1
@@ -202,7 +191,37 @@ Run it with
 docker run --gpus all --shm-size=8g -it -v {DATA_DIR}:/mmdetection/data mmdetection
 ```
 
+### Running commands with uv
+
+All commands should be prefixed with `uv run` to ensure they use the project's virtual environment:
+
+```shell
+# Running Python scripts
+uv run python your_script.py
+
+# Running installed CLI tools
+uv run pytest tests/
+
+# Running pre-commit hooks
+uv run pre-commit run --all-files
+
+# Building documentation
+uv run mkdocs build
+```
+
+Alternatively, you can activate the virtual environment manually:
+
+```shell
+source .venv/bin/activate  # On Linux/macOS
+# or
+.venv\Scripts\activate  # On Windows
+
+# Now you can run commands without 'uv run' prefix
+python your_script.py
+pytest tests/
+```
+
 ## Trouble shooting
 
 If you have some issues during the installation, please first view the [FAQ](faq.md) page.
-You may [open an issue](https://github.com/open-mmlab/mmdetection/issues/new/choose) on GitHub if no solution is found.
+You may [open an issue](https://github.com/BinItAI/visdet/issues/new/choose) on GitHub if no solution is found.

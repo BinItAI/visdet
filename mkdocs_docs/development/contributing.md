@@ -18,11 +18,18 @@ We use the following tools to maintain code quality:
 - `pyright` for type checking
 - `pre-commit` hooks for automated checks
 
-To set up pre-commit hooks:
+To set up the development environment:
 
 ```bash
-pip install pre-commit
-pre-commit install
+# Clone the repository
+git clone https://github.com/BinItAI/visdet.git
+cd visdet
+
+# Install all dependencies (including dev dependencies)
+uv sync
+
+# Set up pre-commit hooks
+uv run pre-commit install
 ```
 
 ## Testing
@@ -30,7 +37,7 @@ pre-commit install
 Before submitting a pull request, make sure all tests pass:
 
 ```bash
-pytest tests/
+uv run pytest tests/
 ```
 
 ## Documentation

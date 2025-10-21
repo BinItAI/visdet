@@ -89,14 +89,14 @@ We prepare a tool `tools/deplopyment/test.py` to evaluate ONNX models with ONNXR
 - Install onnx and onnxruntime (CPU version)
 
   ```shell
-  pip install onnx onnxruntime==1.5.1
+  uv add onnx onnxruntime==1.5.1
   ```
 
 - If you want to run the model on GPU, please remove the CPU version before using the GPU version.
 
   ```shell
-  pip uninstall onnxruntime
-  pip install onnxruntime-gpu
+  uv remove onnxruntime
+  uv add onnxruntime-gpu
   ```
 
   Note: onnxruntime-gpu is version-dependent on CUDA and CUDNN, please ensure that your
