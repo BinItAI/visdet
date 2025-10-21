@@ -7,7 +7,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.utils.checkpoint as cp
-from flash_window_attention.flash_swin_attn import flash_swin_attn_func
 from viscv.cnn import build_norm_layer
 from viscv.cnn.bricks.transformer import FFN, build_dropout
 from visengine.logging import MMLogger
@@ -111,19 +110,7 @@ class WindowMSA(BaseModule):
         relative_position_bias = relative_position_bias.permute(2, 0, 1).contiguous()  # nH, Wh*Ww, Wh*Ww
         relative_position_bias = relative_position_bias.to(dtype=q.dtype, device=q.device)
 
-        use_flash = self.backend == "flash" and x.is_cuda and self.attn_drop.p == 0.0 and head_dim % 16 == 0
-
-        if use_flash:
-            out = self._forward_flash(q, k, v, relative_position_bias, mask, B, N, C)
-            if out is not None:
-                return out
-            if not self._flash_fallback_warned:
-                warnings.warn(
-                    "Falling back to torch attention backend due to unsupported flash configuration.",
-                    RuntimeWarning,
-                )
-                self._flash_fallback_warned = True
-
+        # Use standard PyTorch attention
         return self._forward_torch(q, k, v, relative_position_bias, mask, B, N, C)
 
     def _forward_torch(self, q, k, v, relative_position_bias, mask, B, N, C):
@@ -140,48 +127,6 @@ class WindowMSA(BaseModule):
         attn = self.attn_drop(attn)
 
         x = (attn @ v).transpose(1, 2).reshape(B, N, C)
-        x = self.proj(x)
-        x = self.proj_drop(x)
-        return x
-
-    def _forward_flash(self, q, k, v, relative_position_bias, mask, B, N, C):
-        head_dim = C // self.num_heads
-        try:
-            if mask is not None:
-                nW = mask.shape[0]
-                if B % nW != 0:
-                    return None
-                batch_size = B // nW
-                q = q.view(batch_size, nW, self.num_heads, N, head_dim)
-                k = k.view(batch_size, nW, self.num_heads, N, head_dim)
-                v = v.view(batch_size, nW, self.num_heads, N, head_dim)
-                mask = mask.to(dtype=relative_position_bias.dtype, device=q.device)
-                outputs = []
-                for window_idx in range(nW):
-                    bias = relative_position_bias + mask[window_idx].unsqueeze(0)
-                    outputs.append(
-                        flash_swin_attn_func(
-                            q[:, window_idx].contiguous(),
-                            k[:, window_idx].contiguous(),
-                            v[:, window_idx].contiguous(),
-                            bias.contiguous(),
-                            self.scale,
-                        )
-                    )
-                attn_out = torch.stack(outputs, dim=1)
-                attn_out = attn_out.reshape(B, self.num_heads, N, head_dim)
-            else:
-                attn_out = flash_swin_attn_func(
-                    q.contiguous(),
-                    k.contiguous(),
-                    v.contiguous(),
-                    relative_position_bias.contiguous(),
-                    self.scale,
-                )
-        except RuntimeError:
-            return None
-
-        x = attn_out.permute(0, 2, 1, 3).reshape(B, N, C)
         x = self.proj(x)
         x = self.proj_drop(x)
         return x

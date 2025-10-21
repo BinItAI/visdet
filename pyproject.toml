@@ -132,5 +132,8 @@ dev = [
     "ruff",
 ]
 
+[tool.uv.workspace]
+members = ["libs/viscv", "libs/visengine", "visdet"]
+
 # Note: mmtracking git dependency removed due to build isolation issues
 # To install for tests: uv pip install --no-build-isolation git+https://github.com/open-mmlab/mmtracking.git

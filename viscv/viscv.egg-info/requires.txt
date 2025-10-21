@@ -1,9 +1,0 @@
-numpy>=2.0.0
-Pillow>=10.0.0
-opencv-python-headless>=4.8.0
-matplotlib>=3.6.0
-visengine
-
-[:platform_system == "Linux" and platform_machine == "x86_64"]
-torch==2.5.1
-torchvision==0.20.1

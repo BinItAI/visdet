@@ -8969,6 +8969,16 @@
       "fork_url": "",
       "imported_at": "2025-10-21T09:59:20.768464",
       "title": "Strange behaviours when training with imgs_per_gpu=3."
+    },
+    "59": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/996",
+      "imported_at": "2025-10-21T10:05:55.717735",
+      "title": "Good design choice"
+    },
+    "60": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/996",
+      "imported_at": "2025-10-21T10:06:09.996597",
+      "title": "Good design choice, do you have any idea on speeding up the rpn_head directly?"
     }
   }
 }

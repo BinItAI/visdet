@@ -17,7 +17,6 @@ dependencies = [
     "terminaltables>=3.1.0",
     "tqdm>=4.60.0",
     "parameterized>=0.8.0",
-    "flash_window_attention>=0.1.0",
 ]
 
 [build-system]
@@ -30,3 +29,7 @@ include = ["visdet*"]
 
 [tool.setuptools.package-data]
 '*' = ['*.yaml', '*.json', '*.yml']
+
+[tool.uv.sources]
+visengine = { workspace = true }
+viscv = { workspace = true }

@@ -1,0 +1,2 @@
+Error running gh command: Command '['gh', 'label', 'create', 'from-mmdetection', '--repo', 'BinItAI/visdet', '--description', 'Issue imported from upstream open-mmlab/mmdetection repository', '--color', '0366d6']' returned non-zero exit status 1.
+stderr: label with name "from-mmdetection" already exists; use `--force` to update its color and description

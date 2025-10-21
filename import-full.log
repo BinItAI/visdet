@@ -1,0 +1,330 @@
+Error running gh command: Command '['gh', 'label', 'create', 'from-mmdetection', '--repo', 'BinItAI/visdet', '--description', 'Issue imported from upstream open-mmlab/mmdetection repository', '--color', '0366d6']' returned non-zero exit status 1.
+stderr: label with name "from-mmdetection" already exists; use `--force` to update its color and description
+
+======================================================================
+Import Upstream Issues
+======================================================================
+
+Ensuring 'from-mmdetection' label exists...
+✓ 'from-mmdetection' label already exists
+
+Fetching all issues from open-mmlab/mmdetection...
+  Fetching page 1...
+    Fetched 100 issues (total so far: 100)
+  Fetching page 2...
+    Fetched 100 issues (total so far: 200)
+  Fetching page 3...
+    Fetched 100 issues (total so far: 300)
+  Fetching page 4...
+    Fetched 100 issues (total so far: 400)
+  Fetching page 5...
+    Fetched 100 issues (total so far: 500)
+  Fetching page 6...
+    Fetched 100 issues (total so far: 600)
+  Fetching page 7...
+    Fetched 100 issues (total so far: 700)
+  Fetching page 8...
+    Fetched 100 issues (total so far: 800)
+  Fetching page 9...
+    Fetched 100 issues (total so far: 900)
+  Fetching page 10...
+    Fetched 100 issues (total so far: 1000)
+  Fetching page 11...
+    Fetched 100 issues (total so far: 1100)
+  Fetching page 12...
+    Fetched 100 issues (total so far: 1200)
+  Fetching page 13...
+    Fetched 100 issues (total so far: 1300)
+  Fetching page 14...
+    Fetched 100 issues (total so far: 1400)
+  Fetching page 15...
+    Fetched 100 issues (total so far: 1500)
+  Fetching page 16...
+    Fetched 100 issues (total so far: 1600)
+  Fetching page 17...
+    Fetched 100 issues (total so far: 1700)
+  Fetching page 18...
+    Fetched 100 issues (total so far: 1800)
+  Fetching page 19...
+    Fetched 100 issues (total so far: 1900)
+  Fetching page 20...
+    Fetched 100 issues (total so far: 2000)
+  Fetching page 21...
+    Fetched 100 issues (total so far: 2100)
+  Fetching page 22...
+    Fetched 100 issues (total so far: 2200)
+  Fetching page 23...
+    Fetched 100 issues (total so far: 2300)
+  Fetching page 24...
+    Fetched 100 issues (total so far: 2400)
+  Fetching page 25...
+    Fetched 100 issues (total so far: 2500)
+  Fetching page 26...
+    Fetched 100 issues (total so far: 2600)
+  Fetching page 27...
+    Fetched 100 issues (total so far: 2700)
+  Fetching page 28...
+    Fetched 100 issues (total so far: 2800)
+  Fetching page 29...
+    Fetched 100 issues (total so far: 2900)
+  Fetching page 30...
+    Fetched 100 issues (total so far: 3000)
+  Fetching page 31...
+    Fetched 100 issues (total so far: 3100)
+  Fetching page 32...
+    Fetched 100 issues (total so far: 3200)
+  Fetching page 33...
+    Fetched 100 issues (total so far: 3300)
+  Fetching page 34...
+    Fetched 100 issues (total so far: 3400)
+  Fetching page 35...
+    Fetched 100 issues (total so far: 3500)
+  Fetching page 36...
+    Fetched 100 issues (total so far: 3600)
+  Fetching page 37...
+    Fetched 100 issues (total so far: 3700)
+  Fetching page 38...
+    Fetched 100 issues (total so far: 3800)
+  Fetching page 39...
+    Fetched 100 issues (total so far: 3900)
+  Fetching page 40...
+    Fetched 100 issues (total so far: 4000)
+  Fetching page 41...
+    Fetched 100 issues (total so far: 4100)
+  Fetching page 42...
+    Fetched 100 issues (total so far: 4200)
+  Fetching page 43...
+    Fetched 100 issues (total so far: 4300)
+  Fetching page 44...
+    Fetched 100 issues (total so far: 4400)
+  Fetching page 45...
+    Fetched 100 issues (total so far: 4500)
+  Fetching page 46...
+    Fetched 100 issues (total so far: 4600)
+  Fetching page 47...
+    Fetched 100 issues (total so far: 4700)
+  Fetching page 48...
+    Fetched 100 issues (total so far: 4800)
+  Fetching page 49...
+    Fetched 100 issues (total so far: 4900)
+  Fetching page 50...
+    Fetched 100 issues (total so far: 5000)
+  Fetching page 51...
+    Fetched 100 issues (total so far: 5100)
+  Fetching page 52...
+    Fetched 100 issues (total so far: 5200)
+  Fetching page 53...
+    Fetched 100 issues (total so far: 5300)
+  Fetching page 54...
+    Fetched 100 issues (total so far: 5400)
+  Fetching page 55...
+    Fetched 100 issues (total so far: 5500)
+  Fetching page 56...
+    Fetched 100 issues (total so far: 5600)
+  Fetching page 57...
+    Fetched 100 issues (total so far: 5700)
+  Fetching page 58...
+    Fetched 100 issues (total so far: 5800)
+  Fetching page 59...
+    Fetched 100 issues (total so far: 5900)
+  Fetching page 60...
+    Fetched 100 issues (total so far: 6000)
+  Fetching page 61...
+    Fetched 100 issues (total so far: 6100)
+  Fetching page 62...
+    Fetched 100 issues (total so far: 6200)
+  Fetching page 63...
+    Fetched 100 issues (total so far: 6300)
+  Fetching page 64...
+    Fetched 100 issues (total so far: 6400)
+  Fetching page 65...
+    Fetched 100 issues (total so far: 6500)
+  Fetching page 66...
+    Fetched 100 issues (total so far: 6600)
+  Fetching page 67...
+    Fetched 100 issues (total so far: 6700)
+  Fetching page 68...
+    Fetched 100 issues (total so far: 6800)
+  Fetching page 69...
+    Fetched 100 issues (total so far: 6900)
+  Fetching page 70...
+    Fetched 100 issues (total so far: 7000)
+  Fetching page 71...
+    Fetched 100 issues (total so far: 7100)
+  Fetching page 72...
+    Fetched 100 issues (total so far: 7200)
+  Fetching page 73...
+    Fetched 100 issues (total so far: 7300)
+  Fetching page 74...
+    Fetched 100 issues (total so far: 7400)
+  Fetching page 75...
+    Fetched 100 issues (total so far: 7500)
+  Fetching page 76...
+    Fetched 100 issues (total so far: 7600)
+  Fetching page 77...
+    Fetched 100 issues (total so far: 7700)
+  Fetching page 78...
+    Fetched 100 issues (total so far: 7800)
+  Fetching page 79...
+    Fetched 100 issues (total so far: 7900)
+  Fetching page 80...
+    Fetched 100 issues (total so far: 8000)
+  Fetching page 81...
+    Fetched 100 issues (total so far: 8100)
+  Fetching page 82...
+    Fetched 100 issues (total so far: 8200)
+  Fetching page 83...
+    Fetched 100 issues (total so far: 8300)
+  Fetching page 84...
+    Fetched 100 issues (total so far: 8400)
+  Fetching page 85...
+    Fetched 100 issues (total so far: 8500)
+  Fetching page 86...
+    Fetched 6 issues (total so far: 8506)
+✓ Found 8506 issues
+
+Found 6748 issues to import
+Already imported: 1758
+
+Starting import...
+
+Importing issues:   0%|          | 0/6748 [00:00<?, ?issue/s]Error running gh command: Command '['gh', 'issue', 'close', '', '--repo', 'BinItAI/visdet', '--reason', 'completed']' returned non-zero exit status 1.
+stderr: invalid issue format: ""
+
+Importing issues:   0%|          | 1/6748 [00:02<4:22:02,  2.33s/issue]Error running gh command: Command '['gh', 'issue', 'close', '', '--repo', 'BinItAI/visdet', '--reason', 'completed']' returned non-zero exit status 1.
+stderr: invalid issue format: ""
+
+Importing issues:   0%|          | 2/6748 [00:04<4:38:49,  2.48s/issue]Error running gh command: Command '['gh', 'issue', 'close', '', '--repo', 'BinItAI/visdet', '--reason', 'completed']' returned non-zero exit status 1.
+stderr: invalid issue format: ""
+
+Importing issues:   0%|          | 3/6748 [00:07<4:36:54,  2.46s/issue]Error running gh command: Command '['gh', 'issue', 'edit', '', '--repo', 'BinItAI/visdet', '--add-label', 'planned feature']' returned non-zero exit status 1.
+stderr: invalid issue format: ""
+
+Error running gh command: Command '['gh', 'issue', 'close', '', '--repo', 'BinItAI/visdet', '--reason', 'completed']' returned non-zero exit status 1.
+stderr: invalid issue format: ""
+
+Importing issues:   0%|          | 4/6748 [00:10<4:54:27,  2.62s/issue]Error running gh command: Command '['gh', 'issue', 'close', '', '--repo', 'BinItAI/visdet', '--reason', 'completed']' returned non-zero exit status 1.
+stderr: invalid issue format: ""
+
+Importing issues:   0%|          | 5/6748 [00:12<4:48:37,  2.57s/issue]Error running gh command: Command '['gh', 'issue', 'edit', '', '--repo', 'BinItAI/visdet', '--add-label', 'WIP']' returned non-zero exit status 1.
+stderr: invalid issue format: ""
+
+Error running gh command: Command '['gh', 'issue', 'edit', '', '--repo', 'BinItAI/visdet', '--add-label', 'planned feature']' returned non-zero exit status 1.
+stderr: invalid issue format: ""
+
+Error running gh command: Command '['gh', 'issue', 'close', '', '--repo', 'BinItAI/visdet', '--reason', 'completed']' returned non-zero exit status 1.
+stderr: invalid issue format: ""
+
+Importing issues:   0%|          | 6/6748 [00:15<4:43:08,  2.52s/issue]Error running gh command: Command '['gh', 'issue', 'close', '', '--repo', 'BinItAI/visdet', '--reason', 'completed']' returned non-zero exit status 1.
+stderr: invalid issue format: ""
+
+Importing issues:   0%|          | 7/6748 [00:17<4:36:33,  2.46s/issue]Error running gh command: Command '['gh', 'issue', 'edit', '', '--repo', 'BinItAI/visdet', '--add-label', 'question']' returned non-zero exit status 1.
+stderr: invalid issue format: ""
+
+Error running gh command: Command '['gh', 'issue', 'close', '', '--repo', 'BinItAI/visdet', '--reason', 'completed']' returned non-zero exit status 1.
+stderr: invalid issue format: ""
+
+Importing issues:   0%|          | 8/6748 [00:19<4:31:57,  2.42s/issue]Error running gh command: Command '['gh', 'issue', 'close', '', '--repo', 'BinItAI/visdet', '--reason', 'completed']' returned non-zero exit status 1.
+stderr: invalid issue format: ""
+
+Importing issues:   0%|          | 9/6748 [00:22<4:30:34,  2.41s/issue]Error running gh command: Command '['gh', 'issue', 'close', '', '--repo', 'BinItAI/visdet', '--reason', 'completed']' returned non-zero exit status 1.
+stderr: invalid issue format: ""
+
+Importing issues:   0%|          | 10/6748 [00:24<4:27:56,  2.39s/issue]Error running gh command: Command '['gh', 'issue', 'close', '', '--repo', 'BinItAI/visdet', '--reason', 'completed']' returned non-zero exit status 1.
+stderr: invalid issue format: ""
+
+Importing issues:   0%|          | 11/6748 [00:26<4:28:25,  2.39s/issue]Error running gh command: Command '['gh', 'issue', 'close', '', '--repo', 'BinItAI/visdet', '--reason', 'completed']' returned non-zero exit status 1.
+stderr: invalid issue format: ""
+
+Importing issues:   0%|          | 12/6748 [00:29<4:30:57,  2.41s/issue]Error running gh command: Command '['gh', 'issue', 'close', '', '--repo', 'BinItAI/visdet', '--reason', 'completed']' returned non-zero exit status 1.
+stderr: invalid issue format: ""
+
+Importing issues:   0%|          | 13/6748 [00:31<4:33:01,  2.43s/issue]Error running gh command: Command '['gh', 'issue', 'close', '', '--repo', 'BinItAI/visdet', '--reason', 'completed']' returned non-zero exit status 1.
+stderr: invalid issue format: ""
+
+Importing issues:   0%|          | 14/6748 [00:34<4:34:54,  2.45s/issue]Error running gh command: Command '['gh', 'issue', 'close', '', '--repo', 'BinItAI/visdet', '--reason', 'completed']' returned non-zero exit status 1.
+stderr: invalid issue format: ""
+
+Importing issues:   0%|          | 15/6748 [00:36<4:38:14,  2.48s/issue]Error running gh command: Command '['gh', 'issue', 'edit', '', '--repo', 'BinItAI/visdet', '--add-label', 'planned feature']' returned non-zero exit status 1.
+stderr: invalid issue format: ""
+
+Error running gh command: Command '['gh', 'issue', 'close', '', '--repo', 'BinItAI/visdet', '--reason', 'completed']' returned non-zero exit status 1.
+stderr: invalid issue format: ""
+
+Importing issues:   0%|          | 16/6748 [00:39<4:36:46,  2.47s/issue]Error running gh command: Command '['gh', 'issue', 'close', '', '--repo', 'BinItAI/visdet', '--reason', 'completed']' returned non-zero exit status 1.
+stderr: invalid issue format: ""
+
+Importing issues:   0%|          | 17/6748 [00:41<4:33:24,  2.44s/issue]Error running gh command: Command '['gh', 'issue', 'close', '', '--repo', 'BinItAI/visdet', '--reason', 'completed']' returned non-zero exit status 1.
+stderr: invalid issue format: ""
+
+Importing issues:   0%|          | 18/6748 [00:44<4:30:19,  2.41s/issue]Error running gh command: Command '['gh', 'issue', 'close', '', '--repo', 'BinItAI/visdet', '--reason', 'completed']' returned non-zero exit status 1.
+stderr: invalid issue format: ""
+
+Importing issues:   0%|          | 19/6748 [00:46<4:28:58,  2.40s/issue]Error running gh command: Command '['gh', 'issue', 'close', '', '--repo', 'BinItAI/visdet', '--reason', 'completed']' returned non-zero exit status 1.
+stderr: invalid issue format: ""
+
+Importing issues:   0%|          | 20/6748 [00:48<4:30:16,  2.41s/issue]Error running gh command: Command '['gh', 'issue', 'edit', '', '--repo', 'BinItAI/visdet', '--add-label', 'question']' returned non-zero exit status 1.
+stderr: invalid issue format: ""
+
+Error running gh command: Command '['gh', 'issue', 'close', '', '--repo', 'BinItAI/visdet', '--reason', 'completed']' returned non-zero exit status 1.
+stderr: invalid issue format: ""
+
+Importing issues:   0%|          | 21/6748 [00:51<4:29:40,  2.41s/issue]Error running gh command: Command '['gh', 'issue', 'close', '', '--repo', 'BinItAI/visdet', '--reason', 'completed']' returned non-zero exit status 1.
+stderr: invalid issue format: ""
+
+Importing issues:   0%|          | 22/6748 [00:53<4:27:16,  2.38s/issue]Error running gh command: Command '['gh', 'issue', 'edit', '', '--repo', 'BinItAI/visdet', '--add-label', 'awaiting response']' returned non-zero exit status 1.
+stderr: invalid issue format: ""
+
+Error running gh command: Command '['gh', 'issue', 'close', '', '--repo', 'BinItAI/visdet', '--reason', 'completed']' returned non-zero exit status 1.
+stderr: invalid issue format: ""
+
+Importing issues:   0%|          | 23/6748 [00:55<4:25:44,  2.37s/issue]Error running gh command: Command '['gh', 'issue', 'close', '', '--repo', 'BinItAI/visdet', '--reason', 'completed']' returned non-zero exit status 1.
+stderr: invalid issue format: ""
+
+Importing issues:   0%|          | 24/6748 [00:58<4:30:24,  2.41s/issue]Error running gh command: Command '['gh', 'issue', 'edit', '', '--repo', 'BinItAI/visdet', '--add-label', 'question']' returned non-zero exit status 1.
+stderr: invalid issue format: ""
+
+Error running gh command: Command '['gh', 'issue', 'close', '', '--repo', 'BinItAI/visdet', '--reason', 'completed']' returned non-zero exit status 1.
+stderr: invalid issue format: ""
+
+Importing issues:   0%|          | 25/6748 [01:00<4:28:07,  2.39s/issue]Error running gh command: Command '['gh', 'issue', 'edit', '', '--repo', 'BinItAI/visdet', '--add-label', 'enhancement']' returned non-zero exit status 1.
+stderr: invalid issue format: ""
+
+Error running gh command: Command '['gh', 'issue', 'close', '', '--repo', 'BinItAI/visdet', '--reason', 'completed']' returned non-zero exit status 1.
+stderr: invalid issue format: ""
+
+Importing issues:   0%|          | 26/6748 [01:03<4:30:06,  2.41s/issue]Error running gh command: Command '['gh', 'issue', 'close', '', '--repo', 'BinItAI/visdet', '--reason', 'completed']' returned non-zero exit status 1.
+stderr: invalid issue format: ""
+
+Importing issues:   0%|          | 27/6748 [01:05<4:32:24,  2.43s/issue]Error running gh command: Command '['gh', 'issue', 'close', '', '--repo', 'BinItAI/visdet', '--reason', 'completed']' returned non-zero exit status 1.
+stderr: invalid issue format: ""
+
+Importing issues:   0%|          | 28/6748 [01:08<4:42:55,  2.53s/issue]Error running gh command: Command '['gh', 'issue', 'close', '', '--repo', 'BinItAI/visdet', '--reason', 'completed']' returned non-zero exit status 1.
+stderr: invalid issue format: ""
+
+Importing issues:   0%|          | 29/6748 [01:10<4:41:21,  2.51s/issue]Error running gh command: Command '['gh', 'issue', 'close', '', '--repo', 'BinItAI/visdet', '--reason', 'completed']' returned non-zero exit status 1.
+stderr: invalid issue format: ""
+
+Importing issues:   0%|          | 30/6748 [01:13<4:45:27,  2.55s/issue]Error running gh command: Command '['gh', 'issue', 'edit', '', '--repo', 'BinItAI/visdet', '--add-label', 'bug']' returned non-zero exit status 1.
+stderr: invalid issue format: ""
+
+Error running gh command: Command '['gh', 'issue', 'close', '', '--repo', 'BinItAI/visdet', '--reason', 'completed']' returned non-zero exit status 1.
+stderr: invalid issue format: ""
+
+Importing issues:   0%|          | 31/6748 [01:16<4:55:59,  2.64s/issue]Error running gh command: Command '['gh', 'issue', 'close', '', '--repo', 'BinItAI/visdet', '--reason', 'completed']' returned non-zero exit status 1.
+stderr: invalid issue format: ""
+
+Importing issues:   0%|          | 32/6748 [01:19<4:54:53,  2.63s/issue]Error running gh command: Command '['gh', 'issue', 'edit', '', '--repo', 'BinItAI/visdet', '--add-label', 'planned feature']' returned non-zero exit status 1.
+stderr: invalid issue format: ""
+
+Error running gh command: Command '['gh', 'issue', 'close', '', '--repo', 'BinItAI/visdet', '--reason', 'completed']' returned non-zero exit status 1.
+stderr: invalid issue format: ""
+
+Importing issues:   0%|          | 33/6748 [01:21<4:47:47,  2.57s/issue]Error running gh command: Command '['gh', 'issue', 'close', '', '--repo', 'BinItAI/visdet', '--reason', 'completed']' returned non-zero exit status 1.
+stderr: invalid issue format: ""
+
+Importing issues:   1%|          | 34/6748 [01:23<4:42:28,  2.52s/issue]Error running gh command: Command '['gh', 'issue', 'close', '', '--repo', 'BinItAI/visdet', '--reason', 'completed']' returned non-zero exit status 1.
+stderr: invalid issue format: ""
+
+Importing issues:   1%|          | 35/6748 [01:26<4:40:17,  2.51s/issue]Error running gh command: Command '['gh', 'issue', 'close', '', '--repo', 'BinItAI/visdet', '--reason', 'completed']' returned non-zero exit status 1.
+stderr: invalid issue format: ""
