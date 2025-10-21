@@ -10,9 +10,9 @@
 [![open issues](https://isitmaintained.com/badge/open/open-mmlab/mmdetection.svg)](https://github.com/open-mmlab/mmdetection/issues)
 [![issue resolution](https://isitmaintained.com/badge/resolution/open-mmlab/mmdetection.svg)](https://github.com/open-mmlab/mmdetection/issues)
 
-[📘Documentation](https://mmdetection.readthedocs.io/en/stable/) |
-[🛠️Installation](https://mmdetection.readthedocs.io/en/stable/get_started.html) |
-[👀Model Zoo](mkdocs_docs/model-zoo.md) |
+[📘Documentation](https://binitai.github.io/visdet/) |
+[🛠️Installation](https://binitai.github.io/visdet/getting-started/installation/) |
+[👀Model Zoo](https://binitai.github.io/visdet/model-zoo/) |
 [🆕Update News](https://mmdetection.readthedocs.io/en/stable/changelog.html) |
 [🚀Ongoing Projects](https://github.com/open-mmlab/mmdetection/projects) |
 [🤔Reporting Issues](https://github.com/open-mmlab/mmdetection/issues/new/choose)
