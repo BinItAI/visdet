@@ -1,0 +1,11 @@
+# 1cycle Learning Rate Schedule Preset
+#
+# One-cycle learning rate policy for fast training
+# Based on Leslie Smith's paper: https://arxiv.org/abs/1803.09820
+
+type: OneCycleLR
+max_lr: 0.001
+pct_start: 0.3
+anneal_strategy: cos
+div_factor: 25.0
+final_div_factor: 10000.0

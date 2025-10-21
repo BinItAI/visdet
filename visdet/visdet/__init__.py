@@ -20,3 +20,9 @@ from . import visualization
 
 # Import datasets to register dataset classes
 from . import datasets
+
+# Import presets for string-based configuration
+from . import presets
+
+# Import SimpleRunner for easy training API
+from .runner import Runner, SimpleRunner

@@ -1,0 +1,46 @@
+# COCO Instance Segmentation Dataset Preset
+#
+# Complete dataset configuration for COCO instance segmentation
+
+# Dataset type
+type: CocoDataset
+
+# Paths (user should override these)
+data_root: data/coco/
+ann_file: annotations/instances_train2017.json
+data_prefix:
+  img: train2017/
+
+# Validation paths
+val_ann_file: annotations/instances_val2017.json
+val_data_prefix:
+  img: val2017/
+
+# Data pipeline for training
+train_pipeline:
+  - type: LoadImageFromFile
+  - type: LoadAnnotations
+    with_bbox: true
+    with_mask: true
+  - type: Resize
+    scale: [1333, 800]
+    keep_ratio: true
+  - type: RandomFlip
+    prob: 0.5
+  - type: PackDetInputs
+
+# Data pipeline for validation/testing
+test_pipeline:
+  - type: LoadImageFromFile
+  - type: Resize
+    scale: [1333, 800]
+    keep_ratio: true
+  - type: LoadAnnotations
+    with_bbox: true
+    with_mask: true
+  - type: PackDetInputs
+
+# DataLoader settings
+batch_size: 2
+num_workers: 2
+persistent_workers: true
