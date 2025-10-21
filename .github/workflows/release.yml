@@ -23,10 +23,10 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Get version from setup.py
+      - name: Get version from pyproject.toml
         id: get_version
         run: |
-          VERSION=$(python -c "exec(open('mmdet/version.py').read()); print(__version__)")
+          VERSION=$(python -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])")
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "tag=v$VERSION" >> $GITHUB_OUTPUT
 

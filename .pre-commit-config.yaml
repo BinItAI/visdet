@@ -18,9 +18,10 @@ repos:
     hooks:
       # Run the linter.
       - id: ruff
-        args: [--fix]
+        args: [--fix, --config=pyproject.toml]
       # Run the formatter.
       - id: ruff-format
+        args: [--config=pyproject.toml]
 
   - repo: https://github.com/kynan/nbstripout
     rev: 0.8.1
