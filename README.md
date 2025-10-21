@@ -1,373 +1,286 @@
 <div align="center">
-  <img src="resources/mmdet-logo.png" width="600"/>
-  <div>&nbsp;</div>
-  <div align="center">
-    <b><font size="5">OpenMMLab website</font></b>
-    <sup>
-      <a href="https://openmmlab.com">
-        <i><font size="4">HOT</font></i>
-      </a>
-    </sup>
-    &nbsp;&nbsp;&nbsp;&nbsp;
-    <b><font size="5">OpenMMLab platform</font></b>
-    <sup>
-      <a href="https://platform.openmmlab.com">
-        <i><font size="4">TRY IT OUT</font></i>
-      </a>
-    </sup>
-  </div>
+  <h1>visdet</h1>
+  <p><strong>The only Object Detection research framework with sane usability</strong></p>
+
+  <p>
+    <em>A modern, actively maintained fork of <a href="https://github.com/open-mmlab/mmdetection">MMDetection</a></em>
+  </p>
+
   <div>&nbsp;</div>
 
-[![PyPI](https://img.shields.io/pypi/v/mmdet)](https://pypi.org/project/mmdet)
-[![docs](https://img.shields.io/badge/docs-latest-blue)](https://mmdetection.readthedocs.io/en/latest/)
-[![badge](https://github.com/open-mmlab/mmdetection/workflows/build/badge.svg)](https://github.com/open-mmlab/mmdetection/actions)
-[![codecov](https://codecov.io/gh/open-mmlab/mmdetection/branch/master/graph/badge.svg)](https://codecov.io/gh/open-mmlab/mmdetection)
-[![license](https://img.shields.io/github/license/open-mmlab/mmdetection.svg)](https://github.com/open-mmlab/mmdetection/blob/master/LICENSE)
-[![open issues](https://isitmaintained.com/badge/open/open-mmlab/mmdetection.svg)](https://github.com/open-mmlab/mmdetection/issues)
-[![issue resolution](https://isitmaintained.com/badge/resolution/open-mmlab/mmdetection.svg)](https://github.com/open-mmlab/mmdetection/issues)
-
-[📘Documentation](https://mmdetection.readthedocs.io/en/stable/) |
-[🛠️Installation](https://mmdetection.readthedocs.io/en/stable/get_started.html) |
-[👀Model Zoo](https://mmdetection.readthedocs.io/en/stable/model_zoo.html) |
-[🆕Update News](https://mmdetection.readthedocs.io/en/stable/changelog.html) |
-[🚀Ongoing Projects](https://github.com/open-mmlab/mmdetection/projects) |
-[🤔Reporting Issues](https://github.com/open-mmlab/mmdetection/issues/new/choose)
+[![License](https://img.shields.io/github/license/BinItAI/visdet.svg)](https://github.com/BinItAI/visdet/blob/master/LICENSE)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 </div>
 
-<div align="center">
+---
 
-English | [简体中文](README_zh-CN.md)
+## About
 
-</div>
+**visdet** is a modern fork of the groundbreaking [MMDetection](https://github.com/open-mmlab/mmdetection) object detection framework. MMDetection was - and remains - one of the most comprehensive and influential detection toolboxes ever created. The MMDetection team won the **COCO Detection Challenge in 2018**, and their work has been cited thousands of times, setting the standard for object detection research.
 
-<div align="center">
-  <a href="https://openmmlab.medium.com/" style="text-decoration:none;">
-    <img src="https://user-images.githubusercontent.com/25839884/218352562-cdded397-b0f3-4ca1-b8dd-a60df8dca75b.png" width="3%" alt="" /></a>
-  <img src="https://user-images.githubusercontent.com/25839884/218346358-56cc8e2f-a2b8-487f-9088-32480cceabcf.png" width="3%" alt="" />
-  <a href="https://discord.gg/raweFPmdzG" style="text-decoration:none;">
-    <img src="https://user-images.githubusercontent.com/25839884/218347213-c080267f-cbb6-443e-8532-8e1ed9a58ea9.png" width="3%" alt="" /></a>
-  <img src="https://user-images.githubusercontent.com/25839884/218346358-56cc8e2f-a2b8-487f-9088-32480cceabcf.png" width="3%" alt="" />
-  <a href="https://twitter.com/OpenMMLab" style="text-decoration:none;">
-    <img src="https://user-images.githubusercontent.com/25839884/218346637-d30c8a0f-3eba-4699-8131-512fb06d46db.png" width="3%" alt="" /></a>
-  <img src="https://user-images.githubusercontent.com/25839884/218346358-56cc8e2f-a2b8-487f-9088-32480cceabcf.png" width="3%" alt="" />
-  <a href="https://www.youtube.com/openmmlab" style="text-decoration:none;">
-    <img src="https://user-images.githubusercontent.com/25839884/218346691-ceb2116a-465a-40af-8424-9f30d2348ca9.png" width="3%" alt="" /></a>
-</div>
-## Introduction
+However, MMDetection is now **archived and no longer actively maintained**. The original codebase, while powerful, relied on older Python packaging standards and tooling that made it increasingly difficult to use and maintain as the ecosystem evolved.
 
-MMDetection is an open source object detection toolbox based on PyTorch. It is
-a part of the [OpenMMLab](https://openmmlab.com/) project.
-
-The master branch works with **PyTorch 1.5+**.
+**visdet** continues this legacy with:
+- ✅ **Active maintenance** and regular updates
+- ✅ **Modern Python tooling** (pyproject.toml, uv, pre-commit)
+- ✅ **Sane defaults** that actually work out of the box
+- ✅ **Better developer experience** with clear error messages and documentation
+- ✅ **All the power** of the original MMDetection, modernized
 
 <img src="https://user-images.githubusercontent.com/12907710/137271636-56ba1cd2-b110-4812-8221-b4c120320aa9.png"/>
 
-<details open>
-<summary>Major features</summary>
+---
 
-- **Modular Design**
+## Why visdet?
 
-  We decompose the detection framework into different components and one can easily construct a customized object detection framework by combining different modules.
+### 🔧 Modern Python Ecosystem
 
-- **Support of multiple frameworks out of box**
+| MMDetection (Legacy) | visdet (Modern) |
+|---------------------|-----------------|
+| setup.py | **pyproject.toml** with hatchling |
+| pip | **uv** for blazing-fast installs |
+| Manual formatting | **pre-commit hooks** with ruff |
+| Readthedocs | **MkDocs Material** theme |
+| Complex configs | **Sane defaults** |
 
-  The toolbox directly supports popular and contemporary detection frameworks, *e.g.* Faster RCNN, Mask RCNN, RetinaNet, etc.
+### 🎯 Sane Usability
 
-- **High efficiency**
+What makes visdet "sane"?
 
-  All basic bbox and mask operations run on GPUs. The training speed is faster than or comparable to other codebases, including [Detectron2](https://github.com/facebookresearch/detectron2), [maskrcnn-benchmark](https://github.com/facebookresearch/maskrcnn-benchmark) and [SimpleDet](https://github.com/TuSimple/simpledet).
+- **Works out of the box**: No more cryptic config errors or missing dependencies
+- **Modern documentation**: Clean, searchable MkDocs instead of legacy Sphinx
+- **Clear error messages**: Know exactly what went wrong and how to fix it
+- **Active community**: Get help, report issues, contribute improvements
+- **Modular architecture**: Clean separation with `visdet`, `viscv`, and `visengine` packages
+- **Better type hints**: Fully typed Python for better IDE support and fewer bugs
 
-- **State of the art**
+### 🚀 All the Power, None of the Pain
 
-  The toolbox stems from the codebase developed by the *MMDet* team, who won [COCO Detection Challenge](http://cocodataset.org/#detection-leaderboard) in 2018, and we keep pushing it forward.
+visdet inherits MMDetection's comprehensive model zoo:
+- **60+ detection algorithms** from Fast R-CNN to DETR
+- **State-of-the-art performance** on COCO, LVIS, and other benchmarks
+- **Modular design** for easy customization
+- **Production-ready** with ONNX/TensorRT export
 
-</details>
+But with modern conveniences:
+- Install with `uv pip install` instead of wrestling with mmcv versions
+- Use standard Python packaging instead of custom MIM installers
+- Get clear error messages instead of inscrutable tracebacks
+- Read beautiful documentation instead of outdated wikis
 
-Apart from MMDetection, we also released a library [mmcv](https://github.com/open-mmlab/mmcv) for computer vision research, which is heavily depended on by this toolbox.
+---
 
-## What's New
+## What's New in visdet
 
-### 💎 Stable version
+### 🎉 Recent Updates
 
-**2.28.2** was released in 27/2/2023:
+**Modern Build System** (2024-10)
+- Migrated to pyproject.toml and uv for dependency management
+- Added pre-commit hooks for consistent code quality
+- Implemented GitHub Actions for CI/CD
 
-- Fixed some known documentation, configuration and linking error issues
+**Better Documentation** (2024-10)
+- MkDocs with Material theme for modern, searchable docs
+- Auto-generated API documentation
+- Dark mode support
 
-Please refer to [changelog.md](docs/en/changelog.md) for details and release history.
+**Core Improvements** (2024-10)
+- Added three core packages for Swin Mask R-CNN implementation
+- GitHub Actions workflow for deployment
+- Better type hints and code organization
 
-For compatibility changes between different versions of MMDetection, please refer to [compatibility.md](docs/en/compatibility.md).
-
-### 🌟 Preview of 3.x version
-
-#### Highlight
-
-We are excited to announce our latest work on real-time object recognition tasks, **RTMDet**, a family of fully convolutional single-stage detectors. RTMDet not only achieves the best parameter-accuracy trade-off on object detection from tiny to extra-large model sizes but also obtains new state-of-the-art performance on instance segmentation and rotated object detection tasks. Details can be found in the [technical report](https://arxiv.org/abs/2212.07784). Pre-trained models are [here](https://github.com/open-mmlab/mmdetection/tree/3.x/configs/rtmdet).
-
-[![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/rtmdet-an-empirical-study-of-designing-real/real-time-instance-segmentation-on-mscoco)](https://paperswithcode.com/sota/real-time-instance-segmentation-on-mscoco?p=rtmdet-an-empirical-study-of-designing-real)
-[![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/rtmdet-an-empirical-study-of-designing-real/object-detection-in-aerial-images-on-dota-1)](https://paperswithcode.com/sota/object-detection-in-aerial-images-on-dota-1?p=rtmdet-an-empirical-study-of-designing-real)
-[![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/rtmdet-an-empirical-study-of-designing-real/object-detection-in-aerial-images-on-hrsc2016)](https://paperswithcode.com/sota/object-detection-in-aerial-images-on-hrsc2016?p=rtmdet-an-empirical-study-of-designing-real)
-
-| Task                     | Dataset | AP                                   | FPS(TRT FP16 BS1 3090) |
-| ------------------------ | ------- | ------------------------------------ | ---------------------- |
-| Object Detection         | COCO    | 52.8                                 | 322                    |
-| Instance Segmentation    | COCO    | 44.6                                 | 188                    |
-| Rotated Object Detection | DOTA    | 78.9(single-scale)/81.3(multi-scale) | 121                    |
-
-<div align=center>
-<img src="https://user-images.githubusercontent.com/12907710/208044554-1e8de6b5-48d8-44e4-a7b5-75076c7ebb71.png"/>
-</div>
-
-A brand new version of **MMDetection v3.0.0rc6** was released in 27/2/2023:
-
-- Support [Boxinst](https://github.com/open-mmlab/mmdetection/tree/3.x/configs/boxinst), [Objects365 Dataset](https://github.com/open-mmlab/mmdetection/tree/3.x/configs/objects365), and [Separated and Occluded COCO metric](https://github.com/open-mmlab/mmdetection/tree/3.x/docs/en/user_guides/useful_tools.md#coco-separated--occluded-mask-metric)
-- Support [ConvNeXt-V2](https://github.com/open-mmlab/mmdetection/tree/3.x/projects/ConvNeXt-V2), [DiffusionDet](https://github.com/open-mmlab/mmdetection/tree/3.x/projects/DiffusionDet), and inference of [EfficientDet](https://github.com/open-mmlab/mmdetection/tree/3.x/projects/EfficientDet) and [Detic](https://github.com/open-mmlab/mmdetection/tree/3.x/projects/Detic) in `Projects`
-- Refactor [DETR](https://github.com/open-mmlab/mmdetection/tree/3.x/configs/detr) series and support [Conditional-DETR](https://github.com/open-mmlab/mmdetection/tree/3.x/configs/conditional_detr), [DAB-DETR](https://github.com/open-mmlab/mmdetection/tree/3.x/configs/dab_detr), and [DINO](https://github.com/open-mmlab/mmdetection/tree/3.x/configs/dino)
-- Support DetInferencer, Test Time Augmentation, and auto import modules from registry
-- Support RTMDet-Ins ONNXRuntime and TensorRT [deployment](https://github.com/open-mmlab/mmdetection/tree/3.x/configs/rtmdet/README.md#deployment-tutorial)
-- Support [calculating FLOPs of detectors](https://github.com/open-mmlab/mmdetection/tree/3.x/docs/en/user_guides/useful_tools.md#Model-Complexity)
-
-Find more new features in [3.x branch](https://github.com/open-mmlab/mmdetection/tree/3.x). Issues and PRs are welcome!
+---
 
 ## Installation
 
-Please refer to [Installation](docs/en/get_started.md/#Installation) for installation instructions.
+### Prerequisites
+
+- Python 3.10, 3.11, or 3.12
+- PyTorch 1.5 or higher
+- CUDA (for GPU support)
+
+### Quick Install
+
+```bash
+# Install uv (if not already installed)
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Create a new environment and install visdet
+uv venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+uv pip install -e .
+```
+
+### Verify Installation
+
+```python
+import mmdet
+print(mmdet.__version__)
+```
+
+For detailed installation instructions, see our [Installation Guide](docs/en/get_started.md).
+
+---
 
 ## Getting Started
 
-Please see [get_started.md](docs/en/get_started.md) for the basic usage of MMDetection. We provide [colab tutorial](demo/MMDet_Tutorial.ipynb) and [instance segmentation colab tutorial](demo/MMDet_InstanceSeg_Tutorial.ipynb), and other tutorials for:
+### Basic Usage
 
-- [with existing dataset](docs/en/1_exist_data_model.md)
-- [with new dataset](docs/en/2_new_data_model.md)
-- [with existing dataset_new_model](docs/en/3_exist_data_new_model.md)
-- [learn about configs](docs/en/tutorials/config.md)
-- [customize_datasets](docs/en/tutorials/customize_dataset.md)
-- [customize data pipelines](docs/en/tutorials/data_pipeline.md)
-- [customize_models](docs/en/tutorials/customize_models.md)
-- [customize runtime settings](docs/en/tutorials/customize_runtime.md)
-- [customize_losses](docs/en/tutorials/customize_losses.md)
-- [finetuning models](docs/en/tutorials/finetune.md)
-- [export a model to ONNX](docs/en/tutorials/pytorch2onnx.md)
-- [export ONNX to TRT](docs/en/tutorials/onnx2tensorrt.md)
-- [weight initialization](docs/en/tutorials/init_cfg.md)
-- [how to xxx](docs/en/tutorials/how_to.md)
+```python
+from mmdet.apis import init_detector, inference_detector
 
-## Overview of Benchmark and Model Zoo
+# Load config and checkpoint
+config_file = 'configs/faster_rcnn/faster_rcnn_r50_fpn_1x_coco.py'
+checkpoint_file = 'checkpoints/faster_rcnn_r50_fpn_1x_coco.pth'
 
-Results and models are available in the [model zoo](docs/en/model_zoo.md).
+# Initialize model
+model = init_detector(config_file, checkpoint_file, device='cuda:0')
 
-<div align="center">
-  <b>Architectures</b>
-</div>
-<table align="center">
-  <tbody>
-    <tr align="center" valign="bottom">
-      <td>
-        <b>Object Detection</b>
-      </td>
-      <td>
-        <b>Instance Segmentation</b>
-      </td>
-      <td>
-        <b>Panoptic Segmentation</b>
-      </td>
-      <td>
-        <b>Other</b>
-      </td>
-    </tr>
-    <tr valign="top">
-      <td>
-        <ul>
-            <li><a href="configs/fast_rcnn">Fast R-CNN (ICCV'2015)</a></li>
-            <li><a href="configs/faster_rcnn">Faster R-CNN (NeurIPS'2015)</a></li>
-            <li><a href="configs/rpn">RPN (NeurIPS'2015)</a></li>
-            <li><a href="configs/ssd">SSD (ECCV'2016)</a></li>
-            <li><a href="configs/retinanet">RetinaNet (ICCV'2017)</a></li>
-            <li><a href="configs/cascade_rcnn">Cascade R-CNN (CVPR'2018)</a></li>
-            <li><a href="configs/yolo">YOLOv3 (ArXiv'2018)</a></li>
-            <li><a href="configs/cornernet">CornerNet (ECCV'2018)</a></li>
-            <li><a href="configs/grid_rcnn">Grid R-CNN (CVPR'2019)</a></li>
-            <li><a href="configs/guided_anchoring">Guided Anchoring (CVPR'2019)</a></li>
-            <li><a href="configs/fsaf">FSAF (CVPR'2019)</a></li>
-            <li><a href="configs/centernet">CenterNet (ArXiv'2019)</a></li>
-            <li><a href="configs/libra_rcnn">Libra R-CNN (CVPR'2019)</a></li>
-            <li><a href="configs/tridentnet">TridentNet (ICCV'2019)</a></li>
-            <li><a href="configs/fcos">FCOS (ICCV'2019)</a></li>
-            <li><a href="configs/reppoints">RepPoints (ICCV'2019)</a></li>
-            <li><a href="configs/free_anchor">FreeAnchor (NeurIPS'2019)</a></li>
-            <li><a href="configs/cascade_rpn">CascadeRPN (NeurIPS'2019)</a></li>
-            <li><a href="configs/foveabox">Foveabox (TIP'2020)</a></li>
-            <li><a href="configs/double_heads">Double-Head R-CNN (CVPR'2020)</a></li>
-            <li><a href="configs/atss">ATSS (CVPR'2020)</a></li>
-            <li><a href="configs/nas_fcos">NAS-FCOS (CVPR'2020)</a></li>
-            <li><a href="configs/centripetalnet">CentripetalNet (CVPR'2020)</a></li>
-            <li><a href="configs/autoassign">AutoAssign (ArXiv'2020)</a></li>
-            <li><a href="configs/sabl">Side-Aware Boundary Localization (ECCV'2020)</a></li>
-            <li><a href="configs/dynamic_rcnn">Dynamic R-CNN (ECCV'2020)</a></li>
-            <li><a href="configs/detr">DETR (ECCV'2020)</a></li>
-            <li><a href="configs/paa">PAA (ECCV'2020)</a></li>
-            <li><a href="configs/vfnet">VarifocalNet (CVPR'2021)</a></li>
-            <li><a href="configs/sparse_rcnn">Sparse R-CNN (CVPR'2021)</a></li>
-            <li><a href="configs/yolof">YOLOF (CVPR'2021)</a></li>
-            <li><a href="configs/yolox">YOLOX (ArXiv'2021)</a></li>
-            <li><a href="configs/deformable_detr">Deformable DETR (ICLR'2021)</a></li>
-            <li><a href="configs/tood">TOOD (ICCV'2021)</a></li>
-            <li><a href="configs/ddod">DDOD (ACM MM'2021)</a></li>
-      </ul>
-      </td>
-      <td>
-        <ul>
-          <li><a href="configs/mask_rcnn">Mask R-CNN (ICCV'2017)</a></li>
-          <li><a href="configs/cascade_rcnn">Cascade Mask R-CNN (CVPR'2018)</a></li>
-          <li><a href="configs/ms_rcnn">Mask Scoring R-CNN (CVPR'2019)</a></li>
-          <li><a href="configs/htc">Hybrid Task Cascade (CVPR'2019)</a></li>
-          <li><a href="configs/yolact">YOLACT (ICCV'2019)</a></li>
-          <li><a href="configs/instaboost">InstaBoost (ICCV'2019)</a></li>
-          <li><a href="configs/solo">SOLO (ECCV'2020)</a></li>
-          <li><a href="configs/point_rend">PointRend (CVPR'2020)</a></li>
-          <li><a href="configs/detectors">DetectoRS (CVPR'2021)</a></li>
-          <li><a href="configs/solov2">SOLOv2 (NeurIPS'2020)</a></li>
-          <li><a href="configs/scnet">SCNet (AAAI'2021)</a></li>
-          <li><a href="configs/queryinst">QueryInst (ICCV'2021)</a></li>
-          <li><a href="configs/mask2former">Mask2Former (CVPR'2022)</a></li>
-        </ul>
-      </td>
-      <td>
-        <ul>
-          <li><a href="configs/panoptic_fpn">Panoptic FPN (CVPR'2019)</a></li>
-          <li><a href="configs/maskformer">MaskFormer (NeurIPS'2021)</a></li>
-          <li><a href="configs/mask2former">Mask2Former (CVPR'2022)</a></li>
-        </ul>
-      </td>
-      <td>
-        </ul>
-          <li><b>Contrastive Learning</b></li>
-        <ul>
-        <ul>
-          <li><a href="configs/selfsup_pretrain">SwAV (NeurIPS'2020)</a></li>
-          <li><a href="configs/selfsup_pretrain">MoCo (CVPR'2020)</a></li>
-          <li><a href="configs/selfsup_pretrain">MoCov2 (ArXiv'2020)</a></li>
-        </ul>
-        </ul>
-        </ul>
-          <li><b>Distillation</b></li>
-        <ul>
-        <ul>
-          <li><a href="configs/ld">Localization Distillation (CVPR'2022)</a></li>
-          <li><a href="configs/lad">Label Assignment Distillation (WACV'2022)</a></li>
-        </ul>
-        </ul>
-      </ul>
-        <li><b>Receptive Field Search</b></li>
-      <ul>
-        <ul>
-          <li><a href="configs/rfnext">RF-Next (TPAMI'2022)</a></li>
-        </ul>
-        </ul>
-      </ul>
-      </td>
-    </tr>
-</td>
-    </tr>
-  </tbody>
-</table>
+# Run inference
+img = 'demo/demo.jpg'
+result = inference_detector(model, img)
+```
 
-<div align="center">
-  <b>Components</b>
-</div>
-<table align="center">
-  <tbody>
-    <tr align="center" valign="bottom">
-      <td>
-        <b>Backbones</b>
-      </td>
-      <td>
-        <b>Necks</b>
-      </td>
-      <td>
-        <b>Loss</b>
-      </td>
-      <td>
-        <b>Common</b>
-      </td>
-    </tr>
-    <tr valign="top">
-      <td>
-      <ul>
-        <li>VGG (ICLR'2015)</li>
-        <li>ResNet (CVPR'2016)</li>
-        <li>ResNeXt (CVPR'2017)</li>
-        <li>MobileNetV2 (CVPR'2018)</li>
-        <li><a href="configs/hrnet">HRNet (CVPR'2019)</a></li>
-        <li><a href="configs/empirical_attention">Generalized Attention (ICCV'2019)</a></li>
-        <li><a href="configs/gcnet">GCNet (ICCVW'2019)</a></li>
-        <li><a href="configs/res2net">Res2Net (TPAMI'2020)</a></li>
-        <li><a href="configs/regnet">RegNet (CVPR'2020)</a></li>
-        <li><a href="configs/resnest">ResNeSt (CVPRW'2022)</a></li>
-        <li><a href="configs/pvt">PVT (ICCV'2021)</a></li>
-        <li><a href="configs/swin">Swin (ICCV'2021)</a></li>
-        <li><a href="configs/pvt">PVTv2 (CVMJ'2022)</a></li>
-        <li><a href="configs/resnet_strikes_back">ResNet strikes back (NeurIPSW'2021)</a></li>
-        <li><a href="configs/efficientnet">EfficientNet (ICML'2019)</a></li>
-        <li><a href="configs/convnext">ConvNeXt (CVPR'2022)</a></li>
-      </ul>
-      </td>
-      <td>
-      <ul>
-        <li><a href="configs/pafpn">PAFPN (CVPR'2018)</a></li>
-        <li><a href="configs/nas_fpn">NAS-FPN (CVPR'2019)</a></li>
-        <li><a href="configs/carafe">CARAFE (ICCV'2019)</a></li>
-        <li><a href="configs/fpg">FPG (ArXiv'2020)</a></li>
-        <li><a href="configs/groie">GRoIE (ICPR'2020)</a></li>
-        <li><a href="configs/dyhead">DyHead (CVPR'2021)</a></li>
-      </ul>
-      </td>
-      <td>
-        <ul>
-          <li><a href="configs/ghm">GHM (AAAI'2019)</a></li>
-          <li><a href="configs/gfl">Generalized Focal Loss (NeurIPS'2020)</a></li>
-          <li><a href="configs/seesaw_loss">Seasaw Loss (CVPR'2021)</a></li>
-        </ul>
-      </td>
-      <td>
-        <ul>
-          <li><a href="configs/faster_rcnn/faster_rcnn_r50_fpn_ohem_1x_coco.py">OHEM (CVPR'2016)</a></li>
-          <li><a href="configs/gn">Group Normalization (ECCV'2018)</a></li>
-          <li><a href="configs/dcn">DCN (ICCV'2017)</a></li>
-          <li><a href="configs/dcnv2">DCNv2 (CVPR'2019)</a></li>
-          <li><a href="configs/gn+ws">Weight Standardization (ArXiv'2019)</a></li>
-          <li><a href="configs/pisa">Prime Sample Attention (CVPR'2020)</a></li>
-          <li><a href="configs/strong_baselines">Strong Baselines (CVPR'2021)</a></li>
-          <li><a href="configs/resnet_strikes_back">Resnet strikes back (NeurIPSW'2021)</a></li>
-          <li><a href="configs/rfnext">RF-Next (TPAMI'2022)</a></li>
-        </ul>
-      </td>
-    </tr>
-</td>
-    </tr>
-  </tbody>
-</table>
+### Training a Model
 
-Some other methods are also supported in [projects using MMDetection](./docs/en/projects.md).
+```bash
+python tools/train.py configs/faster_rcnn/faster_rcnn_r50_fpn_1x_coco.py
+```
 
-## FAQ
+### More Tutorials
 
-Please refer to [FAQ](docs/en/faq.md) for frequently asked questions.
+- [Training with your own dataset](docs/en/2_new_data_model.md)
+- [Customizing models](docs/en/tutorials/customize_models.md)
+- [Exporting to ONNX](docs/en/tutorials/pytorch2onnx.md)
+- [Fine-tuning pretrained models](docs/en/tutorials/finetune.md)
+
+---
+
+## Model Zoo
+
+visdet supports **60+ detection algorithms** out of the box:
+
+<details>
+<summary><b>Object Detection</b> (click to expand)</summary>
+
+- Fast R-CNN, Faster R-CNN, RPN
+- SSD, RetinaNet
+- Cascade R-CNN
+- YOLOv3, YOLOX
+- CornerNet, CenterNet
+- FCOS, ATSS
+- DETR, Deformable DETR
+- And many more...
+
+</details>
+
+<details>
+<summary><b>Instance Segmentation</b></summary>
+
+- Mask R-CNN, Cascade Mask R-CNN
+- Hybrid Task Cascade (HTC)
+- YOLACT, SOLOv2
+- PointRend
+- Mask2Former
+- QueryInst
+- And more...
+
+</details>
+
+<details>
+<summary><b>Panoptic Segmentation</b></summary>
+
+- Panoptic FPN
+- MaskFormer
+- Mask2Former
+
+</details>
+
+For complete model zoo with pretrained weights, see [Model Zoo](docs/en/model_zoo.md).
+
+---
+
+## Key Features
+
+### 🧩 Modular Design
+
+visdet decomposes detection into reusable components:
+
+```
+Detection Framework = Backbone + Neck + Head + Loss
+```
+
+Mix and match components to create custom detectors:
+
+- **Backbones**: ResNet, ResNeXt, Swin, PVT, ConvNeXt, and more
+- **Necks**: FPN, PAFPN, BiFPN, NAS-FPN
+- **Heads**: RPNHead, RetinaHead, FCOSHead, DETR
+- **Losses**: CrossEntropy, FocalLoss, GIoU, DIoU
+
+### ⚡ High Performance
+
+- GPU-accelerated bbox and mask operations
+- Faster than or comparable to Detectron2 and other frameworks
+- Multi-GPU training support
+- Mixed precision training (FP16)
+
+### 🎓 Research-Friendly
+
+- Easy to implement new algorithms
+- Comprehensive tutorials and documentation
+- Active community for support
+- Regular updates with latest research
+
+---
+
+## Documentation
+
+- 📘 [Full Documentation](https://binitai.github.io/visdet/) (coming soon with MkDocs)
+- 🛠️ [Installation Guide](docs/en/get_started.md)
+- 👀 [Model Zoo](docs/en/model_zoo.md)
+- 📚 [Tutorials](docs/en/tutorials/)
+- 🤔 [FAQ](docs/en/faq.md)
+
+---
 
 ## Contributing
 
-We appreciate all contributions to improve MMDetection. Ongoing projects can be found in out [GitHub Projects](https://github.com/open-mmlab/mmdetection/projects). Welcome community users to participate in these projects. Please refer to [CONTRIBUTING.md](.github/CONTRIBUTING.md) for the contributing guideline.
+We welcome contributions! visdet is built by the community, for the community.
 
-## Acknowledgement
+- 🐛 [Report Issues](https://github.com/BinItAI/visdet/issues/new/choose)
+- 💡 [Feature Requests](https://github.com/BinItAI/visdet/issues/new/choose)
+- 🔧 [Pull Requests](https://github.com/BinItAI/visdet/pulls)
+- 📖 [Contributing Guide](.github/CONTRIBUTING.md)
 
-MMDetection is an open source project that is contributed by researchers and engineers from various colleges and companies. We appreciate all the contributors who implement their methods or add new features, as well as users who give valuable feedbacks.
-We wish that the toolbox and benchmark could serve the growing research community by providing a flexible toolkit to reimplement existing methods and develop their own new detectors.
+---
 
-## Citation
+## Acknowledgements
 
-If you use this toolbox or benchmark in your research, please cite this project.
+### MMDetection Legacy
 
-```
+visdet stands on the shoulders of giants. We are deeply grateful to the **OpenMMLab team** and the original MMDetection contributors for creating such a groundbreaking framework. Their work:
+
+- Won the **COCO Detection Challenge 2018**
+- Has been cited thousands of times in research papers
+- Set the standard for object detection toolboxes
+- Enabled countless research breakthroughs
+
+While MMDetection is no longer actively maintained, its impact on the computer vision community cannot be overstated. visdet aims to honor this legacy by continuing to provide a world-class detection framework with modern tooling and active support.
+
+### Citation
+
+If you use visdet in your research, please cite both visdet and the original MMDetection:
+
+```bibtex
+@misc{visdet2024,
+  title={visdet: Modern Object Detection Framework},
+  author={visdet Contributors},
+  howpublished={\url{https://github.com/BinItAI/visdet}},
+  year={2024}
+}
+
 @article{mmdetection,
   title   = {{MMDetection}: Open MMLab Detection Toolbox and Benchmark},
   author  = {Chen, Kai and Wang, Jiaqi and Pang, Jiangmiao and Cao, Yuhang and
@@ -376,35 +289,43 @@ If you use this toolbox or benchmark in your research, please cite this project.
              Zhu, Chenchen and Cheng, Tianheng and Zhao, Qijie and Li, Buyu and
              Lu, Xin and Zhu, Rui and Wu, Yue and Dai, Jifeng and Wang, Jingdong
              and Shi, Jianping and Ouyang, Wanli and Loy, Chen Change and Lin, Dahua},
-  journal= {arXiv preprint arXiv:1906.07155},
-  year={2019}
+  journal = {arXiv preprint arXiv:1906.07155},
+  year    = {2019}
 }
 ```
 
+---
+
 ## License
 
-This project is released under the [Apache 2.0 license](LICENSE).
+This project is released under the [Apache 2.0 license](LICENSE), same as the original MMDetection.
 
-## Projects in OpenMMLab
+---
 
-- [MMEngine](https://github.com/open-mmlab/mmengine): OpenMMLab foundational library for training deep learning models.
-- [MMCV](https://github.com/open-mmlab/mmcv): OpenMMLab foundational library for computer vision.
-- [MMEval](https://github.com/open-mmlab/mmeval): A unified evaluation library for multiple machine learning libraries.
-- [MIM](https://github.com/open-mmlab/mim): MIM installs OpenMMLab packages.
-- [MMClassification](https://github.com/open-mmlab/mmclassification): OpenMMLab image classification toolbox and benchmark.
-- [MMDetection](https://github.com/open-mmlab/mmdetection): OpenMMLab detection toolbox and benchmark.
-- [MMDetection3D](https://github.com/open-mmlab/mmdetection3d): OpenMMLab's next-generation platform for general 3D object detection.
-- [MMRotate](https://github.com/open-mmlab/mmrotate): OpenMMLab rotated object detection toolbox and benchmark.
-- [MMSegmentation](https://github.com/open-mmlab/mmsegmentation): OpenMMLab semantic segmentation toolbox and benchmark.
-- [MMOCR](https://github.com/open-mmlab/mmocr): OpenMMLab text detection, recognition, and understanding toolbox.
-- [MMPose](https://github.com/open-mmlab/mmpose): OpenMMLab pose estimation toolbox and benchmark.
-- [MMHuman3D](https://github.com/open-mmlab/mmhuman3d): OpenMMLab 3D human parametric model toolbox and benchmark.
-- [MMSelfSup](https://github.com/open-mmlab/mmselfsup): OpenMMLab self-supervised learning toolbox and benchmark.
-- [MMRazor](https://github.com/open-mmlab/mmrazor): OpenMMLab model compression toolbox and benchmark.
-- [MMFewShot](https://github.com/open-mmlab/mmfewshot): OpenMMLab fewshot learning toolbox and benchmark.
-- [MMAction2](https://github.com/open-mmlab/mmaction2): OpenMMLab's next-generation action understanding toolbox and benchmark.
-- [MMTracking](https://github.com/open-mmlab/mmtracking): OpenMMLab video perception toolbox and benchmark.
-- [MMFlow](https://github.com/open-mmlab/mmflow): OpenMMLab optical flow toolbox and benchmark.
-- [MMEditing](https://github.com/open-mmlab/mmediting): OpenMMLab image and video editing toolbox.
-- [MMGeneration](https://github.com/open-mmlab/mmgeneration): OpenMMLab image and video generative models toolbox.
-- [MMDeploy](https://github.com/open-mmlab/mmdeploy): OpenMMLab model deployment framework.
+## Related Projects
+
+### OpenMMLab Ecosystem
+
+While we've forked from MMDetection, we acknowledge the excellent work across the entire OpenMMLab ecosystem:
+
+- [MMEngine](https://github.com/open-mmlab/mmengine) - Foundational library for training
+- [MMCV](https://github.com/open-mmlab/mmcv) - Computer vision primitives
+- [MMSegmentation](https://github.com/open-mmlab/mmsegmentation) - Semantic segmentation
+- [MMPose](https://github.com/open-mmlab/mmpose) - Pose estimation
+- [MMTracking](https://github.com/open-mmlab/mmtracking) - Video object tracking
+
+### Our Ecosystem
+
+- **visdet**: Object detection (this repo)
+- **viscv**: Computer vision utilities
+- **visengine**: Training engine and infrastructure
+
+---
+
+<div align="center">
+
+**Built with ❤️ by the visdet community**
+
+[⭐ Star us on GitHub](https://github.com/BinItAI/visdet) | [📖 Read the Docs](https://binitai.github.io/visdet/) | [💬 Join Discussions](https://github.com/BinItAI/visdet/discussions)
+
+</div>
