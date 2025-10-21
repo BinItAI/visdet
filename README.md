@@ -12,7 +12,7 @@
 
 [📘Documentation](https://mmdetection.readthedocs.io/en/stable/) |
 [🛠️Installation](https://mmdetection.readthedocs.io/en/stable/get_started.html) |
-[👀Model Zoo](https://mmdetection.readthedocs.io/en/stable/model_zoo.html) |
+[👀Model Zoo](mkdocs_docs/model-zoo.md) |
 [🆕Update News](https://mmdetection.readthedocs.io/en/stable/changelog.html) |
 [🚀Ongoing Projects](https://github.com/open-mmlab/mmdetection/projects) |
 [🤔Reporting Issues](https://github.com/open-mmlab/mmdetection/issues/new/choose)
