@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "visdet"
-version = "2.28.2"
+version = "2.28.3"
 description = "Visia's fork of MMDetection - Object Detection Toolbox and Benchmark"
 readme = "README.md"
 requires-python = ">=3.10,<3.13"
@@ -89,8 +89,17 @@ Repository = "https://github.com/BinItAI/visdet"
 Documentation = "https://binitai.github.io/visdet/"
 "Original Project" = "https://github.com/open-mmlab/mmdetection"
 
+[tool.hatch.build]
+# Exclude nested pyproject.toml that was part of old workspace structure
+exclude = [
+    "visdet/pyproject.toml",
+]
+
 [tool.hatch.build.targets.wheel]
-packages = ["mmdet"]
+# The package code is in visdet/visdet/ - tell hatchling where to find it
+packages = ["visdet/visdet"]
+# Also include the configs directory
+include = ["/configs"]
 
 [tool.ruff]
 line-length = 120
@@ -136,7 +145,7 @@ dev = [
 ]
 
 [tool.uv.workspace]
-members = ["libs/viscv", "libs/visengine", "visdet"]
+members = ["libs/viscv", "libs/visengine"]
 
 # Note: mmtracking git dependency removed due to build isolation issues
 # To install for tests: uv pip install --no-build-isolation git+https://github.com/open-mmlab/mmtracking.git

@@ -1,1 +1,0 @@
-/home/georgepearse/core/machine_learning/packages/visdetection/visdet/configs/swin/mask-rcnn_swin-t-p4-w7_fpn_amp-ms-crop-3x_coco.py
