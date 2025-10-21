@@ -92,7 +92,9 @@ class CocoMetric(BaseMetric):
         allowed_metrics = ["bbox", "segm", "proposal", "proposal_fast"]
         for metric in self.metrics:
             if metric not in allowed_metrics:
-                raise KeyError(f"metric should be one of 'bbox', 'segm', 'proposal', 'proposal_fast', but got {metric}.")
+                raise KeyError(
+                    f"metric should be one of 'bbox', 'segm', 'proposal', 'proposal_fast', but got {metric}."
+                )
 
         # do class wise evaluation, default False
         self.classwise = classwise
@@ -146,7 +148,11 @@ class CocoMetric(BaseMetric):
         self.img_ids = None
 
     def fast_eval_recall(
-        self, results: list[dict], proposal_nums: Sequence[int], iou_thrs: Sequence[float], logger: MMLogger | None = None
+        self,
+        results: list[dict],
+        proposal_nums: Sequence[int],
+        iou_thrs: Sequence[float],
+        logger: MMLogger | None = None,
     ) -> np.ndarray:
         """Evaluate proposal recall with COCO's fast_eval_recall.
 
@@ -283,7 +289,12 @@ class CocoMetric(BaseMetric):
 
         for idx, gt_dict in enumerate(gt_dicts):
             img_id = gt_dict.get("img_id", idx)
-            image_info = dict(id=img_id, width=gt_dict["width"], height=gt_dict["height"], file_name="")
+            image_info = dict(
+                id=img_id,
+                width=gt_dict["width"],
+                height=gt_dict["height"],
+                file_name="",
+            )
             image_infos.append(image_info)
             for ann in gt_dict["anns"]:
                 label = ann["bbox_label"]
@@ -312,7 +323,10 @@ class CocoMetric(BaseMetric):
                     # annotation['area'] = float(area)
                 annotations.append(annotation)
 
-        info = dict(date_created=str(datetime.datetime.now()), description="Coco json file converted by mmdet CocoMetric.")
+        info = dict(
+            date_created=str(datetime.datetime.now()),
+            description="Coco json file converted by mmdet CocoMetric.",
+        )
         coco_json = dict(
             info=info,
             images=image_infos,
@@ -347,7 +361,9 @@ class CocoMetric(BaseMetric):
             # encode mask to RLE
             if "masks" in pred:
                 result["masks"] = (
-                    encode_mask_results(pred["masks"].detach().cpu().numpy()) if isinstance(pred["masks"], torch.Tensor) else pred["masks"]
+                    encode_mask_results(pred["masks"].detach().cpu().numpy())
+                    if isinstance(pred["masks"], torch.Tensor)
+                    else pred["masks"]
                 )
             # some detectors use different scores for bbox and mask
             if "mask_scores" in pred:
@@ -360,7 +376,9 @@ class CocoMetric(BaseMetric):
             gt["img_id"] = data_sample["img_id"]
             if self._coco_api is None:
                 # TODO: Need to refactor to support LoadAnnotations
-                assert "instances" in data_sample, "ground truth is required for evaluation when `ann_file` is not provided"
+                assert "instances" in data_sample, (
+                    "ground truth is required for evaluation when `ann_file` is not provided"
+                )
                 gt["anns"] = data_sample["instances"]
             # add converted result to the results list
             self.results.append((gt, result))
@@ -480,7 +498,14 @@ class CocoMetric(BaseMetric):
                 coco_eval.accumulate()
                 coco_eval.summarize()
                 if metric_items is None:
-                    metric_items = ["AR@100", "AR@300", "AR@1000", "AR_s@1000", "AR_m@1000", "AR_l@1000"]
+                    metric_items = [
+                        "AR@100",
+                        "AR@300",
+                        "AR@1000",
+                        "AR_s@1000",
+                        "AR_m@1000",
+                        "AR_l@1000",
+                    ]
 
                 for item in metric_items:
                     val = float(f"{coco_eval.stats[coco_metric_names[item]]:.3f}")
@@ -538,7 +563,15 @@ class CocoMetric(BaseMetric):
 
                     num_columns = len(results_per_category[0])
                     results_flatten = list(itertools.chain(*results_per_category))
-                    headers = ["category", "mAP", "mAP_50", "mAP_75", "mAP_s", "mAP_m", "mAP_l"]
+                    headers = [
+                        "category",
+                        "mAP",
+                        "mAP_50",
+                        "mAP_75",
+                        "mAP_s",
+                        "mAP_m",
+                        "mAP_l",
+                    ]
                     results_2d = itertools.zip_longest(*[results_flatten[i::num_columns] for i in range(num_columns)])
                     table_data = [headers]
                     table_data += [result for result in results_2d]
@@ -546,7 +579,14 @@ class CocoMetric(BaseMetric):
                     logger.info("\n" + table.table)
 
                 if metric_items is None:
-                    metric_items = ["mAP", "mAP_50", "mAP_75", "mAP_s", "mAP_m", "mAP_l"]
+                    metric_items = [
+                        "mAP",
+                        "mAP_50",
+                        "mAP_75",
+                        "mAP_s",
+                        "mAP_m",
+                        "mAP_l",
+                    ]
 
                 for metric_item in metric_items:
                     key = f"{metric}_{metric_item}"
@@ -554,7 +594,9 @@ class CocoMetric(BaseMetric):
                     eval_results[key] = float(f"{round(val, 3)}")
 
                 ap = coco_eval.stats[:6]
-                logger.info(f"{metric}_mAP_copypaste: {ap[0]:.3f} {ap[1]:.3f} {ap[2]:.3f} {ap[3]:.3f} {ap[4]:.3f} {ap[5]:.3f}")
+                logger.info(
+                    f"{metric}_mAP_copypaste: {ap[0]:.3f} {ap[1]:.3f} {ap[2]:.3f} {ap[3]:.3f} {ap[4]:.3f} {ap[5]:.3f}"
+                )
 
         if tmp_dir is not None:
             tmp_dir.cleanup()

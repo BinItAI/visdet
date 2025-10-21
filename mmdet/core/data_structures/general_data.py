@@ -85,7 +85,6 @@ class GeneralData(NiceRepr):
     """
 
     def __init__(self, meta_info=None, data=None):
-
         self._meta_info_fields = set()
         self._data_fields = set()
 
@@ -102,8 +101,7 @@ class GeneralData(NiceRepr):
                 of image. such as `img_shape`, `scale_factor`, etc.
                 Default: None.
         """
-        assert isinstance(meta_info,
-                          dict), f'meta should be a `dict` but get {meta_info}'
+        assert isinstance(meta_info, dict), f"meta should be a `dict` but get {meta_info}"
         meta = copy.deepcopy(meta_info)
         for k, v in meta.items():
             # should be consistent with original meta_info
@@ -114,14 +112,12 @@ class GeneralData(NiceRepr):
                         continue
                     else:
                         raise KeyError(
-                            f'img_meta_info {k} has been set as '
-                            f'{getattr(self, k)} before, which is immutable ')
+                            f"img_meta_info {k} has been set as {getattr(self, k)} before, which is immutable "
+                        )
                 elif ori_value == v:
                     continue
                 else:
-                    raise KeyError(
-                        f'img_meta_info {k} has been set as '
-                        f'{getattr(self, k)} before, which is immutable ')
+                    raise KeyError(f"img_meta_info {k} has been set as {getattr(self, k)} before, which is immutable ")
             else:
                 self._meta_info_fields.add(k)
                 self.__dict__[k] = v
@@ -133,8 +129,7 @@ class GeneralData(NiceRepr):
             data (dict): A dict contains annotations of image or
                 model predictions. Default: None.
         """
-        assert isinstance(data,
-                          dict), f'meta should be a `dict` but get {data}'
+        assert isinstance(data, dict), f"meta should be a `dict` but get {data}"
         for k, v in data.items():
             self.__setattr__(k, v)
 
@@ -193,30 +188,24 @@ class GeneralData(NiceRepr):
             yield (k, getattr(self, k))
 
     def __setattr__(self, name, val):
-        if name in ('_meta_info_fields', '_data_fields'):
+        if name in ("_meta_info_fields", "_data_fields"):
             if not hasattr(self, name):
                 super().__setattr__(name, val)
             else:
-                raise AttributeError(
-                    f'{name} has been used as a '
-                    f'private attribute, which is immutable. ')
+                raise AttributeError(f"{name} has been used as a private attribute, which is immutable. ")
         else:
             if name in self._meta_info_fields:
-                raise AttributeError(f'`{name}` is used in meta information,'
-                                     f'which is immutable')
+                raise AttributeError(f"`{name}` is used in meta information,which is immutable")
 
             self._data_fields.add(name)
             super().__setattr__(name, val)
 
     def __delattr__(self, item):
-
-        if item in ('_meta_info_fields', '_data_fields'):
-            raise AttributeError(f'{item} has been used as a '
-                                 f'private attribute, which is immutable. ')
+        if item in ("_meta_info_fields", "_data_fields"):
+            raise AttributeError(f"{item} has been used as a private attribute, which is immutable. ")
 
         if item in self._meta_info_fields:
-            raise KeyError(f'{item} is used in meta information, '
-                           f'which is immutable.')
+            raise KeyError(f"{item} is used in meta information, which is immutable.")
         super().__delattr__(item)
         if item in self._data_fields:
             self._data_fields.remove(item)
@@ -229,15 +218,14 @@ class GeneralData(NiceRepr):
         return getattr(self, name)
 
     def get(self, *args):
-        assert len(args) < 3, '`get` get more than 2 arguments'
+        assert len(args) < 3, "`get` get more than 2 arguments"
         return self.__dict__.get(*args)
 
     def pop(self, *args):
-        assert len(args) < 3, '`pop` get more than 2 arguments'
+        assert len(args) < 3, "`pop` get more than 2 arguments"
         name = args[0]
         if name in self._meta_info_fields:
-            raise KeyError(f'{name} is a key in meta information, '
-                           f'which is immutable')
+            raise KeyError(f"{name} is a key in meta information, which is immutable")
 
         if args[0] in self._data_fields:
             self._data_fields.remove(args[0])
@@ -247,18 +235,17 @@ class GeneralData(NiceRepr):
         elif len(args) == 2:
             return args[1]
         else:
-            raise KeyError(f'{args[0]}')
+            raise KeyError(f"{args[0]}")
 
     def __contains__(self, item):
-        return item in self._data_fields or \
-                    item in self._meta_info_fields
+        return item in self._data_fields or item in self._meta_info_fields
 
     # Tensor-like methods
     def to(self, *args, **kwargs):
         """Apply same name function to all tensors in data_fields."""
         new_data = self.new()
         for k, v in self.items():
-            if hasattr(v, 'to'):
+            if hasattr(v, "to"):
                 v = v.to(*args, **kwargs)
             new_data[k] = v
         return new_data
@@ -324,13 +311,13 @@ class GeneralData(NiceRepr):
         return new_data
 
     def __nice__(self):
-        repr = '\n \n  META INFORMATION \n'
+        repr = "\n \n  META INFORMATION \n"
         for k, v in self.meta_info_items():
-            repr += f'{k}: {v} \n'
-        repr += '\n   DATA FIELDS \n'
+            repr += f"{k}: {v} \n"
+        repr += "\n   DATA FIELDS \n"
         for k, v in self.items():
             if isinstance(v, (torch.Tensor, np.ndarray)):
-                repr += f'shape of {k}: {v.shape} \n'
+                repr += f"shape of {k}: {v.shape} \n"
             else:
-                repr += f'{k}: {v} \n'
-        return repr + '\n'
+                repr += f"{k}: {v} \n"
+        return repr + "\n"

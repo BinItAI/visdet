@@ -25,7 +25,7 @@ class Compose:
             elif callable(transform):
                 self.transforms.append(transform)
             else:
-                raise TypeError('transform must be callable or a dict')
+                raise TypeError("transform must be callable or a dict")
 
     def __call__(self, data):
         """Call function to apply transforms sequentially.
@@ -44,12 +44,12 @@ class Compose:
         return data
 
     def __repr__(self):
-        format_string = self.__class__.__name__ + '('
+        format_string = self.__class__.__name__ + "("
         for t in self.transforms:
             str_ = t.__repr__()
-            if 'Compose(' in str_:
-                str_ = str_.replace('\n', '\n    ')
-            format_string += '\n'
-            format_string += f'    {str_}'
-        format_string += '\n)'
+            if "Compose(" in str_:
+                str_ = str_.replace("\n", "\n    ")
+            format_string += "\n"
+            format_string += f"    {str_}"
+        format_string += "\n)"
         return format_string

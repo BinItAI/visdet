@@ -4,34 +4,28 @@ import torch
 
 from mmdet.models.backbones import Res2Net
 from mmdet.models.backbones.res2net import Bottle2neck
+
 from .utils import is_block
 
 
 def test_res2net_bottle2neck():
     with pytest.raises(AssertionError):
         # Style must be in ['pytorch', 'caffe']
-        Bottle2neck(64, 64, base_width=26, scales=4, style='tensorflow')
+        Bottle2neck(64, 64, base_width=26, scales=4, style="tensorflow")
 
     with pytest.raises(AssertionError):
         # Scale must be larger than 1
-        Bottle2neck(64, 64, base_width=26, scales=1, style='pytorch')
+        Bottle2neck(64, 64, base_width=26, scales=1, style="pytorch")
 
     # Test Res2Net Bottle2neck structure
-    block = Bottle2neck(
-        64, 64, base_width=26, stride=2, scales=4, style='pytorch')
+    block = Bottle2neck(64, 64, base_width=26, stride=2, scales=4, style="pytorch")
     assert block.scales == 4
 
     # Test Res2Net Bottle2neck with DCN
-    dcn = dict(type='DCN', deform_groups=1, fallback_on_stride=False)
+    dcn = dict(type="DCN", deform_groups=1, fallback_on_stride=False)
     with pytest.raises(AssertionError):
         # conv_cfg must be None if dcn is not None
-        Bottle2neck(
-            64,
-            64,
-            base_width=26,
-            scales=4,
-            dcn=dcn,
-            conv_cfg=dict(type='Conv'))
+        Bottle2neck(64, 64, base_width=26, scales=4, dcn=dcn, conv_cfg=dict(type="Conv"))
     Bottle2neck(64, 64, dcn=dcn)
 
     # Test Res2Net Bottle2neck forward

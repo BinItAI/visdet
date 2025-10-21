@@ -9,15 +9,8 @@ from mmdet.utils import get_device
 
 
 class DistributedSampler(_DistributedSampler):
-
-    def __init__(self,
-                 dataset,
-                 num_replicas=None,
-                 rank=None,
-                 shuffle=True,
-                 seed=0):
-        super().__init__(
-            dataset, num_replicas=num_replicas, rank=rank, shuffle=shuffle)
+    def __init__(self, dataset, num_replicas=None, rank=None, shuffle=True, seed=0):
+        super().__init__(dataset, num_replicas=num_replicas, rank=rank, shuffle=shuffle)
 
         # In distributed sampling, different ranks should sample
         # non-overlapped data in the dataset. Therefore, this function
@@ -43,12 +36,11 @@ class DistributedSampler(_DistributedSampler):
 
         # add extra samples to make it evenly divisible
         # in case that indices is shorter than half of total_size
-        indices = (indices *
-                   math.ceil(self.total_size / len(indices)))[:self.total_size]
+        indices = (indices * math.ceil(self.total_size / len(indices)))[: self.total_size]
         assert len(indices) == self.total_size
 
         # subsample
-        indices = indices[self.rank:self.total_size:self.num_replicas]
+        indices = indices[self.rank : self.total_size : self.num_replicas]
         assert len(indices) == self.num_samples
 
         return iter(indices)

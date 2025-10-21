@@ -6,13 +6,15 @@ from ..builder import LOSSES
 from .utils import weight_reduce_loss
 
 
-def dice_loss(pred,
-              target,
-              weight=None,
-              eps=1e-3,
-              reduction='mean',
-              naive_dice=False,
-              avg_factor=None):
+def dice_loss(
+    pred,
+    target,
+    weight=None,
+    eps=1e-3,
+    reduction="mean",
+    naive_dice=False,
+    avg_factor=None,
+):
     """Calculate dice loss, there are two forms of dice loss is supported:
 
         - the one proposed in `V-Net: Fully Convolutional Neural
@@ -64,14 +66,15 @@ def dice_loss(pred,
 
 @LOSSES.register_module()
 class DiceLoss(nn.Module):
-
-    def __init__(self,
-                 use_sigmoid=True,
-                 activate=True,
-                 reduction='mean',
-                 naive_dice=False,
-                 loss_weight=1.0,
-                 eps=1e-3):
+    def __init__(
+        self,
+        use_sigmoid=True,
+        activate=True,
+        reduction="mean",
+        naive_dice=False,
+        loss_weight=1.0,
+        eps=1e-3,
+    ):
         """Compute dice loss.
 
         Args:
@@ -100,12 +103,7 @@ class DiceLoss(nn.Module):
         self.eps = eps
         self.activate = activate
 
-    def forward(self,
-                pred,
-                target,
-                weight=None,
-                reduction_override=None,
-                avg_factor=None):
+    def forward(self, pred, target, weight=None, reduction_override=None, avg_factor=None):
         """Forward function.
 
         Args:
@@ -124,9 +122,8 @@ class DiceLoss(nn.Module):
             torch.Tensor: The calculated loss
         """
 
-        assert reduction_override in (None, 'none', 'mean', 'sum')
-        reduction = (
-            reduction_override if reduction_override else self.reduction)
+        assert reduction_override in (None, "none", "mean", "sum")
+        reduction = reduction_override if reduction_override else self.reduction
 
         if self.activate:
             if self.use_sigmoid:
@@ -141,6 +138,7 @@ class DiceLoss(nn.Module):
             eps=self.eps,
             reduction=reduction,
             naive_dice=self.naive_dice,
-            avg_factor=avg_factor)
+            avg_factor=avg_factor,
+        )
 
         return loss

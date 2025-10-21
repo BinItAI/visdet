@@ -273,7 +273,9 @@ class DeepSpeedStrategy(BaseStrategy):
         exclude_frozen_parameters: bool | None = None,
         **kwargs,
     ):
-        assert deepspeed is not None, "DeepSpeed is not installed. Please check https://github.com/microsoft/DeepSpeed#installation."
+        assert deepspeed is not None, (
+            "DeepSpeed is not installed. Please check https://github.com/microsoft/DeepSpeed#installation."
+        )
 
         super().__init__(**kwargs)
 
@@ -389,7 +391,9 @@ class DeepSpeedStrategy(BaseStrategy):
 
     def _wrap_model(self, model: nn.Module) -> nn.Module:
         if hasattr(self, "optim_wrapper"):
-            engine, self.optim_wrapper.optimizer, *_ = deepspeed.initialize(model=model, optimizer=self.optim_wrapper.optimizer, config=self.config)
+            engine, self.optim_wrapper.optimizer, *_ = deepspeed.initialize(
+                model=model, optimizer=self.optim_wrapper.optimizer, config=self.config
+            )
         else:
             engine, *_ = deepspeed.initialize(model=model, config=self.config)
 
@@ -523,7 +527,11 @@ class DeepSpeedStrategy(BaseStrategy):
         if save_param_scheduler and hasattr(self, "param_schedulers"):
             extra_ckpt["param_schedulers"] = self.scheduler_state_dict()
 
-        if not save_optimizer and self.model.zero_optimization_partition_weights() and not self.model.zero_gather_16bit_weights_on_model_save():
+        if (
+            not save_optimizer
+            and self.model.zero_optimization_partition_weights()
+            and not self.model.zero_gather_16bit_weights_on_model_save()
+        ):
             print_log(
                 "Configured to `save_optimizer=False`, but currently using "
                 "DeepSpeed's ZeRO stage 3 with "

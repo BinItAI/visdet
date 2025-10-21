@@ -1,7 +1,7 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 from mmcv.utils import Registry, build_from_cfg
 
-IOU_CALCULATORS = Registry('IoU calculator')
+IOU_CALCULATORS = Registry("IoU calculator")
 
 
 def build_iou_calculator(cfg, default_args=None):

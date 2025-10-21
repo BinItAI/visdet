@@ -26,7 +26,11 @@ class TestFCNMaskHead(TestCase):
             mask_thr_binary=0.5,
         )
         s = 128
-        img_metas = {"img_shape": (s, s, 3), "scale_factor": (1, 1), "ori_shape": (s, s, 3)}
+        img_metas = {
+            "img_shape": (s, s, 3),
+            "scale_factor": (1, 1),
+            "ori_shape": (s, s, 3),
+        }
         result = InstanceData(metainfo=img_metas)
 
         num_samples = 2

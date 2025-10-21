@@ -194,7 +194,11 @@ class Visualizer(ManagerMixin):
             # but is initialized with None, then don't add this
             # vis_backend to the visualizer.
             save_dir_arg = inspect.signature(vis_backend.__class__.__init__).parameters.get("save_dir")
-            if save_dir_arg is not None and save_dir_arg.default is save_dir_arg.empty and vis_backend._save_dir is None:
+            if (
+                save_dir_arg is not None
+                and save_dir_arg.default is save_dir_arg.empty
+                and vis_backend._save_dir is None
+            ):
                 warnings.warn(f"Failed to add {vis_backend.__class__}, please provide the `save_dir` argument.")
                 continue
 
@@ -505,9 +509,14 @@ class Visualizer(ManagerMixin):
         positions = tensor2ndarray(positions)
         if len(positions.shape) == 1:
             positions = positions[None]
-        assert positions.shape == (num_text, 2), f"`positions` should have the shape of ({num_text}, 2), but got {positions.shape}"
+        assert positions.shape == (num_text, 2), (
+            f"`positions` should have the shape of ({num_text}, 2), but got {positions.shape}"
+        )
         if not self._is_posion_valid(positions):
-            warnings.warn("Warning: The text is out of bounds, the drawn text may not be in the image", UserWarning)
+            warnings.warn(
+                "Warning: The text is out of bounds, the drawn text may not be in the image",
+                UserWarning,
+            )
         positions = positions.tolist()
 
         if font_sizes is None:
@@ -604,8 +613,16 @@ class Visualizer(ManagerMixin):
         colors = color_val_matplotlib(colors)  # type: ignore
         lines = np.concatenate((x_datas.reshape(-1, 2, 1), y_datas.reshape(-1, 2, 1)), axis=-1)
         if not self._is_posion_valid(lines):
-            warnings.warn("Warning: The line is out of bounds, the drawn line may not be in the image", UserWarning)
-        line_collect = LineCollection(lines.tolist(), colors=colors, linestyles=line_styles, linewidths=line_widths)
+            warnings.warn(
+                "Warning: The line is out of bounds, the drawn line may not be in the image",
+                UserWarning,
+            )
+        line_collect = LineCollection(
+            lines.tolist(),
+            colors=colors,
+            linestyles=line_styles,
+            linewidths=line_widths,
+        )
         self.ax_save.add_collection(line_collect)
         return self
 
@@ -659,12 +676,17 @@ class Visualizer(ManagerMixin):
         radius = tensor2ndarray(radius)
         if len(center.shape) == 1:
             center = center[None]
-        assert center.shape == (radius.shape[0], 2), f"The shape of `center` should be (radius.shape, 2), but got {center.shape}"
+        assert center.shape == (radius.shape[0], 2), (
+            f"The shape of `center` should be (radius.shape, 2), but got {center.shape}"
+        )
         if not (
             self._is_posion_valid(center - np.tile(radius.reshape((-1, 1)), (1, 2)))
             and self._is_posion_valid(center + np.tile(radius.reshape((-1, 1)), (1, 2)))
         ):
-            warnings.warn("Warning: The circle is out of bounds, the drawn circle may not be in the image", UserWarning)
+            warnings.warn(
+                "Warning: The circle is out of bounds, the drawn circle may not be in the image",
+                UserWarning,
+            )
 
         center = center.tolist()
         radius = radius.tolist()
@@ -677,7 +699,14 @@ class Visualizer(ManagerMixin):
         if isinstance(line_widths, (int, float)):
             line_widths = [line_widths] * len(circles)
         line_widths = [min(max(linewidth, 1), self._default_font_size / 4) for linewidth in line_widths]
-        p = PatchCollection(circles, alpha=alpha, facecolors=face_colors, edgecolors=edge_colors, linewidths=line_widths, linestyles=line_styles)
+        p = PatchCollection(
+            circles,
+            alpha=alpha,
+            facecolors=face_colors,
+            edgecolors=edge_colors,
+            linewidths=line_widths,
+            linestyles=line_styles,
+        )
         self.ax_save.add_collection(p)
         return self
 
@@ -728,13 +757,31 @@ class Visualizer(ManagerMixin):
 
         assert (bboxes[:, 0] <= bboxes[:, 2]).all() and (bboxes[:, 1] <= bboxes[:, 3]).all()
         if not self._is_posion_valid(bboxes.reshape((-1, 2, 2))):
-            warnings.warn("Warning: The bbox is out of bounds, the drawn bbox may not be in the image", UserWarning)
+            warnings.warn(
+                "Warning: The bbox is out of bounds, the drawn bbox may not be in the image",
+                UserWarning,
+            )
         poly = np.stack(
-            (bboxes[:, 0], bboxes[:, 1], bboxes[:, 2], bboxes[:, 1], bboxes[:, 2], bboxes[:, 3], bboxes[:, 0], bboxes[:, 3]), axis=-1
+            (
+                bboxes[:, 0],
+                bboxes[:, 1],
+                bboxes[:, 2],
+                bboxes[:, 1],
+                bboxes[:, 2],
+                bboxes[:, 3],
+                bboxes[:, 0],
+                bboxes[:, 3],
+            ),
+            axis=-1,
         ).reshape(-1, 4, 2)
         poly = [p for p in poly]
         return self.draw_polygons(
-            poly, alpha=alpha, edge_colors=edge_colors, line_styles=line_styles, line_widths=line_widths, face_colors=face_colors
+            poly,
+            alpha=alpha,
+            edge_colors=edge_colors,
+            line_styles=line_styles,
+            line_widths=line_widths,
+            face_colors=face_colors,
         )
 
     @master_only
@@ -786,16 +833,26 @@ class Visualizer(ManagerMixin):
             polygons = [polygons]
         if isinstance(polygons, list):
             for polygon in polygons:
-                assert polygon.shape[1] == 2, f"The shape of each polygon in `polygons` should be (M, 2), but got {polygon.shape}"
+                assert polygon.shape[1] == 2, (
+                    f"The shape of each polygon in `polygons` should be (M, 2), but got {polygon.shape}"
+                )
         polygons = [tensor2ndarray(polygon) for polygon in polygons]
         for polygon in polygons:
             if not self._is_posion_valid(polygon):
-                warnings.warn("Warning: The polygon is out of bounds, the drawn polygon may not be in the image", UserWarning)
+                warnings.warn(
+                    "Warning: The polygon is out of bounds, the drawn polygon may not be in the image",
+                    UserWarning,
+                )
         if isinstance(line_widths, (int, float)):
             line_widths = [line_widths] * len(polygons)
         line_widths = [min(max(linewidth, 1), self._default_font_size / 4) for linewidth in line_widths]
         polygon_collection = PolyCollection(
-            polygons, alpha=alpha, facecolor=face_colors, linestyles=line_styles, edgecolors=edge_colors, linewidths=line_widths
+            polygons,
+            alpha=alpha,
+            facecolor=face_colors,
+            linestyles=line_styles,
+            edgecolors=edge_colors,
+            linewidths=line_widths,
         )
 
         self.ax_save.add_collection(polygon_collection)
@@ -803,7 +860,10 @@ class Visualizer(ManagerMixin):
 
     @master_only
     def draw_binary_masks(
-        self, binary_masks: np.ndarray | torch.Tensor, colors: str | tuple | list[str] | list[tuple] = "g", alphas: float | list[float] = 0.8
+        self,
+        binary_masks: np.ndarray | torch.Tensor,
+        colors: str | tuple | list[str] | list[tuple] = "g",
+        alphas: float | list[float] = 0.8,
     ) -> "Visualizer":
         """Draw single or multiple binary masks.
 
@@ -822,7 +882,9 @@ class Visualizer(ManagerMixin):
         """
         check_type("binary_masks", binary_masks, (np.ndarray, torch.Tensor))
         binary_masks = tensor2ndarray(binary_masks)
-        assert binary_masks.dtype == np.bool_, f"The dtype of binary_masks should be np.bool_, but got {binary_masks.dtype}"
+        assert binary_masks.dtype == np.bool_, (
+            f"The dtype of binary_masks should be np.bool_, but got {binary_masks.dtype}"
+        )
         binary_masks = binary_masks.astype("uint8") * 255
         img = self.get_image()
         if binary_masks.ndim == 2:
@@ -837,7 +899,7 @@ class Visualizer(ManagerMixin):
         logger.debug(f"draw_binary_masks - img.shape[:2]: {img.shape[:2]}")
         logger.debug(f"draw_binary_masks - binary_masks.shape[1:]: {binary_masks.shape[1:]}")
 
-        # This helped to catch a problem where training was using mmcv's Pad which didnt' 
+        # This helped to catch a problem where training was using mmcv's Pad which didnt'
         # edit the masks, instead of mmdetection's Pad which does.
         assert img.shape[:2] == binary_masks.shape[1:], (
             f"`binary_masks` must have the same shape with image. Got img.shape[:2]={img.shape[:2]}, binary_masks.shape[1:]={binary_masks.shape[1:]}"
@@ -944,7 +1006,12 @@ class Visualizer(ManagerMixin):
                     f"This may cause mismatch problems !"
                 )
                 if resize_shape is None:
-                    featmap = F.interpolate(featmap[None], overlaid_image.shape[:2], mode="bilinear", align_corners=False)[0]
+                    featmap = F.interpolate(
+                        featmap[None],
+                        overlaid_image.shape[:2],
+                        mode="bilinear",
+                        align_corners=False,
+                    )[0]
 
         if resize_shape is not None:
             featmap = F.interpolate(featmap[None], resize_shape, mode="bilinear", align_corners=False)[0]
@@ -952,7 +1019,9 @@ class Visualizer(ManagerMixin):
                 overlaid_image = cv2.resize(overlaid_image, resize_shape[::-1])
 
         if channel_reduction is not None:
-            assert channel_reduction in ["squeeze_mean", "select_max"], f'Mode only support "squeeze_mean", "select_max", but got {channel_reduction}'
+            assert channel_reduction in ["squeeze_mean", "select_max"], (
+                f'Mode only support "squeeze_mean", "select_max", but got {channel_reduction}'
+            )
             if channel_reduction == "select_max":
                 sum_channel_featmap = torch.sum(featmap, dim=(1, 2))
                 _, indices = torch.topk(sum_channel_featmap, 1)
@@ -973,7 +1042,9 @@ class Visualizer(ManagerMixin):
         else:
             row, col = arrangement
             channel, height, width = featmap.shape
-            assert row * col >= topk, "The product of row and col in the `arrangement` is less than topk, please set the `arrangement` correctly"
+            assert row * col >= topk, (
+                "The product of row and col in the `arrangement` is less than topk, please set the `arrangement` correctly"
+            )
 
             # Extract the feature map of topk
             topk = min(channel, topk)

@@ -19,15 +19,17 @@ class BaseMaskHead(BaseModule, metaclass=ABCMeta):
         """Get precessed :obj:`InstanceData` of multiple images."""
         pass
 
-    def forward_train(self,
-                      x,
-                      gt_labels,
-                      gt_masks,
-                      img_metas,
-                      gt_bboxes=None,
-                      gt_bboxes_ignore=None,
-                      positive_infos=None,
-                      **kwargs):
+    def forward_train(
+        self,
+        x,
+        gt_labels,
+        gt_masks,
+        img_metas,
+        gt_bboxes=None,
+        gt_bboxes_ignore=None,
+        positive_infos=None,
+        **kwargs,
+    ):
         """
         Args:
             x (list[Tensor] | tuple[Tensor]): Features from FPN.
@@ -57,8 +59,7 @@ class BaseMaskHead(BaseModule, metaclass=ABCMeta):
         else:
             outs = self(x, positive_infos)
 
-        assert isinstance(outs, tuple), 'Forward results should be a tuple, ' \
-                                        'even if only one item is returned'
+        assert isinstance(outs, tuple), "Forward results should be a tuple, even if only one item is returned"
         loss = self.loss(
             *outs,
             gt_labels=gt_labels,
@@ -67,15 +68,11 @@ class BaseMaskHead(BaseModule, metaclass=ABCMeta):
             gt_bboxes=gt_bboxes,
             gt_bboxes_ignore=gt_bboxes_ignore,
             positive_infos=positive_infos,
-            **kwargs)
+            **kwargs,
+        )
         return loss
 
-    def simple_test(self,
-                    feats,
-                    img_metas,
-                    rescale=False,
-                    instances_list=None,
-                    **kwargs):
+    def simple_test(self, feats, img_metas, rescale=False, instances_list=None, **kwargs):
         """Test function without test-time augmentation.
 
         Args:
@@ -103,14 +100,9 @@ class BaseMaskHead(BaseModule, metaclass=ABCMeta):
             outs = self(feats)
         else:
             outs = self(feats, instances_list=instances_list)
-        mask_inputs = outs + (img_metas, )
-        results_list = self.get_results(
-            *mask_inputs,
-            rescale=rescale,
-            instances_list=instances_list,
-            **kwargs)
+        mask_inputs = outs + (img_metas,)
+        results_list = self.get_results(*mask_inputs, rescale=rescale, instances_list=instances_list, **kwargs)
         return results_list
 
     def onnx_export(self, img, img_metas):
-        raise NotImplementedError(f'{self.__class__.__name__} does '
-                                  f'not support ONNX EXPORT')
+        raise NotImplementedError(f"{self.__class__.__name__} does not support ONNX EXPORT")

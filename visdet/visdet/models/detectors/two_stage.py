@@ -111,7 +111,15 @@ class TwoStageDetector(BaseDetector):
             for bbox_head_key in bbox_head_keys:
                 rpn_head_key = rpn_head_prefix + bbox_head_key[len(bbox_head_prefix) :]
                 state_dict[rpn_head_key] = state_dict.pop(bbox_head_key)
-        super()._load_from_state_dict(state_dict, prefix, local_metadata, strict, missing_keys, unexpected_keys, error_msgs)
+        super()._load_from_state_dict(
+            state_dict,
+            prefix,
+            local_metadata,
+            strict,
+            missing_keys,
+            unexpected_keys,
+            error_msgs,
+        )
 
     @property
     def with_rpn(self) -> bool:
@@ -207,7 +215,9 @@ class TwoStageDetector(BaseDetector):
             for data_sample in rpn_data_samples:
                 data_sample.gt_instances.labels = torch.zeros_like(data_sample.gt_instances.labels)
 
-            rpn_losses, rpn_results_list = self.rpn_head.loss_and_predict(x, rpn_data_samples, proposal_cfg=proposal_cfg)
+            rpn_losses, rpn_results_list = self.rpn_head.loss_and_predict(
+                x, rpn_data_samples, proposal_cfg=proposal_cfg
+            )
 
             # Log RPN losses
             logger.debug(f"[TwoStageDetector] RPN losses: {list(rpn_losses.keys())}")

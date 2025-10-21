@@ -150,7 +150,9 @@ class MMFullyShardedDataParallel(FullyShardedDataParallel):
         if isinstance(sharding_strategy, str):
             sharding_strategy = ShardingStrategy[sharding_strategy]
         if not (isinstance(sharding_strategy, ShardingStrategy) or sharding_strategy is None):
-            raise TypeError(f"sharding_strategy must be str or enum of `ShardingStrategy` , but got {sharding_strategy}")
+            raise TypeError(
+                f"sharding_strategy must be str or enum of `ShardingStrategy` , but got {sharding_strategy}"
+            )
 
         if isinstance(cpu_offload, bool):
             cpu_offload = CPUOffload(offload_params=cpu_offload)
@@ -171,7 +173,9 @@ class MMFullyShardedDataParallel(FullyShardedDataParallel):
                 auto_wrap_policy = partial(policy, **auto_wrap_policy)
 
             if not (auto_wrap_policy is None or callable(auto_wrap_policy)):  # type: ignore
-                raise TypeError(f"`auto_wrap_policy` should be a str, a callable, a dict or None, but has type {type(auto_wrap_policy)}")
+                raise TypeError(
+                    f"`auto_wrap_policy` should be a str, a callable, a dict or None, but has type {type(auto_wrap_policy)}"
+                )
 
             if isinstance(backward_prefetch, str):
                 backward_prefetch = BackwardPrefetch[backward_prefetch]
@@ -195,7 +199,9 @@ class MMFullyShardedDataParallel(FullyShardedDataParallel):
                 param_init_fn = partial(init_fn, **param_init_fn)
 
             if not (callable(param_init_fn) or param_init_fn is None):
-                raise TypeError(f"`param_init_fn` should be a str, a callable, a dict or None, but has type {type(param_init_fn)}")
+                raise TypeError(
+                    f"`param_init_fn` should be a str, a callable, a dict or None, but has type {type(param_init_fn)}"
+                )
 
         def parse_dtype(dtype):
             if dtype is None:
@@ -215,7 +221,9 @@ class MMFullyShardedDataParallel(FullyShardedDataParallel):
         elif isinstance(mixed_precision, MixedPrecision):
             mixed_precision = mixed_precision
         elif mixed_precision is not None:
-            raise TypeError(f"`mixed_precision` should be `None`, `dict` or `MixedPrecision`, but has type {type(mixed_precision)}")
+            raise TypeError(
+                f"`mixed_precision` should be `None`, `dict` or `MixedPrecision`, but has type {type(mixed_precision)}"
+            )
 
         # ignored_parameters and ignored_modules will be deprecated by PyTorch.
         # Therefore we hide them in **kwargs.
@@ -330,7 +338,9 @@ class MMFullyShardedDataParallel(FullyShardedDataParallel):
         if is_seq_of(ignored_modules, str):
             ignored_modules = [modules_dict[name] for name in ignored_modules]
         if not is_seq_of(ignored_modules, nn.Module) and ignored_modules is not None:
-            raise TypeError(f"`ignored_modules` should be `None`, `Iterable[str]` or `Iterable[nn.Module]`, but has type {type(ignored_modules)}")
+            raise TypeError(
+                f"`ignored_modules` should be `None`, `Iterable[str]` or `Iterable[nn.Module]`, but has type {type(ignored_modules)}"
+            )
         return ignored_modules
 
     if digit_version(torch.__version__) < digit_version("2.0.1"):
@@ -382,9 +392,13 @@ class MMFullyShardedDataParallel(FullyShardedDataParallel):
             if optim_state_dict_config is None:
                 optim_state_dict_config = optim_state_dict_config_type()
             if state_dict_config_type != type(state_dict_config):
-                raise RuntimeError(f"Expected state_dict_config of type {state_dict_config_type} but got {type(state_dict_config)}")
+                raise RuntimeError(
+                    f"Expected state_dict_config of type {state_dict_config_type} but got {type(state_dict_config)}"
+                )
             if optim_state_dict_config_type != type(optim_state_dict_config):
-                raise RuntimeError(f"Expected optim_state_dict_config of type {optim_state_dict_config_type} but got {type(optim_state_dict_config)}")
+                raise RuntimeError(
+                    f"Expected optim_state_dict_config of type {optim_state_dict_config_type} but got {type(optim_state_dict_config)}"
+                )
 
             # Set the state_dict type and configurations.
             prev_state_dict_type = None
@@ -394,7 +408,9 @@ class MMFullyShardedDataParallel(FullyShardedDataParallel):
                 if prev_state_dict_type is None:
                     prev_state_dict_type = submodule._state_dict_type
                 else:
-                    assert prev_state_dict_type == submodule._state_dict_type, "All FSDP modules should have the same state_dict_type."
+                    assert prev_state_dict_type == submodule._state_dict_type, (
+                        "All FSDP modules should have the same state_dict_type."
+                    )
                 if prev_state_dict_config is None:
                     prev_state_dict_config = submodule._state_dict_config
                 else:
@@ -413,4 +429,8 @@ class MMFullyShardedDataParallel(FullyShardedDataParallel):
                 submodule._state_dict_config = state_dict_config
                 submodule._optim_state_dict_config = optim_state_dict_config
 
-            return StateDictSettings(prev_state_dict_type, prev_state_dict_config, prev_optim_state_dict_config)
+            return StateDictSettings(
+                prev_state_dict_type,
+                prev_state_dict_config,
+                prev_optim_state_dict_config,
+            )

@@ -43,7 +43,9 @@ class OptimWrapperDict(OptimWrapper):
 
     def __init__(self, **optim_wrapper_dict: OptimWrapper):
         for key, value in optim_wrapper_dict.items():
-            assert isinstance(value, OptimWrapper), f"`OptimWrapperDict` only accept OptimWrapper instance, but got {key}: {type(value)}"
+            assert isinstance(value, OptimWrapper), (
+                f"`OptimWrapperDict` only accept OptimWrapper instance, but got {key}: {type(value)}"
+            )
         self.optim_wrappers = optim_wrapper_dict
 
     def update_params(  # type: ignore
@@ -166,7 +168,9 @@ class OptimWrapperDict(OptimWrapper):
         yield from self.optim_wrappers.keys()
 
     def __getitem__(self, key: str) -> OptimWrapper:
-        assert key in self.optim_wrappers, f"Cannot find {key} in OptimWrapperDict, please check your optimizer constructor."
+        assert key in self.optim_wrappers, (
+            f"Cannot find {key} in OptimWrapperDict, please check your optimizer constructor."
+        )
         return self.optim_wrappers[key]
 
     def __contains__(self, key: str) -> bool:

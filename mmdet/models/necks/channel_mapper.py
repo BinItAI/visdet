@@ -43,16 +43,17 @@ class ChannelMapper(BaseModule):
         outputs[3].shape = torch.Size([1, 11, 43, 43])
     """
 
-    def __init__(self,
-                 in_channels,
-                 out_channels,
-                 kernel_size=3,
-                 conv_cfg=None,
-                 norm_cfg=None,
-                 act_cfg=dict(type='ReLU'),
-                 num_outs=None,
-                 init_cfg=dict(
-                     type='Xavier', layer='Conv2d', distribution='uniform')):
+    def __init__(
+        self,
+        in_channels,
+        out_channels,
+        kernel_size=3,
+        conv_cfg=None,
+        norm_cfg=None,
+        act_cfg=dict(type="ReLU"),
+        num_outs=None,
+        init_cfg=dict(type="Xavier", layer="Conv2d", distribution="uniform"),
+    ):
         super(ChannelMapper, self).__init__(init_cfg)
         assert isinstance(in_channels, list)
         self.extra_convs = None
@@ -68,7 +69,9 @@ class ChannelMapper(BaseModule):
                     padding=(kernel_size - 1) // 2,
                     conv_cfg=conv_cfg,
                     norm_cfg=norm_cfg,
-                    act_cfg=act_cfg))
+                    act_cfg=act_cfg,
+                )
+            )
         if num_outs > len(in_channels):
             self.extra_convs = nn.ModuleList()
             for i in range(len(in_channels), num_outs):
@@ -85,7 +88,9 @@ class ChannelMapper(BaseModule):
                         padding=1,
                         conv_cfg=conv_cfg,
                         norm_cfg=norm_cfg,
-                        act_cfg=act_cfg))
+                        act_cfg=act_cfg,
+                    )
+                )
 
     def forward(self, inputs):
         """Forward function."""

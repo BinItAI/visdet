@@ -41,36 +41,35 @@ class AscendSSDHead(SSDHead, AscendAnchorHead):
         init_cfg (dict or list[dict], optional): Initialization config dict.
     """  # noqa: W605
 
-    def __init__(self,
-                 num_classes=80,
-                 in_channels=(512, 1024, 512, 256, 256, 256),
-                 stacked_convs=0,
-                 feat_channels=256,
-                 use_depthwise=False,
-                 conv_cfg=None,
-                 norm_cfg=None,
-                 act_cfg=None,
-                 anchor_generator=dict(
-                     type='SSDAnchorGenerator',
-                     scale_major=False,
-                     input_size=300,
-                     strides=[8, 16, 32, 64, 100, 300],
-                     ratios=([2], [2, 3], [2, 3], [2, 3], [2], [2]),
-                     basesize_ratio_range=(0.1, 0.9)),
-                 bbox_coder=dict(
-                     type='DeltaXYWHBBoxCoder',
-                     clip_border=True,
-                     target_means=[.0, .0, .0, .0],
-                     target_stds=[1.0, 1.0, 1.0, 1.0],
-                 ),
-                 reg_decoded_bbox=False,
-                 train_cfg=None,
-                 test_cfg=None,
-                 init_cfg=dict(
-                     type='Xavier',
-                     layer='Conv2d',
-                     distribution='uniform',
-                     bias=0)):
+    def __init__(
+        self,
+        num_classes=80,
+        in_channels=(512, 1024, 512, 256, 256, 256),
+        stacked_convs=0,
+        feat_channels=256,
+        use_depthwise=False,
+        conv_cfg=None,
+        norm_cfg=None,
+        act_cfg=None,
+        anchor_generator=dict(
+            type="SSDAnchorGenerator",
+            scale_major=False,
+            input_size=300,
+            strides=[8, 16, 32, 64, 100, 300],
+            ratios=([2], [2, 3], [2, 3], [2, 3], [2], [2]),
+            basesize_ratio_range=(0.1, 0.9),
+        ),
+        bbox_coder=dict(
+            type="DeltaXYWHBBoxCoder",
+            clip_border=True,
+            target_means=[0.0, 0.0, 0.0, 0.0],
+            target_stds=[1.0, 1.0, 1.0, 1.0],
+        ),
+        reg_decoded_bbox=False,
+        train_cfg=None,
+        test_cfg=None,
+        init_cfg=dict(type="Xavier", layer="Conv2d", distribution="uniform", bias=0),
+    ):
         super(AscendSSDHead, self).__init__(
             num_classes=num_classes,
             in_channels=in_channels,
@@ -85,11 +84,11 @@ class AscendSSDHead(SSDHead, AscendAnchorHead):
             reg_decoded_bbox=reg_decoded_bbox,
             train_cfg=train_cfg,
             test_cfg=test_cfg,
-            init_cfg=init_cfg)
-        assert self.reg_decoded_bbox is False, \
-            'reg_decoded_bbox only support False now.'
+            init_cfg=init_cfg,
+        )
+        assert self.reg_decoded_bbox is False, "reg_decoded_bbox only support False now."
 
-    def get_static_anchors(self, featmap_sizes, img_metas, device='cuda'):
+    def get_static_anchors(self, featmap_sizes, img_metas, device="cuda"):
         """Get static anchors according to feature map sizes.
 
         Args:
@@ -102,25 +101,25 @@ class AscendSSDHead(SSDHead, AscendAnchorHead):
                 anchor_list (list[Tensor]): Anchors of each image.
                 valid_flag_list (list[Tensor]): Valid flags of each image.
         """
-        if not hasattr(self, 'static_anchors') or \
-                not hasattr(self, 'static_valid_flags'):
-            static_anchors, static_valid_flags = self.get_anchors(
-                featmap_sizes, img_metas, device)
+        if not hasattr(self, "static_anchors") or not hasattr(self, "static_valid_flags"):
+            static_anchors, static_valid_flags = self.get_anchors(featmap_sizes, img_metas, device)
             self.static_anchors = static_anchors
             self.static_valid_flags = static_valid_flags
         return self.static_anchors, self.static_valid_flags
 
-    def get_targets(self,
-                    anchor_list,
-                    valid_flag_list,
-                    gt_bboxes_list,
-                    img_metas,
-                    gt_bboxes_ignore_list=None,
-                    gt_labels_list=None,
-                    label_channels=1,
-                    unmap_outputs=True,
-                    return_sampling_results=False,
-                    return_level=True):
+    def get_targets(
+        self,
+        anchor_list,
+        valid_flag_list,
+        gt_bboxes_list,
+        img_metas,
+        gt_bboxes_ignore_list=None,
+        gt_labels_list=None,
+        label_channels=1,
+        unmap_outputs=True,
+        return_sampling_results=False,
+        return_level=True,
+    ):
         """Compute regression and classification targets for anchors in
         multiple images.
 
@@ -177,10 +176,19 @@ class AscendSSDHead(SSDHead, AscendAnchorHead):
             return_level,
         )
 
-    def batch_loss(self, batch_cls_score, batch_bbox_pred, batch_anchor,
-                   batch_labels, batch_label_weights, batch_bbox_targets,
-                   batch_bbox_weights, batch_pos_mask, batch_neg_mask,
-                   num_total_samples):
+    def batch_loss(
+        self,
+        batch_cls_score,
+        batch_bbox_pred,
+        batch_anchor,
+        batch_labels,
+        batch_label_weights,
+        batch_bbox_targets,
+        batch_bbox_weights,
+        batch_pos_mask,
+        batch_neg_mask,
+        num_total_samples,
+    ):
         """Compute loss of all images.
 
         Args:
@@ -209,35 +217,29 @@ class AscendSSDHead(SSDHead, AscendAnchorHead):
         """
         num_images, num_anchors, _ = batch_anchor.size()
 
-        batch_loss_cls_all = F.cross_entropy(
-            batch_cls_score.view((-1, self.cls_out_channels)),
-            batch_labels.view(-1),
-            reduction='none').view(
-                batch_label_weights.size()) * batch_label_weights
+        batch_loss_cls_all = (
+            F.cross_entropy(
+                batch_cls_score.view((-1, self.cls_out_channels)),
+                batch_labels.view(-1),
+                reduction="none",
+            ).view(batch_label_weights.size())
+            * batch_label_weights
+        )
         # # FG cat_id: [0, num_classes -1], BG cat_id: num_classes
         batch_num_pos_samples = torch.sum(batch_pos_mask, dim=1)
-        batch_num_neg_samples = \
-            self.train_cfg.neg_pos_ratio * batch_num_pos_samples
+        batch_num_neg_samples = self.train_cfg.neg_pos_ratio * batch_num_pos_samples
 
         batch_num_neg_samples_max = torch.sum(batch_neg_mask, dim=1)
-        batch_num_neg_samples = torch.min(batch_num_neg_samples,
-                                          batch_num_neg_samples_max)
+        batch_num_neg_samples = torch.min(batch_num_neg_samples, batch_num_neg_samples_max)
 
-        batch_topk_loss_cls_neg, _ = torch.topk(
-            batch_loss_cls_all * batch_neg_mask, k=num_anchors, dim=1)
-        batch_loss_cls_pos = torch.sum(
-            batch_loss_cls_all * batch_pos_mask, dim=1)
+        batch_topk_loss_cls_neg, _ = torch.topk(batch_loss_cls_all * batch_neg_mask, k=num_anchors, dim=1)
+        batch_loss_cls_pos = torch.sum(batch_loss_cls_all * batch_pos_mask, dim=1)
 
-        anchor_index = torch.arange(
-            end=num_anchors, dtype=torch.float,
-            device=batch_anchor.device).view((1, -1))
-        topk_loss_neg_mask = (anchor_index < batch_num_neg_samples.view(
-            -1, 1)).float()
+        anchor_index = torch.arange(end=num_anchors, dtype=torch.float, device=batch_anchor.device).view((1, -1))
+        topk_loss_neg_mask = (anchor_index < batch_num_neg_samples.view(-1, 1)).float()
 
-        batch_loss_cls_neg = torch.sum(
-            batch_topk_loss_cls_neg * topk_loss_neg_mask, dim=1)
-        loss_cls = \
-            (batch_loss_cls_pos + batch_loss_cls_neg) / num_total_samples
+        batch_loss_cls_neg = torch.sum(batch_topk_loss_cls_neg * topk_loss_neg_mask, dim=1)
+        loss_cls = (batch_loss_cls_pos + batch_loss_cls_neg) / num_total_samples
 
         if self.reg_decoded_bbox:
             # TODO: support self.reg_decoded_bbox is True
@@ -247,24 +249,26 @@ class AscendSSDHead(SSDHead, AscendAnchorHead):
             batch_bbox_pred,
             batch_bbox_targets,
             batch_bbox_weights,
-            reduction='none',
+            reduction="none",
             beta=self.train_cfg.smoothl1_beta,
-            avg_factor=num_total_samples)
+            avg_factor=num_total_samples,
+        )
         eps = torch.finfo(torch.float32).eps
 
         sum_dim = (i for i in range(1, len(loss_bbox_all.size())))
-        loss_bbox = loss_bbox_all.sum(tuple(sum_dim)) / (
-            num_total_samples + eps)
+        loss_bbox = loss_bbox_all.sum(tuple(sum_dim)) / (num_total_samples + eps)
         return loss_cls[None], loss_bbox
 
-    @force_fp32(apply_to=('cls_scores', 'bbox_preds'))
-    def loss(self,
-             cls_scores,
-             bbox_preds,
-             gt_bboxes,
-             gt_labels,
-             img_metas,
-             gt_bboxes_ignore=None):
+    @force_fp32(apply_to=("cls_scores", "bbox_preds"))
+    def loss(
+        self,
+        cls_scores,
+        bbox_preds,
+        gt_bboxes,
+        gt_labels,
+        img_metas,
+        gt_bboxes_ignore=None,
+    ):
         """Compute losses of the head.
 
         Args:
@@ -288,8 +292,7 @@ class AscendSSDHead(SSDHead, AscendAnchorHead):
 
         device = cls_scores[0].device
 
-        anchor_list, valid_flag_list = self.get_anchors(
-            featmap_sizes, img_metas, device=device)
+        anchor_list, valid_flag_list = self.get_anchors(featmap_sizes, img_metas, device=device)
         cls_reg_targets = self.get_targets(
             anchor_list,
             valid_flag_list,
@@ -299,30 +302,44 @@ class AscendSSDHead(SSDHead, AscendAnchorHead):
             gt_labels_list=gt_labels,
             label_channels=1,
             unmap_outputs=True,
-            return_level=False)
+            return_level=False,
+        )
         if cls_reg_targets is None:
             return None
 
-        (batch_labels, batch_label_weights, batch_bbox_targets,
-         batch_bbox_weights, batch_pos_mask, batch_neg_mask, sampling_result,
-         num_total_pos, num_total_neg, batch_anchors) = cls_reg_targets
+        (
+            batch_labels,
+            batch_label_weights,
+            batch_bbox_targets,
+            batch_bbox_weights,
+            batch_pos_mask,
+            batch_neg_mask,
+            sampling_result,
+            num_total_pos,
+            num_total_neg,
+            batch_anchors,
+        ) = cls_reg_targets
 
         num_imgs = len(img_metas)
-        batch_cls_score = torch.cat([
-            s.permute(0, 2, 3, 1).reshape(num_imgs, -1, self.cls_out_channels)
-            for s in cls_scores
-        ], 1)
+        batch_cls_score = torch.cat(
+            [s.permute(0, 2, 3, 1).reshape(num_imgs, -1, self.cls_out_channels) for s in cls_scores],
+            1,
+        )
 
-        batch_bbox_pred = torch.cat([
-            b.permute(0, 2, 3, 1).reshape(num_imgs, -1, 4) for b in bbox_preds
-        ], -2)
+        batch_bbox_pred = torch.cat([b.permute(0, 2, 3, 1).reshape(num_imgs, -1, 4) for b in bbox_preds], -2)
 
         batch_losses_cls, batch_losses_bbox = self.batch_loss(
-            batch_cls_score, batch_bbox_pred, batch_anchors, batch_labels,
-            batch_label_weights, batch_bbox_targets, batch_bbox_weights,
-            batch_pos_mask, batch_neg_mask, num_total_pos)
-        losses_cls = [
-            batch_losses_cls[:, index_imgs] for index_imgs in range(num_imgs)
-        ]
+            batch_cls_score,
+            batch_bbox_pred,
+            batch_anchors,
+            batch_labels,
+            batch_label_weights,
+            batch_bbox_targets,
+            batch_bbox_weights,
+            batch_pos_mask,
+            batch_neg_mask,
+            num_total_pos,
+        )
+        losses_cls = [batch_losses_cls[:, index_imgs] for index_imgs in range(num_imgs)]
         losses_bbox = [losses_bbox for losses_bbox in batch_losses_bbox]
         return dict(loss_cls=losses_cls, loss_bbox=losses_bbox)

@@ -64,7 +64,9 @@ class PixelData(BaseDataElement):
                 raise AttributeError(f"{name} has been used as a private attribute, which is immutable.")
 
         else:
-            assert isinstance(value, torch.Tensor | np.ndarray), f"Can not set {type(value)}, only support {(torch.Tensor, np.ndarray)}"
+            assert isinstance(value, torch.Tensor | np.ndarray), (
+                f"Can not set {type(value)}, only support {(torch.Tensor, np.ndarray)}"
+            )
 
             if self.shape:
                 assert tuple(value.shape[-2:]) == self.shape, (

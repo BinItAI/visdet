@@ -2,6 +2,7 @@
 import torch
 
 from mmdet.core import bbox2result
+
 from ..builder import DETECTORS, build_head
 from .single_stage import SingleStageDetector
 
@@ -10,18 +11,19 @@ from .single_stage import SingleStageDetector
 class YOLACT(SingleStageDetector):
     """Implementation of `YOLACT <https://arxiv.org/abs/1904.02689>`_"""
 
-    def __init__(self,
-                 backbone,
-                 neck,
-                 bbox_head,
-                 segm_head,
-                 mask_head,
-                 train_cfg=None,
-                 test_cfg=None,
-                 pretrained=None,
-                 init_cfg=None):
-        super(YOLACT, self).__init__(backbone, neck, bbox_head, train_cfg,
-                                     test_cfg, pretrained, init_cfg)
+    def __init__(
+        self,
+        backbone,
+        neck,
+        bbox_head,
+        segm_head,
+        mask_head,
+        train_cfg=None,
+        test_cfg=None,
+        pretrained=None,
+        init_cfg=None,
+    ):
+        super(YOLACT, self).__init__(backbone, neck, bbox_head, train_cfg, test_cfg, pretrained, init_cfg)
         self.segm_head = build_head(segm_head)
         self.mask_head = build_head(mask_head)
 
@@ -35,13 +37,7 @@ class YOLACT(SingleStageDetector):
         prototypes = self.mask_head.forward_dummy(feat[0])
         return (bbox_outs, prototypes)
 
-    def forward_train(self,
-                      img,
-                      img_metas,
-                      gt_bboxes,
-                      gt_labels,
-                      gt_bboxes_ignore=None,
-                      gt_masks=None):
+    def forward_train(self, img, img_metas, gt_bboxes, gt_labels, gt_bboxes_ignore=None, gt_masks=None):
         """
         Args:
             img (Tensor): of shape (N, C, H, W) encoding input images.
@@ -63,58 +59,45 @@ class YOLACT(SingleStageDetector):
             dict[str, Tensor]: a dictionary of loss components
         """
         # convert Bitmap mask or Polygon Mask to Tensor here
-        gt_masks = [
-            gt_mask.to_tensor(dtype=torch.uint8, device=img.device)
-            for gt_mask in gt_masks
-        ]
+        gt_masks = [gt_mask.to_tensor(dtype=torch.uint8, device=img.device) for gt_mask in gt_masks]
 
         x = self.extract_feat(img)
 
         cls_score, bbox_pred, coeff_pred = self.bbox_head(x)
-        bbox_head_loss_inputs = (cls_score, bbox_pred) + (gt_bboxes, gt_labels,
-                                                          img_metas)
-        losses, sampling_results = self.bbox_head.loss(
-            *bbox_head_loss_inputs, gt_bboxes_ignore=gt_bboxes_ignore)
+        bbox_head_loss_inputs = (cls_score, bbox_pred) + (
+            gt_bboxes,
+            gt_labels,
+            img_metas,
+        )
+        losses, sampling_results = self.bbox_head.loss(*bbox_head_loss_inputs, gt_bboxes_ignore=gt_bboxes_ignore)
 
         segm_head_outs = self.segm_head(x[0])
         loss_segm = self.segm_head.loss(segm_head_outs, gt_masks, gt_labels)
         losses.update(loss_segm)
 
-        mask_pred = self.mask_head(x[0], coeff_pred, gt_bboxes, img_metas,
-                                   sampling_results)
-        loss_mask = self.mask_head.loss(mask_pred, gt_masks, gt_bboxes,
-                                        img_metas, sampling_results)
+        mask_pred = self.mask_head(x[0], coeff_pred, gt_bboxes, img_metas, sampling_results)
+        loss_mask = self.mask_head.loss(mask_pred, gt_masks, gt_bboxes, img_metas, sampling_results)
         losses.update(loss_mask)
 
         # check NaN and Inf
         for loss_name in losses.keys():
-            assert torch.isfinite(torch.stack(losses[loss_name]))\
-                .all().item(), '{} becomes infinite or NaN!'\
-                .format(loss_name)
+            assert torch.isfinite(torch.stack(losses[loss_name])).all().item(), f"{loss_name} becomes infinite or NaN!"
 
         return losses
 
     def simple_test(self, img, img_metas, rescale=False):
         """Test function without test-time augmentation."""
         feat = self.extract_feat(img)
-        det_bboxes, det_labels, det_coeffs = self.bbox_head.simple_test(
-            feat, img_metas, rescale=rescale)
+        det_bboxes, det_labels, det_coeffs = self.bbox_head.simple_test(feat, img_metas, rescale=rescale)
         bbox_results = [
             bbox2result(det_bbox, det_label, self.bbox_head.num_classes)
             for det_bbox, det_label in zip(det_bboxes, det_labels)
         ]
 
-        segm_results = self.mask_head.simple_test(
-            feat,
-            det_bboxes,
-            det_labels,
-            det_coeffs,
-            img_metas,
-            rescale=rescale)
+        segm_results = self.mask_head.simple_test(feat, det_bboxes, det_labels, det_coeffs, img_metas, rescale=rescale)
 
         return list(zip(bbox_results, segm_results))
 
     def aug_test(self, imgs, img_metas, rescale=False):
         """Test with augmentations."""
-        raise NotImplementedError(
-            'YOLACT does not support test-time augmentation')
+        raise NotImplementedError("YOLACT does not support test-time augmentation")

@@ -42,7 +42,9 @@ def _register_backend(
         raise TypeError(f"backend {backend} is not a subclass of BaseStorageBackend")
 
     if name in backends and not force:
-        raise ValueError(f'{name} is already registered as a storage backend, add "force=True" if you want to override it')
+        raise ValueError(
+            f'{name} is already registered as a storage backend, add "force=True" if you want to override it'
+        )
     backends[name] = backend
 
     if prefixes is not None:
@@ -53,7 +55,9 @@ def _register_backend(
 
         for prefix in prefixes:
             if prefix in prefix_to_backends and not force:
-                raise ValueError(f'{prefix} is already registered as a storage backend, add "force=True" if you want to override it')
+                raise ValueError(
+                    f'{prefix} is already registered as a storage backend, add "force=True" if you want to override it'
+                )
 
             prefix_to_backends[prefix] = backend
 

@@ -99,7 +99,15 @@ class SmoothL1Loss(nn.Module):
             return (pred * weight).sum()
         assert reduction_override in (None, "none", "mean", "sum")
         reduction = reduction_override if reduction_override else self.reduction
-        loss_bbox = self.loss_weight * smooth_l1_loss(pred, target, weight, beta=self.beta, reduction=reduction, avg_factor=avg_factor, **kwargs)
+        loss_bbox = self.loss_weight * smooth_l1_loss(
+            pred,
+            target,
+            weight,
+            beta=self.beta,
+            reduction=reduction,
+            avg_factor=avg_factor,
+            **kwargs,
+        )
         return loss_bbox
 
 
@@ -119,7 +127,12 @@ class L1Loss(nn.Module):
         self.loss_weight = loss_weight
 
     def forward(
-        self, pred: Tensor, target: Tensor, weight: Tensor | None = None, avg_factor: int | None = None, reduction_override: str | None = None
+        self,
+        pred: Tensor,
+        target: Tensor,
+        weight: Tensor | None = None,
+        avg_factor: int | None = None,
+        reduction_override: str | None = None,
     ) -> Tensor:
         """Forward function.
 

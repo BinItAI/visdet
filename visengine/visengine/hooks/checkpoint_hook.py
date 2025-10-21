@@ -244,7 +244,9 @@ class CheckpointHook(Hook):
 
         # published keys
         if not (isinstance(published_keys, str) or is_seq_of(published_keys, str) or published_keys is None):
-            raise TypeError(f'"published_keys" should be a str or a sequence of str or None, but got {type(published_keys)}')
+            raise TypeError(
+                f'"published_keys" should be a str or a sequence of str or None, but got {type(published_keys)}'
+            )
 
         if isinstance(published_keys, str):
             published_keys = [published_keys]
@@ -332,7 +334,9 @@ class CheckpointHook(Hook):
         # save checkpoint for following cases:
         # 1. every ``self.interval`` epochs which start at ``self.save_begin``
         # 2. reach the last epoch of training
-        if self.every_n_epochs(runner, self.interval, self.save_begin) or (self.save_last and self.is_last_train_epoch(runner)):
+        if self.every_n_epochs(runner, self.interval, self.save_begin) or (
+            self.save_last and self.is_last_train_epoch(runner)
+        ):
             runner.logger.info(f"Saving checkpoint at {runner.epoch + 1} epochs")
             self._save_checkpoint(runner)
 
@@ -345,7 +349,9 @@ class CheckpointHook(Hook):
             metrics (dict): Evaluation results of all metrics
         """
         if len(metrics) == 0:
-            runner.logger.warning("Since `metrics` is an empty dict, the behavior to save the best checkpoint will be skipped in this evaluation.")
+            runner.logger.warning(
+                "Since `metrics` is an empty dict, the behavior to save the best checkpoint will be skipped in this evaluation."
+            )
             return
 
         self._save_best_checkpoint(runner, metrics)
@@ -397,7 +403,10 @@ class CheckpointHook(Hook):
         sha = hashlib.sha256(checkpoint_data).hexdigest()
         final_path = osp.splitext(ckpt_path)[0] + f"-{sha[:8]}.pth"
         save_checkpoint(checkpoint, final_path)
-        print_log(f"The checkpoint ({ckpt_path}) is published to {final_path}.", logger="current")
+        print_log(
+            f"The checkpoint ({ckpt_path}) is published to {final_path}.",
+            logger="current",
+        )
 
     def _save_checkpoint_with_step(self, runner, step, meta):
         # remove other checkpoints before save checkpoint to make the
@@ -549,7 +558,9 @@ class CheckpointHook(Hook):
                 by_epoch=False,
                 backend_args=self.backend_args,
             )
-            runner.logger.info(f"The best checkpoint with {best_score:0.4f} {key_indicator} at {cur_time} {cur_type} is saved to {best_ckpt_name}.")
+            runner.logger.info(
+                f"The best checkpoint with {best_score:0.4f} {key_indicator} at {cur_time} {cur_type} is saved to {best_ckpt_name}."
+            )
 
         # save checkpoint again to update the best_score and best_ckpt stored
         # in message_hub because the checkpoint saved in `after_train_epoch`
@@ -606,14 +617,22 @@ class CheckpointHook(Hook):
                 elif any(key in key_indicator_lc for key in less_keys):
                     rule = "less"
                 else:
-                    raise ValueError(f"Cannot infer the rule for key {key_indicator}, thus a specific rule must be specified.")
+                    raise ValueError(
+                        f"Cannot infer the rule for key {key_indicator}, thus a specific rule must be specified."
+                    )
             if rule is not None:
                 self.is_better_than[key_indicator] = self.rule_map[rule]
             self.rules.append(rule)
 
         self.key_indicators = key_indicators
 
-    def after_train_iter(self, runner, batch_idx: int, data_batch: DATA_BATCH = None, outputs=Optional[dict]) -> None:
+    def after_train_iter(
+        self,
+        runner,
+        batch_idx: int,
+        data_batch: DATA_BATCH = None,
+        outputs=Optional[dict],
+    ) -> None:
         """Save the checkpoint and synchronize buffers after each iteration.
 
         Args:
@@ -629,6 +648,8 @@ class CheckpointHook(Hook):
         # 1. every ``self.interval`` iterations
         #       which start at ``self.save_begin``
         # 2. reach the last iteration of training
-        if self.every_n_train_iters(runner, self.interval, self.save_begin) or (self.save_last and self.is_last_train_iter(runner)):
+        if self.every_n_train_iters(runner, self.interval, self.save_begin) or (
+            self.save_last and self.is_last_train_iter(runner)
+        ):
             runner.logger.info(f"Saving checkpoint at {runner.iter + 1} iterations")
             self._save_checkpoint(runner)

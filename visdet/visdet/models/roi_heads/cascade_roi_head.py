@@ -19,7 +19,13 @@ from visdet.models.utils import empty_instances, unpack_gt_instances
 from visdet.registry import MODELS, TASK_UTILS
 from visdet.structures import SampleList
 from visdet.structures.bbox import bbox2roi, get_box_tensor
-from visdet.utils import ConfigType, InstanceList, MultiConfig, OptConfigType, OptMultiConfig
+from visdet.utils import (
+    ConfigType,
+    InstanceList,
+    MultiConfig,
+    OptConfigType,
+    OptMultiConfig,
+)
 
 from .base_roi_head import BaseRoIHead
 
@@ -103,7 +109,9 @@ class CascadeRoIHead(BaseRoIHead):
         self.bbox_assigner: list | None = []
         self.bbox_sampler: list | None = []
         if self.train_cfg is not None:
-            assert isinstance(self.train_cfg, (list, tuple)), "Cascade RCNN expects list-style train_cfg for each stage."
+            assert isinstance(self.train_cfg, (list, tuple)), (
+                "Cascade RCNN expects list-style train_cfg for each stage."
+            )
             for idx, rcnn_train_cfg in enumerate(self.train_cfg):
                 self.bbox_assigner.append(TASK_UTILS.build(rcnn_train_cfg["assigner"]))
                 self.current_stage = idx
@@ -163,7 +171,12 @@ class CascadeRoIHead(BaseRoIHead):
         mask_results.update(mask_loss_and_target)
         return mask_results
 
-    def loss(self, x: Tuple[Tensor, ...], rpn_results_list: InstanceList, batch_data_samples: SampleList) -> dict:
+    def loss(
+        self,
+        x: Tuple[Tensor, ...],
+        rpn_results_list: InstanceList,
+        batch_data_samples: SampleList,
+    ) -> dict:
         """Perform forward propagation and loss calculation of the detection RoI."""
         assert len(rpn_results_list) == len(batch_data_samples)
         batch_gt_instances, batch_gt_instances_ignore, batch_img_metas = unpack_gt_instances(batch_data_samples)
@@ -327,16 +340,25 @@ class CascadeRoIHead(BaseRoIHead):
                     if rois[img_idx].shape[0] == 0:
                         continue
                     bbox_label = cls_scores[img_idx][:, :-1].argmax(dim=1)
-                    refined_bboxes = bbox_head.regress_by_class(rois[img_idx][:, 1:], bbox_label, bbox_preds[img_idx], img_meta)
+                    refined_bboxes = bbox_head.regress_by_class(
+                        rois[img_idx][:, 1:], bbox_label, bbox_preds[img_idx], img_meta
+                    )
                     refined_bboxes = get_box_tensor(refined_bboxes)
                     refined_rois = torch.cat([rois[img_idx][:, [0]], refined_bboxes], dim=1)
                     refine_rois_list.append(refined_rois)
                 rois = torch.cat(refine_rois_list) if refine_rois_list else rois[0].new_zeros((0, 5))
 
-        cls_scores = [sum(score_set[i] for score_set in ms_scores) / float(len(ms_scores)) for i in range(len(batch_img_metas))]
+        cls_scores = [
+            sum(score_set[i] for score_set in ms_scores) / float(len(ms_scores)) for i in range(len(batch_img_metas))
+        ]
         return rois, cls_scores, bbox_preds
 
-    def forward(self, x: Tuple[Tensor, ...], rpn_results_list: InstanceList, batch_data_samples: SampleList) -> tuple:
+    def forward(
+        self,
+        x: Tuple[Tensor, ...],
+        rpn_results_list: InstanceList,
+        batch_data_samples: SampleList,
+    ) -> tuple:
         """Forward method for visualization/debug."""
         results: tuple = ()
         batch_img_metas = [data_samples.metainfo for data_samples in batch_data_samples]

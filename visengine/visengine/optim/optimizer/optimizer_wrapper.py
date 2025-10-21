@@ -117,7 +117,12 @@ class OptimWrapper(BaseOptimWrapper):
         >>>     optim_wrapper.update_params(loss)
     """
 
-    def __init__(self, optimizer: Optimizer, accumulative_counts: int = 1, clip_grad: dict | None = None):
+    def __init__(
+        self,
+        optimizer: Optimizer,
+        accumulative_counts: int = 1,
+        clip_grad: dict | None = None,
+    ):
         assert accumulative_counts > 0, "_accumulative_counts at least greater than or equal to 1"
         self._accumulative_counts = accumulative_counts
         self.optimizer = optimizer

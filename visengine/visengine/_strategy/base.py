@@ -28,7 +28,13 @@ from visengine.utils import digit_version
 from visengine.utils.dl_utils import TORCH_VERSION, collect_env, set_multi_processing
 
 if TYPE_CHECKING:
-    from visengine.optim import BaseOptimWrapper, OptimWrapperDict, _ParamScheduler, build_optim_wrapper
+    from visengine.optim import (
+        BaseOptimWrapper,
+        OptimWrapperDict,
+        _ParamScheduler,
+        build_optim_wrapper,
+    )
+
     ParamSchedulerType = Union[list[_ParamScheduler], dict[str, list[_ParamScheduler]]]
 else:
     # For runtime, we need to define ParamSchedulerType without the imports
@@ -331,7 +337,9 @@ class BaseStrategy(metaclass=ABCMeta):
         if isinstance(compile, bool) and not compile:
             return model
 
-        assert digit_version(TORCH_VERSION) >= digit_version("2.0.0"), "PyTorch >= 2.0.0 is required to enable torch.compile"
+        assert digit_version(TORCH_VERSION) >= digit_version("2.0.0"), (
+            "PyTorch >= 2.0.0 is required to enable torch.compile"
+        )
 
         if isinstance(compile, bool):
             compile = {}
@@ -486,6 +494,7 @@ class BaseStrategy(metaclass=ABCMeta):
             if optimizer is not None or "constructor" in optim_wrapper:
                 assert model is not None
                 from visengine.optim import build_optim_wrapper
+
                 return build_optim_wrapper(model, optim_wrapper)
             else:
                 # if `optimizer` is not defined, it should be the case of
@@ -503,6 +512,7 @@ class BaseStrategy(metaclass=ABCMeta):
                         )
                     optim_wrappers[name] = optim
                 from visengine.optim import OptimWrapperDict
+
                 return OptimWrapperDict(**optim_wrappers)  # type: ignore
         else:
             raise TypeError(f"optimizer wrapper should be an OptimWrapper object or dict, but got {optim_wrapper}")
@@ -542,6 +552,7 @@ class BaseStrategy(metaclass=ABCMeta):
         param_schedulers = []
         for scheduler in schedulers:
             from visengine.optim import _ParamScheduler
+
             if isinstance(scheduler, _ParamScheduler):
                 param_schedulers.append(scheduler)
             elif isinstance(scheduler, dict):
@@ -557,9 +568,16 @@ class BaseStrategy(metaclass=ABCMeta):
                         raise ValueError("max_iters must be specified in default_args")
                     default_end = max_iters
                 _scheduler.setdefault("end", default_end)
-                self.logger.debug(f"The `end` of {_scheduler['type']} is not set. Use the max epochs/iters of train loop as default.")
+                self.logger.debug(
+                    f"The `end` of {_scheduler['type']} is not set. Use the max epochs/iters of train loop as default."
+                )
 
-                param_schedulers.append(PARAM_SCHEDULERS.build(_scheduler, default_args=dict(optimizer=optim_wrapper, **default_args)))
+                param_schedulers.append(
+                    PARAM_SCHEDULERS.build(
+                        _scheduler,
+                        default_args=dict(optimizer=optim_wrapper, **default_args),
+                    )
+                )
             else:
                 raise TypeError(f"scheduler should be a _ParamScheduler object or dict, but got {scheduler}")
         return param_schedulers
@@ -638,6 +656,7 @@ class BaseStrategy(metaclass=ABCMeta):
 
         param_schedulers: ParamSchedulerType
         from visengine.optim import OptimWrapperDict
+
         if not isinstance(optim_wrapper, OptimWrapperDict):
             # Since `OptimWrapperDict` inherits from `OptimWrapper`,
             # `isinstance(self.optim_wrapper, OptimWrapper)` cannot tell
@@ -682,7 +701,9 @@ class BaseStrategy(metaclass=ABCMeta):
         real_bs = self.world_size * self.dispatch_kwargs["train_micro_batch_size_per_gpu"]
         base_bs = self._auto_scale_lr["base_batch_size"]
         ratio = float(real_bs) / float(base_bs)
-        self.logger.info(f"LR is set based on batch size of {base_bs} and the current batch size is {real_bs}. Scaling the original LR by {ratio}.")
+        self.logger.info(
+            f"LR is set based on batch size of {base_bs} and the current batch size is {real_bs}. Scaling the original LR by {ratio}."
+        )
 
         def _is_built(schedulers):
             if isinstance(schedulers, dict):
@@ -690,6 +711,7 @@ class BaseStrategy(metaclass=ABCMeta):
             if isinstance(schedulers, list):
                 return any(_is_built(s) for s in schedulers)
             from visengine.optim import _ParamScheduler
+
             return isinstance(schedulers, _ParamScheduler)
 
         if hasattr(self, "param_schedulers") and _is_built(self.param_schedulers):
@@ -697,9 +719,12 @@ class BaseStrategy(metaclass=ABCMeta):
                 "`scale_lr` should be called before building ParamScheduler because ParamScheduler will store initial lr from optimizer wrappers"
             )
 
-        assert isinstance(self.optim_wrapper, BaseOptimWrapper), "`scale_lr should be called after building OptimWrapper"
+        assert isinstance(self.optim_wrapper, BaseOptimWrapper), (
+            "`scale_lr should be called after building OptimWrapper"
+        )
 
         from visengine.optim import OptimWrapperDict
+
         if isinstance(self.optim_wrapper, OptimWrapperDict):
             wrappers = list(self.optim_wrapper.values())
         else:

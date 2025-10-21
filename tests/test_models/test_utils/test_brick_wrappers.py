@@ -6,13 +6,13 @@ import torch.nn.functional as F
 
 from mmdet.models.utils import AdaptiveAvgPool2d, adaptive_avg_pool2d
 
-if torch.__version__ != 'parrots':
-    torch_version = '1.7'
+if torch.__version__ != "parrots":
+    torch_version = "1.7"
 else:
-    torch_version = 'parrots'
+    torch_version = "parrots"
 
 
-@patch('torch.__version__', torch_version)
+@patch("torch.__version__", torch_version)
 def test_adaptive_avg_pool2d():
     # Test the empty batch dimension
     # Test the two input conditions
@@ -37,7 +37,7 @@ def test_adaptive_avg_pool2d():
     assert torch.equal(wrapper_out, ref_out)
 
 
-@patch('torch.__version__', torch_version)
+@patch("torch.__version__", torch_version)
 def test_AdaptiveAvgPool2d():
     # Test the empty batch dimension
     x_empty = torch.randn(0, 3, 4, 5)

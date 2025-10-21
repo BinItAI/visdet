@@ -92,7 +92,9 @@ class AnchorGenerator:
         if not (0 <= center_offset <= 1):
             raise ValueError(f"center_offset should be in range [0, 1], {center_offset} is given.")
         if centers is not None:
-            assert len(centers) == len(strides), f"The number of strides should be the same as centers, got {strides} and {centers}"
+            assert len(centers) == len(strides), (
+                f"The number of strides should be the same as centers, got {strides} and {centers}"
+            )
 
         # calculate base sizes of anchors
         self.strides = [_pair(stride) for stride in strides]
@@ -151,11 +153,17 @@ class AnchorGenerator:
             center = None
             if self.centers is not None:
                 center = self.centers[i]
-            multi_level_base_anchors.append(self.gen_single_level_base_anchors(base_size, scales=self.scales, ratios=self.ratios, center=center))
+            multi_level_base_anchors.append(
+                self.gen_single_level_base_anchors(base_size, scales=self.scales, ratios=self.ratios, center=center)
+            )
         return multi_level_base_anchors
 
     def gen_single_level_base_anchors(
-        self, base_size: Union[int, float], scales: Tensor, ratios: Tensor, center: Optional[Tuple[float]] = None
+        self,
+        base_size: Union[int, float],
+        scales: Tensor,
+        ratios: Tensor,
+        center: Optional[Tuple[float]] = None,
     ) -> Tensor:
         """Generate base anchors of a single level.
 
@@ -189,7 +197,12 @@ class AnchorGenerator:
 
         # use float anchor and the anchor's center is aligned with the
         # pixel center
-        base_anchors = [x_center - 0.5 * ws, y_center - 0.5 * hs, x_center + 0.5 * ws, y_center + 0.5 * hs]
+        base_anchors = [
+            x_center - 0.5 * ws,
+            y_center - 0.5 * hs,
+            x_center + 0.5 * ws,
+            y_center + 0.5 * hs,
+        ]
         base_anchors = torch.stack(base_anchors, dim=-1)
 
         return base_anchors
@@ -214,7 +227,12 @@ class AnchorGenerator:
         else:
             return yy, xx
 
-    def grid_priors(self, featmap_sizes: List[Tuple], dtype: torch.dtype = torch.float32, device: DeviceType = "cuda") -> List[Tensor]:
+    def grid_priors(
+        self,
+        featmap_sizes: List[Tuple],
+        dtype: torch.dtype = torch.float32,
+        device: DeviceType = "cuda",
+    ) -> List[Tensor]:
         """Generate grid anchors in multiple feature levels.
 
         Args:
@@ -240,7 +258,11 @@ class AnchorGenerator:
         return multi_level_anchors
 
     def single_level_grid_priors(
-        self, featmap_size: Tuple[int, int], level_idx: int, dtype: torch.dtype = torch.float32, device: DeviceType = "cuda"
+        self,
+        featmap_size: Tuple[int, int],
+        level_idx: int,
+        dtype: torch.dtype = torch.float32,
+        device: DeviceType = "cuda",
     ) -> Tensor:
         """Generate grid anchors of a single level.
 
@@ -282,7 +304,12 @@ class AnchorGenerator:
         return all_anchors
 
     def sparse_priors(
-        self, prior_idxs: Tensor, featmap_size: Tuple[int, int], level_idx: int, dtype: torch.dtype = torch.float32, device: DeviceType = "cuda"
+        self,
+        prior_idxs: Tensor,
+        featmap_size: Tuple[int, int],
+        level_idx: int,
+        dtype: torch.dtype = torch.float32,
+        device: DeviceType = "cuda",
     ) -> Tensor:
         """Generate sparse anchors according to the ``prior_idxs``.
 
@@ -306,7 +333,9 @@ class AnchorGenerator:
         base_anchor_id = prior_idxs % num_base_anchors
         x = (prior_idxs // num_base_anchors) % width * self.strides[level_idx][0]
         y = (prior_idxs // width // num_base_anchors) % height * self.strides[level_idx][1]
-        priors = torch.stack([x, y, x, y], 1).to(dtype).to(device) + self.base_anchors[level_idx][base_anchor_id, :].to(device)
+        priors = torch.stack([x, y, x, y], 1).to(dtype).to(device) + self.base_anchors[level_idx][base_anchor_id, :].to(
+            device
+        )
 
         return priors
 
@@ -331,12 +360,21 @@ class AnchorGenerator:
         assert self.num_levels == len(featmap_sizes)
         multi_level_anchors = []
         for i in range(self.num_levels):
-            anchors = self.single_level_grid_anchors(self.base_anchors[i].to(device), featmap_sizes[i], self.strides[i], device=device)
+            anchors = self.single_level_grid_anchors(
+                self.base_anchors[i].to(device),
+                featmap_sizes[i],
+                self.strides[i],
+                device=device,
+            )
             multi_level_anchors.append(anchors)
         return multi_level_anchors
 
     def single_level_grid_anchors(
-        self, base_anchors: Tensor, featmap_size: Tuple[int, int], stride: Tuple[int, int] = (16, 16), device: DeviceType = "cuda"
+        self,
+        base_anchors: Tensor,
+        featmap_size: Tuple[int, int],
+        stride: Tuple[int, int] = (16, 16),
+        device: DeviceType = "cuda",
     ) -> Tensor:
         """Generate grid anchors of a single level.
 
@@ -355,7 +393,9 @@ class AnchorGenerator:
             torch.Tensor: Anchors in the overall feature maps.
         """
 
-        warnings.warn("``single_level_grid_anchors`` would be deprecated soon. Please use ``single_level_grid_priors`` ")
+        warnings.warn(
+            "``single_level_grid_anchors`` would be deprecated soon. Please use ``single_level_grid_priors`` "
+        )
 
         # keep featmap_size as Tensor instead of int, so that we
         # can convert to ONNX correctly
@@ -376,7 +416,12 @@ class AnchorGenerator:
         # then (0, 1), (0, 2), ...
         return all_anchors
 
-    def valid_flags(self, featmap_sizes: List[Tuple[int, int]], pad_shape: Tuple, device: DeviceType = "cuda") -> List[Tensor]:
+    def valid_flags(
+        self,
+        featmap_sizes: List[Tuple[int, int]],
+        pad_shape: Tuple,
+        device: DeviceType = "cuda",
+    ) -> List[Tensor]:
         """Generate valid flags of anchors in multiple feature levels.
 
         Args:
@@ -397,12 +442,21 @@ class AnchorGenerator:
             h, w = pad_shape[:2]
             valid_feat_h = min(int(np.ceil(h / anchor_stride[1])), feat_h)
             valid_feat_w = min(int(np.ceil(w / anchor_stride[0])), feat_w)
-            flags = self.single_level_valid_flags((feat_h, feat_w), (valid_feat_h, valid_feat_w), self.num_base_anchors[i], device=device)
+            flags = self.single_level_valid_flags(
+                (feat_h, feat_w),
+                (valid_feat_h, valid_feat_w),
+                self.num_base_anchors[i],
+                device=device,
+            )
             multi_level_flags.append(flags)
         return multi_level_flags
 
     def single_level_valid_flags(
-        self, featmap_size: Tuple[int, int], valid_size: Tuple[int, int], num_base_anchors: int, device: DeviceType = "cuda"
+        self,
+        featmap_size: Tuple[int, int],
+        valid_size: Tuple[int, int],
+        num_base_anchors: int,
+        device: DeviceType = "cuda",
     ) -> Tensor:
         """Generate the valid flags of anchor in a single feature map.
 
@@ -512,7 +566,9 @@ class SSDAnchorGenerator(AnchorGenerator):
                     min_sizes.insert(0, int(self.input_size * 10 / 100))
                     max_sizes.insert(0, int(self.input_size * 20 / 100))
                 else:
-                    raise ValueError(f"basesize_ratio_range[0] should be either 0.15or 0.2 when input_size is 300, got {basesize_ratio_range[0]}.")
+                    raise ValueError(
+                        f"basesize_ratio_range[0] should be either 0.15or 0.2 when input_size is 300, got {basesize_ratio_range[0]}."
+                    )
             elif self.input_size == 512:
                 if basesize_ratio_range[0] == 0.1:  # SSD512 COCO
                     min_sizes.insert(0, int(self.input_size * 4 / 100))
@@ -528,7 +584,9 @@ class SSDAnchorGenerator(AnchorGenerator):
                         f" {basesize_ratio_range[0]}."
                     )
             else:
-                raise ValueError(f"Only support 300 or 512 in SSDAnchorGenerator when not setting min_sizes and max_sizes, got {self.input_size}.")
+                raise ValueError(
+                    f"Only support 300 or 512 in SSDAnchorGenerator when not setting min_sizes and max_sizes, got {self.input_size}."
+                )
 
         assert len(min_sizes) == len(max_sizes) == len(strides)
 
@@ -559,7 +617,12 @@ class SSDAnchorGenerator(AnchorGenerator):
         """
         multi_level_base_anchors = []
         for i, base_size in enumerate(self.base_sizes):
-            base_anchors = self.gen_single_level_base_anchors(base_size, scales=self.scales[i], ratios=self.ratios[i], center=self.centers[i])
+            base_anchors = self.gen_single_level_base_anchors(
+                base_size,
+                scales=self.scales[i],
+                ratios=self.ratios[i],
+                center=self.centers[i],
+            )
             indices = list(range(len(self.ratios[i])))
             indices.insert(1, len(indices))
             base_anchors = torch.index_select(base_anchors, 0, torch.LongTensor(indices))
@@ -636,7 +699,11 @@ class LegacyAnchorGenerator(AnchorGenerator):
     """
 
     def gen_single_level_base_anchors(
-        self, base_size: Union[int, float], scales: Tensor, ratios: Tensor, center: Optional[Tuple[float]] = None
+        self,
+        base_size: Union[int, float],
+        scales: Tensor,
+        ratios: Tensor,
+        center: Optional[Tuple[float]] = None,
     ) -> Tensor:
         """Generate base anchors of a single level.
 
@@ -674,7 +741,12 @@ class LegacyAnchorGenerator(AnchorGenerator):
 
         # use float anchor and the anchor's center is aligned with the
         # pixel center
-        base_anchors = [x_center - 0.5 * (ws - 1), y_center - 0.5 * (hs - 1), x_center + 0.5 * (ws - 1), y_center + 0.5 * (hs - 1)]
+        base_anchors = [
+            x_center - 0.5 * (ws - 1),
+            y_center - 0.5 * (hs - 1),
+            x_center + 0.5 * (ws - 1),
+            y_center + 0.5 * (hs - 1),
+        ]
         base_anchors = torch.stack(base_anchors, dim=-1).round()
 
         return base_anchors
@@ -720,7 +792,12 @@ class YOLOAnchorGenerator(AnchorGenerator):
             of anchors in multiple levels.
     """
 
-    def __init__(self, strides: Union[List[int], List[Tuple[int, int]]], base_sizes: List[List[Tuple[int, int]]], use_box_type: bool = False) -> None:
+    def __init__(
+        self,
+        strides: Union[List[int], List[Tuple[int, int]]],
+        base_sizes: List[List[Tuple[int, int]]],
+        use_box_type: bool = False,
+    ) -> None:
         self.strides = [_pair(stride) for stride in strides]
         self.centers = [(stride[0] / 2.0, stride[1] / 2.0) for stride in self.strides]
         self.base_sizes = []
@@ -751,7 +828,11 @@ class YOLOAnchorGenerator(AnchorGenerator):
             multi_level_base_anchors.append(self.gen_single_level_base_anchors(base_sizes_per_level, center))
         return multi_level_base_anchors
 
-    def gen_single_level_base_anchors(self, base_sizes_per_level: List[Tuple[int]], center: Optional[Tuple[float]] = None) -> Tensor:
+    def gen_single_level_base_anchors(
+        self,
+        base_sizes_per_level: List[Tuple[int]],
+        center: Optional[Tuple[float]] = None,
+    ) -> Tensor:
         """Generate base anchors of a single level.
 
         Args:
@@ -770,7 +851,14 @@ class YOLOAnchorGenerator(AnchorGenerator):
 
             # use float anchor and the anchor's center is aligned with the
             # pixel center
-            base_anchor = torch.Tensor([x_center - 0.5 * w, y_center - 0.5 * h, x_center + 0.5 * w, y_center + 0.5 * h])
+            base_anchor = torch.Tensor(
+                [
+                    x_center - 0.5 * w,
+                    y_center - 0.5 * h,
+                    x_center + 0.5 * w,
+                    y_center + 0.5 * h,
+                ]
+            )
             base_anchors.append(base_anchor)
         base_anchors = torch.stack(base_anchors, dim=0)
 

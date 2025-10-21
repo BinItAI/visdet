@@ -7,7 +7,6 @@ from pathlib import Path
 import numpy as np
 import pytest
 from PIL import Image
-
 from viscv.transforms.loading import LoadImageFromFile
 from viscv.transforms.processing import Resize
 
@@ -61,7 +60,10 @@ class TestCacheIntegration:
 
         # Second pass - should be cache hit
         # Need to provide target size from first run
-        results2 = {"img_path": temp_image, "_cache_target_size": results["_cache_target_size"]}
+        results2 = {
+            "img_path": temp_image,
+            "_cache_target_size": results["_cache_target_size"],
+        }
         results2 = load_transform(results2)
         assert results2 is not None
         assert results2["_cache_hit"] is True  # Should hit cache this time
@@ -107,7 +109,10 @@ class TestCacheIntegration:
         assert stats["total_entries"] == 2
 
         # Verify second load hits cache for 224 (need to provide target size)
-        results_224_cached = {"img_path": temp_image, "_cache_target_size": results_224["_cache_target_size"]}
+        results_224_cached = {
+            "img_path": temp_image,
+            "_cache_target_size": results_224["_cache_target_size"],
+        }
         results_224_cached = load_transform(results_224_cached)
         assert results_224_cached["_cache_hit"] is True
         assert results_224_cached["img"].shape[:2] == size_224
@@ -170,7 +175,10 @@ class TestCacheIntegration:
         assert results["img"].shape[:2] == (224, 224)
 
         # Second pass - should hit cache (need to provide target size)
-        results2 = {"img_path": temp_image, "_cache_target_size": results["_cache_target_size"]}
+        results2 = {
+            "img_path": temp_image,
+            "_cache_target_size": results["_cache_target_size"],
+        }
         results2 = load_transform(results2)
         assert results2["_cache_hit"] is True
 
@@ -254,6 +262,9 @@ class TestCacheIntegration:
 
         # Verify cache hits on second pass (with target sizes)
         for img_path in images:
-            results = {"img_path": img_path, "_cache_target_size": target_sizes[img_path]}
+            results = {
+                "img_path": img_path,
+                "_cache_target_size": target_sizes[img_path],
+            }
             results = load_transform(results)
             assert results["_cache_hit"] is True

@@ -8,7 +8,6 @@ from mmdet.models.utils import InvertedResidual, SELayer
 
 
 def test_inverted_residual():
-
     with pytest.raises(AssertionError):
         # stride must be in [1, 2]
         InvertedResidual(16, 16, 32, stride=3)
@@ -26,7 +25,7 @@ def test_inverted_residual():
     block = InvertedResidual(16, 16, 32, stride=1)
     x = torch.randn(1, 16, 56, 56)
     x_out = block(x)
-    assert getattr(block, 'se', None) is None
+    assert getattr(block, "se", None) is None
     assert block.with_res_shortcut
     assert x_out.shape == torch.Size((1, 16, 56, 56))
 
@@ -49,12 +48,11 @@ def test_inverted_residual():
     block = InvertedResidual(32, 16, 32, with_expand_conv=False)
     x = torch.randn(1, 32, 56, 56)
     x_out = block(x)
-    assert getattr(block, 'expand_conv', None) is None
+    assert getattr(block, "expand_conv", None) is None
     assert x_out.shape == torch.Size((1, 16, 56, 56))
 
     # Test InvertedResidual forward with GroupNorm
-    block = InvertedResidual(
-        16, 16, 32, norm_cfg=dict(type='GN', num_groups=2))
+    block = InvertedResidual(16, 16, 32, norm_cfg=dict(type="GN", num_groups=2))
     x = torch.randn(1, 16, 56, 56)
     x_out = block(x)
     for m in block.modules():
@@ -63,7 +61,7 @@ def test_inverted_residual():
     assert x_out.shape == torch.Size((1, 16, 56, 56))
 
     # Test InvertedResidual forward with HSigmoid
-    block = InvertedResidual(16, 16, 32, act_cfg=dict(type='HSigmoid'))
+    block = InvertedResidual(16, 16, 32, act_cfg=dict(type="HSigmoid"))
     x = torch.randn(1, 16, 56, 56)
     x_out = block(x)
     assert x_out.shape == torch.Size((1, 16, 56, 56))

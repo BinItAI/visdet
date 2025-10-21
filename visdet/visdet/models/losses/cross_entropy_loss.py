@@ -11,7 +11,16 @@ from .accuracy import accuracy
 from .utils import weight_reduce_loss
 
 
-def cross_entropy(pred, label, weight=None, reduction="mean", avg_factor=None, class_weight=None, ignore_index=-100, avg_non_ignore=False):
+def cross_entropy(
+    pred,
+    label,
+    weight=None,
+    reduction="mean",
+    avg_factor=None,
+    class_weight=None,
+    ignore_index=-100,
+    avg_non_ignore=False,
+):
     """Calculate the CrossEntropy loss.
 
     Args:
@@ -69,7 +78,16 @@ def _expand_onehot_labels(labels, label_weights, label_channels, ignore_index):
     return bin_labels, bin_label_weights, valid_mask
 
 
-def binary_cross_entropy(pred, label, weight=None, reduction="mean", avg_factor=None, class_weight=None, ignore_index=-100, avg_non_ignore=False):
+def binary_cross_entropy(
+    pred,
+    label,
+    weight=None,
+    reduction="mean",
+    avg_factor=None,
+    class_weight=None,
+    ignore_index=-100,
+    avg_non_ignore=False,
+):
     """Calculate the binary CrossEntropy loss.
 
     Args:
@@ -122,7 +140,16 @@ def binary_cross_entropy(pred, label, weight=None, reduction="mean", avg_factor=
     return loss
 
 
-def mask_cross_entropy(pred, target, label, reduction="mean", avg_factor=None, class_weight=None, ignore_index=None, **kwargs):
+def mask_cross_entropy(
+    pred,
+    target,
+    label,
+    reduction="mean",
+    avg_factor=None,
+    class_weight=None,
+    ignore_index=None,
+    **kwargs,
+):
     """Calculate the CrossEntropy loss for masks.
 
     Args:
@@ -169,7 +196,14 @@ def mask_cross_entropy(pred, target, label, reduction="mean", avg_factor=None, c
 @MODELS.register_module()
 class CrossEntropyLoss(nn.Module):
     def __init__(
-        self, use_sigmoid=False, use_mask=False, reduction="mean", class_weight=None, ignore_index=None, loss_weight=1.0, avg_non_ignore=False
+        self,
+        use_sigmoid=False,
+        use_mask=False,
+        reduction="mean",
+        class_weight=None,
+        ignore_index=None,
+        loss_weight=1.0,
+        avg_non_ignore=False,
     ):
         """CrossEntropyLoss.
 
@@ -217,7 +251,16 @@ class CrossEntropyLoss(nn.Module):
         s = f"avg_non_ignore={self.avg_non_ignore}"
         return s
 
-    def forward(self, cls_score, label, weight=None, avg_factor=None, reduction_override=None, ignore_index=None, **kwargs):
+    def forward(
+        self,
+        cls_score,
+        label,
+        weight=None,
+        avg_factor=None,
+        reduction_override=None,
+        ignore_index=None,
+        **kwargs,
+    ):
         """Forward function.
 
         Args:

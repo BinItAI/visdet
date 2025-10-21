@@ -3,4 +3,4 @@
 
 from .visualization_hook import DetVisualizationHook
 
-__all__ = ['DetVisualizationHook']
+__all__ = ["DetVisualizationHook"]

@@ -51,12 +51,16 @@ def weighted_boxes_fusion(
     if weights is None:
         weights = np.ones(len(bboxes_list))
     if len(weights) != len(bboxes_list):
-        print(f"Warning: incorrect number of weights {len(weights)}. Must be: {len(bboxes_list)}. Set weights equal to 1.")
+        print(
+            f"Warning: incorrect number of weights {len(weights)}. Must be: {len(bboxes_list)}. Set weights equal to 1."
+        )
         weights = np.ones(len(bboxes_list))
     weights = np.array(weights)
 
     if conf_type not in ["avg", "max", "box_and_model_avg", "absent_model_aware_avg"]:
-        print(f'Unknown conf_type: {conf_type}. Must be "avg", "max" or "box_and_model_avg", or "absent_model_aware_avg"')
+        print(
+            f'Unknown conf_type: {conf_type}. Must be "avg", "max" or "box_and_model_avg", or "absent_model_aware_avg"'
+        )
         exit()
 
     filtered_boxes = prefilter_boxes(bboxes_list, scores_list, labels_list, weights, skip_box_thr)
@@ -100,7 +104,9 @@ def weighted_boxes_fusion(
                 mask = np.ones(len(weights), dtype=bool)
                 mask[models] = False
                 # absent model aware weighted average
-                weighted_boxes[i, 1] = weighted_boxes[i, 1] * len(clustered_boxes) / (weighted_boxes[i, 2] + weights[mask].sum())
+                weighted_boxes[i, 1] = (
+                    weighted_boxes[i, 1] * len(clustered_boxes) / (weighted_boxes[i, 2] + weights[mask].sum())
+                )
             elif conf_type == "max":
                 weighted_boxes[i, 1] = weighted_boxes[i, 1] / weights.max()
             elif not allows_overflow:
@@ -123,11 +129,15 @@ def prefilter_boxes(boxes, scores, labels, weights, thr):
 
     for t in range(len(boxes)):
         if len(boxes[t]) != len(scores[t]):
-            print(f"Error. Length of boxes arrays not equal to length of scores array: {len(boxes[t])} != {len(scores[t])}")
+            print(
+                f"Error. Length of boxes arrays not equal to length of scores array: {len(boxes[t])} != {len(scores[t])}"
+            )
             exit()
 
         if len(boxes[t]) != len(labels[t]):
-            print(f"Error. Length of boxes arrays not equal to length of labels array: {len(boxes[t])} != {len(labels[t])}")
+            print(
+                f"Error. Length of boxes arrays not equal to length of labels array: {len(boxes[t])} != {len(labels[t])}"
+            )
             exit()
 
         for j in range(len(boxes[t])):

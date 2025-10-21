@@ -6,6 +6,7 @@ import numpy as np
 
 from mmdet.core import INSTANCE_OFFSET, bbox2result
 from mmdet.core.visualization import imshow_det_bboxes
+
 from ..builder import DETECTORS, build_backbone, build_head, build_neck
 from .single_stage import SingleStageDetector
 
@@ -16,14 +17,16 @@ class MaskFormer(SingleStageDetector):
     NOT All You Need for Semantic Segmentation
     <https://arxiv.org/pdf/2107.06278>`_."""
 
-    def __init__(self,
-                 backbone,
-                 neck=None,
-                 panoptic_head=None,
-                 panoptic_fusion_head=None,
-                 train_cfg=None,
-                 test_cfg=None,
-                 init_cfg=None):
+    def __init__(
+        self,
+        backbone,
+        neck=None,
+        panoptic_head=None,
+        panoptic_fusion_head=None,
+        train_cfg=None,
+        test_cfg=None,
+        init_cfg=None,
+    ):
         super(SingleStageDetector, self).__init__(init_cfg=init_cfg)
         self.backbone = build_backbone(backbone)
         if neck is not None:
@@ -67,15 +70,17 @@ class MaskFormer(SingleStageDetector):
         outs = self.panoptic_head(x, img_metas)
         return outs
 
-    def forward_train(self,
-                      img,
-                      img_metas,
-                      gt_bboxes,
-                      gt_labels,
-                      gt_masks,
-                      gt_semantic_seg=None,
-                      gt_bboxes_ignore=None,
-                      **kargs):
+    def forward_train(
+        self,
+        img,
+        img_metas,
+        gt_bboxes,
+        gt_labels,
+        gt_masks,
+        gt_semantic_seg=None,
+        gt_bboxes_ignore=None,
+        **kargs,
+    ):
         """
         Args:
             img (Tensor): of shape (N, C, H, W) encoding input images.
@@ -103,10 +108,15 @@ class MaskFormer(SingleStageDetector):
         # add batch_input_shape in img_metas
         super(SingleStageDetector, self).forward_train(img, img_metas)
         x = self.extract_feat(img)
-        losses = self.panoptic_head.forward_train(x, img_metas, gt_bboxes,
-                                                  gt_labels, gt_masks,
-                                                  gt_semantic_seg,
-                                                  gt_bboxes_ignore)
+        losses = self.panoptic_head.forward_train(
+            x,
+            img_metas,
+            gt_bboxes,
+            gt_labels,
+            gt_masks,
+            gt_semantic_seg,
+            gt_bboxes_ignore,
+        )
 
         return losses
 
@@ -150,31 +160,25 @@ class MaskFormer(SingleStageDetector):
                 ]
         """
         feats = self.extract_feat(imgs)
-        mask_cls_results, mask_pred_results = self.panoptic_head.simple_test(
-            feats, img_metas, **kwargs)
-        results = self.panoptic_fusion_head.simple_test(
-            mask_cls_results, mask_pred_results, img_metas, **kwargs)
+        mask_cls_results, mask_pred_results = self.panoptic_head.simple_test(feats, img_metas, **kwargs)
+        results = self.panoptic_fusion_head.simple_test(mask_cls_results, mask_pred_results, img_metas, **kwargs)
         for i in range(len(results)):
-            if 'pan_results' in results[i]:
-                results[i]['pan_results'] = results[i]['pan_results'].detach(
-                ).cpu().numpy()
+            if "pan_results" in results[i]:
+                results[i]["pan_results"] = results[i]["pan_results"].detach().cpu().numpy()
 
-            if 'ins_results' in results[i]:
-                labels_per_image, bboxes, mask_pred_binary = results[i][
-                    'ins_results']
-                bbox_results = bbox2result(bboxes, labels_per_image,
-                                           self.num_things_classes)
+            if "ins_results" in results[i]:
+                labels_per_image, bboxes, mask_pred_binary = results[i]["ins_results"]
+                bbox_results = bbox2result(bboxes, labels_per_image, self.num_things_classes)
                 mask_results = [[] for _ in range(self.num_things_classes)]
                 for j, label in enumerate(labels_per_image):
                     mask = mask_pred_binary[j].detach().cpu().numpy()
                     mask_results[label].append(mask)
-                results[i]['ins_results'] = bbox_results, mask_results
+                results[i]["ins_results"] = bbox_results, mask_results
 
-            assert 'sem_results' not in results[i], 'segmantic segmentation '\
-                'results are not supported yet.'
+            assert "sem_results" not in results[i], "segmantic segmentation results are not supported yet."
 
         if self.num_stuff_classes == 0:
-            results = [res['ins_results'] for res in results]
+            results = [res["ins_results"] for res in results]
 
         return results
 
@@ -184,19 +188,21 @@ class MaskFormer(SingleStageDetector):
     def onnx_export(self, img, img_metas):
         raise NotImplementedError
 
-    def _show_pan_result(self,
-                         img,
-                         result,
-                         score_thr=0.3,
-                         bbox_color=(72, 101, 241),
-                         text_color=(72, 101, 241),
-                         mask_color=None,
-                         thickness=2,
-                         font_size=13,
-                         win_name='',
-                         show=False,
-                         wait_time=0,
-                         out_file=None):
+    def _show_pan_result(
+        self,
+        img,
+        result,
+        score_thr=0.3,
+        bbox_color=(72, 101, 241),
+        text_color=(72, 101, 241),
+        mask_color=None,
+        thickness=2,
+        font_size=13,
+        win_name="",
+        show=False,
+        wait_time=0,
+        out_file=None,
+    ):
         """Draw `panoptic result` over `img`.
 
         Args:
@@ -227,13 +233,13 @@ class MaskFormer(SingleStageDetector):
         """
         img = mmcv.imread(img)
         img = img.copy()
-        pan_results = result['pan_results']
+        pan_results = result["pan_results"]
         # keep objects ahead
         ids = np.unique(pan_results)[::-1]
         legal_indices = ids != self.num_classes  # for VOID label
         ids = ids[legal_indices]
         labels = np.array([id % INSTANCE_OFFSET for id in ids], dtype=np.int64)
-        segms = (pan_results[None] == ids[:, None, None])
+        segms = pan_results[None] == ids[:, None, None]
 
         # if out_file specified, do not show image in window
         if out_file is not None:
@@ -252,7 +258,8 @@ class MaskFormer(SingleStageDetector):
             win_name=win_name,
             show=show,
             wait_time=wait_time,
-            out_file=out_file)
+            out_file=out_file,
+        )
 
         if not (show or out_file):
             return img

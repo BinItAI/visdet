@@ -10,8 +10,7 @@ from .sampling_result import SamplingResult
 class MaskSamplingResult(SamplingResult):
     """Mask sampling result."""
 
-    def __init__(self, pos_inds, neg_inds, masks, gt_masks, assign_result,
-                 gt_flags):
+    def __init__(self, pos_inds, neg_inds, masks, gt_masks, assign_result, gt_flags):
         self.pos_inds = pos_inds
         self.neg_inds = neg_inds
         self.pos_masks = masks[pos_inds]
@@ -40,21 +39,21 @@ class MaskSamplingResult(SamplingResult):
 
     def __nice__(self):
         data = self.info.copy()
-        data['pos_masks'] = data.pop('pos_masks').shape
-        data['neg_masks'] = data.pop('neg_masks').shape
+        data["pos_masks"] = data.pop("pos_masks").shape
+        data["neg_masks"] = data.pop("neg_masks").shape
         parts = [f"'{k}': {v!r}" for k, v in sorted(data.items())]
-        body = '    ' + ',\n    '.join(parts)
-        return '{\n' + body + '\n}'
+        body = "    " + ",\n    ".join(parts)
+        return "{\n" + body + "\n}"
 
     @property
     def info(self):
         """Returns a dictionary of info about the object."""
         return {
-            'pos_inds': self.pos_inds,
-            'neg_inds': self.neg_inds,
-            'pos_masks': self.pos_masks,
-            'neg_masks': self.neg_masks,
-            'pos_is_gt': self.pos_is_gt,
-            'num_gts': self.num_gts,
-            'pos_assigned_gt_inds': self.pos_assigned_gt_inds,
+            "pos_inds": self.pos_inds,
+            "neg_inds": self.neg_inds,
+            "pos_masks": self.pos_masks,
+            "neg_masks": self.neg_masks,
+            "pos_is_gt": self.pos_is_gt,
+            "num_gts": self.num_gts,
+            "pos_assigned_gt_inds": self.pos_assigned_gt_inds,
         }

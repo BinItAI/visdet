@@ -28,20 +28,22 @@ class TaskAlignedAssigner(BaseAssigner):
             Default: dict(type='BboxOverlaps2D')
     """
 
-    def __init__(self, topk, iou_calculator=dict(type='BboxOverlaps2D')):
+    def __init__(self, topk, iou_calculator=dict(type="BboxOverlaps2D")):
         assert topk >= 1
         self.topk = topk
         self.iou_calculator = build_iou_calculator(iou_calculator)
 
-    def assign(self,
-               pred_scores,
-               decode_bboxes,
-               anchors,
-               gt_bboxes,
-               gt_bboxes_ignore=None,
-               gt_labels=None,
-               alpha=1,
-               beta=6):
+    def assign(
+        self,
+        pred_scores,
+        decode_bboxes,
+        anchors,
+        gt_bboxes,
+        gt_bboxes_ignore=None,
+        gt_labels=None,
+        alpha=1,
+        beta=6,
+    ):
         """Assign gt to bboxes.
 
         The assignment is done in following steps
@@ -72,25 +74,20 @@ class TaskAlignedAssigner(BaseAssigner):
         overlaps = self.iou_calculator(decode_bboxes, gt_bboxes).detach()
         bbox_scores = pred_scores[:, gt_labels].detach()
         # assign 0 by default
-        assigned_gt_inds = anchors.new_full((num_bboxes, ),
-                                            0,
-                                            dtype=torch.long)
-        assign_metrics = anchors.new_zeros((num_bboxes, ))
+        assigned_gt_inds = anchors.new_full((num_bboxes,), 0, dtype=torch.long)
+        assign_metrics = anchors.new_zeros((num_bboxes,))
 
         if num_gt == 0 or num_bboxes == 0:
             # No ground truth or boxes, return empty assignment
-            max_overlaps = anchors.new_zeros((num_bboxes, ))
+            max_overlaps = anchors.new_zeros((num_bboxes,))
             if num_gt == 0:
                 # No gt boxes, assign everything to background
                 assigned_gt_inds[:] = 0
             if gt_labels is None:
                 assigned_labels = None
             else:
-                assigned_labels = anchors.new_full((num_bboxes, ),
-                                                   -1,
-                                                   dtype=torch.long)
-            assign_result = AssignResult(
-                num_gt, assigned_gt_inds, max_overlaps, labels=assigned_labels)
+                assigned_labels = anchors.new_full((num_bboxes,), -1, dtype=torch.long)
+            assign_result = AssignResult(num_gt, assigned_gt_inds, max_overlaps, labels=assigned_labels)
             assign_result.assign_metrics = assign_metrics
             return assign_result
 
@@ -98,8 +95,7 @@ class TaskAlignedAssigner(BaseAssigner):
         alignment_metrics = bbox_scores**alpha * overlaps**beta
         topk = min(self.topk, alignment_metrics.size(0))
         _, candidate_idxs = alignment_metrics.topk(topk, dim=0, largest=True)
-        candidate_metrics = alignment_metrics[candidate_idxs,
-                                              torch.arange(num_gt)]
+        candidate_metrics = alignment_metrics[candidate_idxs, torch.arange(num_gt)]
         is_pos = candidate_metrics > 0
 
         # limit the positive sample's center in gt
@@ -107,10 +103,8 @@ class TaskAlignedAssigner(BaseAssigner):
         anchors_cy = (anchors[:, 1] + anchors[:, 3]) / 2.0
         for gt_idx in range(num_gt):
             candidate_idxs[:, gt_idx] += gt_idx * num_bboxes
-        ep_anchors_cx = anchors_cx.view(1, -1).expand(
-            num_gt, num_bboxes).contiguous().view(-1)
-        ep_anchors_cy = anchors_cy.view(1, -1).expand(
-            num_gt, num_bboxes).contiguous().view(-1)
+        ep_anchors_cx = anchors_cx.view(1, -1).expand(num_gt, num_bboxes).contiguous().view(-1)
+        ep_anchors_cy = anchors_cy.view(1, -1).expand(num_gt, num_bboxes).contiguous().view(-1)
         candidate_idxs = candidate_idxs.view(-1)
 
         # calculate the left, top, right, bottom distance between positive
@@ -124,28 +118,24 @@ class TaskAlignedAssigner(BaseAssigner):
 
         # if an anchor box is assigned to multiple gts,
         # the one with the highest iou will be selected.
-        overlaps_inf = torch.full_like(overlaps,
-                                       -INF).t().contiguous().view(-1)
+        overlaps_inf = torch.full_like(overlaps, -INF).t().contiguous().view(-1)
         index = candidate_idxs.view(-1)[is_pos.view(-1)]
         overlaps_inf[index] = overlaps.t().contiguous().view(-1)[index]
         overlaps_inf = overlaps_inf.view(num_gt, -1).t()
 
         max_overlaps, argmax_overlaps = overlaps_inf.max(dim=1)
-        assigned_gt_inds[
-            max_overlaps != -INF] = argmax_overlaps[max_overlaps != -INF] + 1
+        assigned_gt_inds[max_overlaps != -INF] = argmax_overlaps[max_overlaps != -INF] + 1
         assign_metrics[max_overlaps != -INF] = alignment_metrics[
-            max_overlaps != -INF, argmax_overlaps[max_overlaps != -INF]]
+            max_overlaps != -INF, argmax_overlaps[max_overlaps != -INF]
+        ]
 
         if gt_labels is not None:
-            assigned_labels = assigned_gt_inds.new_full((num_bboxes, ), -1)
-            pos_inds = torch.nonzero(
-                assigned_gt_inds > 0, as_tuple=False).squeeze()
+            assigned_labels = assigned_gt_inds.new_full((num_bboxes,), -1)
+            pos_inds = torch.nonzero(assigned_gt_inds > 0, as_tuple=False).squeeze()
             if pos_inds.numel() > 0:
-                assigned_labels[pos_inds] = gt_labels[
-                    assigned_gt_inds[pos_inds] - 1]
+                assigned_labels[pos_inds] = gt_labels[assigned_gt_inds[pos_inds] - 1]
         else:
             assigned_labels = None
-        assign_result = AssignResult(
-            num_gt, assigned_gt_inds, max_overlaps, labels=assigned_labels)
+        assign_result = AssignResult(num_gt, assigned_gt_inds, max_overlaps, labels=assigned_labels)
         assign_result.assign_metrics = assign_metrics
         return assign_result

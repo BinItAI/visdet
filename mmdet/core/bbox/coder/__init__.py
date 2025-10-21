@@ -9,7 +9,12 @@ from .tblr_bbox_coder import TBLRBBoxCoder
 from .yolo_bbox_coder import YOLOBBoxCoder
 
 __all__ = [
-    'BaseBBoxCoder', 'PseudoBBoxCoder', 'DeltaXYWHBBoxCoder',
-    'LegacyDeltaXYWHBBoxCoder', 'TBLRBBoxCoder', 'YOLOBBoxCoder',
-    'BucketingBBoxCoder', 'DistancePointBBoxCoder'
+    "BaseBBoxCoder",
+    "PseudoBBoxCoder",
+    "DeltaXYWHBBoxCoder",
+    "LegacyDeltaXYWHBBoxCoder",
+    "TBLRBBoxCoder",
+    "YOLOBBoxCoder",
+    "BucketingBBoxCoder",
+    "DistancePointBBoxCoder",
 ]

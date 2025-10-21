@@ -10,8 +10,14 @@ from .yolox_lrupdater_hook import YOLOXLrUpdaterHook
 from .yolox_mode_switch_hook import YOLOXModeSwitchHook
 
 __all__ = [
-    'SyncRandomSizeHook', 'YOLOXModeSwitchHook', 'SyncNormHook',
-    'ExpMomentumEMAHook', 'LinearMomentumEMAHook', 'YOLOXLrUpdaterHook',
-    'CheckInvalidLossHook', 'SetEpochInfoHook', 'MemoryProfilerHook',
-    'MMDetWandbHook'
+    "SyncRandomSizeHook",
+    "YOLOXModeSwitchHook",
+    "SyncNormHook",
+    "ExpMomentumEMAHook",
+    "LinearMomentumEMAHook",
+    "YOLOXLrUpdaterHook",
+    "CheckInvalidLossHook",
+    "SetEpochInfoHook",
+    "MemoryProfilerHook",
+    "MMDetWandbHook",
 ]

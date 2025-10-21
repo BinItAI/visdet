@@ -7,10 +7,17 @@ import torch.nn as nn
 from mmcv.cnn import ConvModule
 from mmcv.runner import force_fp32
 
-from mmdet.core import (build_assigner, build_bbox_coder,
-                        build_prior_generator, build_sampler, images_to_levels,
-                        multi_apply, unmap)
+from mmdet.core import (
+    build_assigner,
+    build_bbox_coder,
+    build_prior_generator,
+    build_sampler,
+    images_to_levels,
+    multi_apply,
+    unmap,
+)
 from mmdet.core.utils import filter_scores_and_topk
+
 from ..builder import HEADS, build_loss
 from .base_dense_head import BaseDenseHead
 from .dense_test_mixins import BBoxTestMixin
@@ -51,70 +58,54 @@ class SABLRetinaHead(BaseDenseHead, BBoxTestMixin):
         init_cfg (dict or list[dict], optional): Initialization config dict.
     """
 
-    def __init__(self,
-                 num_classes,
-                 in_channels,
-                 stacked_convs=4,
-                 feat_channels=256,
-                 approx_anchor_generator=dict(
-                     type='AnchorGenerator',
-                     octave_base_scale=4,
-                     scales_per_octave=3,
-                     ratios=[0.5, 1.0, 2.0],
-                     strides=[8, 16, 32, 64, 128]),
-                 square_anchor_generator=dict(
-                     type='AnchorGenerator',
-                     ratios=[1.0],
-                     scales=[4],
-                     strides=[8, 16, 32, 64, 128]),
-                 conv_cfg=None,
-                 norm_cfg=None,
-                 bbox_coder=dict(
-                     type='BucketingBBoxCoder',
-                     num_buckets=14,
-                     scale_factor=3.0),
-                 reg_decoded_bbox=False,
-                 train_cfg=None,
-                 test_cfg=None,
-                 loss_cls=dict(
-                     type='FocalLoss',
-                     use_sigmoid=True,
-                     gamma=2.0,
-                     alpha=0.25,
-                     loss_weight=1.0),
-                 loss_bbox_cls=dict(
-                     type='CrossEntropyLoss',
-                     use_sigmoid=True,
-                     loss_weight=1.5),
-                 loss_bbox_reg=dict(
-                     type='SmoothL1Loss', beta=1.0 / 9.0, loss_weight=1.5),
-                 init_cfg=dict(
-                     type='Normal',
-                     layer='Conv2d',
-                     std=0.01,
-                     override=dict(
-                         type='Normal',
-                         name='retina_cls',
-                         std=0.01,
-                         bias_prob=0.01))):
+    def __init__(
+        self,
+        num_classes,
+        in_channels,
+        stacked_convs=4,
+        feat_channels=256,
+        approx_anchor_generator=dict(
+            type="AnchorGenerator",
+            octave_base_scale=4,
+            scales_per_octave=3,
+            ratios=[0.5, 1.0, 2.0],
+            strides=[8, 16, 32, 64, 128],
+        ),
+        square_anchor_generator=dict(
+            type="AnchorGenerator",
+            ratios=[1.0],
+            scales=[4],
+            strides=[8, 16, 32, 64, 128],
+        ),
+        conv_cfg=None,
+        norm_cfg=None,
+        bbox_coder=dict(type="BucketingBBoxCoder", num_buckets=14, scale_factor=3.0),
+        reg_decoded_bbox=False,
+        train_cfg=None,
+        test_cfg=None,
+        loss_cls=dict(type="FocalLoss", use_sigmoid=True, gamma=2.0, alpha=0.25, loss_weight=1.0),
+        loss_bbox_cls=dict(type="CrossEntropyLoss", use_sigmoid=True, loss_weight=1.5),
+        loss_bbox_reg=dict(type="SmoothL1Loss", beta=1.0 / 9.0, loss_weight=1.5),
+        init_cfg=dict(
+            type="Normal",
+            layer="Conv2d",
+            std=0.01,
+            override=dict(type="Normal", name="retina_cls", std=0.01, bias_prob=0.01),
+        ),
+    ):
         super(SABLRetinaHead, self).__init__(init_cfg)
         self.in_channels = in_channels
         self.num_classes = num_classes
         self.feat_channels = feat_channels
-        self.num_buckets = bbox_coder['num_buckets']
+        self.num_buckets = bbox_coder["num_buckets"]
         self.side_num = int(np.ceil(self.num_buckets / 2))
 
-        assert (approx_anchor_generator['octave_base_scale'] ==
-                square_anchor_generator['scales'][0])
-        assert (approx_anchor_generator['strides'] ==
-                square_anchor_generator['strides'])
+        assert approx_anchor_generator["octave_base_scale"] == square_anchor_generator["scales"][0]
+        assert approx_anchor_generator["strides"] == square_anchor_generator["strides"]
 
-        self.approx_anchor_generator = build_prior_generator(
-            approx_anchor_generator)
-        self.square_anchor_generator = build_prior_generator(
-            square_anchor_generator)
-        self.approxs_per_octave = (
-            self.approx_anchor_generator.num_base_priors[0])
+        self.approx_anchor_generator = build_prior_generator(approx_anchor_generator)
+        self.square_anchor_generator = build_prior_generator(square_anchor_generator)
+        self.approxs_per_octave = self.approx_anchor_generator.num_base_priors[0]
 
         # one anchor per location
         self.num_base_priors = self.square_anchor_generator.num_base_priors[0]
@@ -125,9 +116,11 @@ class SABLRetinaHead(BaseDenseHead, BBoxTestMixin):
 
         self.reg_decoded_bbox = reg_decoded_bbox
 
-        self.use_sigmoid_cls = loss_cls.get('use_sigmoid', False)
-        self.sampling = loss_cls['type'] not in [
-            'FocalLoss', 'GHMC', 'QualityFocalLoss'
+        self.use_sigmoid_cls = loss_cls.get("use_sigmoid", False)
+        self.sampling = loss_cls["type"] not in [
+            "FocalLoss",
+            "GHMC",
+            "QualityFocalLoss",
         ]
         if self.use_sigmoid_cls:
             self.cls_out_channels = num_classes
@@ -145,10 +138,10 @@ class SABLRetinaHead(BaseDenseHead, BBoxTestMixin):
         if self.train_cfg:
             self.assigner = build_assigner(self.train_cfg.assigner)
             # use PseudoSampler when sampling is False
-            if self.sampling and hasattr(self.train_cfg, 'sampler'):
+            if self.sampling and hasattr(self.train_cfg, "sampler"):
                 sampler_cfg = self.train_cfg.sampler
             else:
-                sampler_cfg = dict(type='PseudoSampler')
+                sampler_cfg = dict(type="PseudoSampler")
             self.sampler = build_sampler(sampler_cfg, context=self)
 
         self.fp16_enabled = False
@@ -156,8 +149,7 @@ class SABLRetinaHead(BaseDenseHead, BBoxTestMixin):
 
     @property
     def num_anchors(self):
-        warnings.warn('DeprecationWarning: `num_anchors` is deprecated, '
-                      'please use "num_base_priors" instead')
+        warnings.warn('DeprecationWarning: `num_anchors` is deprecated, please use "num_base_priors" instead')
         return self.square_anchor_generator.num_base_priors[0]
 
     def _init_layers(self):
@@ -174,7 +166,9 @@ class SABLRetinaHead(BaseDenseHead, BBoxTestMixin):
                     stride=1,
                     padding=1,
                     conv_cfg=self.conv_cfg,
-                    norm_cfg=self.norm_cfg))
+                    norm_cfg=self.norm_cfg,
+                )
+            )
             self.reg_convs.append(
                 ConvModule(
                     chn,
@@ -183,13 +177,12 @@ class SABLRetinaHead(BaseDenseHead, BBoxTestMixin):
                     stride=1,
                     padding=1,
                     conv_cfg=self.conv_cfg,
-                    norm_cfg=self.norm_cfg))
-        self.retina_cls = nn.Conv2d(
-            self.feat_channels, self.cls_out_channels, 3, padding=1)
-        self.retina_bbox_reg = nn.Conv2d(
-            self.feat_channels, self.side_num * 4, 3, padding=1)
-        self.retina_bbox_cls = nn.Conv2d(
-            self.feat_channels, self.side_num * 4, 3, padding=1)
+                    norm_cfg=self.norm_cfg,
+                )
+            )
+        self.retina_cls = nn.Conv2d(self.feat_channels, self.cls_out_channels, 3, padding=1)
+        self.retina_bbox_reg = nn.Conv2d(self.feat_channels, self.side_num * 4, 3, padding=1)
+        self.retina_bbox_cls = nn.Conv2d(self.feat_channels, self.side_num * 4, 3, padding=1)
 
     def forward_single(self, x):
         cls_feat = x
@@ -207,7 +200,7 @@ class SABLRetinaHead(BaseDenseHead, BBoxTestMixin):
     def forward(self, feats):
         return multi_apply(self.forward_single, feats)
 
-    def get_anchors(self, featmap_sizes, img_metas, device='cuda'):
+    def get_anchors(self, featmap_sizes, img_metas, device="cuda"):
         """Get squares according to feature map sizes and guided anchors.
 
         Args:
@@ -222,23 +215,24 @@ class SABLRetinaHead(BaseDenseHead, BBoxTestMixin):
 
         # since feature map sizes of all images are the same, we only compute
         # squares for one time
-        multi_level_squares = self.square_anchor_generator.grid_priors(
-            featmap_sizes, device=device)
+        multi_level_squares = self.square_anchor_generator.grid_priors(featmap_sizes, device=device)
         squares_list = [multi_level_squares for _ in range(num_imgs)]
 
         return squares_list
 
-    def get_target(self,
-                   approx_list,
-                   inside_flag_list,
-                   square_list,
-                   gt_bboxes_list,
-                   img_metas,
-                   gt_bboxes_ignore_list=None,
-                   gt_labels_list=None,
-                   label_channels=None,
-                   sampling=True,
-                   unmap_outputs=True):
+    def get_target(
+        self,
+        approx_list,
+        inside_flag_list,
+        square_list,
+        gt_bboxes_list,
+        img_metas,
+        gt_bboxes_ignore_list=None,
+        gt_labels_list=None,
+        label_channels=None,
+        sampling=True,
+        unmap_outputs=True,
+    ):
         """Compute bucketing targets.
         Args:
             approx_list (list[list]): Multi level approxs of each image.
@@ -273,8 +267,7 @@ class SABLRetinaHead(BaseDenseHead, BBoxTestMixin):
                     images.
         """
         num_imgs = len(img_metas)
-        assert len(approx_list) == len(inside_flag_list) == len(
-            square_list) == num_imgs
+        assert len(approx_list) == len(inside_flag_list) == len(square_list) == num_imgs
         # anchor number of multi levels
         num_level_squares = [squares.size(0) for squares in square_list[0]]
         # concat all level anchors and flags to a single tensor
@@ -292,20 +285,28 @@ class SABLRetinaHead(BaseDenseHead, BBoxTestMixin):
             gt_bboxes_ignore_list = [None for _ in range(num_imgs)]
         if gt_labels_list is None:
             gt_labels_list = [None for _ in range(num_imgs)]
-        (all_labels, all_label_weights, all_bbox_cls_targets,
-         all_bbox_cls_weights, all_bbox_reg_targets, all_bbox_reg_weights,
-         pos_inds_list, neg_inds_list) = multi_apply(
-             self._get_target_single,
-             approx_flat_list,
-             inside_flag_flat_list,
-             square_flat_list,
-             gt_bboxes_list,
-             gt_bboxes_ignore_list,
-             gt_labels_list,
-             img_metas,
-             label_channels=label_channels,
-             sampling=sampling,
-             unmap_outputs=unmap_outputs)
+        (
+            all_labels,
+            all_label_weights,
+            all_bbox_cls_targets,
+            all_bbox_cls_weights,
+            all_bbox_reg_targets,
+            all_bbox_reg_weights,
+            pos_inds_list,
+            neg_inds_list,
+        ) = multi_apply(
+            self._get_target_single,
+            approx_flat_list,
+            inside_flag_flat_list,
+            square_flat_list,
+            gt_bboxes_list,
+            gt_bboxes_ignore_list,
+            gt_labels_list,
+            img_metas,
+            label_channels=label_channels,
+            sampling=sampling,
+            unmap_outputs=unmap_outputs,
+        )
         # no valid anchors
         if any([labels is None for labels in all_labels]):
             return None
@@ -314,31 +315,35 @@ class SABLRetinaHead(BaseDenseHead, BBoxTestMixin):
         num_total_neg = sum([max(inds.numel(), 1) for inds in neg_inds_list])
         # split targets to a list w.r.t. multiple levels
         labels_list = images_to_levels(all_labels, num_level_squares)
-        label_weights_list = images_to_levels(all_label_weights,
-                                              num_level_squares)
-        bbox_cls_targets_list = images_to_levels(all_bbox_cls_targets,
-                                                 num_level_squares)
-        bbox_cls_weights_list = images_to_levels(all_bbox_cls_weights,
-                                                 num_level_squares)
-        bbox_reg_targets_list = images_to_levels(all_bbox_reg_targets,
-                                                 num_level_squares)
-        bbox_reg_weights_list = images_to_levels(all_bbox_reg_weights,
-                                                 num_level_squares)
-        return (labels_list, label_weights_list, bbox_cls_targets_list,
-                bbox_cls_weights_list, bbox_reg_targets_list,
-                bbox_reg_weights_list, num_total_pos, num_total_neg)
+        label_weights_list = images_to_levels(all_label_weights, num_level_squares)
+        bbox_cls_targets_list = images_to_levels(all_bbox_cls_targets, num_level_squares)
+        bbox_cls_weights_list = images_to_levels(all_bbox_cls_weights, num_level_squares)
+        bbox_reg_targets_list = images_to_levels(all_bbox_reg_targets, num_level_squares)
+        bbox_reg_weights_list = images_to_levels(all_bbox_reg_weights, num_level_squares)
+        return (
+            labels_list,
+            label_weights_list,
+            bbox_cls_targets_list,
+            bbox_cls_weights_list,
+            bbox_reg_targets_list,
+            bbox_reg_weights_list,
+            num_total_pos,
+            num_total_neg,
+        )
 
-    def _get_target_single(self,
-                           flat_approxs,
-                           inside_flags,
-                           flat_squares,
-                           gt_bboxes,
-                           gt_bboxes_ignore,
-                           gt_labels,
-                           img_meta,
-                           label_channels=None,
-                           sampling=True,
-                           unmap_outputs=True):
+    def _get_target_single(
+        self,
+        flat_approxs,
+        inside_flags,
+        flat_squares,
+        gt_bboxes,
+        gt_bboxes_ignore,
+        gt_labels,
+        img_meta,
+        label_channels=None,
+        sampling=True,
+        unmap_outputs=True,
+    ):
         """Compute regression and classification targets for anchors in a
         single image.
 
@@ -375,39 +380,32 @@ class SABLRetinaHead(BaseDenseHead, BBoxTestMixin):
                     in a single image
         """
         if not inside_flags.any():
-            return (None, ) * 8
+            return (None,) * 8
         # assign gt and sample anchors
-        expand_inside_flags = inside_flags[:, None].expand(
-            -1, self.approxs_per_octave).reshape(-1)
+        expand_inside_flags = inside_flags[:, None].expand(-1, self.approxs_per_octave).reshape(-1)
         approxs = flat_approxs[expand_inside_flags, :]
         squares = flat_squares[inside_flags, :]
 
-        assign_result = self.assigner.assign(approxs, squares,
-                                             self.approxs_per_octave,
-                                             gt_bboxes, gt_bboxes_ignore)
-        sampling_result = self.sampler.sample(assign_result, squares,
-                                              gt_bboxes)
+        assign_result = self.assigner.assign(approxs, squares, self.approxs_per_octave, gt_bboxes, gt_bboxes_ignore)
+        sampling_result = self.sampler.sample(assign_result, squares, gt_bboxes)
 
         num_valid_squares = squares.shape[0]
-        bbox_cls_targets = squares.new_zeros(
-            (num_valid_squares, self.side_num * 4))
-        bbox_cls_weights = squares.new_zeros(
-            (num_valid_squares, self.side_num * 4))
-        bbox_reg_targets = squares.new_zeros(
-            (num_valid_squares, self.side_num * 4))
-        bbox_reg_weights = squares.new_zeros(
-            (num_valid_squares, self.side_num * 4))
-        labels = squares.new_full((num_valid_squares, ),
-                                  self.num_classes,
-                                  dtype=torch.long)
+        bbox_cls_targets = squares.new_zeros((num_valid_squares, self.side_num * 4))
+        bbox_cls_weights = squares.new_zeros((num_valid_squares, self.side_num * 4))
+        bbox_reg_targets = squares.new_zeros((num_valid_squares, self.side_num * 4))
+        bbox_reg_weights = squares.new_zeros((num_valid_squares, self.side_num * 4))
+        labels = squares.new_full((num_valid_squares,), self.num_classes, dtype=torch.long)
         label_weights = squares.new_zeros(num_valid_squares, dtype=torch.float)
 
         pos_inds = sampling_result.pos_inds
         neg_inds = sampling_result.neg_inds
         if len(pos_inds) > 0:
-            (pos_bbox_reg_targets, pos_bbox_reg_weights, pos_bbox_cls_targets,
-             pos_bbox_cls_weights) = self.bbox_coder.encode(
-                 sampling_result.pos_bboxes, sampling_result.pos_gt_bboxes)
+            (
+                pos_bbox_reg_targets,
+                pos_bbox_reg_weights,
+                pos_bbox_cls_targets,
+                pos_bbox_cls_weights,
+            ) = self.bbox_coder.encode(sampling_result.pos_bboxes, sampling_result.pos_gt_bboxes)
 
             bbox_cls_targets[pos_inds, :] = pos_bbox_cls_targets
             bbox_reg_targets[pos_inds, :] = pos_bbox_reg_targets
@@ -418,8 +416,7 @@ class SABLRetinaHead(BaseDenseHead, BBoxTestMixin):
                 # Foreground is the first class
                 labels[pos_inds] = 0
             else:
-                labels[pos_inds] = gt_labels[
-                    sampling_result.pos_assigned_gt_inds]
+                labels[pos_inds] = gt_labels[sampling_result.pos_assigned_gt_inds]
             if self.train_cfg.pos_weight <= 0:
                 label_weights[pos_inds] = 1.0
             else:
@@ -430,61 +427,72 @@ class SABLRetinaHead(BaseDenseHead, BBoxTestMixin):
         # map up to original set of anchors
         if unmap_outputs:
             num_total_anchors = flat_squares.size(0)
-            labels = unmap(
-                labels, num_total_anchors, inside_flags, fill=self.num_classes)
-            label_weights = unmap(label_weights, num_total_anchors,
-                                  inside_flags)
-            bbox_cls_targets = unmap(bbox_cls_targets, num_total_anchors,
-                                     inside_flags)
-            bbox_cls_weights = unmap(bbox_cls_weights, num_total_anchors,
-                                     inside_flags)
-            bbox_reg_targets = unmap(bbox_reg_targets, num_total_anchors,
-                                     inside_flags)
-            bbox_reg_weights = unmap(bbox_reg_weights, num_total_anchors,
-                                     inside_flags)
-        return (labels, label_weights, bbox_cls_targets, bbox_cls_weights,
-                bbox_reg_targets, bbox_reg_weights, pos_inds, neg_inds)
+            labels = unmap(labels, num_total_anchors, inside_flags, fill=self.num_classes)
+            label_weights = unmap(label_weights, num_total_anchors, inside_flags)
+            bbox_cls_targets = unmap(bbox_cls_targets, num_total_anchors, inside_flags)
+            bbox_cls_weights = unmap(bbox_cls_weights, num_total_anchors, inside_flags)
+            bbox_reg_targets = unmap(bbox_reg_targets, num_total_anchors, inside_flags)
+            bbox_reg_weights = unmap(bbox_reg_weights, num_total_anchors, inside_flags)
+        return (
+            labels,
+            label_weights,
+            bbox_cls_targets,
+            bbox_cls_weights,
+            bbox_reg_targets,
+            bbox_reg_weights,
+            pos_inds,
+            neg_inds,
+        )
 
-    def loss_single(self, cls_score, bbox_pred, labels, label_weights,
-                    bbox_cls_targets, bbox_cls_weights, bbox_reg_targets,
-                    bbox_reg_weights, num_total_samples):
+    def loss_single(
+        self,
+        cls_score,
+        bbox_pred,
+        labels,
+        label_weights,
+        bbox_cls_targets,
+        bbox_cls_weights,
+        bbox_reg_targets,
+        bbox_reg_weights,
+        num_total_samples,
+    ):
         # classification loss
         labels = labels.reshape(-1)
         label_weights = label_weights.reshape(-1)
-        cls_score = cls_score.permute(0, 2, 3,
-                                      1).reshape(-1, self.cls_out_channels)
-        loss_cls = self.loss_cls(
-            cls_score, labels, label_weights, avg_factor=num_total_samples)
+        cls_score = cls_score.permute(0, 2, 3, 1).reshape(-1, self.cls_out_channels)
+        loss_cls = self.loss_cls(cls_score, labels, label_weights, avg_factor=num_total_samples)
         # regression loss
         bbox_cls_targets = bbox_cls_targets.reshape(-1, self.side_num * 4)
         bbox_cls_weights = bbox_cls_weights.reshape(-1, self.side_num * 4)
         bbox_reg_targets = bbox_reg_targets.reshape(-1, self.side_num * 4)
         bbox_reg_weights = bbox_reg_weights.reshape(-1, self.side_num * 4)
         (bbox_cls_pred, bbox_reg_pred) = bbox_pred
-        bbox_cls_pred = bbox_cls_pred.permute(0, 2, 3, 1).reshape(
-            -1, self.side_num * 4)
-        bbox_reg_pred = bbox_reg_pred.permute(0, 2, 3, 1).reshape(
-            -1, self.side_num * 4)
+        bbox_cls_pred = bbox_cls_pred.permute(0, 2, 3, 1).reshape(-1, self.side_num * 4)
+        bbox_reg_pred = bbox_reg_pred.permute(0, 2, 3, 1).reshape(-1, self.side_num * 4)
         loss_bbox_cls = self.loss_bbox_cls(
             bbox_cls_pred,
             bbox_cls_targets.long(),
             bbox_cls_weights,
-            avg_factor=num_total_samples * 4 * self.side_num)
+            avg_factor=num_total_samples * 4 * self.side_num,
+        )
         loss_bbox_reg = self.loss_bbox_reg(
             bbox_reg_pred,
             bbox_reg_targets,
             bbox_reg_weights,
-            avg_factor=num_total_samples * 4 * self.bbox_coder.offset_topk)
+            avg_factor=num_total_samples * 4 * self.bbox_coder.offset_topk,
+        )
         return loss_cls, loss_bbox_cls, loss_bbox_reg
 
-    @force_fp32(apply_to=('cls_scores', 'bbox_preds'))
-    def loss(self,
-             cls_scores,
-             bbox_preds,
-             gt_bboxes,
-             gt_labels,
-             img_metas,
-             gt_bboxes_ignore=None):
+    @force_fp32(apply_to=("cls_scores", "bbox_preds"))
+    def loss(
+        self,
+        cls_scores,
+        bbox_preds,
+        gt_bboxes,
+        gt_labels,
+        img_metas,
+        gt_bboxes_ignore=None,
+    ):
         featmap_sizes = [featmap.size()[-2:] for featmap in cls_scores]
         assert len(featmap_sizes) == self.approx_anchor_generator.num_levels
 
@@ -492,7 +500,8 @@ class SABLRetinaHead(BaseDenseHead, BBoxTestMixin):
 
         # get sampled approxes
         approxs_list, inside_flag_list = GuidedAnchorHead.get_sampled_approxs(
-            self, featmap_sizes, img_metas, device=device)
+            self, featmap_sizes, img_metas, device=device
+        )
 
         square_list = self.get_anchors(featmap_sizes, img_metas, device=device)
 
@@ -507,14 +516,21 @@ class SABLRetinaHead(BaseDenseHead, BBoxTestMixin):
             gt_bboxes_ignore_list=gt_bboxes_ignore,
             gt_labels_list=gt_labels,
             label_channels=label_channels,
-            sampling=self.sampling)
+            sampling=self.sampling,
+        )
         if cls_reg_targets is None:
             return None
-        (labels_list, label_weights_list, bbox_cls_targets_list,
-         bbox_cls_weights_list, bbox_reg_targets_list, bbox_reg_weights_list,
-         num_total_pos, num_total_neg) = cls_reg_targets
-        num_total_samples = (
-            num_total_pos + num_total_neg if self.sampling else num_total_pos)
+        (
+            labels_list,
+            label_weights_list,
+            bbox_cls_targets_list,
+            bbox_cls_weights_list,
+            bbox_reg_targets_list,
+            bbox_reg_weights_list,
+            num_total_pos,
+            num_total_neg,
+        ) = cls_reg_targets
+        num_total_samples = num_total_pos + num_total_neg if self.sampling else num_total_pos
         losses_cls, losses_bbox_cls, losses_bbox_reg = multi_apply(
             self.loss_single,
             cls_scores,
@@ -525,77 +541,72 @@ class SABLRetinaHead(BaseDenseHead, BBoxTestMixin):
             bbox_cls_weights_list,
             bbox_reg_targets_list,
             bbox_reg_weights_list,
-            num_total_samples=num_total_samples)
+            num_total_samples=num_total_samples,
+        )
         return dict(
             loss_cls=losses_cls,
             loss_bbox_cls=losses_bbox_cls,
-            loss_bbox_reg=losses_bbox_reg)
+            loss_bbox_reg=losses_bbox_reg,
+        )
 
-    @force_fp32(apply_to=('cls_scores', 'bbox_preds'))
-    def get_bboxes(self,
-                   cls_scores,
-                   bbox_preds,
-                   img_metas,
-                   cfg=None,
-                   rescale=False):
+    @force_fp32(apply_to=("cls_scores", "bbox_preds"))
+    def get_bboxes(self, cls_scores, bbox_preds, img_metas, cfg=None, rescale=False):
         assert len(cls_scores) == len(bbox_preds)
         num_levels = len(cls_scores)
         featmap_sizes = [featmap.size()[-2:] for featmap in cls_scores]
 
         device = cls_scores[0].device
-        mlvl_anchors = self.get_anchors(
-            featmap_sizes, img_metas, device=device)
+        mlvl_anchors = self.get_anchors(featmap_sizes, img_metas, device=device)
         result_list = []
         for img_id in range(len(img_metas)):
-            cls_score_list = [
-                cls_scores[i][img_id].detach() for i in range(num_levels)
-            ]
-            bbox_cls_pred_list = [
-                bbox_preds[i][0][img_id].detach() for i in range(num_levels)
-            ]
-            bbox_reg_pred_list = [
-                bbox_preds[i][1][img_id].detach() for i in range(num_levels)
-            ]
-            img_shape = img_metas[img_id]['img_shape']
-            scale_factor = img_metas[img_id]['scale_factor']
+            cls_score_list = [cls_scores[i][img_id].detach() for i in range(num_levels)]
+            bbox_cls_pred_list = [bbox_preds[i][0][img_id].detach() for i in range(num_levels)]
+            bbox_reg_pred_list = [bbox_preds[i][1][img_id].detach() for i in range(num_levels)]
+            img_shape = img_metas[img_id]["img_shape"]
+            scale_factor = img_metas[img_id]["scale_factor"]
             proposals = self._get_bboxes_single(
-                cls_score_list, bbox_cls_pred_list, bbox_reg_pred_list,
-                mlvl_anchors[img_id], img_shape, scale_factor, cfg, rescale)
+                cls_score_list,
+                bbox_cls_pred_list,
+                bbox_reg_pred_list,
+                mlvl_anchors[img_id],
+                img_shape,
+                scale_factor,
+                cfg,
+                rescale,
+            )
             result_list.append(proposals)
         return result_list
 
-    def _get_bboxes_single(self,
-                           cls_scores,
-                           bbox_cls_preds,
-                           bbox_reg_preds,
-                           mlvl_anchors,
-                           img_shape,
-                           scale_factor,
-                           cfg,
-                           rescale=False):
+    def _get_bboxes_single(
+        self,
+        cls_scores,
+        bbox_cls_preds,
+        bbox_reg_preds,
+        mlvl_anchors,
+        img_shape,
+        scale_factor,
+        cfg,
+        rescale=False,
+    ):
         cfg = self.test_cfg if cfg is None else cfg
-        nms_pre = cfg.get('nms_pre', -1)
+        nms_pre = cfg.get("nms_pre", -1)
 
         mlvl_bboxes = []
         mlvl_scores = []
         mlvl_confids = []
         mlvl_labels = []
-        assert len(cls_scores) == len(bbox_cls_preds) == len(
-            bbox_reg_preds) == len(mlvl_anchors)
+        assert len(cls_scores) == len(bbox_cls_preds) == len(bbox_reg_preds) == len(mlvl_anchors)
         for cls_score, bbox_cls_pred, bbox_reg_pred, anchors in zip(
-                cls_scores, bbox_cls_preds, bbox_reg_preds, mlvl_anchors):
-            assert cls_score.size()[-2:] == bbox_cls_pred.size(
-            )[-2:] == bbox_reg_pred.size()[-2::]
-            cls_score = cls_score.permute(1, 2,
-                                          0).reshape(-1, self.cls_out_channels)
+            cls_scores, bbox_cls_preds, bbox_reg_preds, mlvl_anchors
+        ):
+            assert cls_score.size()[-2:] == bbox_cls_pred.size()[-2:] == bbox_reg_pred.size()[-2::]
+            cls_score = cls_score.permute(1, 2, 0).reshape(-1, self.cls_out_channels)
             if self.use_sigmoid_cls:
                 scores = cls_score.sigmoid()
             else:
                 scores = cls_score.softmax(-1)[:, :-1]
-            bbox_cls_pred = bbox_cls_pred.permute(1, 2, 0).reshape(
-                -1, self.side_num * 4)
-            bbox_reg_pred = bbox_reg_pred.permute(1, 2, 0).reshape(
-                -1, self.side_num * 4)
+            bbox_cls_pred = bbox_cls_pred.permute(1, 2, 0).reshape(-1, self.side_num * 4)
+            bbox_reg_pred = bbox_reg_pred.permute(1, 2, 0).reshape(-1, self.side_num * 4)
 
             # After https://github.com/open-mmlab/mmdetection/pull/6268/,
             # this operation keeps fewer bboxes under the same `nms_pre`.
@@ -603,28 +614,35 @@ class SABLRetinaHead(BaseDenseHead, BBoxTestMixin):
             # find a slight drop in performance, you can set a larger
             # `nms_pre` than before.
             results = filter_scores_and_topk(
-                scores, cfg.score_thr, nms_pre,
+                scores,
+                cfg.score_thr,
+                nms_pre,
                 dict(
                     anchors=anchors,
                     bbox_cls_pred=bbox_cls_pred,
-                    bbox_reg_pred=bbox_reg_pred))
+                    bbox_reg_pred=bbox_reg_pred,
+                ),
+            )
             scores, labels, _, filtered_results = results
 
-            anchors = filtered_results['anchors']
-            bbox_cls_pred = filtered_results['bbox_cls_pred']
-            bbox_reg_pred = filtered_results['bbox_reg_pred']
+            anchors = filtered_results["anchors"]
+            bbox_cls_pred = filtered_results["bbox_cls_pred"]
+            bbox_reg_pred = filtered_results["bbox_reg_pred"]
 
-            bbox_preds = [
-                bbox_cls_pred.contiguous(),
-                bbox_reg_pred.contiguous()
-            ]
-            bboxes, confids = self.bbox_coder.decode(
-                anchors.contiguous(), bbox_preds, max_shape=img_shape)
+            bbox_preds = [bbox_cls_pred.contiguous(), bbox_reg_pred.contiguous()]
+            bboxes, confids = self.bbox_coder.decode(anchors.contiguous(), bbox_preds, max_shape=img_shape)
 
             mlvl_bboxes.append(bboxes)
             mlvl_scores.append(scores)
             mlvl_confids.append(confids)
             mlvl_labels.append(labels)
-        return self._bbox_post_process(mlvl_scores, mlvl_labels, mlvl_bboxes,
-                                       scale_factor, cfg, rescale, True,
-                                       mlvl_confids)
+        return self._bbox_post_process(
+            mlvl_scores,
+            mlvl_labels,
+            mlvl_bboxes,
+            scale_factor,
+            cfg,
+            rescale,
+            True,
+            mlvl_confids,
+        )

@@ -8,8 +8,10 @@ from mmcv.ops import point_sample, rel_roi_point_to_rel_img_point
 from mmcv.runner import BaseModule
 
 from mmdet.models.builder import HEADS, build_loss
-from mmdet.models.utils import (get_uncertain_point_coords_with_randomness,
-                                get_uncertainty)
+from mmdet.models.utils import (
+    get_uncertain_point_coords_with_randomness,
+    get_uncertainty,
+)
 
 
 @HEADS.register_module()
@@ -39,21 +41,20 @@ class MaskPointHead(BaseModule):
         init_cfg (dict or list[dict], optional): Initialization config dict.
     """
 
-    def __init__(self,
-                 num_classes,
-                 num_fcs=3,
-                 in_channels=256,
-                 fc_channels=256,
-                 class_agnostic=False,
-                 coarse_pred_each_layer=True,
-                 conv_cfg=dict(type='Conv1d'),
-                 norm_cfg=None,
-                 act_cfg=dict(type='ReLU'),
-                 loss_point=dict(
-                     type='CrossEntropyLoss', use_mask=True, loss_weight=1.0),
-                 init_cfg=dict(
-                     type='Normal', std=0.001,
-                     override=dict(name='fc_logits'))):
+    def __init__(
+        self,
+        num_classes,
+        num_fcs=3,
+        in_channels=256,
+        fc_channels=256,
+        class_agnostic=False,
+        coarse_pred_each_layer=True,
+        conv_cfg=dict(type="Conv1d"),
+        norm_cfg=None,
+        act_cfg=dict(type="ReLU"),
+        loss_point=dict(type="CrossEntropyLoss", use_mask=True, loss_weight=1.0),
+        init_cfg=dict(type="Normal", std=0.001, override=dict(name="fc_logits")),
+    ):
         super().__init__(init_cfg)
         self.num_fcs = num_fcs
         self.in_channels = in_channels
@@ -76,14 +77,14 @@ class MaskPointHead(BaseModule):
                 padding=0,
                 conv_cfg=conv_cfg,
                 norm_cfg=norm_cfg,
-                act_cfg=act_cfg)
+                act_cfg=act_cfg,
+            )
             self.fcs.append(fc)
             fc_in_channels = fc_channels
             fc_in_channels += num_classes if self.coarse_pred_each_layer else 0
 
         out_channels = 1 if self.class_agnostic else self.num_classes
-        self.fc_logits = nn.Conv1d(
-            fc_in_channels, out_channels, kernel_size=1, stride=1, padding=0)
+        self.fc_logits = nn.Conv1d(fc_in_channels, out_channels, kernel_size=1, stride=1, padding=0)
 
     def forward(self, fine_grained_feats, coarse_feats):
         """Classify each point base on fine grained and coarse feats.
@@ -106,8 +107,7 @@ class MaskPointHead(BaseModule):
                 x = torch.cat((x, coarse_feats), dim=1)
         return self.fc_logits(x)
 
-    def get_targets(self, rois, rel_roi_points, sampling_results, gt_masks,
-                    cfg):
+    def get_targets(self, rois, rel_roi_points, sampling_results, gt_masks, cfg):
         """Get training targets of MaskPointHead for all images.
 
         Args:
@@ -128,17 +128,20 @@ class MaskPointHead(BaseModule):
         rois_list = []
         rel_roi_points_list = []
         for batch_ind in range(num_imgs):
-            inds = (rois[:, 0] == batch_ind)
+            inds = rois[:, 0] == batch_ind
             rois_list.append(rois[inds])
             rel_roi_points_list.append(rel_roi_points[inds])
-        pos_assigned_gt_inds_list = [
-            res.pos_assigned_gt_inds for res in sampling_results
-        ]
+        pos_assigned_gt_inds_list = [res.pos_assigned_gt_inds for res in sampling_results]
         cfg_list = [cfg for _ in range(num_imgs)]
 
-        point_targets = map(self._get_target_single, rois_list,
-                            rel_roi_points_list, pos_assigned_gt_inds_list,
-                            gt_masks, cfg_list)
+        point_targets = map(
+            self._get_target_single,
+            rois_list,
+            rel_roi_points_list,
+            pos_assigned_gt_inds_list,
+            gt_masks,
+            cfg_list,
+        )
         point_targets = list(point_targets)
 
         if len(point_targets) > 0:
@@ -146,20 +149,15 @@ class MaskPointHead(BaseModule):
 
         return point_targets
 
-    def _get_target_single(self, rois, rel_roi_points, pos_assigned_gt_inds,
-                           gt_masks, cfg):
+    def _get_target_single(self, rois, rel_roi_points, pos_assigned_gt_inds, gt_masks, cfg):
         """Get training target of MaskPointHead for each image."""
         num_pos = rois.size(0)
         num_points = cfg.num_points
         if num_pos > 0:
-            gt_masks_th = (
-                gt_masks.to_tensor(rois.dtype, rois.device).index_select(
-                    0, pos_assigned_gt_inds))
+            gt_masks_th = gt_masks.to_tensor(rois.dtype, rois.device).index_select(0, pos_assigned_gt_inds)
             gt_masks_th = gt_masks_th.unsqueeze(1)
-            rel_img_points = rel_roi_point_to_rel_img_point(
-                rois, rel_roi_points, gt_masks_th)
-            point_targets = point_sample(gt_masks_th,
-                                         rel_img_points).squeeze(1)
+            rel_img_points = rel_roi_point_to_rel_img_point(rois, rel_roi_points, gt_masks_th)
+            point_targets = point_sample(gt_masks_th, rel_img_points).squeeze(1)
         else:
             point_targets = rois.new_zeros((0, num_points))
         return point_targets
@@ -180,11 +178,10 @@ class MaskPointHead(BaseModule):
 
         loss = dict()
         if self.class_agnostic:
-            loss_point = self.loss_point(point_pred, point_targets,
-                                         torch.zeros_like(labels))
+            loss_point = self.loss_point(point_pred, point_targets, torch.zeros_like(labels))
         else:
             loss_point = self.loss_point(point_pred, point_targets, labels)
-        loss['loss_point'] = loss_point
+        loss["loss_point"] = loss_point
         return loss
 
     def get_roi_rel_points_train(self, mask_pred, labels, cfg):
@@ -208,8 +205,12 @@ class MaskPointHead(BaseModule):
                 that contains the coordinates sampled points.
         """
         point_coords = get_uncertain_point_coords_with_randomness(
-            mask_pred, labels, cfg.num_points, cfg.oversample_ratio,
-            cfg.importance_sample_ratio)
+            mask_pred,
+            labels,
+            cfg.num_points,
+            cfg.oversample_ratio,
+            cfg.importance_sample_ratio,
+        )
         return point_coords
 
     def get_roi_rel_points_test(self, mask_pred, pred_label, cfg):

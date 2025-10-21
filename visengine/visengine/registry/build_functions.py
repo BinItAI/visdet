@@ -15,8 +15,8 @@ from typing import TYPE_CHECKING, Any, Union
 import torch.nn as nn
 
 # Neither of these imports are actually neeed, they're just for type checking
-#from mmengine.optim.scheduler import _ParamScheduler
-#from mmengine.runner import Runner
+# from mmengine.optim.scheduler import _ParamScheduler
+# from mmengine.runner import Runner
 
 import torch
 
@@ -136,7 +136,7 @@ def build_from_cfg(
         return obj
 
 
-def build_runner_from_cfg(cfg: dict | ConfigDict | Config, registry: Registry):# -> Runner:
+def build_runner_from_cfg(cfg: dict | ConfigDict | Config, registry: Registry):  # -> Runner:
     """Build a Runner object.
 
     Examples:
@@ -159,8 +159,9 @@ def build_runner_from_cfg(cfg: dict | ConfigDict | Config, registry: Registry):#
         object: The constructed runner object.
     """
 
-
-    assert isinstance(cfg, dict | ConfigDict | Config), f"cfg should be a dict, ConfigDict or Config, but got {type(cfg)}"
+    assert isinstance(cfg, dict | ConfigDict | Config), (
+        f"cfg should be a dict, ConfigDict or Config, but got {type(cfg)}"
+    )
     assert isinstance(registry, Registry), (
         "registry should be a mmengine.Registry object",
         f"but got {type(registry)}",
@@ -240,7 +241,7 @@ def build_scheduler_from_cfg(
     cfg: dict | ConfigDict | Config,
     registry: Registry,
     default_args: dict | ConfigDict | Config | None = None,
-):# -> "_ParamScheduler":
+):  # -> "_ParamScheduler":
     """Builds a ``ParamScheduler`` instance from config.
 
     ``ParamScheduler`` supports building instance by its constructor or
@@ -261,7 +262,9 @@ def build_scheduler_from_cfg(
     Returns:
         object: The constructed ``ParamScheduler``.
     """
-    assert isinstance(cfg, dict | ConfigDict | Config), f"cfg should be a dict, ConfigDict or Config, but got {type(cfg)}"
+    assert isinstance(cfg, dict | ConfigDict | Config), (
+        f"cfg should be a dict, ConfigDict or Config, but got {type(cfg)}"
+    )
     assert isinstance(registry, Registry), (
         "registry should be a mmengine.Registry object",
         f"but got {type(registry)}",

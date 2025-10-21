@@ -161,7 +161,12 @@ class DumpResults(BaseMetric):
             `New in version 0.7.3.`
     """
 
-    def __init__(self, out_file_path: str, collect_device: str = "cpu", collect_dir: str | None = None) -> None:
+    def __init__(
+        self,
+        out_file_path: str,
+        collect_device: str = "cpu",
+        collect_dir: str | None = None,
+    ) -> None:
         super().__init__(collect_device=collect_device, collect_dir=collect_dir)
         if not out_file_path.endswith((".pkl", ".pickle")):
             raise ValueError("The output file must be a pkl file.")

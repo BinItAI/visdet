@@ -1,5 +1,6 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 from mmdet.models.builder import HEADS
+
 from .convfc_bbox_head import ConvFCBBoxHead
 
 
@@ -72,6 +73,6 @@ class SCNetBBoxHead(ConvFCBBoxHead):
         out = self._forward_cls_reg(x_shared)
 
         if return_shared_feat:
-            out += (x_shared, )
+            out += (x_shared,)
 
         return out

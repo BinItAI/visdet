@@ -30,7 +30,9 @@ class cache_randomness:
             raise TypeError("Unsupport callable to decorate with@cache_randomness.")
         func_args = inspect.getfullargspec(func).args
         if len(func_args) == 0 or func_args[0] != "self":
-            raise TypeError("@cache_randomness should only be used to decorate instance methods (the first argument is ``self``).")
+            raise TypeError(
+                "@cache_randomness should only be used to decorate instance methods (the first argument is ``self``)."
+            )
 
         functools.update_wrapper(self, func)
         self.func = func

@@ -472,7 +472,9 @@ class TransformBroadcaster(KeyMapper):
             assert isinstance(data[key], Sequence)
             if seq_len:
                 if len(data[key]) != seq_len:
-                    raise ValueError(f"Got inconsistent sequence length: {seq_len} ({key_rep}) vs. {len(data[key])} ({key})")
+                    raise ValueError(
+                        f"Got inconsistent sequence length: {seq_len} ({key_rep}) vs. {len(data[key])} ({key})"
+                    )
             else:
                 seq_len = len(data[key])
                 key_rep = key
@@ -553,12 +555,18 @@ class RandomChoice(BaseTransform):
         >>> ]
     """
 
-    def __init__(self, transforms: list[Transform | list[Transform]], prob: list[float] | None = None):
+    def __init__(
+        self,
+        transforms: list[Transform | list[Transform]],
+        prob: list[float] | None = None,
+    ):
         super().__init__()
 
         if prob is not None:
             assert is_seq_of(prob, float)
-            assert len(transforms) == len(prob), f"``transforms`` and ``prob`` must have same lengths. Got {len(transforms)} vs {len(prob)}."
+            assert len(transforms) == len(prob), (
+                f"``transforms`` and ``prob`` must have same lengths. Got {len(transforms)} vs {len(prob)}."
+            )
             assert sum(prob) == 1
 
         self.prob = prob

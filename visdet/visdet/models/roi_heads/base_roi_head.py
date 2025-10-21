@@ -68,11 +68,23 @@ class BaseRoIHead(BaseModule, metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def loss(self, x: tuple[Tensor], rpn_results_list: InstanceList, batch_data_samples: SampleList, **kwargs) -> dict:
+    def loss(
+        self,
+        x: tuple[Tensor],
+        rpn_results_list: InstanceList,
+        batch_data_samples: SampleList,
+        **kwargs,
+    ) -> dict:
         """Perform forward propagation and loss calculation of the roi head on
         the features of the upstream network."""
 
-    def predict(self, x: tuple[Tensor], rpn_results_list: InstanceList, batch_data_samples: SampleList, rescale: bool = False) -> InstanceList:
+    def predict(
+        self,
+        x: tuple[Tensor],
+        rpn_results_list: InstanceList,
+        batch_data_samples: SampleList,
+        rescale: bool = False,
+    ) -> InstanceList:
         """Perform forward propagation of the roi head and predict detection
         results on the features of the upstream network.
 
@@ -109,7 +121,13 @@ class BaseRoIHead(BaseModule, metaclass=ABCMeta):
         # to be scaled to the original image scale, because the mask
         # branch will scale both bbox and mask at the same time.
         bbox_rescale = rescale if not self.with_mask else False
-        results_list = self.predict_bbox(x, batch_img_metas, rpn_results_list, rcnn_test_cfg=self.test_cfg, rescale=bbox_rescale)
+        results_list = self.predict_bbox(
+            x,
+            batch_img_metas,
+            rpn_results_list,
+            rcnn_test_cfg=self.test_cfg,
+            rescale=bbox_rescale,
+        )
 
         if self.with_mask:
             results_list = self.predict_mask(x, batch_img_metas, results_list, rescale=rescale)

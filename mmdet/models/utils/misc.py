@@ -32,7 +32,7 @@ class SigmoidGeometricMean(Function):
 sigmoid_geometric_mean = SigmoidGeometricMean.apply
 
 
-def interpolate_as(source, target, mode='bilinear', align_corners=False):
+def interpolate_as(source, target, mode="bilinear", align_corners=False):
     """Interpolate the `source` to the shape of the `target`.
 
     The `source` must be a Tensor, but the `target` can be a Tensor or a
@@ -52,7 +52,7 @@ def interpolate_as(source, target, mode='bilinear', align_corners=False):
     """
     assert len(target.shape) >= 2
 
-    def _interpolate_as(source, target, mode='bilinear', align_corners=False):
+    def _interpolate_as(source, target, mode="bilinear", align_corners=False):
         """Interpolate the `source` (4D) to the shape of the `target`."""
         target_h, target_w = target.shape[-2:]
         source_h, source_w = source.shape[-2:]
@@ -61,7 +61,8 @@ def interpolate_as(source, target, mode='bilinear', align_corners=False):
                 source,
                 size=(target_h, target_w),
                 mode=mode,
-                align_corners=align_corners)
+                align_corners=align_corners,
+            )
         return source
 
     if len(source.shape) == 3:

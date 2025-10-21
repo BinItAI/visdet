@@ -452,11 +452,15 @@ class BaseDataElement:
 
         if field_type == "metainfo":
             if name in self._data_fields:
-                raise AttributeError(f"Cannot set {name} to be a field of metainfo because {name} is already a data field")
+                raise AttributeError(
+                    f"Cannot set {name} to be a field of metainfo because {name} is already a data field"
+                )
             self._metainfo_fields.add(name)
         else:
             if name in self._metainfo_fields:
-                raise AttributeError(f"Cannot set {name} to be a field of data because {name} is already a metainfo field")
+                raise AttributeError(
+                    f"Cannot set {name} to be a field of data because {name} is already a metainfo field"
+                )
             self._data_fields.add(name)
         super().__setattr__(name, value)
 

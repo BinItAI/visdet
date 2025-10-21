@@ -25,21 +25,21 @@ class ConvUpsample(BaseModule):
         kwargs (key word augments): Other augments used in ConvModule.
     """
 
-    def __init__(self,
-                 in_channels,
-                 inner_channels,
-                 num_layers=1,
-                 num_upsample=None,
-                 conv_cfg=None,
-                 norm_cfg=None,
-                 init_cfg=None,
-                 **kwargs):
+    def __init__(
+        self,
+        in_channels,
+        inner_channels,
+        num_layers=1,
+        num_upsample=None,
+        conv_cfg=None,
+        norm_cfg=None,
+        init_cfg=None,
+        **kwargs,
+    ):
         super(ConvUpsample, self).__init__(init_cfg)
         if num_upsample is None:
             num_upsample = num_layers
-        assert num_upsample <= num_layers, \
-            f'num_upsample({num_upsample})must be no more than ' \
-            f'num_layers({num_layers})'
+        assert num_upsample <= num_layers, f"num_upsample({num_upsample})must be no more than num_layers({num_layers})"
         self.num_layers = num_layers
         self.num_upsample = num_upsample
         self.conv = ModuleList()
@@ -53,7 +53,9 @@ class ConvUpsample(BaseModule):
                     stride=1,
                     conv_cfg=conv_cfg,
                     norm_cfg=norm_cfg,
-                    **kwargs))
+                    **kwargs,
+                )
+            )
             in_channels = inner_channels
 
     def forward(self, x):
@@ -62,6 +64,5 @@ class ConvUpsample(BaseModule):
             x = self.conv[i](x)
             if num_upsample > 0:
                 num_upsample -= 1
-                x = F.interpolate(
-                    x, scale_factor=2, mode='bilinear', align_corners=False)
+                x = F.interpolate(x, scale_factor=2, mode="bilinear", align_corners=False)
         return x

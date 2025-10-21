@@ -1,10 +1,9 @@
 """Tests for CascadeRoIHead to validate cascade logic and mask prediction."""
 
-import torch
 import pytest
+import torch
 from visengine.config import ConfigDict
 from visengine.structures import InstanceData
-from visdet.structures import DetDataSample
 
 
 def _build_cascade_roi_head_cfg(num_classes: int = 80, include_test_cfg: bool = False) -> dict:
@@ -15,7 +14,11 @@ def _build_cascade_roi_head_cfg(num_classes: int = 80, include_test_cfg: bool = 
         fc_out_channels=1024,
         roi_feat_size=7,
         num_classes=num_classes,
-        bbox_coder=dict(type="DeltaXYWHBBoxCoder", target_means=[0.0, 0.0, 0.0, 0.0], target_stds=[0.1, 0.1, 0.2, 0.2]),
+        bbox_coder=dict(
+            type="DeltaXYWHBBoxCoder",
+            target_means=[0.0, 0.0, 0.0, 0.0],
+            target_stds=[0.1, 0.1, 0.2, 0.2],
+        ),
         reg_class_agnostic=True,
         loss_cls=dict(type="CrossEntropyLoss"),
         loss_bbox=dict(type="SmoothL1Loss", beta=1.0),
@@ -40,8 +43,22 @@ def _build_cascade_roi_head_cfg(num_classes: int = 80, include_test_cfg: bool = 
         ),
         bbox_head=[
             bbox_head_cfg,
-            bbox_head_cfg | {"bbox_coder": dict(type="DeltaXYWHBBoxCoder", target_means=[0.0, 0.0, 0.0, 0.0], target_stds=[0.05, 0.05, 0.1, 0.1])},
-            bbox_head_cfg | {"bbox_coder": dict(type="DeltaXYWHBBoxCoder", target_means=[0.0, 0.0, 0.0, 0.0], target_stds=[0.033, 0.033, 0.067, 0.067])},
+            bbox_head_cfg
+            | {
+                "bbox_coder": dict(
+                    type="DeltaXYWHBBoxCoder",
+                    target_means=[0.0, 0.0, 0.0, 0.0],
+                    target_stds=[0.05, 0.05, 0.1, 0.1],
+                )
+            },
+            bbox_head_cfg
+            | {
+                "bbox_coder": dict(
+                    type="DeltaXYWHBBoxCoder",
+                    target_means=[0.0, 0.0, 0.0, 0.0],
+                    target_stds=[0.033, 0.033, 0.067, 0.067],
+                )
+            },
         ],
         mask_roi_extractor=dict(
             type="SingleRoIExtractor",
@@ -86,7 +103,12 @@ def test_cascade_roi_head_init():
         # Verify progressively tighter bbox stds (convert to tuple for comparison)
         assert tuple(roi_head.bbox_head[0].bbox_coder.stds) == (0.1, 0.1, 0.2, 0.2)
         assert tuple(roi_head.bbox_head[1].bbox_coder.stds) == (0.05, 0.05, 0.1, 0.1)
-        assert tuple(roi_head.bbox_head[2].bbox_coder.stds) == (0.033, 0.033, 0.067, 0.067)
+        assert tuple(roi_head.bbox_head[2].bbox_coder.stds) == (
+            0.033,
+            0.033,
+            0.067,
+            0.067,
+        )
 
 
 def test_cascade_roi_head_predict_bbox():
@@ -114,8 +136,16 @@ def test_cascade_roi_head_predict_bbox():
             rpn_results_list.append(instance_data)
 
         batch_img_metas = [
-            {"img_shape": (224, 224), "ori_shape": (224, 224), "scale_factor": (1.0, 1.0)},
-            {"img_shape": (224, 224), "ori_shape": (224, 224), "scale_factor": (1.0, 1.0)},
+            {
+                "img_shape": (224, 224),
+                "ori_shape": (224, 224),
+                "scale_factor": (1.0, 1.0),
+            },
+            {
+                "img_shape": (224, 224),
+                "ori_shape": (224, 224),
+                "scale_factor": (1.0, 1.0),
+            },
         ]
 
         rcnn_test_cfg = dict(score_thr=0.05, nms=dict(type="nms", iou_threshold=0.5), max_per_img=100)
@@ -133,8 +163,9 @@ def test_cascade_roi_head_predict_bbox():
 
 def test_cascade_roi_head_predict_mask_logic():
     """Test that mask prediction logic - this reveals the bug."""
+    from unittest.mock import patch
+
     from visengine.registry import DefaultScope
-    from unittest.mock import patch, MagicMock
 
     with DefaultScope.overwrite_default_scope("visdet"):
         from visdet.registry import MODELS
@@ -156,7 +187,13 @@ def test_cascade_roi_head_predict_mask_logic():
         instance_data.labels = torch.tensor([0])
         results_list.append(instance_data)
 
-        batch_img_metas = [{"img_shape": (224, 224), "ori_shape": (224, 224), "scale_factor": (1.0, 1.0)}]
+        batch_img_metas = [
+            {
+                "img_shape": (224, 224),
+                "ori_shape": (224, 224),
+                "scale_factor": (1.0, 1.0),
+            }
+        ]
 
         # Track which mask heads are called
         call_counts = {0: 0, 1: 0, 2: 0}
@@ -167,7 +204,7 @@ def test_cascade_roi_head_predict_mask_logic():
             call_counts[stage] += 1
             return original_forward(stage, *args, **kwargs)
 
-        with patch.object(roi_head, '_mask_forward', side_effect=tracked_mask_forward):
+        with patch.object(roi_head, "_mask_forward", side_effect=tracked_mask_forward):
             with torch.no_grad():
                 results = roi_head.predict_mask(x, batch_img_metas, results_list, rescale=False)
 
@@ -188,36 +225,76 @@ def test_cascade_roi_head_bbox_refinement():
 
     with DefaultScope.overwrite_default_scope("visdet"):
         from visdet.registry import MODELS
-        from visdet.models.utils import unpack_gt_instances
 
         cfg = _build_cascade_roi_head_cfg(num_classes=2)
 
         # Add training config
         train_cfg = dict(
             rpn=dict(
-                assigner=dict(type="MaxIoUAssigner", pos_iou_thr=0.7, neg_iou_thr=0.3, min_pos_iou=0.3),
+                assigner=dict(
+                    type="MaxIoUAssigner",
+                    pos_iou_thr=0.7,
+                    neg_iou_thr=0.3,
+                    min_pos_iou=0.3,
+                ),
                 sampler=dict(type="RandomSampler", num=256, pos_fraction=0.5),
             ),
             rcnn=[
                 dict(
-                    assigner=dict(type="MaxIoUAssigner", pos_iou_thr=0.5, neg_iou_thr=0.5, min_pos_iou=0.5, match_low_quality=False),
-                    sampler=dict(type="RandomSampler", num=512, pos_fraction=0.25, neg_pos_ub=-1, add_gt_as_proposals=True),
+                    assigner=dict(
+                        type="MaxIoUAssigner",
+                        pos_iou_thr=0.5,
+                        neg_iou_thr=0.5,
+                        min_pos_iou=0.5,
+                        match_low_quality=False,
+                    ),
+                    sampler=dict(
+                        type="RandomSampler",
+                        num=512,
+                        pos_fraction=0.25,
+                        neg_pos_ub=-1,
+                        add_gt_as_proposals=True,
+                    ),
                     mask_size=28,
                 ),
                 dict(
-                    assigner=dict(type="MaxIoUAssigner", pos_iou_thr=0.6, neg_iou_thr=0.6, min_pos_iou=0.6, match_low_quality=False),
-                    sampler=dict(type="RandomSampler", num=512, pos_fraction=0.25, neg_pos_ub=-1, add_gt_as_proposals=True),
+                    assigner=dict(
+                        type="MaxIoUAssigner",
+                        pos_iou_thr=0.6,
+                        neg_iou_thr=0.6,
+                        min_pos_iou=0.6,
+                        match_low_quality=False,
+                    ),
+                    sampler=dict(
+                        type="RandomSampler",
+                        num=512,
+                        pos_fraction=0.25,
+                        neg_pos_ub=-1,
+                        add_gt_as_proposals=True,
+                    ),
                     mask_size=28,
                 ),
                 dict(
-                    assigner=dict(type="MaxIoUAssigner", pos_iou_thr=0.7, neg_iou_thr=0.7, min_pos_iou=0.7, match_low_quality=False),
-                    sampler=dict(type="RandomSampler", num=512, pos_fraction=0.25, neg_pos_ub=-1, add_gt_as_proposals=True),
+                    assigner=dict(
+                        type="MaxIoUAssigner",
+                        pos_iou_thr=0.7,
+                        neg_iou_thr=0.7,
+                        min_pos_iou=0.7,
+                        match_low_quality=False,
+                    ),
+                    sampler=dict(
+                        type="RandomSampler",
+                        num=512,
+                        pos_fraction=0.25,
+                        neg_pos_ub=-1,
+                        add_gt_as_proposals=True,
+                    ),
                     mask_size=28,
                 ),
             ],
         )
 
-        cfg['train_cfg'] = train_cfg['rcnn']
+        cfg["train_cfg"] = train_cfg["rcnn"]
         roi_head = MODELS.build(cfg)
         roi_head.train()
 

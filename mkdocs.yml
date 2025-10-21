@@ -1,10 +1,10 @@
-site_name: MMDetection Documentation
-site_description: OpenMMLab Detection Toolbox and Benchmark
-site_author: MMDetection Contributors
-site_url: https://georgepearse.github.io/visdet/
+site_name: visdet Documentation
+site_description: Object detection toolkit based on MMDetection
+site_author: visdet Contributors
+site_url: https://binitai.github.io/visdet/
 
-repo_name: georgepearse/visdet
-repo_url: https://github.com/georgepearse/visdet
+repo_name: BinItAI/visdet
+repo_url: https://github.com/BinItAI/visdet
 edit_uri: edit/master/mkdocs_docs/
 
 docs_dir: mkdocs_docs
@@ -14,14 +14,16 @@ theme:
   name: material
   palette:
     # Palette toggle for light mode
-    - scheme: default
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
       primary: indigo
       accent: indigo
       toggle:
         icon: material/brightness-7
         name: Switch to dark mode
     # Palette toggle for dark mode
-    - scheme: slate
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
       primary: indigo
       accent: indigo
       toggle:
@@ -32,12 +34,15 @@ theme:
     - navigation.sections
     - navigation.expand
     - navigation.top
+    - navigation.tracking
     - search.suggest
     - search.highlight
     - content.tabs.link
     - content.code.annotation
     - content.code.copy
   language: en
+  icon:
+    repo: fontawesome/brands/github
 
 plugins:
   - search
@@ -53,6 +58,9 @@ plugins:
             show_symbol_type_toc: true
             members_order: source
             heading_level: 2
+  - git-revision-date-localized:
+      enable_creation_date: true
+      type: timeago
 
 markdown_extensions:
   - pymdownx.highlight:
@@ -66,6 +74,10 @@ markdown_extensions:
       alternate_style: true
   - admonition
   - pymdownx.details
+  - pymdownx.arithmatex:
+      generic: true
+  - footnotes
+  - pymdownx.mark
   - pymdownx.emoji:
       emoji_index: !!python/name:material.extensions.emoji.twemoji
       emoji_generator: !!python/name:material.extensions.emoji.to_svg
@@ -78,25 +90,32 @@ markdown_extensions:
 nav:
   - Home: index.md
   - Getting Started:
-    - Installation: getting-started/installation.md
-    - Quick Start: getting-started/quick-start.md
+      - Installation: getting-started/installation.md
+      - Quick Start: getting-started/quick-start.md
+  - User Guide:
+      - Training: user-guide/training.md
+      - Inference: user-guide/inference.md
+      - Configuration: user-guide/configuration.md
   - Tutorials:
-    - Configuration: tutorials/config.md
-    - Datasets: tutorials/customize_dataset.md
-    - Models: tutorials/customize_models.md
-    - Training: tutorials/training.md
+      - Configuration: tutorials/config.md
+      - Datasets: tutorials/customize_dataset.md
+      - Models: tutorials/customize_models.md
+      - Training: tutorials/training.md
   - API Reference:
-    - Core: api/core.md
-    - Models: api/models.md
-    - Datasets: api/datasets.md
+      - Overview: api-reference/index.md
+      - Core: api/core.md
+      - Models: api/models.md
+      - Datasets: api/datasets.md
+  - Development:
+      - Contributing: development/contributing.md
+      - Architecture: development/architecture.md
   - About:
-    - Changelog: about/changelog.md
-    - Contributing: about/contributing.md
-    - License: about/license.md
+      - Changelog: about/changelog.md
+      - License: about/license.md
 
 extra:
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/georgepearse/visdet
+      link: https://github.com/BinItAI/visdet
   version:
     provider: mike

@@ -1,11 +1,11 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import copy
-
 import logging
+
 import torch
 from torch import Tensor
-from visengine.structures import InstanceData
 from visengine.logging import print_log
+from visengine.structures import InstanceData
 
 from visdet.registry import TASK_UTILS
 
@@ -38,7 +38,12 @@ def _perm_box(bboxes, iou_calculator, iou_thr=0.97, perm_range=0.01, counter=0, 
     if (iou < iou_thr).any():
         is_valid = False
     if not is_valid and counter < max_iter:
-        return _perm_box(ori_bboxes, iou_calculator, perm_range=max(perm_range - counter * 0.001, 1e-3), counter=counter + 1)
+        return _perm_box(
+            ori_bboxes,
+            iou_calculator,
+            perm_range=max(perm_range - counter * 0.001, 1e-3),
+            counter=counter + 1,
+        )
     return bboxes
 
 
@@ -65,7 +70,13 @@ def perm_repeat_bboxes(bboxes, iou_calculator=None, perm_repeat_cfg=None):
         inds = (bboxes == box).sum(-1).float() == 4
         if inds.float().sum().item() == 1:
             continue
-        bboxes[inds] = _perm_box(bboxes[inds], iou_calculator, iou_thr=iou_thr, perm_range=perm_range, counter=0)
+        bboxes[inds] = _perm_box(
+            bboxes[inds],
+            iou_calculator,
+            iou_thr=iou_thr,
+            perm_range=perm_range,
+            counter=0,
+        )
     return bboxes
 
 
@@ -132,7 +143,11 @@ class MaxIoUAssigner(BaseAssigner):
         self.perm_repeat_gt_cfg = perm_repeat_gt_cfg
 
     def assign(
-        self, pred_instances: InstanceData, gt_instances: InstanceData, gt_instances_ignore: InstanceData | None = None, **kwargs
+        self,
+        pred_instances: InstanceData,
+        gt_instances: InstanceData,
+        gt_instances_ignore: InstanceData | None = None,
+        **kwargs,
     ) -> AssignResult:
         """Assign gt to bboxes.
 
@@ -202,10 +217,19 @@ class MaxIoUAssigner(BaseAssigner):
             gt_bboxes_unique = perm_repeat_bboxes(gt_bboxes, self.iou_calculator, self.perm_repeat_gt_cfg)
         else:
             gt_bboxes_unique = gt_bboxes
-        print_log(f"DEBUG max_iou_assigner: gt_bboxes_unique.shape={gt_bboxes_unique.shape}, priors.shape={priors.shape}", logger='current', level=logging.DEBUG)
+        print_log(
+            f"DEBUG max_iou_assigner: gt_bboxes_unique.shape={gt_bboxes_unique.shape}, priors.shape={priors.shape}",
+            logger="current",
+            level=logging.DEBUG,
+        )
         overlaps = self.iou_calculator(gt_bboxes_unique, priors)
 
-        if self.ignore_iof_thr > 0 and gt_bboxes_ignore is not None and gt_bboxes_ignore.numel() > 0 and priors.numel() > 0:
+        if (
+            self.ignore_iof_thr > 0
+            and gt_bboxes_ignore is not None
+            and gt_bboxes_ignore.numel() > 0
+            and priors.numel() > 0
+        ):
             if self.ignore_wrt_candidates:
                 ignore_overlaps = self.iou_calculator(priors, gt_bboxes_ignore, mode="iof")
                 ignore_max_overlaps, _ = ignore_overlaps.max(dim=1)
@@ -245,7 +269,12 @@ class MaxIoUAssigner(BaseAssigner):
             if num_gts == 0:
                 # No truth, assign everything to background
                 assigned_gt_inds[:] = 0
-            return AssignResult(num_gts=num_gts, gt_inds=assigned_gt_inds, max_overlaps=max_overlaps, labels=assigned_labels)
+            return AssignResult(
+                num_gts=num_gts,
+                gt_inds=assigned_gt_inds,
+                max_overlaps=max_overlaps,
+                labels=assigned_labels,
+            )
 
         # for each anchor, which gt best overlaps with it
         # for each anchor, the max iou of all gts
@@ -288,4 +317,9 @@ class MaxIoUAssigner(BaseAssigner):
         if pos_inds.numel() > 0:
             assigned_labels[pos_inds] = gt_labels[assigned_gt_inds[pos_inds] - 1]
 
-        return AssignResult(num_gts=num_gts, gt_inds=assigned_gt_inds, max_overlaps=max_overlaps, labels=assigned_labels)
+        return AssignResult(
+            num_gts=num_gts,
+            gt_inds=assigned_gt_inds,
+            max_overlaps=max_overlaps,
+            labels=assigned_labels,
+        )

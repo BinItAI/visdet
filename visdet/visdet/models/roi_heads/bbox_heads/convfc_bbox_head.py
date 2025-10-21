@@ -64,10 +64,14 @@ class ConvFCBBoxHead(BBoxHead):
         self.shared_out_channels = last_layer_dim
 
         # add cls specific branch
-        self.cls_convs, self.cls_fcs, self.cls_last_dim = self._add_conv_fc_branch(self.num_cls_convs, self.num_cls_fcs, self.shared_out_channels)
+        self.cls_convs, self.cls_fcs, self.cls_last_dim = self._add_conv_fc_branch(
+            self.num_cls_convs, self.num_cls_fcs, self.shared_out_channels
+        )
 
         # add reg specific branch
-        self.reg_convs, self.reg_fcs, self.reg_last_dim = self._add_conv_fc_branch(self.num_reg_convs, self.num_reg_fcs, self.shared_out_channels)
+        self.reg_convs, self.reg_fcs, self.reg_last_dim = self._add_conv_fc_branch(
+            self.num_reg_convs, self.num_reg_fcs, self.shared_out_channels
+        )
 
         if self.num_shared_fcs == 0 and not self.with_avg_pool:
             if self.num_cls_fcs == 0:
@@ -95,10 +99,24 @@ class ConvFCBBoxHead(BBoxHead):
 
         if init_cfg is None:
             self.init_cfg += [
-                dict(type="Xavier", distribution="uniform", override=[dict(name="shared_fcs"), dict(name="cls_fcs"), dict(name="reg_fcs")])
+                dict(
+                    type="Xavier",
+                    distribution="uniform",
+                    override=[
+                        dict(name="shared_fcs"),
+                        dict(name="cls_fcs"),
+                        dict(name="reg_fcs"),
+                    ],
+                )
             ]
 
-    def _add_conv_fc_branch(self, num_branch_convs: int, num_branch_fcs: int, in_channels: int, is_shared: bool = False) -> tuple:
+    def _add_conv_fc_branch(
+        self,
+        num_branch_convs: int,
+        num_branch_fcs: int,
+        in_channels: int,
+        is_shared: bool = False,
+    ) -> tuple:
         """Add shared or separable branch.
 
         convs -> avg pool (optional) -> fcs
@@ -110,7 +128,14 @@ class ConvFCBBoxHead(BBoxHead):
             for i in range(num_branch_convs):
                 conv_in_channels = last_layer_dim if i == 0 else self.conv_out_channels
                 branch_convs.append(
-                    ConvModule(conv_in_channels, self.conv_out_channels, 3, padding=1, conv_cfg=self.conv_cfg, norm_cfg=self.norm_cfg)
+                    ConvModule(
+                        conv_in_channels,
+                        self.conv_out_channels,
+                        3,
+                        padding=1,
+                        conv_cfg=self.conv_cfg,
+                        norm_cfg=self.norm_cfg,
+                    )
                 )
             last_layer_dim = self.conv_out_channels
         # add branch specific fc layers
@@ -182,7 +207,8 @@ class ConvFCBBoxHead(BBoxHead):
         bbox_pred = self.fc_reg(x_reg) if self.with_reg else None
         return cls_score, bbox_pred
 
-# Just try adding another layer in here to see it it helps 
+
+# Just try adding another layer in here to see it it helps
 # reduce the dumb classifications errors
 @MODELS.register_module()
 class Shared2FCBBoxHead(ConvFCBBoxHead):

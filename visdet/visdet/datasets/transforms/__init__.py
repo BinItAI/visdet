@@ -15,8 +15,8 @@ from viscv.transforms.processing import RandomChoiceResize as _RandomChoiceResiz
 # Can't be imported from this location!! Where is it then??
 from visdet.datasets.transforms.formatting import PackDetInputs as _PackDetInputs
 from visdet.datasets.transforms.loading import LoadAnnotations as _LoadAnnotations
-from visdet.datasets.transforms.transforms import RandomCrop as _RandomCrop
 from visdet.datasets.transforms.transforms import Pad as _Pad
+from visdet.datasets.transforms.transforms import RandomCrop as _RandomCrop
 from visdet.registry import TRANSFORMS
 
 Resize = TRANSFORMS.register_module()(_Resize)
@@ -32,4 +32,17 @@ RandomCrop = TRANSFORMS.register_module()(_RandomCrop)
 RandomChoice = TRANSFORMS.register_module()(_RandomChoice)
 RandomChoiceResize = TRANSFORMS.register_module()(_RandomChoiceResize)
 
-__all__ = ["LoadAnnotations", "LoadImageFromFile", "Normalize", "PackDetInputs", "Pad", "RandomApply", "RandomChoice", "RandomChoiceResize", "RandomCrop", "RandomFlip", "RandomResize", "Resize"]
+__all__ = [
+    "LoadAnnotations",
+    "LoadImageFromFile",
+    "Normalize",
+    "PackDetInputs",
+    "Pad",
+    "RandomApply",
+    "RandomChoice",
+    "RandomChoiceResize",
+    "RandomCrop",
+    "RandomFlip",
+    "RandomResize",
+    "Resize",
+]

@@ -7,10 +7,7 @@ import torch
 from mmcv.runner import load_checkpoint
 
 
-def generate_inputs_and_wrap_model(config_path,
-                                   checkpoint_path,
-                                   input_config,
-                                   cfg_options=None):
+def generate_inputs_and_wrap_model(config_path, checkpoint_path, input_config, cfg_options=None):
     """Prepare sample input and wrap model for ONNX export.
 
     The ONNX export API only accept args, and all inputs should be
@@ -41,12 +38,10 @@ def generate_inputs_and_wrap_model(config_path,
             execute the model while exporting.
     """
 
-    model = build_model_from_cfg(
-        config_path, checkpoint_path, cfg_options=cfg_options)
+    model = build_model_from_cfg(config_path, checkpoint_path, cfg_options=cfg_options)
     one_img, one_meta = preprocess_example_input(input_config)
     tensor_data = [one_img]
-    model.forward = partial(
-        model.forward, img_metas=[[one_meta]], return_loss=False)
+    model.forward = partial(model.forward, img_metas=[[one_meta]], return_loss=False)
 
     # pytorch has some bug in pytorch1.3, we have to fix it
     # by replacing these existing op
@@ -56,7 +51,7 @@ def generate_inputs_and_wrap_model(config_path,
     try:
         from mmcv.onnx.symbolic import register_extra_symbolics
     except ModuleNotFoundError:
-        raise NotImplementedError('please update mmcv to version>=v1.0.4')
+        raise NotImplementedError("please update mmcv to version>=v1.0.4")
     register_extra_symbolics(opset_version)
 
     return model, tensor_data
@@ -79,21 +74,22 @@ def build_model_from_cfg(config_path, checkpoint_path, cfg_options=None):
     if cfg_options is not None:
         cfg.merge_from_dict(cfg_options)
     # set cudnn_benchmark
-    if cfg.get('cudnn_benchmark', False):
+    if cfg.get("cudnn_benchmark", False):
         torch.backends.cudnn.benchmark = True
     cfg.model.pretrained = None
     cfg.data.test.test_mode = True
 
     # build the model
     cfg.model.train_cfg = None
-    model = build_detector(cfg.model, test_cfg=cfg.get('test_cfg'))
-    checkpoint = load_checkpoint(model, checkpoint_path, map_location='cpu')
-    if 'CLASSES' in checkpoint.get('meta', {}):
-        model.CLASSES = checkpoint['meta']['CLASSES']
+    model = build_detector(cfg.model, test_cfg=cfg.get("test_cfg"))
+    checkpoint = load_checkpoint(model, checkpoint_path, map_location="cpu")
+    if "CLASSES" in checkpoint.get("meta", {}):
+        model.CLASSES = checkpoint["meta"]["CLASSES"]
     else:
         from mmdet.datasets import DATASETS
-        dataset = DATASETS.get(cfg.data.test['type'])
-        assert (dataset is not None)
+
+        dataset = DATASETS.get(cfg.data.test["type"])
+        assert dataset is not None
         model.CLASSES = dataset.CLASSES
     model.cpu().eval()
     return model
@@ -130,30 +126,29 @@ def preprocess_example_input(input_config):
         'scale_factor': 1.0,
         'flip': False}
     """
-    input_path = input_config['input_path']
-    input_shape = input_config['input_shape']
+    input_path = input_config["input_path"]
+    input_shape = input_config["input_shape"]
     one_img = mmcv.imread(input_path)
     one_img = mmcv.imresize(one_img, input_shape[2:][::-1])
     show_img = one_img.copy()
-    if 'normalize_cfg' in input_config.keys():
-        normalize_cfg = input_config['normalize_cfg']
-        mean = np.array(normalize_cfg['mean'], dtype=np.float32)
-        std = np.array(normalize_cfg['std'], dtype=np.float32)
-        to_rgb = normalize_cfg.get('to_rgb', True)
+    if "normalize_cfg" in input_config.keys():
+        normalize_cfg = input_config["normalize_cfg"]
+        mean = np.array(normalize_cfg["mean"], dtype=np.float32)
+        std = np.array(normalize_cfg["std"], dtype=np.float32)
+        to_rgb = normalize_cfg.get("to_rgb", True)
         one_img = mmcv.imnormalize(one_img, mean, std, to_rgb=to_rgb)
     one_img = one_img.transpose(2, 0, 1)
-    one_img = torch.from_numpy(one_img).unsqueeze(0).float().requires_grad_(
-        True)
+    one_img = torch.from_numpy(one_img).unsqueeze(0).float().requires_grad_(True)
     (_, C, H, W) = input_shape
     one_meta = {
-        'img_shape': (H, W, C),
-        'ori_shape': (H, W, C),
-        'pad_shape': (H, W, C),
-        'filename': '<demo>.png',
-        'scale_factor': np.ones(4, dtype=np.float32),
-        'flip': False,
-        'show_img': show_img,
-        'flip_direction': None
+        "img_shape": (H, W, C),
+        "ori_shape": (H, W, C),
+        "pad_shape": (H, W, C),
+        "filename": "<demo>.png",
+        "scale_factor": np.ones(4, dtype=np.float32),
+        "flip": False,
+        "show_img": show_img,
+        "flip_direction": None,
     }
 
     return one_img, one_meta

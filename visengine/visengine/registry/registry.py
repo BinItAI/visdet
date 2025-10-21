@@ -592,7 +592,12 @@ class Registry:
         assert registry.scope not in self.children, f"scope {registry.scope} exists in {self.name} registry"
         self.children[registry.scope] = registry
 
-    def _register_module(self, module: type, module_name: str | list[str] | None = None, force: bool = False) -> None:
+    def _register_module(
+        self,
+        module: type,
+        module_name: str | list[str] | None = None,
+        force: bool = False,
+    ) -> None:
         """Register a module.
 
         Args:

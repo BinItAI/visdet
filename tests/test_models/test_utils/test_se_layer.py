@@ -10,11 +10,11 @@ from mmdet.models.utils import DyReLU, SELayer
 def test_se_layer():
     with pytest.raises(AssertionError):
         # act_cfg sequence length must equal to 2
-        SELayer(channels=32, act_cfg=(dict(type='ReLU'), ))
+        SELayer(channels=32, act_cfg=(dict(type="ReLU"),))
 
     with pytest.raises(AssertionError):
         # act_cfg sequence must be a tuple of dict
-        SELayer(channels=32, act_cfg=[dict(type='ReLU'), dict(type='ReLU')])
+        SELayer(channels=32, act_cfg=[dict(type="ReLU"), dict(type="ReLU")])
 
     # Test SELayer forward
     layer = SELayer(channels=32)
@@ -29,11 +29,11 @@ def test_se_layer():
 def test_dyrelu():
     with pytest.raises(AssertionError):
         # act_cfg sequence length must equal to 2
-        DyReLU(channels=32, act_cfg=(dict(type='ReLU'), ))
+        DyReLU(channels=32, act_cfg=(dict(type="ReLU"),))
 
     with pytest.raises(AssertionError):
         # act_cfg sequence must be a tuple of dict
-        DyReLU(channels=32, act_cfg=[dict(type='ReLU'), dict(type='ReLU')])
+        DyReLU(channels=32, act_cfg=[dict(type="ReLU"), dict(type="ReLU")])
 
     # Test DyReLU forward
     layer = DyReLU(channels=32)

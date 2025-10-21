@@ -3,9 +3,9 @@ from typing import Tuple, Union
 
 import numpy as np
 from viscv.image import imflip
+from viscv.transforms import Pad as MMCV_Pad
 from viscv.transforms import RandomFlip as MMCV_RandomFlip
 from viscv.transforms.base import BaseTransform
-from viscv.transforms import Pad as MMCV_Pad
 
 from visdet.registry import TRANSFORMS
 from visdet.structures.bbox import autocast_box_type
@@ -73,11 +73,10 @@ class Pad(MMCV_Pad):
 
     def _pad_masks(self, results: dict) -> None:
         """Pad masks according to ``results['pad_shape']``."""
-        if results.get('gt_masks', None) is not None:
-            pad_val = self.pad_val.get('masks', 0)
-            pad_shape = results['pad_shape'][:2]
-            results['gt_masks'] = results['gt_masks'].pad(
-                pad_shape, pad_val=pad_val)
+        if results.get("gt_masks", None) is not None:
+            pad_val = self.pad_val.get("masks", 0)
+            pad_shape = results["pad_shape"][:2]
+            results["gt_masks"] = results["gt_masks"].pad(pad_shape, pad_val=pad_val)
 
     def transform(self, results: dict) -> dict:
         """Call function to pad images, masks, semantic segmentation maps.
@@ -92,6 +91,7 @@ class Pad(MMCV_Pad):
         self._pad_seg(results)
         self._pad_masks(results)
         return results
+
 
 @TRANSFORMS.register_module()
 class RandomFlip(MMCV_RandomFlip):
@@ -252,21 +252,25 @@ class RandomCrop(BaseTransform):
           ``allow_negative_crop`` is set to False, skip this image.
     """
 
-    def __init__(self,
-                 crop_size: tuple,
-                 crop_type: str = 'absolute',
-                 allow_negative_crop: bool = False,
-                 recompute_bbox: bool = False,
-                 bbox_clip_border: bool = True) -> None:
+    def __init__(
+        self,
+        crop_size: tuple,
+        crop_type: str = "absolute",
+        allow_negative_crop: bool = False,
+        recompute_bbox: bool = False,
+        bbox_clip_border: bool = True,
+    ) -> None:
         if crop_type not in [
-                'relative_range', 'relative', 'absolute', 'absolute_range'
+            "relative_range",
+            "relative",
+            "absolute",
+            "absolute_range",
         ]:
-            raise ValueError(f'Invalid crop_type {crop_type}.')
-        if crop_type in ['absolute', 'absolute_range']:
+            raise ValueError(f"Invalid crop_type {crop_type}.")
+        if crop_type in ["absolute", "absolute_range"]:
             assert crop_size[0] > 0 and crop_size[1] > 0
-            assert isinstance(crop_size[0], int) and isinstance(
-                crop_size[1], int)
-            if crop_type == 'absolute_range':
+            assert isinstance(crop_size[0], int) and isinstance(crop_size[1], int)
+            if crop_type == "absolute_range":
                 assert crop_size[0] <= crop_size[1]
         else:
             assert 0 < crop_size[0] <= 1 and 0 < crop_size[1] <= 1
@@ -276,8 +280,7 @@ class RandomCrop(BaseTransform):
         self.bbox_clip_border = bbox_clip_border
         self.recompute_bbox = recompute_bbox
 
-    def _crop_data(self, results: dict, crop_size: Tuple[int, int],
-                   allow_negative_crop: bool) -> Union[dict, None]:
+    def _crop_data(self, results: dict, crop_size: tuple[int, int], allow_negative_crop: bool) -> dict | None:
         """Function to randomly crop images, bounding boxes, masks, semantic
         segmentation maps.
 
@@ -294,7 +297,7 @@ class RandomCrop(BaseTransform):
                 be returned when there is no valid bbox after cropping.
         """
         assert crop_size[0] > 0 and crop_size[1] > 0
-        img = results['img']
+        img = results["img"]
         margin_h = max(img.shape[0] - crop_size[1], 0)
         margin_w = max(img.shape[1] - crop_size[0], 0)
         offset_h, offset_w = self._rand_offset((margin_h, margin_w))
@@ -302,64 +305,56 @@ class RandomCrop(BaseTransform):
         crop_x1, crop_x2 = offset_w, offset_w + crop_size[0]
 
         # Record the homography matrix for the RandomCrop
-        homography_matrix = np.array(
-            [[1, 0, -offset_w], [0, 1, -offset_h], [0, 0, 1]],
-            dtype=np.float32)
-        if results.get('homography_matrix', None) is None:
-            results['homography_matrix'] = homography_matrix
+        homography_matrix = np.array([[1, 0, -offset_w], [0, 1, -offset_h], [0, 0, 1]], dtype=np.float32)
+        if results.get("homography_matrix", None) is None:
+            results["homography_matrix"] = homography_matrix
         else:
-            results['homography_matrix'] = homography_matrix @ results[
-                'homography_matrix']
+            results["homography_matrix"] = homography_matrix @ results["homography_matrix"]
 
         # crop the image
         img = img[crop_y1:crop_y2, crop_x1:crop_x2, ...]
-        results['img'] = img
-        results['img_shape'] = img.shape[:2]
+        results["img"] = img
+        results["img_shape"] = img.shape[:2]
 
         # crop bboxes accordingly and clip to the image boundary
-        if results.get('gt_bboxes', None) is not None:
-            bboxes = results['gt_bboxes']
+        if results.get("gt_bboxes", None) is not None:
+            bboxes = results["gt_bboxes"]
             bboxes.translate_([-offset_w, -offset_h])
             if self.bbox_clip_border:
                 bboxes.clip_(crop_size)
             valid_inds = bboxes.is_inside(crop_size).numpy()
             # If the crop does not contain any gt-bbox area and
             # allow_negative_crop is False, skip this image.
-            if (not valid_inds.any() and not allow_negative_crop):
+            if not valid_inds.any() and not allow_negative_crop:
                 return None
 
-            results['gt_bboxes'] = bboxes[valid_inds]
+            results["gt_bboxes"] = bboxes[valid_inds]
 
-            if results.get('gt_ignore_flags', None) is not None:
-                results['gt_ignore_flags'] = results['gt_ignore_flags'][
-                    valid_inds]
+            if results.get("gt_ignore_flags", None) is not None:
+                results["gt_ignore_flags"] = results["gt_ignore_flags"][valid_inds]
 
-            if results.get('gt_bboxes_labels', None) is not None:
-                results['gt_bboxes_labels'] = results['gt_bboxes_labels'][
-                    valid_inds]
+            if results.get("gt_bboxes_labels", None) is not None:
+                results["gt_bboxes_labels"] = results["gt_bboxes_labels"][valid_inds]
 
-            if results.get('gt_masks', None) is not None:
-                results['gt_masks'] = results['gt_masks'][
-                    valid_inds.nonzero()[0]].crop(
-                        np.asarray([crop_x1, crop_y1, crop_x2, crop_y2]))
+            if results.get("gt_masks", None) is not None:
+                results["gt_masks"] = results["gt_masks"][valid_inds.nonzero()[0]].crop(
+                    np.asarray([crop_x1, crop_y1, crop_x2, crop_y2])
+                )
                 if self.recompute_bbox:
-                    results['gt_bboxes'] = results['gt_masks'].get_bboxes(
-                        type(results['gt_bboxes']))
+                    results["gt_bboxes"] = results["gt_masks"].get_bboxes(type(results["gt_bboxes"]))
 
             # We should remove the instance ids corresponding to invalid boxes.
-            if results.get('gt_instances_ids', None) is not None:
-                results['gt_instances_ids'] = results['gt_instances_ids'][
-                    valid_inds]
+            if results.get("gt_instances_ids", None) is not None:
+                results["gt_instances_ids"] = results["gt_instances_ids"][valid_inds]
 
         # crop semantic seg
-        if results.get('gt_seg_map', None) is not None:
-            results['gt_seg_map'] = results['gt_seg_map'][crop_y1:crop_y2,
-                                                          crop_x1:crop_x2]
+        if results.get("gt_seg_map", None) is not None:
+            results["gt_seg_map"] = results["gt_seg_map"][crop_y1:crop_y2, crop_x1:crop_x2]
 
         return results
 
     @autocast_box_type()
-    def transform(self, results: dict) -> Union[dict, None]:
+    def transform(self, results: dict) -> dict | None:
         """Transform function to randomly crop images, bounding boxes, masks,
         semantic segmentation maps.
 
@@ -371,12 +366,12 @@ class RandomCrop(BaseTransform):
                 key in result dict is updated according to crop size. None will
                 be returned when there is no valid bbox after cropping.
         """
-        image_size = results['img'].shape[:2]
+        image_size = results["img"].shape[:2]
         crop_size = self._get_crop_size(image_size)
         results = self._crop_data(results, crop_size, self.allow_negative_crop)
         return results
 
-    def _get_crop_size(self, image_size: Tuple[int, int]) -> Tuple[int, int]:
+    def _get_crop_size(self, image_size: tuple[int, int]) -> tuple[int, int]:
         """Randomly generates the absolute crop size based on `crop_type` and
         `image_size`.
 
@@ -387,17 +382,13 @@ class RandomCrop(BaseTransform):
             crop_size (Tuple[int, int]): (crop_w, crop_h) in absolute pixels.
         """
         h, w = image_size
-        if self.crop_type == 'absolute':
+        if self.crop_type == "absolute":
             return min(self.crop_size[0], w), min(self.crop_size[1], h)
-        elif self.crop_type == 'absolute_range':
-            crop_w = np.random.randint(
-                min(self.crop_size[0], w),
-                min(self.crop_size[1], w) + 1)
-            crop_h = np.random.randint(
-                min(self.crop_size[0], h),
-                min(self.crop_size[1], h) + 1)
+        elif self.crop_type == "absolute_range":
+            crop_w = np.random.randint(min(self.crop_size[0], w), min(self.crop_size[1], w) + 1)
+            crop_h = np.random.randint(min(self.crop_size[0], h), min(self.crop_size[1], h) + 1)
             return crop_w, crop_h
-        elif self.crop_type == 'relative':
+        elif self.crop_type == "relative":
             crop_w, crop_h = self.crop_size
             return int(w * crop_w), int(h * crop_h)
         else:
@@ -407,7 +398,7 @@ class RandomCrop(BaseTransform):
             return int(w * crop_w), int(h * crop_h)
 
     @staticmethod
-    def _rand_offset(margin: Tuple[int, int]) -> Tuple[int, int]:
+    def _rand_offset(margin: tuple[int, int]) -> tuple[int, int]:
         """Randomly generate crop offset.
 
         Args:
@@ -425,9 +416,9 @@ class RandomCrop(BaseTransform):
 
     def __repr__(self) -> str:
         repr_str = self.__class__.__name__
-        repr_str += f'(crop_size={self.crop_size}, '
-        repr_str += f'crop_type={self.crop_type}, '
-        repr_str += f'allow_negative_crop={self.allow_negative_crop}, '
-        repr_str += f'recompute_bbox={self.recompute_bbox}, '
-        repr_str += f'bbox_clip_border={self.bbox_clip_border})'
+        repr_str += f"(crop_size={self.crop_size}, "
+        repr_str += f"crop_type={self.crop_type}, "
+        repr_str += f"allow_negative_crop={self.allow_negative_crop}, "
+        repr_str += f"recompute_bbox={self.recompute_bbox}, "
+        repr_str += f"bbox_clip_border={self.bbox_clip_border})"
         return repr_str

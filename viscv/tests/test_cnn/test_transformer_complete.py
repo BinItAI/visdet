@@ -92,7 +92,15 @@ def test_patch_embed():
     kernel_size = 3
     stride = 1
     dummy_input = torch.rand(B, C, H, W)
-    patch_merge_1 = PatchEmbed(in_channels=C, embed_dims=embed_dims, kernel_size=kernel_size, stride=stride, padding=0, dilation=1, norm_cfg=None)
+    patch_merge_1 = PatchEmbed(
+        in_channels=C,
+        embed_dims=embed_dims,
+        kernel_size=kernel_size,
+        stride=stride,
+        padding=0,
+        dilation=1,
+        norm_cfg=None,
+    )
 
     x1, shape = patch_merge_1(dummy_input)
     # test out shape
@@ -115,7 +123,13 @@ def test_patch_merging():
     bias = False
     # test the case with int padding
     patch_merge = PatchMerging(
-        in_channels=in_c, out_channels=out_c, kernel_size=kernel_size, stride=stride, padding=padding, dilation=dilation, bias=bias
+        in_channels=in_c,
+        out_channels=out_c,
+        kernel_size=kernel_size,
+        stride=stride,
+        padding=padding,
+        dilation=dilation,
+        bias=bias,
     )
     B, L, C = 1, 100, 3
     input_size = (10, 10)
@@ -133,11 +147,21 @@ def test_multiheadattention():
     embed_dim = 5
     num_query = 100
     attn_batch_first = MultiheadAttention(
-        embed_dims=5, num_heads=5, attn_drop=0, proj_drop=0, dropout_layer=dict(type="DropPath", drop_prob=0.0), batch_first=True
+        embed_dims=5,
+        num_heads=5,
+        attn_drop=0,
+        proj_drop=0,
+        dropout_layer=dict(type="DropPath", drop_prob=0.0),
+        batch_first=True,
     )
 
     attn_query_first = MultiheadAttention(
-        embed_dims=5, num_heads=5, attn_drop=0, proj_drop=0, dropout_layer=dict(type="DropPath", drop_prob=0.0), batch_first=False
+        embed_dims=5,
+        num_heads=5,
+        attn_drop=0,
+        proj_drop=0,
+        dropout_layer=dict(type="DropPath", drop_prob=0.0),
+        batch_first=False,
     )
 
     param_dict = dict(attn_query_first.named_parameters())
@@ -147,12 +171,18 @@ def test_multiheadattention():
     input_batch_first = torch.rand(batch_dim, num_query, embed_dim)
     input_query_first = input_batch_first.transpose(0, 1)
 
-    assert torch.allclose(attn_query_first(input_query_first).sum(), attn_batch_first(input_batch_first).sum())
+    assert torch.allclose(
+        attn_query_first(input_query_first).sum(),
+        attn_batch_first(input_batch_first).sum(),
+    )
 
     key_batch_first = torch.rand(batch_dim, num_query, embed_dim)
     key_query_first = key_batch_first.transpose(0, 1)
 
-    assert torch.allclose(attn_query_first(input_query_first, key_query_first).sum(), attn_batch_first(input_batch_first, key_batch_first).sum())
+    assert torch.allclose(
+        attn_query_first(input_query_first, key_query_first).sum(),
+        attn_batch_first(input_batch_first, key_batch_first).sum(),
+    )
 
     identity = torch.ones_like(input_query_first)
 

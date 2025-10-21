@@ -4,13 +4,13 @@ import logging
 import torch
 import torch.nn as nn
 from torch.nn import GroupNorm, LayerNorm
+from torch.nn.modules.batchnorm import _BatchNorm
+from torch.nn.modules.instancenorm import _InstanceNorm
 
 from visengine.logging import print_log
 from visengine.registry import OPTIM_WRAPPER_CONSTRUCTORS, OPTIM_WRAPPERS, OPTIMIZERS
 from visengine.utils import is_list_of
 
-from torch.nn.modules.batchnorm import _BatchNorm
-from torch.nn.modules.instancenorm import _InstanceNorm
 
 @OPTIM_WRAPPER_CONSTRUCTORS.register_module(force=True)
 class DefaultOptimWrapperConstructor:
@@ -129,7 +129,9 @@ class DefaultOptimWrapperConstructor:
 
         if "custom_keys" in self.paramwise_cfg:
             if not isinstance(self.paramwise_cfg["custom_keys"], dict):
-                raise TypeError(f"If specified, custom_keys must be a dict, but got {type(self.paramwise_cfg['custom_keys'])}")
+                raise TypeError(
+                    f"If specified, custom_keys must be a dict, but got {type(self.paramwise_cfg['custom_keys'])}"
+                )
             if self.base_wd is None:
                 for key in self.paramwise_cfg["custom_keys"]:
                     if "decay_mult" in self.paramwise_cfg["custom_keys"][key]:
@@ -137,7 +139,11 @@ class DefaultOptimWrapperConstructor:
 
         # get base lr and weight decay
         # weight_decay must be explicitly specified if mult is specified
-        if "bias_decay_mult" in self.paramwise_cfg or "norm_decay_mult" in self.paramwise_cfg or "dwconv_decay_mult" in self.paramwise_cfg:
+        if (
+            "bias_decay_mult" in self.paramwise_cfg
+            or "norm_decay_mult" in self.paramwise_cfg
+            or "dwconv_decay_mult" in self.paramwise_cfg
+        ):
             if self.base_wd is None:
                 raise ValueError("base_wd should not be None")
 
@@ -227,7 +233,12 @@ class DefaultOptimWrapperConstructor:
                 if name == "bias" and not (is_norm or is_dcn_module) and bias_lr_mult is not None:
                     param_group["lr"] = self.base_lr * bias_lr_mult
 
-                if prefix.find("conv_offset") != -1 and is_dcn_module and dcn_offset_lr_mult is not None and isinstance(module, torch.nn.Conv2d):
+                if (
+                    prefix.find("conv_offset") != -1
+                    and is_dcn_module
+                    and dcn_offset_lr_mult is not None
+                    and isinstance(module, torch.nn.Conv2d)
+                ):
                     # deal with both dcn_offset's bias & weight
                     param_group["lr"] = self.base_lr * dcn_offset_lr_mult
 
@@ -251,14 +262,14 @@ class DefaultOptimWrapperConstructor:
                     continue
                 full_name = f"{prefix}.{name}" if prefix else name
                 print_log(f"paramwise_options -- {full_name}:{key}={value}", logger="current")
-        
+
         # Removed the deformable convolutions because they're not used by the Swin MaskRCNN
         is_dcn_module = False
         for child_name, child_mod in module.named_children():
             child_prefix = f"{prefix}.{child_name}" if prefix else child_name
             self.add_params(params, child_mod, prefix=child_prefix, is_dcn_module=is_dcn_module)
 
-    def __call__(self, model: nn.Module): # -> OptimWrapper:
+    def __call__(self, model: nn.Module):  # -> OptimWrapper:
         if hasattr(model, "module"):
             model = model.module
 

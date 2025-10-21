@@ -102,7 +102,13 @@ def multiclass_nms(
 
 
 def fast_nms(
-    multi_bboxes: Tensor, multi_scores: Tensor, multi_coeffs: Tensor, score_thr: float, iou_thr: float, top_k: int, max_num: int = -1
+    multi_bboxes: Tensor,
+    multi_scores: Tensor,
+    multi_coeffs: Tensor,
+    score_thr: float,
+    iou_thr: float,
+    top_k: int,
+    max_num: int = -1,
 ) -> tuple[Tensor, Tensor, Tensor] | tuple[Tensor, Tensor]:
     """Fast NMS in `YOLACT <https://arxiv.org/abs/1904.02689>`_.
 

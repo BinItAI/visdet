@@ -48,7 +48,9 @@ def encode_mask_results(mask_results):
     """
     encoded_mask_results = []
     for mask in mask_results:
-        encoded_mask_results.append(mask_util.encode(np.array(mask[:, :, np.newaxis], order="F", dtype="uint8"))[0])  # encoded with RLE
+        encoded_mask_results.append(
+            mask_util.encode(np.array(mask[:, :, np.newaxis], order="F", dtype="uint8"))[0]
+        )  # encoded with RLE
     return encoded_mask_results
 
 

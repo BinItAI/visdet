@@ -14,8 +14,11 @@ from visengine.logging import print_log
 SyncBatchNorm = nn.SyncBatchNorm
 
 
-
-def stack_batch(tensor_list: list[torch.Tensor], pad_size_divisor: int = 1, pad_value: int | float = 0) -> torch.Tensor:
+def stack_batch(
+    tensor_list: list[torch.Tensor],
+    pad_size_divisor: int = 1,
+    pad_value: int | float = 0,
+) -> torch.Tensor:
     """Stack multiple tensors to form a batch and pad the tensor to the max
     shape use the right bottom padding mode in these images. If
     ``pad_size_divisor > 0``, add padding to ensure the shape of each dim is

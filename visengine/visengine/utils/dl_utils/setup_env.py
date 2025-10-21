@@ -8,7 +8,11 @@ import warnings
 import torch.multiprocessing as mp
 
 
-def set_multi_processing(mp_start_method: str = "fork", opencv_num_threads: int = 0, distributed: bool = False) -> None:
+def set_multi_processing(
+    mp_start_method: str = "fork",
+    opencv_num_threads: int = 0,
+    distributed: bool = False,
+) -> None:
     """Set multi-processing related environment.
 
     Args:

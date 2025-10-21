@@ -74,7 +74,10 @@ class BaseBoxes(metaclass=ABCMeta):
         if isinstance(data, np.ndarray | Tensor | Sequence):
             data = torch.as_tensor(data)
         else:
-            raise TypeError("boxes should be Tensor, ndarray, or Sequence, ", f"but got {type(data)}")
+            raise TypeError(
+                "boxes should be Tensor, ndarray, or Sequence, ",
+                f"but got {type(data)}",
+            )
 
         if device is not None or dtype is not None:
             data = data.to(dtype=dtype, device=device)
@@ -472,7 +475,12 @@ class BaseBoxes(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def is_inside(self, img_shape: tuple[int, int], all_inside: bool = False, allowed_border: int = 0) -> BoolTensor:
+    def is_inside(
+        self,
+        img_shape: tuple[int, int],
+        all_inside: bool = False,
+        allowed_border: int = 0,
+    ) -> BoolTensor:
         """Find boxes inside the image.
 
         Args:

@@ -12,7 +12,17 @@ from visengine.config import Config, ConfigDict
 from visengine.logging import print_log
 from visengine.utils import scandir
 
-IMG_EXTENSIONS = (".jpg", ".jpeg", ".png", ".ppm", ".bmp", ".pgm", ".tif", ".tiff", ".webp")
+IMG_EXTENSIONS = (
+    ".jpg",
+    ".jpeg",
+    ".png",
+    ".ppm",
+    ".bmp",
+    ".pgm",
+    ".tif",
+    ".tiff",
+    ".webp",
+)
 
 
 def find_latest_checkpoint(path, suffix="pth"):

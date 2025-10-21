@@ -273,7 +273,12 @@ class HorizontalBoxes(BaseBoxes):
         xy2 = ctrs + 0.5 * wh
         self.tensor = torch.cat([xy1, xy2], dim=-1)
 
-    def is_inside(self, img_shape: tuple[int, int], all_inside: bool = False, allowed_border: int = 0) -> BoolTensor:
+    def is_inside(
+        self,
+        img_shape: tuple[int, int],
+        all_inside: bool = False,
+        allowed_border: int = 0,
+    ) -> BoolTensor:
         """Find boxes inside the image.
 
         Args:
@@ -330,7 +335,12 @@ class HorizontalBoxes(BaseBoxes):
             assert boxes.size(0) == points.size(0)
 
         x_min, y_min, x_max, y_max = boxes.unbind(dim=-1)
-        return (points[..., 0] >= x_min) & (points[..., 0] <= x_max) & (points[..., 1] >= y_min) & (points[..., 1] <= y_max)
+        return (
+            (points[..., 0] >= x_min)
+            & (points[..., 0] <= x_max)
+            & (points[..., 1] >= y_min)
+            & (points[..., 1] <= y_max)
+        )
 
     def create_masks(self, img_shape: tuple[int, int]) -> BitmapMasks:
         """

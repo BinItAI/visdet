@@ -2,12 +2,16 @@
 import io
 import os.path as osp
 import warnings
-from pathlib import Path
-from typing import Optional, Union
+from typing import Optional
 
 import cv2
 import numpy as np
-from cv2 import IMREAD_COLOR, IMREAD_GRAYSCALE, IMREAD_IGNORE_ORIENTATION, IMREAD_UNCHANGED
+from cv2 import (
+    IMREAD_COLOR,
+    IMREAD_GRAYSCALE,
+    IMREAD_IGNORE_ORIENTATION,
+    IMREAD_UNCHANGED,
+)
 
 try:
     from turbojpeg import TJCS_RGB, TJPF_BGR, TJPF_GRAY, TurboJPEG
@@ -38,7 +42,12 @@ imread_flags = {
 imread_backend = "cv2"
 
 
-def imfrombytes(content: bytes, flag: str = "color", channel_order: str = "bgr", backend: str | None = None) -> np.ndarray:
+def imfrombytes(
+    content: bytes,
+    flag: str = "color",
+    channel_order: str = "bgr",
+    backend: str | None = None,
+) -> np.ndarray:
     """Read an image from bytes.
 
     Args:
@@ -57,7 +66,9 @@ def imfrombytes(content: bytes, flag: str = "color", channel_order: str = "bgr",
     if backend is None:
         backend = imread_backend
     if backend not in supported_backends:
-        raise ValueError(f"backend: {backend} is not supported. Supported backends are 'cv2', 'turbojpeg', 'pillow', 'tifffile'")
+        raise ValueError(
+            f"backend: {backend} is not supported. Supported backends are 'cv2', 'turbojpeg', 'pillow', 'tifffile'"
+        )
 
     if backend == "turbojpeg":
         img = _jpegflag(flag, channel_order)
@@ -169,10 +180,12 @@ def _pillow2array(img, flag: str = "color", channel_order: str = "bgr") -> np.nd
     return array
 
 
-def imwrite(img: np.ndarray,
-            file_path: str,
-            params: Optional[list] = None,
-            auto_mkdir: Optional[bool] = None) -> bool:
+def imwrite(
+    img: np.ndarray,
+    file_path: str,
+    params: list | None = None,
+    auto_mkdir: bool | None = None,
+) -> bool:
     """Write image to file.
 
     Warning:
@@ -196,13 +209,15 @@ def imwrite(img: np.ndarray,
     file_path = str(file_path)
     if auto_mkdir is not None:
         warnings.warn(
-            'The parameter `auto_mkdir` will be deprecated in the future and '
-            'every file clients will make directory automatically.')
+            "The parameter `auto_mkdir` will be deprecated in the future and "
+            "every file clients will make directory automatically."
+        )
 
     # Create directory if it doesn't exist
     dir_name = osp.dirname(file_path)
     if dir_name and not osp.exists(dir_name):
         import os
+
         os.makedirs(dir_name, exist_ok=True)
 
     img_ext = osp.splitext(file_path)[-1]
@@ -210,9 +225,9 @@ def imwrite(img: np.ndarray,
     # For example, if image path is '/path/your/img.jpg', the encode
     # format is '.jpg'.
     flag, img_buff = cv2.imencode(img_ext, img, params)
-    
+
     if flag:
-        with open(file_path, 'wb') as f:
+        with open(file_path, "wb") as f:
             f.write(img_buff.tobytes())
 
     return flag

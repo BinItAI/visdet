@@ -34,24 +34,20 @@ class FPN_CARAFE(BaseModule):
             Default: None
     """
 
-    def __init__(self,
-                 in_channels,
-                 out_channels,
-                 num_outs,
-                 start_level=0,
-                 end_level=-1,
-                 norm_cfg=None,
-                 act_cfg=None,
-                 order=('conv', 'norm', 'act'),
-                 upsample_cfg=dict(
-                     type='carafe',
-                     up_kernel=5,
-                     up_group=1,
-                     encoder_kernel=3,
-                     encoder_dilation=1),
-                 init_cfg=None):
-        assert init_cfg is None, 'To prevent abnormal initialization ' \
-                                 'behavior, init_cfg is not allowed to be set'
+    def __init__(
+        self,
+        in_channels,
+        out_channels,
+        num_outs,
+        start_level=0,
+        end_level=-1,
+        norm_cfg=None,
+        act_cfg=None,
+        order=("conv", "norm", "act"),
+        upsample_cfg=dict(type="carafe", up_kernel=5, up_group=1, encoder_kernel=3, encoder_dilation=1),
+        init_cfg=None,
+    ):
+        assert init_cfg is None, "To prevent abnormal initialization behavior, init_cfg is not allowed to be set"
         super(FPN_CARAFE, self).__init__(init_cfg)
         assert isinstance(in_channels, list)
         self.in_channels = in_channels
@@ -62,20 +58,23 @@ class FPN_CARAFE(BaseModule):
         self.act_cfg = act_cfg
         self.with_bias = norm_cfg is None
         self.upsample_cfg = upsample_cfg.copy()
-        self.upsample = self.upsample_cfg.get('type')
+        self.upsample = self.upsample_cfg.get("type")
         self.relu = nn.ReLU(inplace=False)
 
         self.order = order
-        assert order in [('conv', 'norm', 'act'), ('act', 'conv', 'norm')]
+        assert order in [("conv", "norm", "act"), ("act", "conv", "norm")]
 
         assert self.upsample in [
-            'nearest', 'bilinear', 'deconv', 'pixel_shuffle', 'carafe', None
+            "nearest",
+            "bilinear",
+            "deconv",
+            "pixel_shuffle",
+            "carafe",
+            None,
         ]
-        if self.upsample in ['deconv', 'pixel_shuffle']:
-            assert hasattr(
-                self.upsample_cfg,
-                'upsample_kernel') and self.upsample_cfg.upsample_kernel > 0
-            self.upsample_kernel = self.upsample_cfg.pop('upsample_kernel')
+        if self.upsample in ["deconv", "pixel_shuffle"]:
+            assert hasattr(self.upsample_cfg, "upsample_kernel") and self.upsample_cfg.upsample_kernel > 0
+            self.upsample_kernel = self.upsample_cfg.pop("upsample_kernel")
 
         if end_level == -1 or end_level == self.num_ins - 1:
             self.backbone_end_level = self.num_ins
@@ -101,7 +100,8 @@ class FPN_CARAFE(BaseModule):
                 bias=self.with_bias,
                 act_cfg=act_cfg,
                 inplace=False,
-                order=self.order)
+                order=self.order,
+            )
             fpn_conv = ConvModule(
                 out_channels,
                 out_channels,
@@ -111,46 +111,42 @@ class FPN_CARAFE(BaseModule):
                 bias=self.with_bias,
                 act_cfg=act_cfg,
                 inplace=False,
-                order=self.order)
+                order=self.order,
+            )
             if i != self.backbone_end_level - 1:
                 upsample_cfg_ = self.upsample_cfg.copy()
-                if self.upsample == 'deconv':
+                if self.upsample == "deconv":
                     upsample_cfg_.update(
                         in_channels=out_channels,
                         out_channels=out_channels,
                         kernel_size=self.upsample_kernel,
                         stride=2,
                         padding=(self.upsample_kernel - 1) // 2,
-                        output_padding=(self.upsample_kernel - 1) // 2)
-                elif self.upsample == 'pixel_shuffle':
+                        output_padding=(self.upsample_kernel - 1) // 2,
+                    )
+                elif self.upsample == "pixel_shuffle":
                     upsample_cfg_.update(
                         in_channels=out_channels,
                         out_channels=out_channels,
                         scale_factor=2,
-                        upsample_kernel=self.upsample_kernel)
-                elif self.upsample == 'carafe':
+                        upsample_kernel=self.upsample_kernel,
+                    )
+                elif self.upsample == "carafe":
                     upsample_cfg_.update(channels=out_channels, scale_factor=2)
                 else:
                     # suppress warnings
-                    align_corners = (None
-                                     if self.upsample == 'nearest' else False)
-                    upsample_cfg_.update(
-                        scale_factor=2,
-                        mode=self.upsample,
-                        align_corners=align_corners)
+                    align_corners = None if self.upsample == "nearest" else False
+                    upsample_cfg_.update(scale_factor=2, mode=self.upsample, align_corners=align_corners)
                 upsample_module = build_upsample_layer(upsample_cfg_)
                 self.upsample_modules.append(upsample_module)
             self.lateral_convs.append(l_conv)
             self.fpn_convs.append(fpn_conv)
 
         # add extra conv layers (e.g., RetinaNet)
-        extra_out_levels = (
-            num_outs - self.backbone_end_level + self.start_level)
+        extra_out_levels = num_outs - self.backbone_end_level + self.start_level
         if extra_out_levels >= 1:
             for i in range(extra_out_levels):
-                in_channels = (
-                    self.in_channels[self.backbone_end_level -
-                                     1] if i == 0 else out_channels)
+                in_channels = self.in_channels[self.backbone_end_level - 1] if i == 0 else out_channels
                 extra_l_conv = ConvModule(
                     in_channels,
                     out_channels,
@@ -161,35 +157,31 @@ class FPN_CARAFE(BaseModule):
                     bias=self.with_bias,
                     act_cfg=act_cfg,
                     inplace=False,
-                    order=self.order)
-                if self.upsample == 'deconv':
+                    order=self.order,
+                )
+                if self.upsample == "deconv":
                     upsampler_cfg_ = dict(
                         in_channels=out_channels,
                         out_channels=out_channels,
                         kernel_size=self.upsample_kernel,
                         stride=2,
                         padding=(self.upsample_kernel - 1) // 2,
-                        output_padding=(self.upsample_kernel - 1) // 2)
-                elif self.upsample == 'pixel_shuffle':
+                        output_padding=(self.upsample_kernel - 1) // 2,
+                    )
+                elif self.upsample == "pixel_shuffle":
                     upsampler_cfg_ = dict(
                         in_channels=out_channels,
                         out_channels=out_channels,
                         scale_factor=2,
-                        upsample_kernel=self.upsample_kernel)
-                elif self.upsample == 'carafe':
-                    upsampler_cfg_ = dict(
-                        channels=out_channels,
-                        scale_factor=2,
-                        **self.upsample_cfg)
+                        upsample_kernel=self.upsample_kernel,
+                    )
+                elif self.upsample == "carafe":
+                    upsampler_cfg_ = dict(channels=out_channels, scale_factor=2, **self.upsample_cfg)
                 else:
                     # suppress warnings
-                    align_corners = (None
-                                     if self.upsample == 'nearest' else False)
-                    upsampler_cfg_ = dict(
-                        scale_factor=2,
-                        mode=self.upsample,
-                        align_corners=align_corners)
-                upsampler_cfg_['type'] = self.upsample
+                    align_corners = None if self.upsample == "nearest" else False
+                    upsampler_cfg_ = dict(scale_factor=2, mode=self.upsample, align_corners=align_corners)
+                upsampler_cfg_["type"] = self.upsample
                 upsample_module = build_upsample_layer(upsampler_cfg_)
                 extra_fpn_conv = ConvModule(
                     out_channels,
@@ -200,7 +192,8 @@ class FPN_CARAFE(BaseModule):
                     bias=self.with_bias,
                     act_cfg=act_cfg,
                     inplace=False,
-                    order=self.order)
+                    order=self.order,
+                )
                 self.upsample_modules.append(upsample_module)
                 self.fpn_convs.append(extra_fpn_conv)
                 self.lateral_convs.append(extra_l_conv)
@@ -211,7 +204,7 @@ class FPN_CARAFE(BaseModule):
         super(FPN_CARAFE, self).init_weights()
         for m in self.modules():
             if isinstance(m, (nn.Conv2d, nn.ConvTranspose2d)):
-                xavier_init(m, distribution='uniform')
+                xavier_init(m, distribution="uniform")
         for m in self.modules():
             if isinstance(m, CARAFEPack):
                 m.init_weights()
@@ -234,7 +227,7 @@ class FPN_CARAFE(BaseModule):
         if src.size(2) == dst.size(2) and src.size(3) == dst.size(3):
             return src
         else:
-            return src[:, :, :dst.size(2), :dst.size(3)]
+            return src[:, :, : dst.size(2), : dst.size(3)]
 
     def tensor_add(self, a, b):
         """Add tensors ``a`` and ``b`` that might have different sizes."""

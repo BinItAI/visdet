@@ -81,7 +81,9 @@ class BaseModel(BaseModule):
         elif isinstance(data_preprocessor, dict):
             self.data_preprocessor = MODELS.build(data_preprocessor)
         else:
-            raise TypeError(f"data_preprocessor should be a `dict` or `nn.Module` instance, but got {type(data_preprocessor)}")
+            raise TypeError(
+                f"data_preprocessor should be a `dict` or `nn.Module` instance, but got {type(data_preprocessor)}"
+            )
 
     def train_step(self, data: dict | tuple | list, optim_wrapper) -> dict[str, torch.Tensor]:
         """Implements the default model training process including
@@ -339,7 +341,12 @@ class BaseModel(BaseModule):
         self.apply(apply_fn)
 
     @abstractmethod
-    def forward(self, inputs: torch.Tensor, data_samples: list | None = None, mode: str = "tensor") -> dict[str, torch.Tensor] | list:
+    def forward(
+        self,
+        inputs: torch.Tensor,
+        data_samples: list | None = None,
+        mode: str = "tensor",
+    ) -> dict[str, torch.Tensor] | list:
         """Returns losses or predictions of training, validation, testing, and
         simple inference process.
 

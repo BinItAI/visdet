@@ -1,9 +1,9 @@
-_base_ = '../hrnet/cascade_mask_rcnn_hrnetv2p_w32_20e_coco.py'
+_base_ = "../hrnet/cascade_mask_rcnn_hrnetv2p_w32_20e_coco.py"
 
 custom_hooks = [
     dict(
-        type='RFSearchHook',
-        mode='search',
+        type="RFSearchHook",
+        mode="search",
         rfstructure_file=None,
         verbose=True,
         by_epoch=True,
@@ -17,5 +17,8 @@ custom_hooks = [
                 mmin=1,
                 mmax=24,
                 num_branches=2,
-                skip_layer=[])))
+                skip_layer=[],
+            )
+        ),
+    )
 ]

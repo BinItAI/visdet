@@ -19,7 +19,15 @@ class RoIAlign(nn.Module):
             We set this to True by default for better performance.
     """
 
-    def __init__(self, output_size, spatial_scale=1.0, sampling_ratio=0, pool_mode="avg", aligned=True, use_torchvision=True):
+    def __init__(
+        self,
+        output_size,
+        spatial_scale=1.0,
+        sampling_ratio=0,
+        pool_mode="avg",
+        aligned=True,
+        use_torchvision=True,
+    ):
         super().__init__()
         self.output_size = output_size
         self.spatial_scale = spatial_scale
@@ -33,7 +41,10 @@ class RoIAlign(nn.Module):
 
         # We always use torchvision's implementation for simplicity
         self.roi_align = TVRoIAlign(
-            output_size=self.output_size, spatial_scale=self.spatial_scale, sampling_ratio=self.sampling_ratio, aligned=self.aligned
+            output_size=self.output_size,
+            spatial_scale=self.spatial_scale,
+            sampling_ratio=self.sampling_ratio,
+            aligned=self.aligned,
         )
 
     def forward(self, input, rois):
@@ -57,7 +68,15 @@ class RoIAlign(nn.Module):
 
 
 # Functional interface
-def roi_align(input, rois, output_size, spatial_scale=1.0, sampling_ratio=0, pool_mode="avg", aligned=True):
+def roi_align(
+    input,
+    rois,
+    output_size,
+    spatial_scale=1.0,
+    sampling_ratio=0,
+    pool_mode="avg",
+    aligned=True,
+):
     """RoI align pooling layer functional interface.
 
     Args:

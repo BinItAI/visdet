@@ -43,7 +43,11 @@ model = {
             "target_means": [0.0, 0.0, 0.0, 0.0],
             "target_stds": [1.0, 1.0, 1.0, 1.0],
         },
-        "loss_cls": {"type": "CrossEntropyLoss", "use_sigmoid": True, "loss_weight": 1.0},
+        "loss_cls": {
+            "type": "CrossEntropyLoss",
+            "use_sigmoid": True,
+            "loss_weight": 1.0,
+        },
         "loss_bbox": {"type": "L1Loss", "loss_weight": 1.0},
     },
     "roi_head": {
@@ -66,7 +70,11 @@ model = {
                 "target_stds": [0.1, 0.1, 0.2, 0.2],
             },
             "reg_class_agnostic": False,
-            "loss_cls": {"type": "CrossEntropyLoss", "use_sigmoid": False, "loss_weight": 1.0},
+            "loss_cls": {
+                "type": "CrossEntropyLoss",
+                "use_sigmoid": False,
+                "loss_weight": 1.0,
+            },
             "loss_bbox": {"type": "L1Loss", "loss_weight": 1.0},
         },
         "mask_roi_extractor": {
@@ -81,7 +89,11 @@ model = {
             "in_channels": 256,
             "conv_out_channels": 256,
             "num_classes": 80,
-            "loss_mask": {"type": "CrossEntropyLoss", "use_mask": True, "loss_weight": 1.0},
+            "loss_mask": {
+                "type": "CrossEntropyLoss",
+                "use_mask": True,
+                "loss_weight": 1.0,
+            },
         },
     },
     # model training and testing settings

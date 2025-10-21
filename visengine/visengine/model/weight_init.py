@@ -69,7 +69,14 @@ def normal_init(module, mean=0, std=1, bias=0):
         nn.init.constant_(module.bias, bias)
 
 
-def trunc_normal_init(module: nn.Module, mean: float = 0, std: float = 1, a: float = -2, b: float = 2, bias: float = 0) -> None:
+def trunc_normal_init(
+    module: nn.Module,
+    mean: float = 0,
+    std: float = 1,
+    a: float = -2,
+    b: float = 2,
+    bias: float = 0,
+) -> None:
     if hasattr(module, "weight") and module.weight is not None:
         trunc_normal_(module.weight, mean, std, a, b)  # type: ignore
     if hasattr(module, "bias") and module.bias is not None:
@@ -97,7 +104,14 @@ def kaiming_init(module, a=0, mode="fan_out", nonlinearity="relu", bias=0, distr
 def caffe2_xavier_init(module, bias=0):
     # `XavierFill` in Caffe2 corresponds to `kaiming_uniform_` in PyTorch
     # Acknowledgment to FAIR's internal code
-    kaiming_init(module, a=1, mode="fan_in", nonlinearity="leaky_relu", bias=bias, distribution="uniform")
+    kaiming_init(
+        module,
+        a=1,
+        mode="fan_in",
+        nonlinearity="leaky_relu",
+        bias=bias,
+        distribution="uniform",
+    )
 
 
 def bias_init_with_prob(prior_prob):
@@ -388,12 +402,26 @@ class KaimingInit(BaseInit):
     def __call__(self, module):
         def init(m):
             if self.wholemodule:
-                kaiming_init(m, self.a, self.mode, self.nonlinearity, self.bias, self.distribution)
+                kaiming_init(
+                    m,
+                    self.a,
+                    self.mode,
+                    self.nonlinearity,
+                    self.bias,
+                    self.distribution,
+                )
             else:
                 layername = m.__class__.__name__
                 basesname = _get_bases_name(m)
                 if len(set(self.layer) & {layername, *basesname}):
-                    kaiming_init(m, self.a, self.mode, self.nonlinearity, self.bias, self.distribution)
+                    kaiming_init(
+                        m,
+                        self.a,
+                        self.mode,
+                        self.nonlinearity,
+                        self.bias,
+                        self.distribution,
+                    )
 
         module.apply(init)
         if hasattr(module, "_params_init_info"):
@@ -413,7 +441,13 @@ class Caffe2XavierInit(KaimingInit):
     # `XavierFill` in Caffe2 corresponds to `kaiming_uniform_` in PyTorch
     # Acknowledgment to FAIR's internal code
     def __init__(self, **kwargs):
-        super().__init__(a=1, mode="fan_in", nonlinearity="leaky_relu", distribution="uniform", **kwargs)
+        super().__init__(
+            a=1,
+            mode="fan_in",
+            nonlinearity="leaky_relu",
+            distribution="uniform",
+            **kwargs,
+        )
 
     def __call__(self, module):
         super().__call__(module)

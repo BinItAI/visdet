@@ -30,18 +30,17 @@ class ConcatDataset(_ConcatDataset):
     def __init__(self, datasets, separate_eval=True):
         super(ConcatDataset, self).__init__(datasets)
         self.CLASSES = datasets[0].CLASSES
-        self.PALETTE = getattr(datasets[0], 'PALETTE', None)
+        self.PALETTE = getattr(datasets[0], "PALETTE", None)
         self.separate_eval = separate_eval
         if not separate_eval:
             if any([isinstance(ds, CocoDataset) for ds in datasets]):
                 raise NotImplementedError(
-                    'Evaluating concatenated CocoDataset as a whole is not'
-                    ' supported! Please set "separate_eval=True"')
+                    'Evaluating concatenated CocoDataset as a whole is not supported! Please set "separate_eval=True"'
+                )
             elif len(set([type(ds) for ds in datasets])) != 1:
-                raise NotImplementedError(
-                    'All the datasets should have same types')
+                raise NotImplementedError("All the datasets should have same types")
 
-        if hasattr(datasets[0], 'flag'):
+        if hasattr(datasets[0], "flag"):
             flags = []
             for i in range(0, len(datasets)):
                 flags.append(datasets[i].flag)
@@ -59,8 +58,7 @@ class ConcatDataset(_ConcatDataset):
 
         if idx < 0:
             if -idx > len(self):
-                raise ValueError(
-                    'absolute value of index should not exceed dataset length')
+                raise ValueError("absolute value of index should not exceed dataset length")
             idx = len(self) + idx
         dataset_idx = bisect.bisect_right(self.cumulative_sizes, idx)
         if dataset_idx == 0:
@@ -81,8 +79,7 @@ class ConcatDataset(_ConcatDataset):
 
         if idx < 0:
             if -idx > len(self):
-                raise ValueError(
-                    'absolute value of index should not exceed dataset length')
+                raise ValueError("absolute value of index should not exceed dataset length")
             idx = len(self) + idx
         dataset_idx = bisect.bisect_right(self.cumulative_sizes, idx)
         if dataset_idx == 0:
@@ -103,49 +100,43 @@ class ConcatDataset(_ConcatDataset):
             dict[str: float]: AP results of the total dataset or each separate
             dataset if `self.separate_eval=True`.
         """
-        assert len(results) == self.cumulative_sizes[-1], \
-            ('Dataset and results have different sizes: '
-             f'{self.cumulative_sizes[-1]} v.s. {len(results)}')
+        assert len(results) == self.cumulative_sizes[-1], (
+            f"Dataset and results have different sizes: {self.cumulative_sizes[-1]} v.s. {len(results)}"
+        )
 
         # Check whether all the datasets support evaluation
         for dataset in self.datasets:
-            assert hasattr(dataset, 'evaluate'), \
-                f'{type(dataset)} does not implement evaluate function'
+            assert hasattr(dataset, "evaluate"), f"{type(dataset)} does not implement evaluate function"
 
         if self.separate_eval:
             dataset_idx = -1
             total_eval_results = dict()
             for size, dataset in zip(self.cumulative_sizes, self.datasets):
-                start_idx = 0 if dataset_idx == -1 else \
-                    self.cumulative_sizes[dataset_idx]
+                start_idx = 0 if dataset_idx == -1 else self.cumulative_sizes[dataset_idx]
                 end_idx = self.cumulative_sizes[dataset_idx + 1]
 
                 results_per_dataset = results[start_idx:end_idx]
                 print_log(
-                    f'\nEvaluating {dataset.ann_file} with '
-                    f'{len(results_per_dataset)} images now',
-                    logger=logger)
+                    f"\nEvaluating {dataset.ann_file} with {len(results_per_dataset)} images now",
+                    logger=logger,
+                )
 
-                eval_results_per_dataset = dataset.evaluate(
-                    results_per_dataset, logger=logger, **kwargs)
+                eval_results_per_dataset = dataset.evaluate(results_per_dataset, logger=logger, **kwargs)
                 dataset_idx += 1
                 for k, v in eval_results_per_dataset.items():
-                    total_eval_results.update({f'{dataset_idx}_{k}': v})
+                    total_eval_results.update({f"{dataset_idx}_{k}": v})
 
             return total_eval_results
         elif any([isinstance(ds, CocoDataset) for ds in self.datasets]):
             raise NotImplementedError(
-                'Evaluating concatenated CocoDataset as a whole is not'
-                ' supported! Please set "separate_eval=True"')
+                'Evaluating concatenated CocoDataset as a whole is not supported! Please set "separate_eval=True"'
+            )
         elif len(set([type(ds) for ds in self.datasets])) != 1:
-            raise NotImplementedError(
-                'All the datasets should have same types')
+            raise NotImplementedError("All the datasets should have same types")
         else:
             original_data_infos = self.datasets[0].data_infos
-            self.datasets[0].data_infos = sum(
-                [dataset.data_infos for dataset in self.datasets], [])
-            eval_results = self.datasets[0].evaluate(
-                results, logger=logger, **kwargs)
+            self.datasets[0].data_infos = sum([dataset.data_infos for dataset in self.datasets], [])
+            eval_results = self.datasets[0].evaluate(results, logger=logger, **kwargs)
             self.datasets[0].data_infos = original_data_infos
             return eval_results
 
@@ -168,8 +159,8 @@ class RepeatDataset:
         self.dataset = dataset
         self.times = times
         self.CLASSES = dataset.CLASSES
-        self.PALETTE = getattr(dataset, 'PALETTE', None)
-        if hasattr(self.dataset, 'flag'):
+        self.PALETTE = getattr(dataset, "PALETTE", None)
+        if hasattr(self.dataset, "flag"):
             self.flag = np.tile(self.dataset.flag, times)
 
         self._ori_len = len(self.dataset)
@@ -249,7 +240,7 @@ class ClassBalancedDataset:
         self.oversample_thr = oversample_thr
         self.filter_empty_gt = filter_empty_gt
         self.CLASSES = dataset.CLASSES
-        self.PALETTE = getattr(dataset, 'PALETTE', None)
+        self.PALETTE = getattr(dataset, "PALETTE", None)
 
         repeat_factors = self._get_repeat_factors(dataset, oversample_thr)
         repeat_indices = []
@@ -258,7 +249,7 @@ class ClassBalancedDataset:
         self.repeat_indices = repeat_indices
 
         flags = []
-        if hasattr(self.dataset, 'flag'):
+        if hasattr(self.dataset, "flag"):
             for flag, repeat_factor in zip(self.dataset.flag, repeat_factors):
                 flags.extend([flag] * int(math.ceil(repeat_factor)))
             assert len(flags) == len(repeat_indices)
@@ -293,8 +284,7 @@ class ClassBalancedDataset:
         # 2. For each category c, compute the category-level repeat factor:
         #    r(c) = max(1, sqrt(t/f(c)))
         category_repeat = {
-            cat_id: max(1.0, math.sqrt(repeat_thr / cat_freq))
-            for cat_id, cat_freq in category_freq.items()
+            cat_id: max(1.0, math.sqrt(repeat_thr / cat_freq)) for cat_id, cat_freq in category_freq.items()
         }
 
         # 3. For each image I, compute the image-level repeat factor:
@@ -306,9 +296,7 @@ class ClassBalancedDataset:
                 cat_ids = set([len(self.CLASSES)])
             repeat_factor = 1
             if len(cat_ids) > 0:
-                repeat_factor = max(
-                    {category_repeat[cat_id]
-                     for cat_id in cat_ids})
+                repeat_factor = max({category_repeat[cat_id] for cat_id in cat_ids})
             repeat_factors.append(repeat_factor)
 
         return repeat_factors
@@ -359,38 +347,28 @@ class MultiImageMixDataset:
             iteration is terminated and raise the error. Default: 15.
     """
 
-    def __init__(self,
-                 dataset,
-                 pipeline,
-                 dynamic_scale=None,
-                 skip_type_keys=None,
-                 max_refetch=15):
+    def __init__(self, dataset, pipeline, dynamic_scale=None, skip_type_keys=None, max_refetch=15):
         if dynamic_scale is not None:
-            raise RuntimeError(
-                'dynamic_scale is deprecated. Please use Resize pipeline '
-                'to achieve similar functions')
+            raise RuntimeError("dynamic_scale is deprecated. Please use Resize pipeline to achieve similar functions")
         assert isinstance(pipeline, collections.abc.Sequence)
         if skip_type_keys is not None:
-            assert all([
-                isinstance(skip_type_key, str)
-                for skip_type_key in skip_type_keys
-            ])
+            assert all([isinstance(skip_type_key, str) for skip_type_key in skip_type_keys])
         self._skip_type_keys = skip_type_keys
 
         self.pipeline = []
         self.pipeline_types = []
         for transform in pipeline:
             if isinstance(transform, dict):
-                self.pipeline_types.append(transform['type'])
+                self.pipeline_types.append(transform["type"])
                 transform = build_from_cfg(transform, PIPELINES)
                 self.pipeline.append(transform)
             else:
-                raise TypeError('pipeline must be a dict')
+                raise TypeError("pipeline must be a dict")
 
         self.dataset = dataset
         self.CLASSES = dataset.CLASSES
-        self.PALETTE = getattr(dataset, 'PALETTE', None)
-        if hasattr(self.dataset, 'flag'):
+        self.PALETTE = getattr(dataset, "PALETTE", None)
+        if hasattr(self.dataset, "flag"):
             self.flag = dataset.flag
         self.num_samples = len(dataset)
         self.max_refetch = max_refetch
@@ -400,30 +378,27 @@ class MultiImageMixDataset:
 
     def __getitem__(self, idx):
         results = copy.deepcopy(self.dataset[idx])
-        for (transform, transform_type) in zip(self.pipeline,
-                                               self.pipeline_types):
-            if self._skip_type_keys is not None and \
-                    transform_type in self._skip_type_keys:
+        for transform, transform_type in zip(self.pipeline, self.pipeline_types):
+            if self._skip_type_keys is not None and transform_type in self._skip_type_keys:
                 continue
 
-            if hasattr(transform, 'get_indexes'):
+            if hasattr(transform, "get_indexes"):
                 for i in range(self.max_refetch):
                     # Make sure the results passed the loading pipeline
                     # of the original dataset is not None.
                     indexes = transform.get_indexes(self.dataset)
                     if not isinstance(indexes, collections.abc.Sequence):
                         indexes = [indexes]
-                    mix_results = [
-                        copy.deepcopy(self.dataset[index]) for index in indexes
-                    ]
+                    mix_results = [copy.deepcopy(self.dataset[index]) for index in indexes]
                     if None not in mix_results:
-                        results['mix_results'] = mix_results
+                        results["mix_results"] = mix_results
                         break
                 else:
                     raise RuntimeError(
-                        'The loading pipeline of the original dataset'
-                        ' always return None. Please check the correctness '
-                        'of the dataset and its pipeline.')
+                        "The loading pipeline of the original dataset"
+                        " always return None. Please check the correctness "
+                        "of the dataset and its pipeline."
+                    )
 
             for i in range(self.max_refetch):
                 # To confirm the results passed the training pipeline
@@ -434,12 +409,13 @@ class MultiImageMixDataset:
                     break
             else:
                 raise RuntimeError(
-                    'The training pipeline of the dataset wrapper'
-                    ' always return None.Please check the correctness '
-                    'of the dataset and its pipeline.')
+                    "The training pipeline of the dataset wrapper"
+                    " always return None.Please check the correctness "
+                    "of the dataset and its pipeline."
+                )
 
-            if 'mix_results' in results:
-                results.pop('mix_results')
+            if "mix_results" in results:
+                results.pop("mix_results")
 
         return results
 
@@ -450,7 +426,5 @@ class MultiImageMixDataset:
             skip_type_keys (list[str], optional): Sequence of type
                 string to be skip pipeline.
         """
-        assert all([
-            isinstance(skip_type_key, str) for skip_type_key in skip_type_keys
-        ])
+        assert all([isinstance(skip_type_key, str) for skip_type_key in skip_type_keys])
         self._skip_type_keys = skip_type_keys

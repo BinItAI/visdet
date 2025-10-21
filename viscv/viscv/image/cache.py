@@ -1,7 +1,6 @@
 """On-disk cache for downsized images to avoid repeated decoding and resizing."""
 
 import hashlib
-import json
 import shutil
 import sqlite3
 import time
@@ -212,7 +211,15 @@ class ImageCache:
                 (cache_key, img_path, target_width, target_height, mtime, file_size, last_accessed, access_count)
                 VALUES (?, ?, ?, ?, ?, ?, ?, 1)
                 """,
-                (cache_key, img_path, target_size[0], target_size[1], mtime, file_size, now),
+                (
+                    cache_key,
+                    img_path,
+                    target_size[0],
+                    target_size[1],
+                    mtime,
+                    file_size,
+                    now,
+                ),
             )
 
             conn.commit()

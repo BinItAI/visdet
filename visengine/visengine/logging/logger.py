@@ -59,7 +59,12 @@ class MMFormatter(logging.Formatter):
             :meth:`logging.Formatter.__init__`.
     """
 
-    _color_mapping: dict = {"ERROR": "red", "WARNING": "yellow", "INFO": "white", "DEBUG": "green"}
+    _color_mapping: dict = {
+        "ERROR": "red",
+        "WARNING": "yellow",
+        "INFO": "white",
+        "DEBUG": "green",
+    }
 
     def __init__(self, color: bool = True, blink: bool = False, **kwargs):
         super().__init__(**kwargs)
@@ -71,7 +76,9 @@ class MMFormatter(logging.Formatter):
         debug_prefix = self._get_prefix("DEBUG", color, blink)
 
         # Config output format.
-        self.err_format = f"%(asctime)s - %(name)s - {error_prefix} - %(pathname)s - %(funcName)s - %(lineno)d - %(message)s"
+        self.err_format = (
+            f"%(asctime)s - %(name)s - {error_prefix} - %(pathname)s - %(funcName)s - %(lineno)d - %(message)s"
+        )
         self.warn_format = f"%(asctime)s - %(name)s - {warn_prefix} - %(message)s"
         self.info_format = f"%(asctime)s - %(name)s - {info_prefix} - %(message)s"
         self.debug_format = f"%(asctime)s - %(name)s - {debug_prefix} - %(message)s"
@@ -353,7 +360,9 @@ def print_log(msg, logger: Logger | str | None = None, level=logging.INFO) -> No
         else:
             raise ValueError(f"MMLogger: {logger} has not been created!")
     else:
-        raise TypeError(f'`logger` should be either a logging.Logger object, str, "silent", "current" or None, but got {type(logger)}')
+        raise TypeError(
+            f'`logger` should be either a logging.Logger object, str, "silent", "current" or None, but got {type(logger)}'
+        )
 
 
 def _get_world_size():

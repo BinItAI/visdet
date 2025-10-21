@@ -8,15 +8,17 @@ class CascadeRCNN(TwoStageDetector):
     r"""Implementation of `Cascade R-CNN: Delving into High Quality Object
     Detection <https://arxiv.org/abs/1906.09756>`_"""
 
-    def __init__(self,
-                 backbone,
-                 neck=None,
-                 rpn_head=None,
-                 roi_head=None,
-                 train_cfg=None,
-                 test_cfg=None,
-                 pretrained=None,
-                 init_cfg=None):
+    def __init__(
+        self,
+        backbone,
+        neck=None,
+        rpn_head=None,
+        roi_head=None,
+        train_cfg=None,
+        test_cfg=None,
+        pretrained=None,
+        init_cfg=None,
+    ):
         super(CascadeRCNN, self).__init__(
             backbone=backbone,
             neck=neck,
@@ -25,7 +27,8 @@ class CascadeRCNN(TwoStageDetector):
             train_cfg=train_cfg,
             test_cfg=test_cfg,
             pretrained=pretrained,
-            init_cfg=init_cfg)
+            init_cfg=init_cfg,
+        )
 
     def show_result(self, data, result, **kwargs):
         """Show prediction results of the detector.
@@ -41,9 +44,8 @@ class CascadeRCNN(TwoStageDetector):
         if self.with_mask:
             ms_bbox_result, ms_segm_result = result
             if isinstance(ms_bbox_result, dict):
-                result = (ms_bbox_result['ensemble'],
-                          ms_segm_result['ensemble'])
+                result = (ms_bbox_result["ensemble"], ms_segm_result["ensemble"])
         else:
             if isinstance(result, dict):
-                result = result['ensemble']
+                result = result["ensemble"]
         return super(CascadeRCNN, self).show_result(data, result, **kwargs)

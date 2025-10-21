@@ -55,7 +55,13 @@ def mask_target(pos_proposals_list, pos_assigned_gt_inds_list, gt_masks_list, cf
         >>> assert mask_targets.shape == (5,) + cfg['mask_size']
     """
     cfg_list = [cfg for _ in range(len(pos_proposals_list))]
-    mask_targets = map(mask_target_single, pos_proposals_list, pos_assigned_gt_inds_list, gt_masks_list, cfg_list)
+    mask_targets = map(
+        mask_target_single,
+        pos_proposals_list,
+        pos_assigned_gt_inds_list,
+        gt_masks_list,
+        cfg_list,
+    )
     mask_targets = list(mask_targets)
     if len(mask_targets) > 0:
         mask_targets = torch.cat(mask_targets)
@@ -111,7 +117,13 @@ def mask_target_single(pos_proposals, pos_assigned_gt_inds, gt_masks, cfg):
         proposals_np[:, [1, 3]] = np.clip(proposals_np[:, [1, 3]], 0, maxh)
         pos_assigned_gt_inds = pos_assigned_gt_inds.cpu().numpy()
 
-        mask_targets = gt_masks.crop_and_resize(proposals_np, mask_size, device=device, inds=pos_assigned_gt_inds, binarize=binarize).to_ndarray()
+        mask_targets = gt_masks.crop_and_resize(
+            proposals_np,
+            mask_size,
+            device=device,
+            inds=pos_assigned_gt_inds,
+            binarize=binarize,
+        ).to_ndarray()
 
         mask_targets = torch.from_numpy(mask_targets).float().to(device)
     else:

@@ -53,7 +53,12 @@ class InferencerMeta(ABCMeta):
 
         all_kwargs = cls.preprocess_kwargs | cls.forward_kwargs | cls.visualize_kwargs | cls.postprocess_kwargs
 
-        assert len(all_kwargs) == (len(cls.preprocess_kwargs) + len(cls.forward_kwargs) + len(cls.visualize_kwargs) + len(cls.postprocess_kwargs)), (
+        assert len(all_kwargs) == (
+            len(cls.preprocess_kwargs)
+            + len(cls.forward_kwargs)
+            + len(cls.visualize_kwargs)
+            + len(cls.postprocess_kwargs)
+        ), (
             f"Class define error! {cls.__name__} should not "
             "define duplicated keys for `preprocess_kwargs`, "
             "`forward_kwargs`, `visualize_kwargs` and "
@@ -165,7 +170,9 @@ class BaseInferencer(metaclass=InferencerMeta):
             cfg = copy.deepcopy(ConfigDict(model))
         elif model is None:
             if weights is None:
-                raise ValueError("If model is None, the weights must be specified since the config needs to be loaded from the weights")
+                raise ValueError(
+                    "If model is None, the weights must be specified since the config needs to be loaded from the weights"
+                )
             cfg = ConfigDict()
         else:
             raise TypeError(f"model must be a filepath or any ConfigTypeobject, but got {type(model)}")
@@ -388,7 +395,9 @@ class BaseInferencer(metaclass=InferencerMeta):
                 raise KeyError(f"{scope} is not a valid scope. The available scopes are {MODULE2PACKAGE.keys()}")
             else:
                 project = MODULE2PACKAGE[scope]
-                raise ImportError(f'Cannot import {scope} correctly, please try to install the {project} by "pip install {project}"')
+                raise ImportError(
+                    f'Cannot import {scope} correctly, please try to install the {project} by "pip install {project}"'
+                )
         # Since none of OpenMMLab series packages are namespace packages
         # (https://docs.python.org/3/glossary.html#term-namespace-package),
         # The first element of module.__path__ means package installation path.
@@ -400,7 +409,9 @@ class BaseInferencer(metaclass=InferencerMeta):
         else:
             mim_dir = osp.join(package_path, ".mim")
             if not osp.exists(osp.join(mim_dir, "configs")):
-                raise FileNotFoundError(f"Cannot find `configs` directory in {package_path}!, please check the completeness of the {scope}.")
+                raise FileNotFoundError(
+                    f"Cannot find `configs` directory in {package_path}!, please check the completeness of the {scope}."
+                )
             return mim_dir
 
     def _init_model(
@@ -577,7 +588,9 @@ class BaseInferencer(metaclass=InferencerMeta):
         union_kwargs = method_kwargs | set(kwargs.keys())
         if union_kwargs != method_kwargs:
             unknown_kwargs = union_kwargs - method_kwargs
-            raise ValueError(f"unknown argument {unknown_kwargs} for `preprocess`, `forward`, `visualize` and `postprocess`")
+            raise ValueError(
+                f"unknown argument {unknown_kwargs} for `preprocess`, `forward`, `visualize` and `postprocess`"
+            )
 
         preprocess_kwargs = {}
         forward_kwargs = {}

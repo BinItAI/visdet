@@ -63,7 +63,13 @@ class PseudoSampler:
     def __init__(self, **kwargs):
         self.context = kwargs.get("context", None)
 
-    def sample(self, assign_result, pred_instances: InstanceData, gt_instances: InstanceData, **kwargs):
+    def sample(
+        self,
+        assign_result,
+        pred_instances: InstanceData,
+        gt_instances: InstanceData,
+        **kwargs,
+    ):
         """Directly returns the positive and negative indices."""
         priors = pred_instances.priors
         gt_bboxes = gt_instances.bboxes
@@ -94,7 +100,13 @@ class RandomSampler:
         self.neg_pos_ub = neg_pos_ub
         self.context = kwargs.get("context", None)
 
-    def sample(self, assign_result, pred_instances: InstanceData, gt_instances: InstanceData, **kwargs):
+    def sample(
+        self,
+        assign_result,
+        pred_instances: InstanceData,
+        gt_instances: InstanceData,
+        **kwargs,
+    ):
         """Sample positive and negative bboxes."""
         priors = pred_instances.priors
         gt_bboxes = gt_instances.bboxes

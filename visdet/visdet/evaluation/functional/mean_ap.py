@@ -94,7 +94,12 @@ def tpfp_imagenet(
         extra_length = 1.0
 
     # an indicator of ignored gts
-    gt_ignore_inds = np.concatenate((np.zeros(gt_bboxes.shape[0], dtype=bool), np.ones(gt_bboxes_ignore.shape[0], dtype=bool)))
+    gt_ignore_inds = np.concatenate(
+        (
+            np.zeros(gt_bboxes.shape[0], dtype=bool),
+            np.ones(gt_bboxes_ignore.shape[0], dtype=bool),
+        )
+    )
     # stack gt_bboxes and gt_bboxes_ignore for convenience
     gt_bboxes = np.vstack((gt_bboxes, gt_bboxes_ignore))
 
@@ -111,7 +116,9 @@ def tpfp_imagenet(
         if area_ranges == [(None, None)]:
             fp[...] = 1
         else:
-            det_areas = (det_bboxes[:, 2] - det_bboxes[:, 0] + extra_length) * (det_bboxes[:, 3] - det_bboxes[:, 1] + extra_length)
+            det_areas = (det_bboxes[:, 2] - det_bboxes[:, 0] + extra_length) * (
+                det_bboxes[:, 3] - det_bboxes[:, 1] + extra_length
+            )
             for i, (min_area, max_area) in enumerate(area_ranges):
                 fp[i, (det_areas >= min_area) & (det_areas < max_area)] = 1
         return tp, fp
@@ -197,7 +204,12 @@ def tpfp_default(
         extra_length = 1.0
 
     # an indicator of ignored gts
-    gt_ignore_inds = np.concatenate((np.zeros(gt_bboxes.shape[0], dtype=bool), np.ones(gt_bboxes_ignore.shape[0], dtype=bool)))
+    gt_ignore_inds = np.concatenate(
+        (
+            np.zeros(gt_bboxes.shape[0], dtype=bool),
+            np.ones(gt_bboxes_ignore.shape[0], dtype=bool),
+        )
+    )
     # stack gt_bboxes and gt_bboxes_ignore for convenience
     gt_bboxes = np.vstack((gt_bboxes, gt_bboxes_ignore))
 
@@ -217,7 +229,9 @@ def tpfp_default(
         if area_ranges == [(None, None)]:
             fp[...] = 1
         else:
-            det_areas = (det_bboxes[:, 2] - det_bboxes[:, 0] + extra_length) * (det_bboxes[:, 3] - det_bboxes[:, 1] + extra_length)
+            det_areas = (det_bboxes[:, 2] - det_bboxes[:, 0] + extra_length) * (
+                det_bboxes[:, 3] - det_bboxes[:, 1] + extra_length
+            )
             for i, (min_area, max_area) in enumerate(area_ranges):
                 fp[i, (det_areas >= min_area) & (det_areas < max_area)] = 1
         return tp, fp
@@ -235,7 +249,9 @@ def tpfp_default(
         if min_area is None:
             gt_area_ignore = np.zeros_like(gt_ignore_inds, dtype=bool)
         else:
-            gt_areas = (gt_bboxes[:, 2] - gt_bboxes[:, 0] + extra_length) * (gt_bboxes[:, 3] - gt_bboxes[:, 1] + extra_length)
+            gt_areas = (gt_bboxes[:, 2] - gt_bboxes[:, 0] + extra_length) * (
+                gt_bboxes[:, 3] - gt_bboxes[:, 1] + extra_length
+            )
             gt_area_ignore = (gt_areas < min_area) | (gt_areas >= max_area)
         for i in sort_inds:
             if ious_max[i] >= iou_thr:
@@ -306,7 +322,12 @@ def tpfp_openimages(
         extra_length = 1.0
 
     # an indicator of ignored gts
-    gt_ignore_inds = np.concatenate((np.zeros(gt_bboxes.shape[0], dtype=bool), np.ones(gt_bboxes_ignore.shape[0], dtype=bool)))
+    gt_ignore_inds = np.concatenate(
+        (
+            np.zeros(gt_bboxes.shape[0], dtype=bool),
+            np.ones(gt_bboxes_ignore.shape[0], dtype=bool),
+        )
+    )
     # stack gt_bboxes and gt_bboxes_ignore for convenience
     gt_bboxes = np.vstack((gt_bboxes, gt_bboxes_ignore))
 
@@ -326,7 +347,9 @@ def tpfp_openimages(
         if area_ranges == [(None, None)]:
             fp[...] = 1
         else:
-            det_areas = (det_bboxes[:, 2] - det_bboxes[:, 0] + extra_length) * (det_bboxes[:, 3] - det_bboxes[:, 1] + extra_length)
+            det_areas = (det_bboxes[:, 2] - det_bboxes[:, 0] + extra_length) * (
+                det_bboxes[:, 3] - det_bboxes[:, 1] + extra_length
+            )
             for i, (min_area, max_area) in enumerate(area_ranges):
                 fp[i, (det_areas >= min_area) & (det_areas < max_area)] = 1
         return tp, fp, det_bboxes
@@ -360,7 +383,9 @@ def tpfp_openimages(
             if min_area is None:
                 gt_area_ignore = np.zeros_like(gt_ignore_inds, dtype=bool)
             else:
-                gt_areas = (gt_bboxes[:, 2] - gt_bboxes[:, 0] + extra_length) * (gt_bboxes[:, 3] - gt_bboxes[:, 1] + extra_length)
+                gt_areas = (gt_bboxes[:, 2] - gt_bboxes[:, 0] + extra_length) * (
+                    gt_bboxes[:, 3] - gt_bboxes[:, 1] + extra_length
+                )
                 gt_area_ignore = (gt_areas < min_area) | (gt_areas >= max_area)
             for i in sort_inds:
                 if ious_max[i] >= iou_thr:
@@ -386,7 +411,9 @@ def tpfp_openimages(
         if area_ranges == [(None, None)]:
             fp[...] = 1
         else:
-            det_areas = (det_bboxes[:, 2] - det_bboxes[:, 0] + extra_length) * (det_bboxes[:, 3] - det_bboxes[:, 1] + extra_length)
+            det_areas = (det_bboxes[:, 2] - det_bboxes[:, 0] + extra_length) * (
+                det_bboxes[:, 3] - det_bboxes[:, 1] + extra_length
+            )
             for i, (min_area, max_area) in enumerate(area_ranges):
                 fp[i, (det_areas >= min_area) & (det_areas < max_area)] = 1
 

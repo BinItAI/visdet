@@ -158,7 +158,13 @@ class LoggerHook(Hook):
 
         self.json_log_path = f"{runner.timestamp}.json"
 
-    def after_train_iter(self, runner, batch_idx: int, data_batch: DATA_BATCH = None, outputs: dict | None = None) -> None:
+    def after_train_iter(
+        self,
+        runner,
+        batch_idx: int,
+        data_batch: DATA_BATCH = None,
+        outputs: dict | None = None,
+    ) -> None:
         """Record logs after training iteration.
 
         Args:
@@ -168,12 +174,16 @@ class LoggerHook(Hook):
             outputs (dict, optional): Outputs from model.
         """
         # Print experiment name every n iterations.
-        if self.every_n_train_iters(runner, self.interval_exp_name) or (self.end_of_epoch(runner.train_dataloader, batch_idx)):
+        if self.every_n_train_iters(runner, self.interval_exp_name) or (
+            self.end_of_epoch(runner.train_dataloader, batch_idx)
+        ):
             exp_info = f"Exp name: {runner.experiment_name}"
             runner.logger.info(exp_info)
         if self.every_n_inner_iters(batch_idx, self.interval):
             tag, log_str = runner.log_processor.get_log_after_iter(runner, batch_idx, "train")
-        elif self.end_of_epoch(runner.train_dataloader, batch_idx) and (not self.ignore_last or len(runner.train_dataloader) <= self.interval):
+        elif self.end_of_epoch(runner.train_dataloader, batch_idx) and (
+            not self.ignore_last or len(runner.train_dataloader) <= self.interval
+        ):
             # `runner.max_iters` may not be divisible by `self.interval`. if
             # `self.ignore_last==True`, the log of remaining iterations will
             # be recorded (Epoch [4][1000/1007], the logs of 998-1007
@@ -263,7 +273,9 @@ class LoggerHook(Hook):
                 metrics on test dataset. The keys are the names of the
                 metrics, and the values are corresponding results.
         """
-        tag, log_str = runner.log_processor.get_log_after_epoch(runner, len(runner.test_dataloader), "test", with_non_scalar=True)
+        tag, log_str = runner.log_processor.get_log_after_epoch(
+            runner, len(runner.test_dataloader), "test", with_non_scalar=True
+        )
         runner.logger.info(log_str)
         dump(self._process_tags(tag), osp.join(runner.log_dir, self.json_log_path))  # type: ignore
 

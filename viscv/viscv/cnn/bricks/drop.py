@@ -65,5 +65,5 @@ def build_dropout(cfg: dict | float | None, default_args: dict | None = None) ->
     if cfg is None:
         return None
     if isinstance(cfg, float):
-        cfg = dict(type='Dropout', drop_prob=cfg)
+        cfg = dict(type="Dropout", drop_prob=cfg)
     return MODELS.build(cfg, default_args=default_args)

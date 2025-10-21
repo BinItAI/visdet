@@ -1,9 +1,9 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 from mmcv.utils import Registry, build_from_cfg
 
-BBOX_ASSIGNERS = Registry('bbox_assigner')
-BBOX_SAMPLERS = Registry('bbox_sampler')
-BBOX_CODERS = Registry('bbox_coder')
+BBOX_ASSIGNERS = Registry("bbox_assigner")
+BBOX_SAMPLERS = Registry("bbox_sampler")
+BBOX_CODERS = Registry("bbox_coder")
 
 
 def build_assigner(cfg, **default_args):

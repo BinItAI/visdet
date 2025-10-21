@@ -1,9 +1,9 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import os.path as osp
 import warnings
-from typing import Optional, Sequence
+from collections.abc import Sequence
+from typing import Optional
 
-import viscv
 import numpy as np
 from visengine.fileio import get
 from visengine.hooks import Hook
@@ -11,6 +11,7 @@ from visengine.runner import Runner
 from visengine.utils import mkdir_or_exist
 from visengine.visualization import Visualizer
 
+import viscv
 from visdet.registry import HOOKS
 from visdet.structures import DetDataSample
 from visdet.structures.bbox import BaseBoxes
@@ -49,14 +50,16 @@ class DetVisualizationHook(Hook):
             corresponding backend. Defaults to None.
     """
 
-    def __init__(self,
-                 draw: bool = False,
-                 interval: int = 50,
-                 score_thr: float = 0.3,
-                 show: bool = False,
-                 wait_time: float = 0.,
-                 test_out_dir: Optional[str] = None,
-                 backend_args: dict = None):
+    def __init__(
+        self,
+        draw: bool = False,
+        interval: int = 50,
+        score_thr: float = 0.3,
+        show: bool = False,
+        wait_time: float = 0.0,
+        test_out_dir: str | None = None,
+        backend_args: dict = None,
+    ):
         self._visualizer: Visualizer = Visualizer.get_current_instance()
         self.interval = interval
         self.score_thr = score_thr
@@ -64,10 +67,12 @@ class DetVisualizationHook(Hook):
         if self.show:
             # No need to think about vis backends.
             self._visualizer._vis_backends = {}
-            warnings.warn('The show is True, it means that only '
-                          'the prediction results are visualized '
-                          'without storing data, so vis_backends '
-                          'needs to be excluded.')
+            warnings.warn(
+                "The show is True, it means that only "
+                "the prediction results are visualized "
+                "without storing data, so vis_backends "
+                "needs to be excluded."
+            )
 
         self.wait_time = wait_time
         self.backend_args = backend_args
@@ -75,8 +80,13 @@ class DetVisualizationHook(Hook):
         self.test_out_dir = test_out_dir
         self._test_index = 0
 
-    def after_val_iter(self, runner: Runner, batch_idx: int, data_batch: dict,
-                       outputs: Sequence[DetDataSample]) -> None:
+    def after_val_iter(
+        self,
+        runner: Runner,
+        batch_idx: int,
+        data_batch: dict,
+        outputs: Sequence[DetDataSample],
+    ) -> None:
         """Run after every ``self.interval`` validation iterations.
 
         Args:
@@ -96,20 +106,26 @@ class DetVisualizationHook(Hook):
         # Visualize only the first data
         img_path = outputs[0].img_path
         img_bytes = get(img_path, backend_args=self.backend_args)
-        img = viscv.imfrombytes(img_bytes, channel_order='rgb')
+        img = viscv.imfrombytes(img_bytes, channel_order="rgb")
 
         if total_curr_iter % self.interval == 0:
             self._visualizer.add_datasample(
-                osp.basename(img_path) if self.show else 'val_img',
+                osp.basename(img_path) if self.show else "val_img",
                 img,
                 data_sample=outputs[0],
                 show=self.show,
                 wait_time=self.wait_time,
                 pred_score_thr=self.score_thr,
-                step=total_curr_iter)
+                step=total_curr_iter,
+            )
 
-    def after_test_iter(self, runner: Runner, batch_idx: int, data_batch: dict,
-                        outputs: Sequence[DetDataSample]) -> None:
+    def after_test_iter(
+        self,
+        runner: Runner,
+        batch_idx: int,
+        data_batch: dict,
+        outputs: Sequence[DetDataSample],
+    ) -> None:
         """Run after every testing iterations.
 
         Args:
@@ -123,8 +139,7 @@ class DetVisualizationHook(Hook):
             return
 
         if self.test_out_dir is not None:
-            self.test_out_dir = osp.join(runner.work_dir, runner.timestamp,
-                                         self.test_out_dir)
+            self.test_out_dir = osp.join(runner.work_dir, runner.timestamp, self.test_out_dir)
             mkdir_or_exist(self.test_out_dir)
 
         for data_sample in outputs:
@@ -132,7 +147,7 @@ class DetVisualizationHook(Hook):
 
             img_path = data_sample.img_path
             img_bytes = get(img_path, backend_args=self.backend_args)
-            img = viscv.imfrombytes(img_bytes, channel_order='rgb')
+            img = viscv.imfrombytes(img_bytes, channel_order="rgb")
 
             out_file = None
             if self.test_out_dir is not None:
@@ -140,16 +155,15 @@ class DetVisualizationHook(Hook):
                 out_file = osp.join(self.test_out_dir, out_file)
 
             self._visualizer.add_datasample(
-                osp.basename(img_path) if self.show else 'test_img',
+                osp.basename(img_path) if self.show else "test_img",
                 img,
                 data_sample=data_sample,
                 show=self.show,
                 wait_time=self.wait_time,
                 pred_score_thr=self.score_thr,
                 out_file=out_file,
-                step=self._test_index)
-
-
+                step=self._test_index,
+            )
 
 
 def draw_all_character(visualizer, characters, w):
@@ -161,14 +175,16 @@ def draw_all_character(visualizer, characters, w):
                 str(char),
                 positions=np.array([start_index, y_index]),
                 colors=(0, 0, 0),
-                font_families='monospace')
+                font_families="monospace",
+            )
             start_index += len(char) * 8
         else:
             visualizer.draw_texts(
                 str(char[0]),
                 positions=np.array([start_index, y_index]),
                 colors=char[1],
-                font_families='monospace')
+                font_families="monospace",
+            )
             start_index += len(char[0]) * 8
 
         if start_index > w - 10:
@@ -181,9 +197,13 @@ def draw_all_character(visualizer, characters, w):
 
 @HOOKS.register_module()
 class GroundingVisualizationHook(DetVisualizationHook):
-
-    def after_test_iter(self, runner: Runner, batch_idx: int, data_batch: dict,
-                        outputs: Sequence[DetDataSample]) -> None:
+    def after_test_iter(
+        self,
+        runner: Runner,
+        batch_idx: int,
+        data_batch: dict,
+        outputs: Sequence[DetDataSample],
+    ) -> None:
         """Run after every testing iterations.
 
         Args:
@@ -197,8 +217,7 @@ class GroundingVisualizationHook(DetVisualizationHook):
             return
 
         if self.test_out_dir is not None:
-            self.test_out_dir = osp.join(runner.work_dir, runner.timestamp,
-                                         self.test_out_dir)
+            self.test_out_dir = osp.join(runner.work_dir, runner.timestamp, self.test_out_dir)
             mkdir_or_exist(self.test_out_dir)
 
         for data_sample in outputs:
@@ -208,7 +227,7 @@ class GroundingVisualizationHook(DetVisualizationHook):
 
             img_path = data_sample.img_path
             img_bytes = get(img_path, backend_args=self.backend_args)
-            img = viscv.imfrombytes(img_bytes, channel_order='rgb')
+            img = viscv.imfrombytes(img_bytes, channel_order="rgb")
 
             out_file = None
             if self.test_out_dir is not None:
@@ -219,18 +238,17 @@ class GroundingVisualizationHook(DetVisualizationHook):
             if isinstance(text, str):  # VG
                 gt_instances = data_sample.gt_instances
                 tokens_positive = data_sample.tokens_positive
-                if 'phrase_ids' in data_sample:
+                if "phrase_ids" in data_sample:
                     # flickr30k
                     gt_labels = data_sample.phrase_ids
                 else:
                     gt_labels = gt_instances.labels
-                gt_bboxes = gt_instances.get('bboxes', None)
+                gt_bboxes = gt_instances.get("bboxes", None)
                 if gt_bboxes is not None and isinstance(gt_bboxes, BaseBoxes):
                     gt_instances.bboxes = gt_bboxes.tensor
                 print(gt_labels, tokens_positive, gt_bboxes, img_path)
                 pred_instances = data_sample.pred_instances
-                pred_instances = pred_instances[
-                    pred_instances.scores > self.score_thr]
+                pred_instances = pred_instances[pred_instances.scores > self.score_thr]
                 pred_labels = pred_instances.labels
                 pred_bboxes = pred_instances.bboxes
                 pred_scores = pred_instances.scores
@@ -253,23 +271,18 @@ class GroundingVisualizationHook(DetVisualizationHook):
                 self._visualizer.set_image(img)
 
                 for label, bbox, color in zip(gt_labels, gt_bboxes, colors):
-                    self._visualizer.draw_bboxes(
-                        bbox, edge_colors=color, face_colors=color, alpha=0.3)
-                    self._visualizer.draw_bboxes(
-                        bbox, edge_colors=color, alpha=1)
+                    self._visualizer.draw_bboxes(bbox, edge_colors=color, face_colors=color, alpha=0.3)
+                    self._visualizer.draw_bboxes(bbox, edge_colors=color, alpha=1)
 
                 drawn_img = self._visualizer.get_image()
 
-                new_image = np.ones(
-                    (100, img.shape[1], 3), dtype=np.uint8) * 255
+                new_image = np.ones((100, img.shape[1], 3), dtype=np.uint8) * 255
                 self._visualizer.set_image(new_image)
 
                 if tokens_positive == -1:  # REC
                     gt_tokens_positive = [[]]
                 else:  # Phrase Grounding
-                    gt_tokens_positive = [
-                        tokens_positive[label] for label in gt_labels
-                    ]
+                    gt_tokens_positive = [tokens_positive[label] for label in gt_labels]
                 split_by_character = [char for char in text]
                 characters = []
                 start_index = 0
@@ -289,21 +302,16 @@ class GroundingVisualizationHook(DetVisualizationHook):
                         characters.append([w, (0, 0, 0)])
                     start_index = end_index
 
-                drawn_text = draw_all_character(self._visualizer, characters,
-                                                img.shape[1])
+                drawn_text = draw_all_character(self._visualizer, characters, img.shape[1])
                 drawn_gt_img = np.concatenate((drawn_img, drawn_text), axis=0)
 
                 self._visualizer.set_image(img)
 
-                for label, bbox, color in zip(pred_labels, pred_bboxes,
-                                              colors):
-                    self._visualizer.draw_bboxes(
-                        bbox, edge_colors=color, face_colors=color, alpha=0.3)
-                    self._visualizer.draw_bboxes(
-                        bbox, edge_colors=color, alpha=1)
+                for label, bbox, color in zip(pred_labels, pred_bboxes, colors):
+                    self._visualizer.draw_bboxes(bbox, edge_colors=color, face_colors=color, alpha=0.3)
+                    self._visualizer.draw_bboxes(bbox, edge_colors=color, alpha=1)
                 print(pred_labels, pred_bboxes, pred_scores, colors)
-                areas = (pred_bboxes[:, 3] - pred_bboxes[:, 1]) * (
-                    pred_bboxes[:, 2] - pred_bboxes[:, 0])
+                areas = (pred_bboxes[:, 3] - pred_bboxes[:, 1]) * (pred_bboxes[:, 2] - pred_bboxes[:, 0])
                 scales = _get_adaptive_scales(areas)
                 score = [str(round(s.item(), 2)) for s in pred_scores]
                 font_sizes = [int(13 * scales[i]) for i in range(len(scales))]
@@ -312,41 +320,43 @@ class GroundingVisualizationHook(DetVisualizationHook):
                     pred_bboxes[:, :2].int(),
                     colors=(255, 255, 255),
                     font_sizes=font_sizes,
-                    bboxes=[{
-                        'facecolor': 'black',
-                        'alpha': 0.8,
-                        'pad': 0.7,
-                        'edgecolor': 'none'
-                    }] * len(pred_bboxes))
+                    bboxes=[
+                        {
+                            "facecolor": "black",
+                            "alpha": 0.8,
+                            "pad": 0.7,
+                            "edgecolor": "none",
+                        }
+                    ]
+                    * len(pred_bboxes),
+                )
 
                 drawn_img = self._visualizer.get_image()
 
-                new_image = np.ones(
-                    (100, img.shape[1], 3), dtype=np.uint8) * 255
+                new_image = np.ones((100, img.shape[1], 3), dtype=np.uint8) * 255
                 self._visualizer.set_image(new_image)
-                drawn_text = draw_all_character(self._visualizer, characters,
-                                                img.shape[1])
-                drawn_pred_img = np.concatenate((drawn_img, drawn_text),
-                                                axis=0)
-                drawn_img = np.concatenate((drawn_gt_img, drawn_pred_img),
-                                           axis=1)
+                drawn_text = draw_all_character(self._visualizer, characters, img.shape[1])
+                drawn_pred_img = np.concatenate((drawn_img, drawn_text), axis=0)
+                drawn_img = np.concatenate((drawn_gt_img, drawn_pred_img), axis=1)
 
                 if self.show:
                     self._visualizer.show(
                         drawn_img,
                         win_name=osp.basename(img_path),
-                        wait_time=self.wait_time)
+                        wait_time=self.wait_time,
+                    )
                 if out_file is not None:
                     viscv.imwrite(drawn_img[..., ::-1], out_file)
                 else:
-                    self.add_image('test_img', drawn_img, self._test_index)
+                    self.add_image("test_img", drawn_img, self._test_index)
             else:  # OD
                 self._visualizer.add_datasample(
-                    osp.basename(img_path) if self.show else 'test_img',
+                    osp.basename(img_path) if self.show else "test_img",
                     img,
                     data_sample=data_sample,
                     show=self.show,
                     wait_time=self.wait_time,
                     pred_score_thr=self.score_thr,
                     out_file=out_file,
-                    step=self._test_index)
+                    step=self._test_index,
+                )

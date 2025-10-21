@@ -21,7 +21,14 @@ class NormedLinear(nn.Linear):
              keep numerical stability. Defaults to 1e-6.
     """
 
-    def __init__(self, *args, tempearture: float = 20, power: int = 1.0, eps: float = 1e-6, **kwargs) -> None:
+    def __init__(
+        self,
+        *args,
+        tempearture: float = 20,
+        power: int = 1.0,
+        eps: float = 1e-6,
+        **kwargs,
+    ) -> None:
         super().__init__(*args, **kwargs)
         self.tempearture = tempearture
         self.power = power
@@ -56,7 +63,15 @@ class NormedConv2d(nn.Conv2d):
              Defaults to False.
     """
 
-    def __init__(self, *args, tempearture: float = 20, power: int = 1.0, eps: float = 1e-6, norm_over_kernel: bool = False, **kwargs) -> None:
+    def __init__(
+        self,
+        *args,
+        tempearture: float = 20,
+        power: int = 1.0,
+        eps: float = 1e-6,
+        norm_over_kernel: bool = False,
+        **kwargs,
+    ) -> None:
         super().__init__(*args, **kwargs)
         self.tempearture = tempearture
         self.power = power
@@ -68,7 +83,10 @@ class NormedConv2d(nn.Conv2d):
         if not self.norm_over_kernel:
             weight_ = self.weight / (self.weight.norm(dim=1, keepdim=True).pow(self.power) + self.eps)
         else:
-            weight_ = self.weight / (self.weight.view(self.weight.size(0), -1).norm(dim=1, keepdim=True).pow(self.power)[..., None, None] + self.eps)
+            weight_ = self.weight / (
+                self.weight.view(self.weight.size(0), -1).norm(dim=1, keepdim=True).pow(self.power)[..., None, None]
+                + self.eps
+            )
         x_ = x / (x.norm(dim=1, keepdim=True).pow(self.power) + self.eps)
         x_ = x_ * self.tempearture
 

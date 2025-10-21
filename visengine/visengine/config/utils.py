@@ -131,7 +131,9 @@ def _get_package_and_cfg_path(cfg_path: str) -> Tuple[str, str]:
         )
     package_cfg = cfg_path.split("::")
     if len(package_cfg) > 2:
-        raise ValueError(f"`::` should only be used to separate package and config name, but found multiple `::` in {cfg_path}")
+        raise ValueError(
+            f"`::` should only be used to separate package and config name, but found multiple `::` in {cfg_path}"
+        )
     package, cfg_path = package_cfg
     assert package in MODULE2PACKAGE, f"mmengine does not support to load {package} config."
     package = MODULE2PACKAGE[package]
@@ -175,7 +177,11 @@ def _is_builtin_module(module_name: str) -> bool:
     if origin_path is None:
         return False
     origin_path = osp.abspath(origin_path)
-    if "site-package" in origin_path or "dist-package" in origin_path or not origin_path.startswith((PYTHON_ROOT_DIR, SYSTEM_PYTHON_PREFIX)):
+    if (
+        "site-package" in origin_path
+        or "dist-package" in origin_path
+        or not origin_path.startswith((PYTHON_ROOT_DIR, SYSTEM_PYTHON_PREFIX))
+    ):
         return False
     else:
         return True
@@ -262,7 +268,12 @@ class ImportTransformer(ast.NodeTransformer):
                 >>> global_dict.update(dataset=base_dict['.._base_.datasets.coco_detection']['dataset'])  # only update `dataset`
     """  # noqa: E501
 
-    def __init__(self, global_dict: dict, base_dict: Optional[dict] = None, filename: Optional[str] = None):
+    def __init__(
+        self,
+        global_dict: dict,
+        base_dict: Optional[dict] = None,
+        filename: Optional[str] = None,
+    ):
         self.base_dict = base_dict if base_dict is not None else {}
         self.global_dict = global_dict
         # In Windows, the filename could be like this:
@@ -344,7 +355,9 @@ class ImportTransformer(ast.NodeTransformer):
                 # fallback to import the real module and raise a warning to
                 # remind users the real module will be imported which will slow
                 # down the parsing speed.
-                raise ConfigParsingError("Illegal syntax in config! `from xxx import *` is not allowed to appear outside the `if base:` statement")
+                raise ConfigParsingError(
+                    "Illegal syntax in config! `from xxx import *` is not allowed to appear outside the `if base:` statement"
+                )
             elif alias_node.asname is not None:
                 # case1:
                 # from visengine.dataset import BaseDataset as Dataset ->
@@ -355,7 +368,9 @@ class ImportTransformer(ast.NodeTransformer):
                 # case2:
                 # from visengine.model import BaseModel
                 # BaseModel = LazyObject('visengine.model', 'BaseModel')
-                code = f'{alias_node.name} = LazyObject("{module}", "{alias_node.name}", "{self.filename}, line {lineno}")'  # noqa: E501
+                code = (
+                    f'{alias_node.name} = LazyObject("{module}", "{alias_node.name}", "{self.filename}, line {lineno}")'  # noqa: E501
+                )
                 self.imported_obj.add(alias_node.name)
             try:
                 nodes.append(ast.parse(code).body[0])  # type: ignore

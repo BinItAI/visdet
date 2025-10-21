@@ -4,12 +4,12 @@ import torch.nn as nn
 import torch.nn.functional as F
 from mmcv.cnn.bricks.wrappers import NewEmptyTensorOp, obsolete_torch_version
 
-if torch.__version__ == 'parrots':
+if torch.__version__ == "parrots":
     TORCH_VERSION = torch.__version__
 else:
     # torch.__version__ could be 1.3.1+cu92, we only need the first two
     # for comparison
-    TORCH_VERSION = tuple(int(x) for x in torch.__version__.split('.')[:2])
+    TORCH_VERSION = tuple(int(x) for x in torch.__version__.split(".")[:2])
 
 
 def adaptive_avg_pool2d(input, output_size):
@@ -39,11 +39,7 @@ class AdaptiveAvgPool2d(nn.AdaptiveAvgPool2d):
             if isinstance(output_size, int):
                 output_size = [output_size, output_size]
             else:
-                output_size = [
-                    v if v is not None else d
-                    for v, d in zip(output_size,
-                                    x.size()[-2:])
-                ]
+                output_size = [v if v is not None else d for v, d in zip(output_size, x.size()[-2:])]
             output_size = [*x.shape[:2], *output_size]
             empty = NewEmptyTensorOp.apply(x, output_size)
             return empty

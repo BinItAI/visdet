@@ -6,7 +6,13 @@ import torch
 from torch import Tensor
 
 
-def preprocess_panoptic_gt(gt_labels: Tensor, gt_masks: Tensor, gt_semantic_seg: Tensor, num_things: int, num_stuff: int) -> tuple[Tensor, Tensor]:
+def preprocess_panoptic_gt(
+    gt_labels: Tensor,
+    gt_masks: Tensor,
+    gt_semantic_seg: Tensor,
+    num_things: int,
+    num_stuff: int,
+) -> tuple[Tensor, Tensor]:
     """Preprocess the ground truth for a image.
 
     Args:

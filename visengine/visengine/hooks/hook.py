@@ -222,7 +222,13 @@ class Hook:
         """
         self._before_iter(runner, batch_idx=batch_idx, data_batch=data_batch, mode="test")
 
-    def after_train_iter(self, runner, batch_idx: int, data_batch: DATA_BATCH = None, outputs: dict | None = None) -> None:
+    def after_train_iter(
+        self,
+        runner,
+        batch_idx: int,
+        data_batch: DATA_BATCH = None,
+        outputs: dict | None = None,
+    ) -> None:
         """All subclasses should override this method, if they need any
         operations after each training iteration.
 
@@ -232,7 +238,13 @@ class Hook:
             data_batch (dict tuple or list, optional): Data from dataloader.
             outputs (dict, optional): Outputs from model.
         """
-        self._after_iter(runner, batch_idx=batch_idx, data_batch=data_batch, outputs=outputs, mode="train")
+        self._after_iter(
+            runner,
+            batch_idx=batch_idx,
+            data_batch=data_batch,
+            outputs=outputs,
+            mode="train",
+        )
 
     def after_val_iter(
         self,
@@ -250,7 +262,13 @@ class Hook:
             data_batch (dict or tuple or list, optional): Data from dataloader.
             outputs (Sequence, optional): Outputs from model.
         """
-        self._after_iter(runner, batch_idx=batch_idx, data_batch=data_batch, outputs=outputs, mode="val")
+        self._after_iter(
+            runner,
+            batch_idx=batch_idx,
+            data_batch=data_batch,
+            outputs=outputs,
+            mode="val",
+        )
 
     def after_test_iter(
         self,
@@ -268,7 +286,13 @@ class Hook:
             data_batch (dict or tuple or list, optional): Data from dataloader.
             outputs (Sequence, optional): Outputs from model.
         """
-        self._after_iter(runner, batch_idx=batch_idx, data_batch=data_batch, outputs=outputs, mode="test")
+        self._after_iter(
+            runner,
+            batch_idx=batch_idx,
+            data_batch=data_batch,
+            outputs=outputs,
+            mode="test",
+        )
 
     def _before_epoch(self, runner, mode: str = "train") -> None:
         """All subclasses should override this method, if they need any
@@ -419,9 +443,21 @@ class Hook:
         # some methods will be triggered in multi stages
         # use this dict to map method to stages.
         method_stages_map = {
-            "_before_epoch": ["before_train_epoch", "before_val_epoch", "before_test_epoch"],
-            "_after_epoch": ["after_train_epoch", "after_val_epoch", "after_test_epoch"],
-            "_before_iter": ["before_train_iter", "before_val_iter", "before_test_iter"],
+            "_before_epoch": [
+                "before_train_epoch",
+                "before_val_epoch",
+                "before_test_epoch",
+            ],
+            "_after_epoch": [
+                "after_train_epoch",
+                "after_val_epoch",
+                "after_test_epoch",
+            ],
+            "_before_iter": [
+                "before_train_iter",
+                "before_val_iter",
+                "before_test_iter",
+            ],
             "_after_iter": ["after_train_iter", "after_val_iter", "after_test_iter"],
         }
 

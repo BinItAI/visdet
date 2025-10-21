@@ -53,7 +53,9 @@ class ConcatDataset(_ConcatDataset):
             elif isinstance(dataset, BaseDataset):
                 self.datasets.append(dataset)
             else:
-                raise TypeError(f"elements in datasets sequence should be config or `BaseDataset` instance, but got {type(dataset)}")
+                raise TypeError(
+                    f"elements in datasets sequence should be config or `BaseDataset` instance, but got {type(dataset)}"
+                )
         if ignore_keys is None:
             self.ignore_keys = []
         elif isinstance(ignore_keys, str):
@@ -77,11 +79,16 @@ class ConcatDataset(_ConcatDataset):
                 first_type = type(self._metainfo[key])
                 cur_type = type(dataset.metainfo[key])
                 if first_type is not cur_type:  # type: ignore
-                    raise TypeError(f"The type {cur_type} of {key} in the {i}-th dataset should be the same with the first dataset {first_type}")
-                if (isinstance(self._metainfo[key], np.ndarray) and not np.array_equal(self._metainfo[key], dataset.metainfo[key])) or (
-                    not isinstance(self._metainfo[key], np.ndarray) and self._metainfo[key] != dataset.metainfo[key]
-                ):
-                    raise ValueError(f"The meta information of the {i}-th dataset does not match meta information of the first dataset")
+                    raise TypeError(
+                        f"The type {cur_type} of {key} in the {i}-th dataset should be the same with the first dataset {first_type}"
+                    )
+                if (
+                    isinstance(self._metainfo[key], np.ndarray)
+                    and not np.array_equal(self._metainfo[key], dataset.metainfo[key])
+                ) or (not isinstance(self._metainfo[key], np.ndarray) and self._metainfo[key] != dataset.metainfo[key]):
+                    raise ValueError(
+                        f"The meta information of the {i}-th dataset does not match meta information of the first dataset"
+                    )
 
         self._fully_initialized = False
         if not lazy_init:
@@ -214,7 +221,9 @@ class RepeatDataset:
         elif isinstance(dataset, BaseDataset):
             self.dataset = dataset
         else:
-            raise TypeError(f"elements in datasets sequence should be config or `BaseDataset` instance, but got {type(dataset)}")
+            raise TypeError(
+                f"elements in datasets sequence should be config or `BaseDataset` instance, but got {type(dataset)}"
+            )
         self.times = times
         self._metainfo = self.dataset.metainfo
 
@@ -347,13 +356,20 @@ class ClassBalancedDataset:
             instantiation. Defaults to False
     """
 
-    def __init__(self, dataset: BaseDataset | dict, oversample_thr: float, lazy_init: bool = False):
+    def __init__(
+        self,
+        dataset: BaseDataset | dict,
+        oversample_thr: float,
+        lazy_init: bool = False,
+    ):
         if isinstance(dataset, dict):
             self.dataset = DATASETS.build(dataset)
         elif isinstance(dataset, BaseDataset):
             self.dataset = dataset
         else:
-            raise TypeError(f"elements in datasets sequence should be config or `BaseDataset` instance, but got {type(dataset)}")
+            raise TypeError(
+                f"elements in datasets sequence should be config or `BaseDataset` instance, but got {type(dataset)}"
+            )
         self.oversample_thr = oversample_thr
         self._metainfo = self.dataset.metainfo
 
@@ -414,7 +430,9 @@ class ClassBalancedDataset:
 
         # 2. For each category c, compute the category-level repeat factor:
         #    r(c) = max(1, sqrt(t/f(c)))
-        category_repeat = {cat_id: max(1.0, math.sqrt(repeat_thr / cat_freq)) for cat_id, cat_freq in category_freq.items()}
+        category_repeat = {
+            cat_id: max(1.0, math.sqrt(repeat_thr / cat_freq)) for cat_id, cat_freq in category_freq.items()
+        }
 
         # 3. For each image I and its labels L(I), compute the image-level
         # repeat factor:

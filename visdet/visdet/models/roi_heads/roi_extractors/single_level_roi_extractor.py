@@ -29,9 +29,19 @@ class SingleRoIExtractor(BaseRoIExtractor):
     """
 
     def __init__(
-        self, roi_layer: ConfigType, out_channels: int, featmap_strides: list[int], finest_scale: int = 56, init_cfg: OptMultiConfig = None
+        self,
+        roi_layer: ConfigType,
+        out_channels: int,
+        featmap_strides: list[int],
+        finest_scale: int = 56,
+        init_cfg: OptMultiConfig = None,
     ) -> None:
-        super().__init__(roi_layer=roi_layer, out_channels=out_channels, featmap_strides=featmap_strides, init_cfg=init_cfg)
+        super().__init__(
+            roi_layer=roi_layer,
+            out_channels=out_channels,
+            featmap_strides=featmap_strides,
+            init_cfg=init_cfg,
+        )
         self.finest_scale = finest_scale
 
     def map_roi_levels(self, rois: Tensor, num_levels: int) -> Tensor:

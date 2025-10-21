@@ -20,5 +20,4 @@ class CheckInvalidLossHook(Hook):
 
     def after_train_iter(self, runner):
         if self.every_n_iters(runner, self.interval):
-            assert torch.isfinite(runner.outputs['loss']), \
-                runner.logger.info('loss become infinite or NaN!')
+            assert torch.isfinite(runner.outputs["loss"]), runner.logger.info("loss become infinite or NaN!")

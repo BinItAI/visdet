@@ -127,7 +127,11 @@ def rescale_size(old_size: tuple, scale: float | int | tuple[int, int], return_s
 
 
 def imrescale(
-    img: np.ndarray, scale: float | int | tuple[int, int], return_scale: bool = False, interpolation: str = "bilinear", backend: str | None = None
+    img: np.ndarray,
+    scale: float | int | tuple[int, int],
+    return_scale: bool = False,
+    interpolation: str = "bilinear",
+    backend: str | None = None,
 ) -> np.ndarray | tuple[np.ndarray, float]:  # type: ignore[return]
     """Resize image while keeping the aspect ratio.
 
@@ -222,7 +226,12 @@ def imrotate(
         w = int(np.round(new_w))
         h = int(np.round(new_h))
     rotated = cv2.warpAffine(
-        img, matrix, (w, h), flags=cv2_interp_codes[interpolation], borderMode=cv2_border_modes[border_mode], borderValue=border_value
+        img,
+        matrix,
+        (w, h),
+        flags=cv2_interp_codes[interpolation],
+        borderMode=cv2_border_modes[border_mode],
+        borderValue=border_value,
     )
     return rotated
 
@@ -293,8 +302,21 @@ def impad(
     # check padding mode
     assert padding_mode in ["constant", "edge", "reflect", "symmetric"]
 
-    border_type = {"constant": cv2.BORDER_CONSTANT, "edge": cv2.BORDER_REPLICATE, "reflect": cv2.BORDER_REFLECT_101, "symmetric": cv2.BORDER_REFLECT}
-    img = cv2.copyMakeBorder(img, padding[1], padding[3], padding[0], padding[2], border_type[padding_mode], value=pad_val)
+    border_type = {
+        "constant": cv2.BORDER_CONSTANT,
+        "edge": cv2.BORDER_REPLICATE,
+        "reflect": cv2.BORDER_REFLECT_101,
+        "symmetric": cv2.BORDER_REFLECT,
+    }
+    img = cv2.copyMakeBorder(
+        img,
+        padding[1],
+        padding[3],
+        padding[0],
+        padding[2],
+        border_type[padding_mode],
+        value=pad_val,
+    )
 
     return img
 
@@ -318,7 +340,11 @@ def _get_shear_matrix(magnitude: int | float, direction: str = "horizontal") -> 
 
 
 def imshear(
-    img: np.ndarray, magnitude: int | float, direction: str = "horizontal", border_value: int | tuple[int, int] = 0, interpolation: str = "bilinear"
+    img: np.ndarray,
+    magnitude: int | float,
+    direction: str = "horizontal",
+    border_value: int | tuple[int, int] = 0,
+    interpolation: str = "bilinear",
 ) -> np.ndarray:
     """Shear an image.
 
@@ -385,7 +411,11 @@ def _get_translate_matrix(offset: int | float, direction: str = "horizontal") ->
 
 
 def imtranslate(
-    img: np.ndarray, offset: int | float, direction: str = "horizontal", border_value: int | tuple = 0, interpolation: str = "bilinear"
+    img: np.ndarray,
+    offset: int | float,
+    direction: str = "horizontal",
+    border_value: int | tuple = 0,
+    interpolation: str = "bilinear",
 ) -> np.ndarray:
     """Translate an image.
 
@@ -445,19 +475,19 @@ def bbox_clip(bboxes: np.ndarray, img_shape: tuple[int, int]) -> np.ndarray:
     """
     assert bboxes.shape[-1] % 4 == 0
     clipped_bboxes = bboxes.copy()
-    
+
     h, w = img_shape
-    
+
     # Process each group of 4 coordinates (x1, y1, x2, y2)
     for i in range(0, bboxes.shape[-1], 4):
         # Clip x coordinates
-        clipped_bboxes[..., i] = np.clip(clipped_bboxes[..., i], 0, w)      # x1
-        clipped_bboxes[..., i + 2] = np.clip(clipped_bboxes[..., i + 2], 0, w)    # x2
-        
-        # Clip y coordinates  
+        clipped_bboxes[..., i] = np.clip(clipped_bboxes[..., i], 0, w)  # x1
+        clipped_bboxes[..., i + 2] = np.clip(clipped_bboxes[..., i + 2], 0, w)  # x2
+
+        # Clip y coordinates
         clipped_bboxes[..., i + 1] = np.clip(clipped_bboxes[..., i + 1], 0, h)  # y1
         clipped_bboxes[..., i + 3] = np.clip(clipped_bboxes[..., i + 3], 0, h)  # y2
-    
+
     return clipped_bboxes
 
 
@@ -487,7 +517,12 @@ def bbox_scaling(bboxes: np.ndarray, scale: float, clip_shape=None) -> np.ndarra
         return scaled_bboxes
 
 
-def imcrop(img: np.ndarray, bboxes: np.ndarray, scale: float = 1.0, pad_fill: float | list | None = None) -> np.ndarray | list[np.ndarray]:
+def imcrop(
+    img: np.ndarray,
+    bboxes: np.ndarray,
+    scale: float = 1.0,
+    pad_fill: float | list | None = None,
+) -> np.ndarray | list[np.ndarray]:
     """Crop image patches.
 
     3 steps: scale the bboxes -> clip bboxes -> crop and pad.

@@ -108,7 +108,13 @@ class RuntimeInfoHook(Hook):
         for name, lr in lr_dict.items():
             runner.message_hub.update_scalar(f"train/{name}", lr[0])
 
-    def after_train_iter(self, runner, batch_idx: int, data_batch: DATA_BATCH = None, outputs: dict | None = None) -> None:
+    def after_train_iter(
+        self,
+        runner,
+        batch_idx: int,
+        data_batch: DATA_BATCH = None,
+        outputs: dict | None = None,
+    ) -> None:
         """Update ``log_vars`` in model outputs every iteration.
 
         Args:

@@ -45,7 +45,9 @@ class FCNMaskHead(BaseModule):
         super().__init__(init_cfg=init_cfg)
         self.upsample_cfg = upsample_cfg.copy()
         if self.upsample_cfg["type"] not in [None, "deconv", "nearest", "bilinear"]:
-            raise ValueError(f'Invalid upsample method {self.upsample_cfg["type"]}, accepted methods are "deconv", "nearest", "bilinear"')
+            raise ValueError(
+                f'Invalid upsample method {self.upsample_cfg["type"]}, accepted methods are "deconv", "nearest", "bilinear"'
+            )
         self.num_convs = num_convs
         # WARN: roi_feat_size is reserved and not used
         self.roi_feat_size = _pair(roi_feat_size)
@@ -66,7 +68,14 @@ class FCNMaskHead(BaseModule):
             in_channels = self.in_channels if i == 0 else self.conv_out_channels
             padding = (self.conv_kernel_size - 1) // 2
             self.convs.append(
-                ConvModule(in_channels, self.conv_out_channels, self.conv_kernel_size, padding=padding, conv_cfg=conv_cfg, norm_cfg=norm_cfg)
+                ConvModule(
+                    in_channels,
+                    self.conv_out_channels,
+                    self.conv_kernel_size,
+                    padding=padding,
+                    conv_cfg=conv_cfg,
+                    norm_cfg=norm_cfg,
+                )
             )
         upsample_in_channels = self.conv_out_channels if self.num_convs > 0 else in_channels
         upsample_cfg_ = self.upsample_cfg.copy()
@@ -74,13 +83,20 @@ class FCNMaskHead(BaseModule):
             self.upsample = None
         elif self.upsample_method == "deconv":
             upsample_cfg_.update(
-                in_channels=upsample_in_channels, out_channels=self.conv_out_channels, kernel_size=self.scale_factor, stride=self.scale_factor
+                in_channels=upsample_in_channels,
+                out_channels=self.conv_out_channels,
+                kernel_size=self.scale_factor,
+                stride=self.scale_factor,
             )
             self.upsample = build_upsample_layer(upsample_cfg_)
         else:
             # suppress warnings
             align_corners = None if self.upsample_method == "nearest" else False
-            upsample_cfg_.update(scale_factor=self.scale_factor, mode=self.upsample_method, align_corners=align_corners)
+            upsample_cfg_.update(
+                scale_factor=self.scale_factor,
+                mode=self.upsample_method,
+                align_corners=align_corners,
+            )
             self.upsample = build_upsample_layer(upsample_cfg_)
 
         out_channels = 1 if self.class_agnostic else self.num_classes
@@ -117,7 +133,12 @@ class FCNMaskHead(BaseModule):
         mask_preds = self.conv_logits(x)
         return mask_preds
 
-    def get_targets(self, sampling_results: list[SamplingResult], batch_gt_instances: InstanceList, rcnn_train_cfg: ConfigDict) -> Tensor:
+    def get_targets(
+        self,
+        sampling_results: list[SamplingResult],
+        batch_gt_instances: InstanceList,
+        rcnn_train_cfg: ConfigDict,
+    ) -> Tensor:
         """Calculate the ground truth for all samples in a batch according to
         the sampling_results.
 
@@ -139,7 +160,11 @@ class FCNMaskHead(BaseModule):
         return mask_targets
 
     def loss_and_target(
-        self, mask_preds: Tensor, sampling_results: list[SamplingResult], batch_gt_instances: InstanceList, rcnn_train_cfg: ConfigDict
+        self,
+        mask_preds: Tensor,
+        sampling_results: list[SamplingResult],
+        batch_gt_instances: InstanceList,
+        rcnn_train_cfg: ConfigDict,
     ) -> dict:
         """Calculate the loss based on the features extracted by the mask head.
 
@@ -156,7 +181,11 @@ class FCNMaskHead(BaseModule):
         Returns:
             dict: A dictionary of loss and targets components.
         """
-        mask_targets = self.get_targets(sampling_results=sampling_results, batch_gt_instances=batch_gt_instances, rcnn_train_cfg=rcnn_train_cfg)
+        mask_targets = self.get_targets(
+            sampling_results=sampling_results,
+            batch_gt_instances=batch_gt_instances,
+            rcnn_train_cfg=rcnn_train_cfg,
+        )
 
         pos_labels = torch.cat([res.pos_gt_labels for res in sampling_results])
 
@@ -217,7 +246,11 @@ class FCNMaskHead(BaseModule):
             bboxes = results.bboxes
             if bboxes.shape[0] == 0:
                 results_list[img_id] = empty_instances(
-                    [img_meta], bboxes.device, task_type="mask", instance_results=[results], mask_thr_binary=rcnn_test_cfg.mask_thr_binary
+                    [img_meta],
+                    bboxes.device,
+                    task_type="mask",
+                    instance_results=[results],
+                    mask_thr_binary=rcnn_test_cfg.mask_thr_binary,
                 )[0]
             else:
                 im_mask = self._predict_by_feat_single(
@@ -324,13 +357,25 @@ class FCNMaskHead(BaseModule):
         chunks = torch.chunk(torch.arange(N, device=device), num_chunks)
 
         threshold = rcnn_test_cfg.mask_thr_binary
-        im_mask = torch.zeros(N, img_h, img_w, device=device, dtype=torch.bool if threshold >= 0 else torch.uint8)
+        im_mask = torch.zeros(
+            N,
+            img_h,
+            img_w,
+            device=device,
+            dtype=torch.bool if threshold >= 0 else torch.uint8,
+        )
 
         if not self.class_agnostic:
             mask_preds = mask_preds[range(N), labels][:, None]
 
         for inds in chunks:
-            masks_chunk, spatial_inds = _do_paste_mask(mask_preds[inds], bboxes[inds], img_h, img_w, skip_empty=device.type == "cpu")
+            masks_chunk, spatial_inds = _do_paste_mask(
+                mask_preds[inds],
+                bboxes[inds],
+                img_h,
+                img_w,
+                skip_empty=device.type == "cpu",
+            )
 
             if threshold >= 0:
                 masks_chunk = (masks_chunk >= threshold).to(dtype=torch.bool)

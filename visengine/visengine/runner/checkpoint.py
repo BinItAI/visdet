@@ -41,9 +41,10 @@ DEFAULT_CACHE_DIR = "~/.cache"
 # Create a fake mmengine module that redirects to visengine
 
 # tmp fix for loading old checkpoints
-sys.modules['mmengine'] = visengine
-sys.modules['mmengine.logging'] = visengine.logging
-sys.modules['mmengine.logging.history_buffer'] = visengine.logging.history_buffer
+sys.modules["mmengine"] = visengine
+sys.modules["mmengine.logging"] = visengine.logging
+sys.modules["mmengine.logging.history_buffer"] = visengine.logging.history_buffer
+
 
 class _IncompatibleKeys(namedtuple("IncompatibleKeys", ["missing_keys", "unexpected_keys"])):
     def __repr__(self):
@@ -99,7 +100,15 @@ def load_state_dict(module, state_dict, strict=False, logger=None):
         if is_model_wrapper(module):
             module = module.module
         local_metadata = {} if metadata is None else metadata.get(prefix[:-1], {})
-        module._load_from_state_dict(local_state_dict, prefix, local_metadata, True, missing_keys, unexpected_keys, err_msg)
+        module._load_from_state_dict(
+            local_state_dict,
+            prefix,
+            local_metadata,
+            True,
+            missing_keys,
+            unexpected_keys,
+            err_msg,
+        )
         for name, child in module._modules.items():
             if child is not None:
                 child_prefix = prefix + name + "."
@@ -165,9 +174,14 @@ def get_torchvision_models():
         json_path = osp.join(mmengine.__path__[0], "hub/torchvision_0.12.json")
         model_urls = mmengine.load(json_path)
         if digit_version(torchvision.__version__) < digit_version("0.14.0a0"):
-            weights_list = [cls for cls_name, cls in torchvision.models.__dict__.items() if cls_name.endswith("_Weights")]
+            weights_list = [
+                cls for cls_name, cls in torchvision.models.__dict__.items() if cls_name.endswith("_Weights")
+            ]
         else:
-            weights_list = [torchvision.models.get_model_weights(model) for model in torchvision.models.list_models(torchvision.models)]
+            weights_list = [
+                torchvision.models.get_model_weights(model)
+                for model in torchvision.models.list_models(torchvision.models)
+            ]
 
         for cls in weights_list:
             # The name of torchvision model weights classes ends with
@@ -250,7 +264,9 @@ class CheckpointLoader:
             if (prefix not in cls._schemes) or force:
                 cls._schemes[prefix] = loader
             else:
-                raise KeyError(f'{prefix} is already registered as a loader backend, add "force=True" if you want to override it')
+                raise KeyError(
+                    f'{prefix} is already registered as a loader backend, add "force=True" if you want to override it'
+                )
         # sort, longer prefixes take priority
         cls._schemes = OrderedDict(sorted(cls._schemes.items(), key=lambda t: t[0], reverse=True))
 
@@ -389,41 +405,46 @@ def load_from_http(filename, map_location=None, model_dir=None, progress=os.isat
     if world_size > 1:
         torch.distributed.barrier()
         if rank > 0:
-            checkpoint = load_url(filename, model_dir=model_dir, map_location=map_location, progress=progress)
+            checkpoint = load_url(
+                filename,
+                model_dir=model_dir,
+                map_location=map_location,
+                progress=progress,
+            )
     return checkpoint
 
 
 @CheckpointLoader.register_scheme(prefixes="gs://")
 def load_from_gcs(filename, map_location=None):
     """Load checkpoint from Google Cloud Storage.
-    
+
     Args:
         filename (str): GCS path starting with gs://
         map_location (str, optional): Same as :func:`torch.load`.
             Defaults to None
-    
+
     Returns:
         dict or OrderedDict: The loaded checkpoint.
     """
     rank, world_size = get_dist_info()
-    
+
     # Create a temporary directory to download the checkpoint
     checkpoint_dir = osp.join(_get_mmengine_home(), "checkpoints")
     mkdir_or_exist(checkpoint_dir)
-    
+
     # Extract bucket and blob path from gs:// URL
     # Example: gs://binit-machine-learning/mmdet/model.pth
     # -> bucket: binit-machine-learning, blob: mmdet/model.pth
     filename_parts = filename.replace("gs://", "").split("/", 1)
     if len(filename_parts) != 2:
         raise ValueError(f"Invalid GCS path: {filename}")
-    
+
     bucket_name = filename_parts[0]
     blob_path = filename_parts[1]
-    
+
     # Create a local filename based on the blob path
     local_filename = osp.join(checkpoint_dir, blob_path.replace("/", "_"))
-    
+
     # Download only on rank 0 in distributed setting
     if rank == 0:
         if not osp.exists(local_filename):
@@ -435,11 +456,11 @@ def load_from_gcs(filename, map_location=None):
                 print_log(f"Downloaded checkpoint to: {local_filename}")
             except Exception as e:
                 raise RuntimeError(f"Failed to download checkpoint from GCS: {e}")
-    
+
     # Synchronize in distributed setting
     if world_size > 1:
         torch.distributed.barrier()
-    
+
     # Load the checkpoint
     checkpoint = load_from_local(local_filename, map_location)
     return checkpoint

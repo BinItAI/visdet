@@ -44,16 +44,18 @@ class AscendMaxIoUAssigner(BaseAssigner):
             on CPU device. Negative values mean not assign on CPU.
     """
 
-    def __init__(self,
-                 pos_iou_thr,
-                 neg_iou_thr,
-                 min_pos_iou=.0,
-                 gt_max_assign_all=True,
-                 ignore_iof_thr=-1,
-                 ignore_wrt_candidates=True,
-                 match_low_quality=True,
-                 gpu_assign_thr=-1,
-                 iou_calculator=dict(type='BboxOverlaps2D')):
+    def __init__(
+        self,
+        pos_iou_thr,
+        neg_iou_thr,
+        min_pos_iou=0.0,
+        gt_max_assign_all=True,
+        ignore_iof_thr=-1,
+        ignore_wrt_candidates=True,
+        match_low_quality=True,
+        gpu_assign_thr=-1,
+        iou_calculator=dict(type="BboxOverlaps2D"),
+    ):
         self.pos_iou_thr = pos_iou_thr
         self.neg_iou_thr = neg_iou_thr
         self.min_pos_iou = min_pos_iou
@@ -64,13 +66,15 @@ class AscendMaxIoUAssigner(BaseAssigner):
         self.match_low_quality = match_low_quality
         self.iou_calculator = build_iou_calculator(iou_calculator)
 
-    def assign(self,
-               batch_bboxes,
-               batch_gt_bboxes,
-               batch_gt_bboxes_ignore=None,
-               batch_gt_labels=None,
-               batch_bboxes_ignore_mask=None,
-               batch_num_gts=None):
+    def assign(
+        self,
+        batch_bboxes,
+        batch_gt_bboxes,
+        batch_gt_bboxes_ignore=None,
+        batch_gt_labels=None,
+        batch_bboxes_ignore_mask=None,
+        batch_num_gts=None,
+    ):
         """Assign gt to bboxes.
 
         Args:
@@ -89,90 +93,75 @@ class AscendMaxIoUAssigner(BaseAssigner):
             :obj:`AssignResult`: The assign result.
         """
         batch_overlaps = self.iou_calculator(batch_gt_bboxes, batch_bboxes)
-        batch_overlaps = masked_fill(
-            batch_overlaps,
-            batch_bboxes_ignore_mask.unsqueeze(1).float(),
-            -1,
-            neg=True)
+        batch_overlaps = masked_fill(batch_overlaps, batch_bboxes_ignore_mask.unsqueeze(1).float(), -1, neg=True)
         if self.ignore_iof_thr > 0 and batch_gt_bboxes_ignore is not None:
             if self.ignore_wrt_candidates:
-                batch_ignore_overlaps = self.iou_calculator(
-                    batch_bboxes, batch_gt_bboxes_ignore, mode='iof')
-                batch_ignore_overlaps = masked_fill(batch_ignore_overlaps,
-                                                    batch_bboxes_ignore_mask,
-                                                    -1)
+                batch_ignore_overlaps = self.iou_calculator(batch_bboxes, batch_gt_bboxes_ignore, mode="iof")
+                batch_ignore_overlaps = masked_fill(batch_ignore_overlaps, batch_bboxes_ignore_mask, -1)
                 batch_ignore_max_overlaps, _ = batch_ignore_overlaps.max(dim=2)
             else:
-                batch_ignore_overlaps = self.iou_calculator(
-                    batch_gt_bboxes_ignore, batch_bboxes, mode='iof')
-                batch_ignore_overlaps = masked_fill(batch_ignore_overlaps,
-                                                    batch_bboxes_ignore_mask,
-                                                    -1)
-                batch_ignore_max_overlaps, _ = \
-                    batch_ignore_overlaps.max(dim=1)
-            batch_ignore_mask = \
-                batch_ignore_max_overlaps > self.ignore_iof_thr
+                batch_ignore_overlaps = self.iou_calculator(batch_gt_bboxes_ignore, batch_bboxes, mode="iof")
+                batch_ignore_overlaps = masked_fill(batch_ignore_overlaps, batch_bboxes_ignore_mask, -1)
+                batch_ignore_max_overlaps, _ = batch_ignore_overlaps.max(dim=1)
+            batch_ignore_mask = batch_ignore_max_overlaps > self.ignore_iof_thr
             batch_overlaps = masked_fill(batch_overlaps, batch_ignore_mask, -1)
-        batch_assign_result = self.batch_assign_wrt_overlaps(
-            batch_overlaps, batch_gt_labels, batch_num_gts)
+        batch_assign_result = self.batch_assign_wrt_overlaps(batch_overlaps, batch_gt_labels, batch_num_gts)
         return batch_assign_result
 
-    def batch_assign_wrt_overlaps(self,
-                                  batch_overlaps,
-                                  batch_gt_labels=None,
-                                  batch_num_gts=None):
+    def batch_assign_wrt_overlaps(self, batch_overlaps, batch_gt_labels=None, batch_num_gts=None):
         num_images, num_gts, num_bboxes = batch_overlaps.size()
         batch_max_overlaps, batch_argmax_overlaps = batch_overlaps.max(dim=1)
         if isinstance(self.neg_iou_thr, float):
-            batch_neg_mask = \
-                ((batch_max_overlaps >= 0)
-                 & (batch_max_overlaps < self.neg_iou_thr)).int()
+            batch_neg_mask = ((batch_max_overlaps >= 0) & (batch_max_overlaps < self.neg_iou_thr)).int()
         elif isinstance(self.neg_iou_thr, tuple):
             assert len(self.neg_iou_thr) == 2
-            batch_neg_mask = \
-                ((batch_max_overlaps >= self.neg_iou_thr[0])
-                 & (batch_max_overlaps < self.neg_iou_thr[1])).int()
+            batch_neg_mask = (
+                (batch_max_overlaps >= self.neg_iou_thr[0]) & (batch_max_overlaps < self.neg_iou_thr[1])
+            ).int()
         else:
             batch_neg_mask = torch.zeros(
                 batch_max_overlaps.size(),
                 dtype=torch.int,
-                device=batch_max_overlaps.device)
+                device=batch_max_overlaps.device,
+            )
         batch_pos_mask = (batch_max_overlaps >= self.pos_iou_thr).int()
         if self.match_low_quality:
-            batch_gt_max_overlaps, batch_gt_argmax_overlaps = \
-                batch_overlaps.max(dim=2)
-            batch_index_bool = (batch_gt_max_overlaps >= self.min_pos_iou) & \
-                               (batch_gt_max_overlaps > 0)
+            batch_gt_max_overlaps, batch_gt_argmax_overlaps = batch_overlaps.max(dim=2)
+            batch_index_bool = (batch_gt_max_overlaps >= self.min_pos_iou) & (batch_gt_max_overlaps > 0)
             if self.gt_max_assign_all:
-                pos_inds_low_quality = \
-                    (batch_overlaps == batch_gt_max_overlaps.unsqueeze(2)) & \
-                    batch_index_bool.unsqueeze(2)
+                pos_inds_low_quality = (
+                    batch_overlaps == batch_gt_max_overlaps.unsqueeze(2)
+                ) & batch_index_bool.unsqueeze(2)
                 for i in range(num_gts):
                     pos_inds_low_quality_gt = pos_inds_low_quality[:, i, :]
                     batch_argmax_overlaps[pos_inds_low_quality_gt] = i
                     batch_pos_mask[pos_inds_low_quality_gt] = 1
             else:
-                index_temp = torch.arange(
-                    0, num_gts, device=batch_max_overlaps.device)
+                index_temp = torch.arange(0, num_gts, device=batch_max_overlaps.device)
                 for index_image in range(num_images):
                     gt_argmax_overlaps = batch_gt_argmax_overlaps[index_image]
                     index_bool = batch_index_bool[index_image]
                     pos_inds_low_quality = gt_argmax_overlaps[index_bool]
-                    batch_argmax_overlaps[index_image][pos_inds_low_quality] \
-                        = index_temp[index_bool]
+                    batch_argmax_overlaps[index_image][pos_inds_low_quality] = index_temp[index_bool]
                     batch_pos_mask[index_image][pos_inds_low_quality] = 1
         batch_neg_mask = batch_neg_mask * (1 - batch_pos_mask)
         if batch_gt_labels is not None:
-            batch_anchor_gt_labels = torch.zeros((num_images, num_bboxes),
-                                                 dtype=batch_gt_labels.dtype,
-                                                 device=batch_gt_labels.device)
+            batch_anchor_gt_labels = torch.zeros(
+                (num_images, num_bboxes),
+                dtype=batch_gt_labels.dtype,
+                device=batch_gt_labels.device,
+            )
             for index_image in range(num_images):
                 batch_anchor_gt_labels[index_image] = torch.index_select(
-                    batch_gt_labels[index_image], 0,
-                    batch_argmax_overlaps[index_image])
+                    batch_gt_labels[index_image], 0, batch_argmax_overlaps[index_image]
+                )
         else:
             batch_anchor_gt_labels = None
-        return AscendAssignResult(batch_num_gts, batch_pos_mask,
-                                  batch_neg_mask, batch_max_overlaps,
-                                  batch_argmax_overlaps,
-                                  batch_anchor_gt_labels)
+        return AscendAssignResult(
+            batch_num_gts,
+            batch_pos_mask,
+            batch_neg_mask,
+            batch_max_overlaps,
+            batch_argmax_overlaps,
+            batch_anchor_gt_labels,
+        )

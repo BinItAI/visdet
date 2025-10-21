@@ -87,7 +87,9 @@ def register_box(name: str, box_type: type | None = None, force: bool = False) -
     return _register
 
 
-def _register_box_converter(src_type: str | type, dst_type: str | type, converter: Callable, force: bool = False) -> None:
+def _register_box_converter(
+    src_type: str | type, dst_type: str | type, converter: Callable, force: bool = False
+) -> None:
     """Register a box converter.
 
     Args:
@@ -178,7 +180,12 @@ def get_box_type(box_type: str | type) -> tuple[str, type]:
     return type_name, type_cls
 
 
-def convert_box_type(boxes: BoxType, *, src_type: str | type | None = None, dst_type: str | type | None = None) -> BoxType:
+def convert_box_type(
+    boxes: BoxType,
+    *,
+    src_type: str | type | None = None,
+    dst_type: str | type | None = None,
+) -> BoxType:
     """Convert boxes from source type to destination type.
 
     If ``boxes`` is a instance of BaseBoxes, the ``src_type`` will be set
@@ -268,7 +275,9 @@ def autocast_box_type(dst_box_type="hbox") -> Callable:
                     results["gt_bboxes"] = results["gt_bboxes"].numpy()
                 return _results
             else:
-                raise TypeError(f"auto_box_type requires results['gt_bboxes'] to be BaseBoxes or np.ndarray, but got {type(results['gt_bboxes'])}")
+                raise TypeError(
+                    f"auto_box_type requires results['gt_bboxes'] to be BaseBoxes or np.ndarray, but got {type(results['gt_bboxes'])}"
+                )
 
         return wrapper
 

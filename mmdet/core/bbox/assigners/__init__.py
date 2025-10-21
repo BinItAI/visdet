@@ -17,9 +17,20 @@ from .task_aligned_assigner import TaskAlignedAssigner
 from .uniform_assigner import UniformAssigner
 
 __all__ = [
-    'BaseAssigner', 'MaxIoUAssigner', 'ApproxMaxIoUAssigner', 'AssignResult',
-    'PointAssigner', 'ATSSAssigner', 'CenterRegionAssigner', 'GridAssigner',
-    'HungarianAssigner', 'RegionAssigner', 'UniformAssigner', 'SimOTAAssigner',
-    'TaskAlignedAssigner', 'MaskHungarianAssigner', 'AscendAssignResult',
-    'AscendMaxIoUAssigner'
+    "BaseAssigner",
+    "MaxIoUAssigner",
+    "ApproxMaxIoUAssigner",
+    "AssignResult",
+    "PointAssigner",
+    "ATSSAssigner",
+    "CenterRegionAssigner",
+    "GridAssigner",
+    "HungarianAssigner",
+    "RegionAssigner",
+    "UniformAssigner",
+    "SimOTAAssigner",
+    "TaskAlignedAssigner",
+    "MaskHungarianAssigner",
+    "AscendAssignResult",
+    "AscendMaxIoUAssigner",
 ]

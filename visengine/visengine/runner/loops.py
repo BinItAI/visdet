@@ -175,7 +175,9 @@ class _InfiniteDataloaderIterator:
                 # or data loader uses `SequentialSampler` in Pytorch.
                 self._dataloader.sampler.set_epoch(self._epoch)
 
-            elif hasattr(self._dataloader, "batch_sampler") and hasattr(self._dataloader.batch_sampler.sampler, "set_epoch"):
+            elif hasattr(self._dataloader, "batch_sampler") and hasattr(
+                self._dataloader.batch_sampler.sampler, "set_epoch"
+            ):
                 # In case the` _SingleProcessDataLoaderIter` has no batch
                 # sampler. batch sampler in pytorch warps the sampler as its
                 # attributes.
@@ -301,7 +303,12 @@ class IterBasedTrainLoop(BaseLoop):
         # outputs should be a dict of loss.
         outputs = self.runner.model.train_step(data_batch, optim_wrapper=self.runner.optim_wrapper)
 
-        self.runner.call_hook("after_train_iter", batch_idx=self._iter, data_batch=data_batch, outputs=outputs)
+        self.runner.call_hook(
+            "after_train_iter",
+            batch_idx=self._iter,
+            data_batch=data_batch,
+            outputs=outputs,
+        )
         self._iter += 1
 
     def _decide_current_val_interval(self) -> None:
@@ -335,7 +342,9 @@ class ValLoop(BaseLoop):
         if isinstance(evaluator, dict | list):
             self.evaluator = runner.build_evaluator(evaluator)  # type: ignore
         else:
-            assert isinstance(evaluator, Evaluator), f"evaluator must be one of dict, list or Evaluator instance, but got {type(evaluator)}."
+            assert isinstance(evaluator, Evaluator), (
+                f"evaluator must be one of dict, list or Evaluator instance, but got {type(evaluator)}."
+            )
             self.evaluator = evaluator  # type: ignore
         if hasattr(self.dataloader.dataset, "metainfo"):
             self.evaluator.dataset_meta = self.dataloader.dataset.metainfo

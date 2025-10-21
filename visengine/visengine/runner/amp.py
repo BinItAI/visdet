@@ -60,5 +60,10 @@ def autocast(
         else:
             raise ValueError(f"User specified autocast device_type must be cuda or cpu, but got {device_type}")
 
-    with torch.autocast(device_type=device_type, enabled=enabled, dtype=dtype, cache_enabled=cache_enabled):
+    with torch.autocast(
+        device_type=device_type,
+        enabled=enabled,
+        dtype=dtype,
+        cache_enabled=cache_enabled,
+    ):
         yield

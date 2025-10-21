@@ -3,8 +3,7 @@ import torch
 
 from ...core.bbox.assigners import AscendMaxIoUAssigner
 from ...core.bbox.samplers import PseudoSampler
-from ...utils import (batch_images_to_levels, get_max_num_gt_division_factor,
-                      masked_fill)
+from ...utils import batch_images_to_levels, get_max_num_gt_division_factor, masked_fill
 from ..builder import HEADS
 from .anchor_head import AnchorHead
 
@@ -32,30 +31,30 @@ class AscendAnchorHead(AnchorHead):
         init_cfg (dict or list[dict], optional): Initialization config dict.
     """  # noqa: W605
 
-    def __init__(self,
-                 num_classes,
-                 in_channels,
-                 feat_channels=256,
-                 anchor_generator=dict(
-                     type='AnchorGenerator',
-                     scales=[8, 16, 32],
-                     ratios=[0.5, 1.0, 2.0],
-                     strides=[4, 8, 16, 32, 64]),
-                 bbox_coder=dict(
-                     type='DeltaXYWHBBoxCoder',
-                     clip_border=True,
-                     target_means=(.0, .0, .0, .0),
-                     target_stds=(1.0, 1.0, 1.0, 1.0)),
-                 reg_decoded_bbox=False,
-                 loss_cls=dict(
-                     type='CrossEntropyLoss',
-                     use_sigmoid=True,
-                     loss_weight=1.0),
-                 loss_bbox=dict(
-                     type='SmoothL1Loss', beta=1.0 / 9.0, loss_weight=1.0),
-                 train_cfg=None,
-                 test_cfg=None,
-                 init_cfg=dict(type='Normal', layer='Conv2d', std=0.01)):
+    def __init__(
+        self,
+        num_classes,
+        in_channels,
+        feat_channels=256,
+        anchor_generator=dict(
+            type="AnchorGenerator",
+            scales=[8, 16, 32],
+            ratios=[0.5, 1.0, 2.0],
+            strides=[4, 8, 16, 32, 64],
+        ),
+        bbox_coder=dict(
+            type="DeltaXYWHBBoxCoder",
+            clip_border=True,
+            target_means=(0.0, 0.0, 0.0, 0.0),
+            target_stds=(1.0, 1.0, 1.0, 1.0),
+        ),
+        reg_decoded_bbox=False,
+        loss_cls=dict(type="CrossEntropyLoss", use_sigmoid=True, loss_weight=1.0),
+        loss_bbox=dict(type="SmoothL1Loss", beta=1.0 / 9.0, loss_weight=1.0),
+        train_cfg=None,
+        test_cfg=None,
+        init_cfg=dict(type="Normal", layer="Conv2d", std=0.01),
+    ):
         super(AscendAnchorHead, self).__init__(
             num_classes=num_classes,
             in_channels=in_channels,
@@ -67,10 +66,10 @@ class AscendAnchorHead(AnchorHead):
             loss_bbox=loss_bbox,
             train_cfg=train_cfg,
             test_cfg=test_cfg,
-            init_cfg=init_cfg)
+            init_cfg=init_cfg,
+        )
 
-    def get_batch_gt_bboxes(self, gt_bboxes_list, num_images, gt_nums, device,
-                            max_gt_labels):
+    def get_batch_gt_bboxes(self, gt_bboxes_list, num_images, gt_nums, device, max_gt_labels):
         """Get ground truth bboxes of all image.
 
         Args:
@@ -84,30 +83,30 @@ class AscendAnchorHead(AnchorHead):
         """
         # a static ground truth boxes.
         # Save static gt. Related to Ascend. Helps improve performance
-        if not hasattr(self, 'batch_gt_bboxes'):
+        if not hasattr(self, "batch_gt_bboxes"):
             self.batch_gt_bboxes = {}
         # a min anchor filled the excess anchor
-        if not hasattr(self, 'min_anchor'):
+        if not hasattr(self, "min_anchor"):
             self.min_anchor = (-1354, -1344)
         if gt_bboxes_list is None:
             batch_gt_bboxes = None
         else:
             if self.batch_gt_bboxes.get(max_gt_labels) is None:
-                batch_gt_bboxes = torch.zeros((num_images, max_gt_labels, 4),
-                                              dtype=gt_bboxes_list[0].dtype,
-                                              device=device)
+                batch_gt_bboxes = torch.zeros(
+                    (num_images, max_gt_labels, 4),
+                    dtype=gt_bboxes_list[0].dtype,
+                    device=device,
+                )
                 batch_gt_bboxes[:, :, :2] = self.min_anchor[0]
                 batch_gt_bboxes[:, :, 2:] = self.min_anchor[1]
                 self.batch_gt_bboxes[max_gt_labels] = batch_gt_bboxes.clone()
             else:
-                batch_gt_bboxes = self.batch_gt_bboxes.get(
-                    max_gt_labels).clone()
+                batch_gt_bboxes = self.batch_gt_bboxes.get(max_gt_labels).clone()
             for index_imgs, gt_bboxes in enumerate(gt_bboxes_list):
-                batch_gt_bboxes[index_imgs, :gt_nums[index_imgs]] = gt_bboxes
+                batch_gt_bboxes[index_imgs, : gt_nums[index_imgs]] = gt_bboxes
         return batch_gt_bboxes
 
-    def get_batch_gt_bboxes_ignore(self, gt_bboxes_ignore_list, num_images,
-                                   gt_nums, device):
+    def get_batch_gt_bboxes_ignore(self, gt_bboxes_ignore_list, num_images, gt_nums, device):
         """Ground truth bboxes to be ignored of all image.
 
         Args:
@@ -124,11 +123,10 @@ class AscendAnchorHead(AnchorHead):
         if gt_bboxes_ignore_list is None:
             batch_gt_bboxes_ignore = None
         else:
-            raise RuntimeError('gt_bboxes_ignore not support yet')
+            raise RuntimeError("gt_bboxes_ignore not support yet")
         return batch_gt_bboxes_ignore
 
-    def get_batch_gt_labels(self, gt_labels_list, num_images, gt_nums, device,
-                            max_gt_labels):
+    def get_batch_gt_labels(self, gt_labels_list, num_images, gt_nums, device, max_gt_labels):
         """Ground truth bboxes to be ignored of all image.
 
         Args:
@@ -142,23 +140,27 @@ class AscendAnchorHead(AnchorHead):
         if gt_labels_list is None:
             batch_gt_labels = None
         else:
-            batch_gt_labels = torch.zeros((num_images, max_gt_labels),
-                                          dtype=gt_labels_list[0].dtype,
-                                          device=device)
+            batch_gt_labels = torch.zeros(
+                (num_images, max_gt_labels),
+                dtype=gt_labels_list[0].dtype,
+                device=device,
+            )
             for index_imgs, gt_labels in enumerate(gt_labels_list):
-                batch_gt_labels[index_imgs, :gt_nums[index_imgs]] = gt_labels
+                batch_gt_labels[index_imgs, : gt_nums[index_imgs]] = gt_labels
 
         return batch_gt_labels
 
-    def _get_targets_concat(self,
-                            batch_anchors,
-                            batch_valid_flags,
-                            batch_gt_bboxes,
-                            batch_gt_bboxes_ignore,
-                            batch_gt_labels,
-                            img_metas,
-                            label_channels=1,
-                            unmap_outputs=True):
+    def _get_targets_concat(
+        self,
+        batch_anchors,
+        batch_valid_flags,
+        batch_gt_bboxes,
+        batch_gt_bboxes_ignore,
+        batch_gt_labels,
+        img_metas,
+        label_channels=1,
+        unmap_outputs=True,
+    ):
         """Compute regression and classification targets for anchors in all
         images.
 
@@ -198,7 +200,8 @@ class AscendAnchorHead(AnchorHead):
             batch_gt_bboxes,
             batch_gt_bboxes_ignore,
             None if self.sampling else batch_gt_labels,
-            batch_bboxes_ignore_mask=batch_valid_flags)
+            batch_bboxes_ignore_mask=batch_valid_flags,
+        )
         # TODO: support sampling_result
         sampling_result = None
         batch_pos_mask = assign_result.batch_pos_mask
@@ -207,62 +210,57 @@ class AscendAnchorHead(AnchorHead):
         batch_anchor_gt_labels = assign_result.batch_anchor_gt_labels
 
         batch_anchor_gt_bboxes = torch.zeros(
-            batch_anchors.size(),
-            dtype=batch_anchors.dtype,
-            device=batch_anchors.device)
+            batch_anchors.size(), dtype=batch_anchors.dtype, device=batch_anchors.device
+        )
         for index_imgs in range(num_imgs):
             batch_anchor_gt_bboxes[index_imgs] = torch.index_select(
-                batch_gt_bboxes[index_imgs], 0,
-                batch_anchor_gt_indes[index_imgs])
+                batch_gt_bboxes[index_imgs], 0, batch_anchor_gt_indes[index_imgs]
+            )
 
         batch_bbox_targets = torch.zeros_like(batch_anchors)
         batch_bbox_weights = torch.zeros_like(batch_anchors)
-        batch_labels = batch_anchors.new_full((num_imgs, num_anchors),
-                                              self.num_classes,
-                                              dtype=torch.int)
-        batch_label_weights = batch_anchors.new_zeros((num_imgs, num_anchors),
-                                                      dtype=torch.float)
+        batch_labels = batch_anchors.new_full((num_imgs, num_anchors), self.num_classes, dtype=torch.int)
+        batch_label_weights = batch_anchors.new_zeros((num_imgs, num_anchors), dtype=torch.float)
 
         if not self.reg_decoded_bbox:
-            batch_pos_bbox_targets = self.bbox_coder.encode(
-                batch_anchors, batch_anchor_gt_bboxes)
+            batch_pos_bbox_targets = self.bbox_coder.encode(batch_anchors, batch_anchor_gt_bboxes)
         else:
             batch_pos_bbox_targets = batch_anchor_gt_bboxes
 
-        batch_bbox_targets = masked_fill(batch_bbox_targets,
-                                         batch_pos_mask.unsqueeze(2),
-                                         batch_pos_bbox_targets)
-        batch_bbox_weights = masked_fill(batch_bbox_weights,
-                                         batch_pos_mask.unsqueeze(2), 1.0)
+        batch_bbox_targets = masked_fill(batch_bbox_targets, batch_pos_mask.unsqueeze(2), batch_pos_bbox_targets)
+        batch_bbox_weights = masked_fill(batch_bbox_weights, batch_pos_mask.unsqueeze(2), 1.0)
         if batch_gt_labels is None:
             batch_labels = masked_fill(batch_labels, batch_pos_mask, 0.0)
         else:
-            batch_labels = masked_fill(batch_labels, batch_pos_mask,
-                                       batch_anchor_gt_labels)
+            batch_labels = masked_fill(batch_labels, batch_pos_mask, batch_anchor_gt_labels)
         if self.train_cfg.pos_weight <= 0:
-            batch_label_weights = masked_fill(batch_label_weights,
-                                              batch_pos_mask, 1.0)
+            batch_label_weights = masked_fill(batch_label_weights, batch_pos_mask, 1.0)
         else:
-            batch_label_weights = masked_fill(batch_label_weights,
-                                              batch_pos_mask,
-                                              self.train_cfg.pos_weight)
-        batch_label_weights = masked_fill(batch_label_weights, batch_neg_mask,
-                                          1.0)
-        return (batch_labels, batch_label_weights, batch_bbox_targets,
-                batch_bbox_weights, batch_pos_mask, batch_neg_mask,
-                sampling_result)
+            batch_label_weights = masked_fill(batch_label_weights, batch_pos_mask, self.train_cfg.pos_weight)
+        batch_label_weights = masked_fill(batch_label_weights, batch_neg_mask, 1.0)
+        return (
+            batch_labels,
+            batch_label_weights,
+            batch_bbox_targets,
+            batch_bbox_weights,
+            batch_pos_mask,
+            batch_neg_mask,
+            sampling_result,
+        )
 
-    def get_targets(self,
-                    anchor_list,
-                    valid_flag_list,
-                    gt_bboxes_list,
-                    img_metas,
-                    gt_bboxes_ignore_list=None,
-                    gt_labels_list=None,
-                    label_channels=1,
-                    unmap_outputs=True,
-                    return_sampling_results=False,
-                    return_level=True):
+    def get_targets(
+        self,
+        anchor_list,
+        valid_flag_list,
+        gt_bboxes_list,
+        img_metas,
+        gt_bboxes_ignore_list=None,
+        gt_labels_list=None,
+        label_channels=1,
+        unmap_outputs=True,
+        return_sampling_results=False,
+        return_level=True,
+    ):
         """Compute regression and classification targets for anchors in
         multiple images.
 
@@ -323,23 +321,17 @@ class AscendAnchorHead(AnchorHead):
             assert len(anchor_list[i]) == len(valid_flag_list[i])
             batch_anchor_list.append(torch.cat(anchor_list[i]))
             batch_valid_flag_list.append(torch.cat(valid_flag_list[i]))
-        batch_anchors = torch.cat(
-            [torch.unsqueeze(anchor, 0) for anchor in batch_anchor_list], 0)
-        batch_valid_flags = torch.cat([
-            torch.unsqueeze(batch_valid_flag, 0)
-            for batch_valid_flag in batch_valid_flag_list
-        ], 0)
+        batch_anchors = torch.cat([torch.unsqueeze(anchor, 0) for anchor in batch_anchor_list], 0)
+        batch_valid_flags = torch.cat(
+            [torch.unsqueeze(batch_valid_flag, 0) for batch_valid_flag in batch_valid_flag_list],
+            0,
+        )
 
         gt_nums = [len(gt_bbox) for gt_bbox in gt_bboxes_list]
         max_gt_nums = get_max_num_gt_division_factor(gt_nums)
-        batch_gt_bboxes = self.get_batch_gt_bboxes(gt_bboxes_list, num_imgs,
-                                                   gt_nums, device,
-                                                   max_gt_nums)
-        batch_gt_bboxes_ignore = self.get_batch_gt_bboxes_ignore(
-            gt_bboxes_ignore_list, num_imgs, gt_nums, device)
-        batch_gt_labels = self.get_batch_gt_labels(gt_labels_list, num_imgs,
-                                                   gt_nums, device,
-                                                   max_gt_nums)
+        batch_gt_bboxes = self.get_batch_gt_bboxes(gt_bboxes_list, num_imgs, gt_nums, device, max_gt_nums)
+        batch_gt_bboxes_ignore = self.get_batch_gt_bboxes_ignore(gt_bboxes_ignore_list, num_imgs, gt_nums, device)
+        batch_gt_labels = self.get_batch_gt_labels(gt_labels_list, num_imgs, gt_nums, device, max_gt_nums)
 
         results = self._get_targets_concat(
             batch_anchors,
@@ -349,41 +341,54 @@ class AscendAnchorHead(AnchorHead):
             batch_gt_labels,
             img_metas,
             label_channels=label_channels,
-            unmap_outputs=unmap_outputs)
+            unmap_outputs=unmap_outputs,
+        )
 
-        (batch_labels, batch_label_weights, batch_bbox_targets,
-         batch_bbox_weights, batch_pos_mask, batch_neg_mask,
-         sampling_result) = results[:7]
+        (
+            batch_labels,
+            batch_label_weights,
+            batch_bbox_targets,
+            batch_bbox_weights,
+            batch_pos_mask,
+            batch_neg_mask,
+            sampling_result,
+        ) = results[:7]
         rest_results = list(results[7:])  # user-added return values
 
         # sampled anchors of all images
-        min_num = torch.ones((num_imgs, ),
-                             dtype=torch.long,
-                             device=batch_pos_mask.device)
-        num_total_pos = torch.sum(
-            torch.max(torch.sum(batch_pos_mask, dim=1), min_num))
-        num_total_neg = torch.sum(
-            torch.max(torch.sum(batch_neg_mask, dim=1), min_num))
+        min_num = torch.ones((num_imgs,), dtype=torch.long, device=batch_pos_mask.device)
+        num_total_pos = torch.sum(torch.max(torch.sum(batch_pos_mask, dim=1), min_num))
+        num_total_neg = torch.sum(torch.max(torch.sum(batch_neg_mask, dim=1), min_num))
         if return_level is True:
-            labels_list = batch_images_to_levels(batch_labels,
-                                                 num_level_anchors)
-            label_weights_list = batch_images_to_levels(
-                batch_label_weights, num_level_anchors)
-            bbox_targets_list = batch_images_to_levels(batch_bbox_targets,
-                                                       num_level_anchors)
-            bbox_weights_list = batch_images_to_levels(batch_bbox_weights,
-                                                       num_level_anchors)
-            res = (labels_list, label_weights_list, bbox_targets_list,
-                   bbox_weights_list, num_total_pos, num_total_neg)
+            labels_list = batch_images_to_levels(batch_labels, num_level_anchors)
+            label_weights_list = batch_images_to_levels(batch_label_weights, num_level_anchors)
+            bbox_targets_list = batch_images_to_levels(batch_bbox_targets, num_level_anchors)
+            bbox_weights_list = batch_images_to_levels(batch_bbox_weights, num_level_anchors)
+            res = (
+                labels_list,
+                label_weights_list,
+                bbox_targets_list,
+                bbox_weights_list,
+                num_total_pos,
+                num_total_neg,
+            )
             if return_sampling_results:
-                res = res + (sampling_result, )
+                res = res + (sampling_result,)
             for i, r in enumerate(rest_results):  # user-added return values
                 rest_results[i] = batch_images_to_levels(r, num_level_anchors)
 
             return res + tuple(rest_results)
         else:
-            res = (batch_labels, batch_label_weights, batch_bbox_targets,
-                   batch_bbox_weights, batch_pos_mask, batch_neg_mask,
-                   sampling_result, num_total_pos, num_total_neg,
-                   batch_anchors)
+            res = (
+                batch_labels,
+                batch_label_weights,
+                batch_bbox_targets,
+                batch_bbox_weights,
+                batch_pos_mask,
+                batch_neg_mask,
+                sampling_result,
+                num_total_pos,
+                num_total_neg,
+                batch_anchors,
+            )
             return res

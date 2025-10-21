@@ -63,7 +63,14 @@ def set_recall_param(proposal_nums, iou_thrs):
     return _proposal_nums, _iou_thrs
 
 
-def eval_recalls(gts, proposals, proposal_nums=None, iou_thrs=0.5, logger=None, use_legacy_coordinate=False):
+def eval_recalls(
+    gts,
+    proposals,
+    proposal_nums=None,
+    iou_thrs=0.5,
+    logger=None,
+    use_legacy_coordinate=False,
+):
     """Calculate recalls.
 
     Args:
@@ -99,7 +106,11 @@ def eval_recalls(gts, proposals, proposal_nums=None, iou_thrs=0.5, logger=None, 
         if gts[i] is None or gts[i].shape[0] == 0:
             ious = np.zeros((0, img_proposal.shape[0]), dtype=np.float32)
         else:
-            ious = bbox_overlaps(gts[i], img_proposal[:prop_num, :4], use_legacy_coordinate=use_legacy_coordinate)
+            ious = bbox_overlaps(
+                gts[i],
+                img_proposal[:prop_num, :4],
+                use_legacy_coordinate=use_legacy_coordinate,
+            )
         all_ious.append(ious)
     all_ious = np.array(all_ious)
     recalls = _recalls(all_ious, proposal_nums, iou_thrs)

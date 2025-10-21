@@ -5,6 +5,7 @@ from torch.nn.modules import GroupNorm
 from torch.nn.modules.batchnorm import _BatchNorm
 
 from mmdet.models.backbones.mobilenet_v2 import MobileNetV2
+
 from .utils import check_norm_state, is_block, is_norm
 
 
@@ -26,7 +27,7 @@ def test_mobilenetv2_backbone():
         for param in mod.parameters():
             assert param.requires_grad is False
     for i in range(1, frozen_stages + 1):
-        layer = getattr(model, f'layer{i}')
+        layer = getattr(model, f"layer{i}")
         for mod in layer.modules():
             if isinstance(mod, _BatchNorm):
                 assert mod.training is False
@@ -88,8 +89,7 @@ def test_mobilenetv2_backbone():
     assert feat[7].shape == torch.Size((1, 2560, 7, 7))
 
     # Test MobileNetV2 forward with dict(type='ReLU')
-    model = MobileNetV2(
-        widen_factor=1.0, act_cfg=dict(type='ReLU'), out_indices=range(0, 7))
+    model = MobileNetV2(widen_factor=1.0, act_cfg=dict(type="ReLU"), out_indices=range(0, 7))
     model.train()
 
     imgs = torch.randn(1, 3, 224, 224)
@@ -124,8 +124,9 @@ def test_mobilenetv2_backbone():
     # Test MobileNetV2 with GroupNorm forward
     model = MobileNetV2(
         widen_factor=1.0,
-        norm_cfg=dict(type='GN', num_groups=2, requires_grad=True),
-        out_indices=range(0, 7))
+        norm_cfg=dict(type="GN", num_groups=2, requires_grad=True),
+        out_indices=range(0, 7),
+    )
     for m in model.modules():
         if is_norm(m):
             assert isinstance(m, GroupNorm)
@@ -154,8 +155,7 @@ def test_mobilenetv2_backbone():
     assert feat[2].shape == torch.Size((1, 96, 14, 14))
 
     # Test MobileNetV2 with checkpoint forward
-    model = MobileNetV2(
-        widen_factor=1.0, with_cp=True, out_indices=range(0, 7))
+    model = MobileNetV2(widen_factor=1.0, with_cp=True, out_indices=range(0, 7))
     for m in model.modules():
         if is_block(m):
             assert m.with_cp
