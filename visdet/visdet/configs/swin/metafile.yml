@@ -1,0 +1,81 @@
+Collections:
+  - Name: Swin Transformer
+    Metadata:
+      Training Techniques:
+        - AdamW
+        - Multi Scale Train
+      Architecture:
+        - Swin Transformer
+    Paper:
+      URL: https://arxiv.org/abs/2103.14030
+      Title: "Swin Transformer: Hierarchical Vision Transformer using Shifted Windows"
+    README: configs/swin/README.md
+
+Models:
+  - Name: mask-rcnn_swin-t-p4-w7_fpn_ms-crop-3x_coco
+    In Collection: Swin Transformer
+    Config: visdet/configs/swin/mask-rcnn_swin-t-p4-w7_fpn_ms-crop-3x_coco.py
+    Metadata:
+      Training Memory (GB): 10.3
+      Epochs: 36
+    Results:
+      - Task: Object Detection
+        Dataset: COCO
+        Metrics:
+          box AP: 46.0
+      - Task: Instance Segmentation
+        Dataset: COCO
+        Metrics:
+          mask AP: 41.6
+    Weights: https://download.openmmlab.com/mmdetection/v2.0/swin/mask_rcnn_swin-t-p4-w7_fpn_ms-crop-3x_coco/mask_rcnn_swin-t-p4-w7_fpn_ms-crop-3x_coco_20210906_131725-bacf6f7b.pth
+
+  - Name: mask-rcnn_swin-t-p4-w7_fpn_amp-ms-crop-3x_coco
+    In Collection: Swin Transformer
+    Config: visdet/configs/swin/mask-rcnn_swin-t-p4-w7_fpn_amp-ms-crop-3x_coco.py
+    Metadata:
+      Training Memory (GB): 10.3
+      Epochs: 36
+    Results:
+      - Task: Object Detection
+        Dataset: COCO
+        Metrics:
+          box AP: 46.0
+      - Task: Instance Segmentation
+        Dataset: COCO
+        Metrics:
+          mask AP: 41.6
+    Weights: https://download.openmmlab.com/mmdetection/v2.0/swin/mask_rcnn_swin-t-p4-w7_fpn_ms-crop-3x_coco/mask_rcnn_swin-t-p4-w7_fpn_ms-crop-3x_coco_20210906_131725-bacf6f7b.pth
+
+  - Name: mask-rcnn_swin-s-p4-w7_fpn_amp-ms-crop-3x_coco
+    In Collection: Swin Transformer
+    Config: visdet/configs/swin/mask-rcnn_swin-s-p4-w7_fpn_amp-ms-crop-3x_coco.py
+    Metadata:
+      Training Memory (GB): 16.0
+      Epochs: 36
+    Results:
+      - Task: Object Detection
+        Dataset: COCO
+        Metrics:
+          box AP: 48.5
+      - Task: Instance Segmentation
+        Dataset: COCO
+        Metrics:
+          mask AP: 43.3
+    Weights: gs://binit-machine-learning/mmdet/mask_rcnn_swin-s-p4-w7_fpn_fp16_ms-crop-3x_coco_20210903_104808-b92c91f1.pth
+
+  - Name: cascade-mask-rcnn_swin-s-p4-w7_fpn_ms-crop-3x_coco
+    In Collection: Swin Transformer
+    Config: visdet/configs/swin/cascade-mask-rcnn_swin-s-p4-w7_fpn_ms-crop-3x_coco.py
+    Metadata:
+      Training Memory (GB): 12.0
+      Epochs: 36
+    Results:
+      - Task: Object Detection
+        Dataset: COCO
+        Metrics:
+          box AP: 48.1
+      - Task: Instance Segmentation
+        Dataset: COCO
+        Metrics:
+          mask AP: 42.6
+    Weights: null

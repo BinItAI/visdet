@@ -1,0 +1,43 @@
+amends "@grog/package.pkl"
+
+local py_sources = List(
+  "viscv/**/*",
+  "pyproject.toml"
+)
+
+// @inferred_deps
+local inferred_deps = List(
+  "//machine_learning/packages/visengine"
+)
+
+targets {
+  new {
+    name = "viscv"
+    inputs {
+      ...py_sources
+    }
+  }
+
+  new {
+    name = "test"
+    command = "uv run pytest"
+    inputs {
+      ...py_sources
+      "tests/**/*"
+    }
+
+    dependencies {
+      ...inferred_deps
+      "//tools:uv"
+    }
+
+    platform {
+      os {
+        "linux"
+      }
+      arch {
+        "amd64"
+      }
+    }
+  }
+}

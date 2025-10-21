@@ -1,0 +1,37 @@
+amends "@grog/package.pkl"
+
+local py_sources = List(
+  "visdet/**/*",
+  "pyproject.toml"
+)
+
+targets {
+  new {
+    name = "visdet"
+    inputs {
+      ...py_sources
+    }
+  }
+
+  new {
+    name = "test"
+    command = "uv run pytest"
+    inputs {
+      ...py_sources
+      "tests/**/*"
+    }
+
+    dependencies {
+      "//tools:uv"
+    }
+
+    platform {
+      os {
+        "linux"
+      }
+      arch {
+        "amd64"
+      }
+    }
+  }
+}

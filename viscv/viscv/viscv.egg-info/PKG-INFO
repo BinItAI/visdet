@@ -1,0 +1,13 @@
+Metadata-Version: 2.4
+Name: viscv
+Version: 0.1.0
+Summary: Minimal computer vision operations for Swin Mask R-CNN
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: numpy>=2.0.0
+Requires-Dist: Pillow>=10.0.0
+Requires-Dist: opencv-python-headless>=4.8.0
+Requires-Dist: matplotlib>=3.6.0
+Requires-Dist: torch>=2.0.0
+Requires-Dist: torchvision>=0.15.0
+Requires-Dist: visengine@ file:///${PROJECT_ROOT}/machine_learning/packages/visengine

@@ -1,0 +1,39 @@
+amends "@grog/package.pkl"
+
+local py_sources = List(
+  "visengine/**/*",
+  "pyproject.toml"
+)
+
+targets {
+  new {
+    name = "visengine"
+    inputs {
+      ...py_sources
+    }
+  }
+
+  new {
+    name = "test"
+    command = "uv run pytest"
+    inputs {
+      ...py_sources
+      "tests/**/*"
+    }
+
+    dependencies {
+      "//tools:uv"
+      "//machine_learning/packages/ml_env_config"
+      "//machine_learning/packages/viscv"
+    }
+
+    platform {
+      os {
+        "linux"
+      }
+      arch {
+        "amd64"
+      }
+    }
+  }
+}
