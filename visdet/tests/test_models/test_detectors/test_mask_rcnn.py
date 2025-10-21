@@ -1,12 +1,12 @@
 import torch
+from visdet.engine.config import Config
 from visdet.structures import DetDataSample
-from visengine.config import Config
 
 
 def test_mask_rcnn_init():
     """Test MaskRCNN initialization."""
     # Set default scope to visdet to find our components
-    from visengine.registry import DefaultScope
+    from visdet.engine.registry import DefaultScope
 
     with DefaultScope.overwrite_default_scope("visdet"):
         # Minimal configuration for MaskRCNN
@@ -155,7 +155,7 @@ def test_mask_rcnn_init():
 def test_mask_rcnn_forward():
     """Test MaskRCNN forward pass in test mode."""
     # Set default scope to visdet to find our components
-    from visengine.registry import DefaultScope
+    from visdet.engine.registry import DefaultScope
 
     with DefaultScope.overwrite_default_scope("visdet"):
         # Create a simple model

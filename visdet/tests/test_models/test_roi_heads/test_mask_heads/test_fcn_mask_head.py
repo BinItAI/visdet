@@ -6,8 +6,8 @@ from unittest import TestCase
 
 import torch
 from visdet.models.roi_heads.mask_heads import FCNMaskHead
-from visengine.config import ConfigDict
-from visengine.structures import InstanceData
+from visdet.engine.config import ConfigDict
+from visdet.engine.structures import InstanceData
 from parameterized import parameterized
 
 

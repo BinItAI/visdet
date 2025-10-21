@@ -30,6 +30,16 @@ repos:
     hooks:
       - id: nbstripout
 
+  # Block old-style viscv/visengine imports
+  - repo: local
+    hooks:
+      - id: no-old-style-imports
+        name: Block old-style viscv/visengine imports
+        entry: bash -c 'git grep -n "^import viscv\|^from viscv\|^import visengine\|^from visengine" -- "*.py" ":(exclude)libs/" ":(exclude)visdet/visdet/cv/" ":(exclude)visdet/visdet/engine/" && exit 1 || exit 0'
+        language: system
+        pass_filenames: false
+        always_run: true
+
   # Disabled pyright due to missing dependencies in pre-commit environment
   # - repo: https://github.com/RobertCraigie/pyright-python
   #   rev: v1.1.405

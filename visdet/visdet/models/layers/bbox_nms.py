@@ -2,8 +2,8 @@
 
 import torch
 from torch import Tensor
-from viscv.ops.nms import batched_nms
 
+from visdet.cv.ops.nms import batched_nms
 from visdet.structures.bbox import bbox_overlaps
 from visdet.utils import ConfigType
 

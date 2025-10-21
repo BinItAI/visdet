@@ -9,6 +9,6 @@ from viscv.transforms import *  # noqa: F401, F403
 
 # Preserve the __all__ from upstream if it exists
 try:
-    from viscv.transforms import __all__  # noqa: F401
+    from visdet.cv.transforms import __all__  # noqa: F401
 except ImportError:
     pass

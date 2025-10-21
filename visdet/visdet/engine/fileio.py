@@ -9,6 +9,6 @@ from visengine.fileio import *  # noqa: F401, F403
 
 # Preserve the __all__ from upstream if it exists
 try:
-    from visengine.fileio import __all__  # noqa: F401
+    from visdet.engine.fileio import __all__  # noqa: F401
 except ImportError:
     pass

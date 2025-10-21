@@ -7,7 +7,7 @@ from unittest import TestCase
 import torch
 from visdet.registry import MODELS
 from visdet.testing import demo_mm_inputs, demo_mm_proposals
-from visengine.config import Config
+from visdet.engine.config import Config
 from parameterized import parameterized
 
 

@@ -2,8 +2,8 @@
 
 import pytest
 import torch
-from visengine.config import ConfigDict
-from visengine.structures import InstanceData
+from visdet.engine.config import ConfigDict
+from visdet.engine.structures import InstanceData
 
 
 def _build_cascade_roi_head_cfg(num_classes: int = 80, include_test_cfg: bool = False) -> dict:
@@ -82,7 +82,7 @@ def _build_cascade_roi_head_cfg(num_classes: int = 80, include_test_cfg: bool = 
 
 def test_cascade_roi_head_init():
     """Test CascadeRoIHead initialization."""
-    from visengine.registry import DefaultScope
+    from visdet.engine.registry import DefaultScope
 
     with DefaultScope.overwrite_default_scope("visdet"):
         from visdet.registry import MODELS
@@ -113,7 +113,7 @@ def test_cascade_roi_head_init():
 
 def test_cascade_roi_head_predict_bbox():
     """Test that bbox prediction uses final stage only."""
-    from visengine.registry import DefaultScope
+    from visdet.engine.registry import DefaultScope
 
     with DefaultScope.overwrite_default_scope("visdet"):
         from visdet.registry import MODELS
@@ -165,7 +165,7 @@ def test_cascade_roi_head_predict_mask_logic():
     """Test that mask prediction logic - this reveals the bug."""
     from unittest.mock import patch
 
-    from visengine.registry import DefaultScope
+    from visdet.engine.registry import DefaultScope
 
     with DefaultScope.overwrite_default_scope("visdet"):
         from visdet.registry import MODELS
@@ -206,7 +206,7 @@ def test_cascade_roi_head_predict_mask_logic():
 
         with patch.object(roi_head, "_mask_forward", side_effect=tracked_mask_forward):
             with torch.no_grad():
-                results = roi_head.predict_mask(x, batch_img_metas, results_list, rescale=False)
+                roi_head.predict_mask(x, batch_img_metas, results_list, rescale=False)
 
         # BUG: Currently all 3 stages are called
         # This test documents the bug - it should only call stage 2 (final stage)
@@ -221,7 +221,7 @@ def test_cascade_roi_head_predict_mask_logic():
 
 def test_cascade_roi_head_bbox_refinement():
     """Test that bbox refinement happens between stages during training."""
-    from visengine.registry import DefaultScope
+    from visdet.engine.registry import DefaultScope
 
     with DefaultScope.overwrite_default_scope("visdet"):
         from visdet.registry import MODELS

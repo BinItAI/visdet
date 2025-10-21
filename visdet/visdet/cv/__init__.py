@@ -19,9 +19,9 @@ and namespace consistency within the visdet package.
 """
 
 # Re-export all viscv functionality
-from viscv import *  # noqa: F401, F403
+from visdet.cv import *  # noqa: F401, F403
 
 # Explicitly re-export key modules for better IDE support
-from viscv import image, transforms  # noqa: F401
+from visdet.cv import image, transforms  # noqa: F401
 
 __all__ = ["image", "transforms"]

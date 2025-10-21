@@ -3,8 +3,8 @@
 import warnings
 
 import numpy as np
-import viscv.fileio as fileio
 
+import visdet.cv.fileio as fileio
 from visdet.cv.transforms import BaseTransform
 from visdet.registry import TRANSFORMS
 
@@ -27,11 +27,11 @@ class LoadImageFromFile(BaseTransform):
         to_float32 (bool): Whether to convert the loaded image to a float32
             numpy array. If set to False, the loaded image is an uint8 array.
             Defaults to False.
-        color_type (str): The flag argument for :func:`viscv.imfrombytes`.
+        color_type (str): The flag argument for :func:`visdet.cv.imfrombytes`.
             Defaults to 'color'.
         imdecode_backend (str): The image decoding backend type. The backend
-            argument for :func:`viscv.imfrombytes`.
-            See :func:`viscv.imfrombytes` for details.
+            argument for :func:`visdet.cv.imfrombytes`.
+            See :func:`visdet.cv.imfrombytes` for details.
             Defaults to 'cv2'.
         file_client_args (dict, optional): Arguments to instantiate a
             FileClient. See :class:`mmengine.fileio.FileClient` for details.

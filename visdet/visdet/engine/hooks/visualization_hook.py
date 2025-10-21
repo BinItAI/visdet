@@ -5,13 +5,13 @@ from collections.abc import Sequence
 from typing import Optional
 
 import numpy as np
+from visengine.fileio import get
 from visengine.hooks import Hook
+from visengine.runner import Runner
+from visengine.utils import mkdir_or_exist
+from visengine.visualization import Visualizer
 
 import visdet.cv as viscv
-from visdet.engine.fileio import get
-from visdet.engine.runner import Runner
-from visdet.engine.utils import mkdir_or_exist
-from visdet.engine.visualization import Visualizer
 from visdet.registry import HOOKS
 from visdet.structures import DetDataSample
 from visdet.structures.bbox import BaseBoxes

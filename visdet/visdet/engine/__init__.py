@@ -21,7 +21,7 @@ and namespace consistency within the visdet package.
 """
 
 # Re-export all visengine functionality
-from visengine import *  # noqa: F401, F403
+from visdet.engine import *  # noqa: F401, F403
 
 # NOTE: We don't eagerly import hooks here to avoid circular imports.
 # The hooks package can still be accessed via explicit import:

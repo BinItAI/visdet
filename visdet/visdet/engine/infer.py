@@ -9,6 +9,6 @@ from visengine.infer import *  # noqa: F401, F403
 
 # Preserve the __all__ from upstream if it exists
 try:
-    from visengine.infer import __all__  # noqa: F401
+    from visdet.engine.infer import __all__  # noqa: F401
 except ImportError:
     pass

@@ -7,13 +7,13 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.utils.checkpoint as cp
-from viscv.cnn.bricks import build_norm_layer
-from viscv.cnn.bricks.transformer import FFN, build_dropout
-from visengine.model.weight_init import constant_init, trunc_normal_, trunc_normal_init
-from visengine.runner.checkpoint import CheckpointLoader
 
+from visdet.cv.cnn.bricks import build_norm_layer
+from visdet.cv.cnn.bricks.transformer import FFN, build_dropout
 from visdet.engine.logging import MMLogger
 from visdet.engine.model import BaseModule, ModuleList
+from visdet.engine.model.weight_init import constant_init, trunc_normal_, trunc_normal_init
+from visdet.engine.runner.checkpoint import CheckpointLoader
 from visdet.engine.utils import to_2tuple
 from visdet.registry import MODELS
 

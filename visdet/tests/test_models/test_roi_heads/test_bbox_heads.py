@@ -2,8 +2,8 @@
 
 import pytest
 import torch
+from visdet.engine.config import Config
 from visdet.models.task_modules.samplers import SamplingResult
-from visengine.config import Config
 
 
 class TestShared2FCBBoxHead:

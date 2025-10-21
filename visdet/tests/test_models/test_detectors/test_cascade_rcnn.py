@@ -1,6 +1,6 @@
 import torch
+from visdet.engine.config import Config
 from visdet.structures import DetDataSample
-from visengine.config import Config
 
 
 def _build_stage_train_cfg(pos_iou_thr: float) -> dict:
@@ -182,7 +182,7 @@ def _build_model_cfg(model_type: str = "CascadeRCNN") -> dict:
 
 
 def test_cascade_rcnn_init():
-    from visengine.registry import DefaultScope
+    from visdet.engine.registry import DefaultScope
 
     with DefaultScope.overwrite_default_scope("visdet"):
         from visdet.registry import MODELS
@@ -196,7 +196,7 @@ def test_cascade_rcnn_init():
 
 
 def test_cascade_rcnn_forward():
-    from visengine.registry import DefaultScope
+    from visdet.engine.registry import DefaultScope
 
     with DefaultScope.overwrite_default_scope("visdet"):
         from visdet.registry import MODELS

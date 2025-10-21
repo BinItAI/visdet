@@ -9,6 +9,6 @@ from visengine.registry import *  # noqa: F401, F403
 
 # Preserve the __all__ from upstream if it exists
 try:
-    from visengine.registry import __all__  # noqa: F401
+    from visdet.engine.registry import __all__  # noqa: F401
 except ImportError:
     pass
