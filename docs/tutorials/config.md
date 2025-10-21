@@ -37,7 +37,7 @@ For example, if some modification is made base on Faster R-CNN, user may first i
 
 If you are building an entirely new method that does not share the structure with any of the existing methods, you may create a folder `xxx_rcnn` under `configs`,
 
-Please refer to [mmcv](https://mmcv.readthedocs.io/en/latest/understand_mmcv/config.html) for detailed documentation.
+Please refer to the MMCV documentation for detailed information about configuration files.
 
 ## Config Name Style
 
@@ -430,7 +430,7 @@ work_dir = 'work_dir'  # Directory to save the model checkpoints and logs for th
 ### Ignore some fields in the base configs
 
 Sometimes, you may set `_delete_=True` to ignore some of fields in base configs.
-You may refer to [mmcv](https://mmcv.readthedocs.io/en/latest/understand_mmcv/config.html#inherit-from-base-config-with-ignored-fields) for simple illustration.
+You may refer to the MMCV documentation for examples of inheriting from base configs with ignored fields.
 
 In MMDetection, for example, to change the backbone of Mask R-CNN with the following config.
 

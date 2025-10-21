@@ -113,7 +113,7 @@ Tricks not implemented by the optimizer should be implemented through optimizer 
       _delete_=True, grad_clip=dict(max_norm=35, norm_type=2))
   ```
 
-  If your config inherits the base config which already sets the `optimizer_config`, you might need `_delete_=True` to override the unnecessary settings. See the [config documentation](https://mmdetection.readthedocs.io/en/latest/tutorials/config.html) for more details.
+  If your config inherits the base config which already sets the `optimizer_config`, you might need `_delete_=True` to override the unnecessary settings. See the [config documentation](config.md) for more details.
 
 - __Use momentum schedule to accelerate model convergence__:
   We support momentum scheduler to modify model's momentum according to learning rate, which could make the model converge in a faster way.
@@ -297,12 +297,12 @@ The MMCV runner will use `checkpoint_config` to initialize [`CheckpointHook`](ht
 checkpoint_config = dict(interval=1)
 ```
 
-The users could set `max_keep_ckpts` to save only small number of checkpoints or decide whether to store state dict of optimizer by `save_optimizer`. More details of the arguments are [here](https://mmcv.readthedocs.io/en/latest/api.html#mmcv.runner.CheckpointHook)
+The users could set `max_keep_ckpts` to save only small number of checkpoints or decide whether to store state dict of optimizer by `save_optimizer`. More details of the arguments are [here](MMCV documentation)
 
 #### Log config
 
 The `log_config` wraps multiple logger hooks and enables to set intervals. Now MMCV supports `WandbLoggerHook`, `MlflowLoggerHook`, and `TensorboardLoggerHook`.
-The detail usages can be found in the [doc](https://mmcv.readthedocs.io/en/latest/api.html#mmcv.runner.LoggerHook).
+The detail usages can be found in the [doc](MMCV documentation).
 
 ```python
 log_config = dict(

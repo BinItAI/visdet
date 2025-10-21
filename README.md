@@ -12,7 +12,7 @@
 [📘Documentation](https://binitai.github.io/visdet/) |
 [🛠️Installation](https://binitai.github.io/visdet/getting-started/installation/) |
 [👀Model Zoo](https://binitai.github.io/visdet/model-zoo/) |
-[🆕Update News](https://mmdetection.readthedocs.io/en/stable/changelog.html) |
+[🆕Update News](https://binitai.github.io/visdet/about/changelog/) |
 [🚀Ongoing Projects](https://github.com/open-mmlab/mmdetection/projects) |
 [🤔Reporting Issues](https://github.com/open-mmlab/mmdetection/issues/new/choose)
 
@@ -20,7 +20,7 @@
 
 <div align="center">
 
-English | [简体中文](README_zh-CN.md)
+English
 
 </div>
 
@@ -91,9 +91,7 @@ Apart from MMDetection, we also released a library [mmcv](https://github.com/ope
 
 - Fixed some known documentation, configuration and linking error issues
 
-Please refer to [changelog.md](docs/en/changelog.md) for details and release history.
-
-For compatibility changes between different versions of MMDetection, please refer to [compatibility.md](docs/en/compatibility.md).
+Please refer to [changelog.md](https://binitai.github.io/visdet/about/changelog/) for details and release history.
 
 ### 🌟 Preview of 3.x version
 
@@ -144,26 +142,23 @@ For detailed installation instructions including development setup, please refer
 
 ## Getting Started
 
-Please see [get_started.md](docs/en/get_started.md) for the basic usage of MMDetection. We provide [colab tutorial](demo/MMDet_Tutorial.ipynb) and [instance segmentation colab tutorial](demo/MMDet_InstanceSeg_Tutorial.ipynb), and other tutorials for:
+Please see the [documentation](https://binitai.github.io/visdet/) for the basic usage of MMDetection and tutorials on:
 
-- [with existing dataset](docs/en/1_exist_data_model.md)
-- [with new dataset](docs/en/2_new_data_model.md)
-- [with existing dataset_new_model](docs/en/3_exist_data_new_model.md)
-- [learn about configs](docs/en/tutorials/config.md)
-- [customize_datasets](docs/en/tutorials/customize_dataset.md)
-- [customize data pipelines](docs/en/tutorials/data_pipeline.md)
-- [customize_models](docs/en/tutorials/customize_models.md)
-- [customize runtime settings](docs/en/tutorials/customize_runtime.md)
-- [customize_losses](docs/en/tutorials/customize_losses.md)
-- [finetuning models](docs/en/tutorials/finetune.md)
-- [export a model to ONNX](docs/en/tutorials/pytorch2onnx.md)
-- [export ONNX to TRT](docs/en/tutorials/onnx2tensorrt.md)
-- [weight initialization](docs/en/tutorials/init_cfg.md)
-- [how to xxx](docs/en/tutorials/how_to.md)
+- [learn about configs](https://binitai.github.io/visdet/tutorials/config/)
+- [customize datasets](https://binitai.github.io/visdet/tutorials/customize_dataset/)
+- [customize data pipelines](https://binitai.github.io/visdet/tutorials/data_pipeline/)
+- [customize models](https://binitai.github.io/visdet/tutorials/customize_models/)
+- [customize runtime settings](https://binitai.github.io/visdet/tutorials/customize_runtime/)
+- [customize losses](https://binitai.github.io/visdet/tutorials/customize_losses/)
+- [finetuning models](https://binitai.github.io/visdet/tutorials/finetune/)
+- [export a model to ONNX](https://binitai.github.io/visdet/tutorials/pytorch2onnx/)
+- [export ONNX to TRT](https://binitai.github.io/visdet/tutorials/onnx2tensorrt/)
+- [weight initialization](https://binitai.github.io/visdet/tutorials/init_cfg/)
+- [how to xxx](https://binitai.github.io/visdet/tutorials/how_to/)
 
 ## Overview of Benchmark and Model Zoo
 
-Results and models are available in the [model zoo](docs/en/model_zoo.md).
+Results and models are available in the [model zoo](https://binitai.github.io/visdet/model-zoo/).
 
 <div align="center">
   <b>Architectures</b>
@@ -187,65 +182,65 @@ Results and models are available in the [model zoo](docs/en/model_zoo.md).
     <tr valign="top">
       <td>
         <ul>
-            <li><a href="configs/fast_rcnn">Fast R-CNN (ICCV'2015)</a></li>
-            <li><a href="configs/faster_rcnn">Faster R-CNN (NeurIPS'2015)</a></li>
-            <li><a href="configs/rpn">RPN (NeurIPS'2015)</a></li>
-            <li><a href="configs/ssd">SSD (ECCV'2016)</a></li>
-            <li><a href="configs/retinanet">RetinaNet (ICCV'2017)</a></li>
-            <li><a href="configs/cascade_rcnn">Cascade R-CNN (CVPR'2018)</a></li>
-            <li><a href="configs/yolo">YOLOv3 (ArXiv'2018)</a></li>
-            <li><a href="configs/cornernet">CornerNet (ECCV'2018)</a></li>
-            <li><a href="configs/grid_rcnn">Grid R-CNN (CVPR'2019)</a></li>
-            <li><a href="configs/guided_anchoring">Guided Anchoring (CVPR'2019)</a></li>
-            <li><a href="configs/fsaf">FSAF (CVPR'2019)</a></li>
-            <li><a href="configs/centernet">CenterNet (ArXiv'2019)</a></li>
-            <li><a href="configs/libra_rcnn">Libra R-CNN (CVPR'2019)</a></li>
-            <li><a href="configs/tridentnet">TridentNet (ICCV'2019)</a></li>
-            <li><a href="configs/fcos">FCOS (ICCV'2019)</a></li>
-            <li><a href="configs/reppoints">RepPoints (ICCV'2019)</a></li>
-            <li><a href="configs/free_anchor">FreeAnchor (NeurIPS'2019)</a></li>
-            <li><a href="configs/cascade_rpn">CascadeRPN (NeurIPS'2019)</a></li>
-            <li><a href="configs/foveabox">Foveabox (TIP'2020)</a></li>
-            <li><a href="configs/double_heads">Double-Head R-CNN (CVPR'2020)</a></li>
-            <li><a href="configs/atss">ATSS (CVPR'2020)</a></li>
-            <li><a href="configs/nas_fcos">NAS-FCOS (CVPR'2020)</a></li>
-            <li><a href="configs/centripetalnet">CentripetalNet (CVPR'2020)</a></li>
-            <li><a href="configs/autoassign">AutoAssign (ArXiv'2020)</a></li>
-            <li><a href="configs/sabl">Side-Aware Boundary Localization (ECCV'2020)</a></li>
-            <li><a href="configs/dynamic_rcnn">Dynamic R-CNN (ECCV'2020)</a></li>
-            <li><a href="configs/detr">DETR (ECCV'2020)</a></li>
-            <li><a href="configs/paa">PAA (ECCV'2020)</a></li>
-            <li><a href="configs/vfnet">VarifocalNet (CVPR'2021)</a></li>
-            <li><a href="configs/sparse_rcnn">Sparse R-CNN (CVPR'2021)</a></li>
-            <li><a href="configs/yolof">YOLOF (CVPR'2021)</a></li>
-            <li><a href="configs/yolox">YOLOX (ArXiv'2021)</a></li>
-            <li><a href="configs/deformable_detr">Deformable DETR (ICLR'2021)</a></li>
-            <li><a href="configs/tood">TOOD (ICCV'2021)</a></li>
-            <li><a href="configs/ddod">DDOD (ACM MM'2021)</a></li>
+            <li>Fast R-CNN (ICCV'2015)</li>
+            <li>Faster R-CNN (NeurIPS'2015)</li>
+            <li>RPN (NeurIPS'2015)</li>
+            <li>SSD (ECCV'2016)</li>
+            <li>RetinaNet (ICCV'2017)</li>
+            <li>Cascade R-CNN (CVPR'2018)</li>
+            <li>YOLOv3 (ArXiv'2018)</li>
+            <li>CornerNet (ECCV'2018)</li>
+            <li>Grid R-CNN (CVPR'2019)</li>
+            <li>Guided Anchoring (CVPR'2019)</li>
+            <li>FSAF (CVPR'2019)</li>
+            <li>CenterNet (ArXiv'2019)</li>
+            <li>Libra R-CNN (CVPR'2019)</li>
+            <li>TridentNet (ICCV'2019)</li>
+            <li>FCOS (ICCV'2019)</li>
+            <li>RepPoints (ICCV'2019)</li>
+            <li>FreeAnchor (NeurIPS'2019)</li>
+            <li>CascadeRPN (NeurIPS'2019)</li>
+            <li>Foveabox (TIP'2020)</li>
+            <li>Double-Head R-CNN (CVPR'2020)</li>
+            <li>ATSS (CVPR'2020)</li>
+            <li>NAS-FCOS (CVPR'2020)</li>
+            <li>CentripetalNet (CVPR'2020)</li>
+            <li>AutoAssign (ArXiv'2020)</li>
+            <li>Side-Aware Boundary Localization (ECCV'2020)</li>
+            <li>Dynamic R-CNN (ECCV'2020)</li>
+            <li>DETR (ECCV'2020)</li>
+            <li>PAA (ECCV'2020)</li>
+            <li>VarifocalNet (CVPR'2021)</li>
+            <li>Sparse R-CNN (CVPR'2021)</li>
+            <li>YOLOF (CVPR'2021)</li>
+            <li>YOLOX (ArXiv'2021)</li>
+            <li>Deformable DETR (ICLR'2021)</li>
+            <li>TOOD (ICCV'2021)</li>
+            <li>DDOD (ACM MM'2021)</li>
       </ul>
       </td>
       <td>
         <ul>
-          <li><a href="configs/mask_rcnn">Mask R-CNN (ICCV'2017)</a></li>
-          <li><a href="configs/cascade_rcnn">Cascade Mask R-CNN (CVPR'2018)</a></li>
-          <li><a href="configs/ms_rcnn">Mask Scoring R-CNN (CVPR'2019)</a></li>
-          <li><a href="configs/htc">Hybrid Task Cascade (CVPR'2019)</a></li>
-          <li><a href="configs/yolact">YOLACT (ICCV'2019)</a></li>
-          <li><a href="configs/instaboost">InstaBoost (ICCV'2019)</a></li>
-          <li><a href="configs/solo">SOLO (ECCV'2020)</a></li>
-          <li><a href="configs/point_rend">PointRend (CVPR'2020)</a></li>
-          <li><a href="configs/detectors">DetectoRS (CVPR'2021)</a></li>
-          <li><a href="configs/solov2">SOLOv2 (NeurIPS'2020)</a></li>
-          <li><a href="configs/scnet">SCNet (AAAI'2021)</a></li>
-          <li><a href="configs/queryinst">QueryInst (ICCV'2021)</a></li>
-          <li><a href="configs/mask2former">Mask2Former (CVPR'2022)</a></li>
+          <li>Mask R-CNN (ICCV'2017)</li>
+          <li>Cascade Mask R-CNN (CVPR'2018)</li>
+          <li>Mask Scoring R-CNN (CVPR'2019)</li>
+          <li>Hybrid Task Cascade (CVPR'2019)</li>
+          <li>YOLACT (ICCV'2019)</li>
+          <li>InstaBoost (ICCV'2019)</li>
+          <li>SOLO (ECCV'2020)</li>
+          <li>PointRend (CVPR'2020)</li>
+          <li>DetectoRS (CVPR'2021)</li>
+          <li>SOLOv2 (NeurIPS'2020)</li>
+          <li>SCNet (AAAI'2021)</li>
+          <li>QueryInst (ICCV'2021)</li>
+          <li>Mask2Former (CVPR'2022)</li>
         </ul>
       </td>
       <td>
         <ul>
-          <li><a href="configs/panoptic_fpn">Panoptic FPN (CVPR'2019)</a></li>
-          <li><a href="configs/maskformer">MaskFormer (NeurIPS'2021)</a></li>
-          <li><a href="configs/mask2former">Mask2Former (CVPR'2022)</a></li>
+          <li>Panoptic FPN (CVPR'2019)</li>
+          <li>MaskFormer (NeurIPS'2021)</li>
+          <li>Mask2Former (CVPR'2022)</li>
         </ul>
       </td>
       <td>
@@ -253,24 +248,24 @@ Results and models are available in the [model zoo](docs/en/model_zoo.md).
           <li><b>Contrastive Learning</b></li>
         <ul>
         <ul>
-          <li><a href="configs/selfsup_pretrain">SwAV (NeurIPS'2020)</a></li>
-          <li><a href="configs/selfsup_pretrain">MoCo (CVPR'2020)</a></li>
-          <li><a href="configs/selfsup_pretrain">MoCov2 (ArXiv'2020)</a></li>
+          <li>SwAV (NeurIPS'2020)</li>
+          <li>MoCo (CVPR'2020)</li>
+          <li>MoCov2 (ArXiv'2020)</li>
         </ul>
         </ul>
         </ul>
           <li><b>Distillation</b></li>
         <ul>
         <ul>
-          <li><a href="configs/ld">Localization Distillation (CVPR'2022)</a></li>
-          <li><a href="configs/lad">Label Assignment Distillation (WACV'2022)</a></li>
+          <li>Localization Distillation (CVPR'2022)</li>
+          <li>Label Assignment Distillation (WACV'2022)</li>
         </ul>
         </ul>
       </ul>
         <li><b>Receptive Field Search</b></li>
       <ul>
         <ul>
-          <li><a href="configs/rfnext">RF-Next (TPAMI'2022)</a></li>
+          <li>RF-Next (TPAMI'2022)</li>
         </ul>
         </ul>
       </ul>
@@ -307,48 +302,48 @@ Results and models are available in the [model zoo](docs/en/model_zoo.md).
         <li>ResNet (CVPR'2016)</li>
         <li>ResNeXt (CVPR'2017)</li>
         <li>MobileNetV2 (CVPR'2018)</li>
-        <li><a href="configs/hrnet">HRNet (CVPR'2019)</a></li>
-        <li><a href="configs/empirical_attention">Generalized Attention (ICCV'2019)</a></li>
-        <li><a href="configs/gcnet">GCNet (ICCVW'2019)</a></li>
-        <li><a href="configs/res2net">Res2Net (TPAMI'2020)</a></li>
-        <li><a href="configs/regnet">RegNet (CVPR'2020)</a></li>
-        <li><a href="configs/resnest">ResNeSt (CVPRW'2022)</a></li>
-        <li><a href="configs/pvt">PVT (ICCV'2021)</a></li>
-        <li><a href="configs/swin">Swin (ICCV'2021)</a></li>
-        <li><a href="configs/pvt">PVTv2 (CVMJ'2022)</a></li>
-        <li><a href="configs/resnet_strikes_back">ResNet strikes back (NeurIPSW'2021)</a></li>
-        <li><a href="configs/efficientnet">EfficientNet (ICML'2019)</a></li>
-        <li><a href="configs/convnext">ConvNeXt (CVPR'2022)</a></li>
+        <li>HRNet (CVPR'2019)</li>
+        <li>Generalized Attention (ICCV'2019)</li>
+        <li>GCNet (ICCVW'2019)</li>
+        <li>Res2Net (TPAMI'2020)</li>
+        <li>RegNet (CVPR'2020)</li>
+        <li>ResNeSt (CVPRW'2022)</li>
+        <li>PVT (ICCV'2021)</li>
+        <li>Swin (ICCV'2021)</li>
+        <li>PVTv2 (CVMJ'2022)</li>
+        <li>ResNet strikes back (NeurIPSW'2021)</li>
+        <li>EfficientNet (ICML'2019)</li>
+        <li>ConvNeXt (CVPR'2022)</li>
       </ul>
       </td>
       <td>
       <ul>
-        <li><a href="configs/pafpn">PAFPN (CVPR'2018)</a></li>
-        <li><a href="configs/nas_fpn">NAS-FPN (CVPR'2019)</a></li>
-        <li><a href="configs/carafe">CARAFE (ICCV'2019)</a></li>
-        <li><a href="configs/fpg">FPG (ArXiv'2020)</a></li>
-        <li><a href="configs/groie">GRoIE (ICPR'2020)</a></li>
-        <li><a href="configs/dyhead">DyHead (CVPR'2021)</a></li>
+        <li>PAFPN (CVPR'2018)</li>
+        <li>NAS-FPN (CVPR'2019)</li>
+        <li>CARAFE (ICCV'2019)</li>
+        <li>FPG (ArXiv'2020)</li>
+        <li>GRoIE (ICPR'2020)</li>
+        <li>DyHead (CVPR'2021)</li>
       </ul>
       </td>
       <td>
         <ul>
-          <li><a href="configs/ghm">GHM (AAAI'2019)</a></li>
-          <li><a href="configs/gfl">Generalized Focal Loss (NeurIPS'2020)</a></li>
-          <li><a href="configs/seesaw_loss">Seasaw Loss (CVPR'2021)</a></li>
+          <li>GHM (AAAI'2019)</li>
+          <li>Generalized Focal Loss (NeurIPS'2020)</li>
+          <li>Seasaw Loss (CVPR'2021)</li>
         </ul>
       </td>
       <td>
         <ul>
-          <li><a href="configs/faster_rcnn/faster_rcnn_r50_fpn_ohem_1x_coco.py">OHEM (CVPR'2016)</a></li>
-          <li><a href="configs/gn">Group Normalization (ECCV'2018)</a></li>
-          <li><a href="configs/dcn">DCN (ICCV'2017)</a></li>
-          <li><a href="configs/dcnv2">DCNv2 (CVPR'2019)</a></li>
-          <li><a href="configs/gn+ws">Weight Standardization (ArXiv'2019)</a></li>
-          <li><a href="configs/pisa">Prime Sample Attention (CVPR'2020)</a></li>
-          <li><a href="configs/strong_baselines">Strong Baselines (CVPR'2021)</a></li>
-          <li><a href="configs/resnet_strikes_back">Resnet strikes back (NeurIPSW'2021)</a></li>
-          <li><a href="configs/rfnext">RF-Next (TPAMI'2022)</a></li>
+          <li>OHEM (CVPR'2016)</li>
+          <li>Group Normalization (ECCV'2018)</li>
+          <li>DCN (ICCV'2017)</li>
+          <li>DCNv2 (CVPR'2019)</li>
+          <li>Weight Standardization (ArXiv'2019)</li>
+          <li>Prime Sample Attention (CVPR'2020)</li>
+          <li>Strong Baselines (CVPR'2021)</li>
+          <li>Resnet strikes back (NeurIPSW'2021)</li>
+          <li>RF-Next (TPAMI'2022)</li>
         </ul>
       </td>
     </tr>
@@ -357,7 +352,7 @@ Results and models are available in the [model zoo](docs/en/model_zoo.md).
   </tbody>
 </table>
 
-Some other methods are also supported in [projects using MMDetection](./docs/en/projects.md).
+See the [model zoo](https://binitai.github.io/visdet/model-zoo/) for a complete list of supported methods.
 
 ## Alternatives
 
@@ -373,11 +368,11 @@ There are several other object detection frameworks available. Below is a compar
 
 ## FAQ
 
-Please refer to [FAQ](docs/en/faq.md) for frequently asked questions.
+Please refer to the [documentation](https://binitai.github.io/visdet/) for frequently asked questions.
 
 ## Contributing
 
-We appreciate all contributions to improve MMDetection. Ongoing projects can be found in out [GitHub Projects](https://github.com/open-mmlab/mmdetection/projects). Welcome community users to participate in these projects. Please refer to [CONTRIBUTING.md](.github/CONTRIBUTING.md) for the contributing guideline.
+We appreciate all contributions to improve MMDetection. Ongoing projects can be found in our [GitHub Projects](https://github.com/open-mmlab/mmdetection/projects). Welcome community users to participate in these projects. Please refer to the [contributing guide](https://binitai.github.io/visdet/development/contributing/) for the contributing guideline.
 
 ## Acknowledgement
 
@@ -404,7 +399,7 @@ If you use this toolbox or benchmark in your research, please cite this project.
 
 ## License
 
-This project is released under the [Apache 2.0 license](LICENSE).
+This project is released under the [Apache 2.0 license](https://binitai.github.io/visdet/about/license/).
 
 ## Projects in OpenMMLab
 

@@ -25,9 +25,9 @@
 
 ### Prerequisite
 
-1. Install the prerequisites following [get_started.md/Prepare environment](../get_started.md).
+1. Install the prerequisites following the [installation guide](../getting-started/installation.md).
 2. Build custom operators for ONNX Runtime and install MMCV manually following [How to build custom operators for ONNX Runtime](https://github.com/open-mmlab/mmcv/blob/master/docs/en/deployment/onnxruntime_op.md/#how-to-build-custom-operators-for-onnx-runtime)
-3. Install MMdetection manually following steps 2-3 in [get_started.md/Install MMdetection](../get_started.md).
+3. Install MMdetection manually following the [installation guide](../getting-started/installation.md).
 
 ### Usage
 
@@ -104,7 +104,7 @@ We prepare a tool `tools/deplopyment/test.py` to evaluate ONNX models with ONNXR
 
 - Build custom operators for ONNX Runtime following [How to build custom operators for ONNX Runtime](https://github.com/open-mmlab/mmcv/blob/master/docs/en/deployment/onnxruntime_op.md/#how-to-build-custom-operators-for-onnx-runtime)
 
-- Install TensorRT by referring to [How to build TensorRT plugins in MMCV](https://mmcv.readthedocs.io/en/latest/deployment/tensorrt_plugin.html#how-to-build-tensorrt-plugins-in-mmcv) (optional)
+- Install TensorRT by referring to [How to build TensorRT plugins in MMCV](MMCV documentation) (optional)
 
 ### Usage
 
@@ -324,8 +324,8 @@ In the process of exporting the ONNX model, we set some parameters for the NMS o
 
 ## Reminders
 
-- When the input model has custom op such as `RoIAlign` and if you want to verify the exported ONNX model, you may have to build `mmcv` with [ONNXRuntime](https://mmcv.readthedocs.io/en/latest/deployment/onnxruntime_op.html) from source.
-- `mmcv.onnx.simplify` feature is based on [onnx-simplifier](https://github.com/daquexian/onnx-simplifier). If you want to try it, please refer to [onnx in `mmcv`](https://mmcv.readthedocs.io/en/latest/deployment/onnx.html) and [onnxruntime op in `mmcv`](https://mmcv.readthedocs.io/en/latest/deployment/onnxruntime_op.html) for more information.
+- When the input model has custom op such as `RoIAlign` and if you want to verify the exported ONNX model, you may have to build `mmcv` with [ONNXRuntime](MMCV documentation) from source.
+- `mmcv.onnx.simplify` feature is based on [onnx-simplifier](https://github.com/daquexian/onnx-simplifier). If you want to try it, please refer to [onnx in `mmcv`](MMCV documentation) and [onnxruntime op in `mmcv`](MMCV documentation) for more information.
 - If you meet any problem with the listed models above, please create an issue and it would be taken care of soon. For models not included in the list, please try to dig a little deeper and debug a little bit more and hopefully solve them by yourself.
 - Because this feature is experimental and may change fast, please always try with the latest `mmcv` and `mmdetecion`.
 
