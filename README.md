@@ -345,6 +345,18 @@ Results and models are available in the [model zoo](docs/en/model_zoo.md).
 
 Some other methods are also supported in [projects using MMDetection](./docs/en/projects.md).
 
+## Alternatives
+
+There are several other object detection frameworks available. Below is a comparison of popular alternatives:
+
+| Framework | Repository | Description | Key Features |
+|-----------|------------|-------------|--------------|
+| **RT-DETR** | [lyuwenyu/RT-DETR](https://github.com/lyuwenyu/RT-DETR) | | |
+| **D-FINE** | [Peterande/D-FINE](https://github.com/Peterande/D-FINE) | | |
+| **Ultralytics** | [ultralytics/ultralytics](https://github.com/ultralytics/ultralytics) | | |
+| **Detrex** | [IDEA-Research/detrex](https://github.com/IDEA-Research/detrex) | | |
+| **Detectron2** | [facebookresearch/detectron2](https://github.com/facebookresearch/detectron2) | | |
+
 ## FAQ
 
 Please refer to [FAQ](docs/en/faq.md) for frequently asked questions.
