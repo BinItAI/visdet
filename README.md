@@ -86,14 +86,41 @@ pip install visdet
 
 For detailed installation instructions, see the [Installation Guide](https://binitai.github.io/visdet/getting-started/installation/).
 
-### Basic Usage
+### Training a Model
 
 ```python
-from visdet import ...
-# Your code here
+from visdet import SimpleRunner
+
+# Simple, string-based API - just like Hugging Face or Ultralytics YOLO
+runner = SimpleRunner(
+    model='mask_rcnn_swin_s',
+    dataset='coco_instance_segmentation',
+    optimizer='adamw_8bit',
+    scheduler='1cycle'
+)
+
+runner.train()
 ```
 
-For tutorials and examples, visit the [Documentation](https://binitai.github.io/visdet/).
+**Discover available presets:**
+```python
+SimpleRunner.list_models()       # ['mask_rcnn_swin_s', ...]
+SimpleRunner.list_datasets()     # ['coco_instance_segmentation', ...]
+SimpleRunner.show_preset('mask_rcnn_swin_s')  # View full config
+```
+
+**Customize via inheritance:**
+```python
+runner = SimpleRunner(
+    model={
+        '_base_': 'mask_rcnn_swin_s',
+        'backbone': {'embed_dims': 128}  # Override specific params
+    },
+    dataset='coco_instance_segmentation'
+)
+```
+
+For more examples and tutorials, visit the [Documentation](https://binitai.github.io/visdet/).
 
 ---
 
