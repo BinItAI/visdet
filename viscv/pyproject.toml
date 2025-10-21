@@ -1,0 +1,29 @@
+[project]
+name = "viscv"
+version = "0.1.0"
+description = "Minimal computer vision operations for Swin Mask R-CNN"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy>=2.0.0",
+    "Pillow>=10.0.0",
+    "opencv-python-headless>=4.8.0",
+    "matplotlib>=3.6.0",
+    "torch==2.5.1; platform_system == 'Linux' and platform_machine == 'x86_64'",
+    "torchvision==0.20.1; platform_system == 'Linux' and platform_machine == 'x86_64'",
+    "visengine",
+]
+
+[build-system]
+requires = ["setuptools==80.9.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["viscv*"]
+
+[tool.setuptools.package-data]
+'*' = ['*.yaml', '*.json']
+
+[tool.uv.sources]
+visengine = { workspace = true }

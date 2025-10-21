@@ -1,0 +1,19 @@
+Metadata-Version: 2.4
+Name: visdet
+Version: 0.1.0
+Summary: Swin Mask R-CNN for object detection and instance segmentation
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: visengine>=0.1.0
+Requires-Dist: viscv>=0.1.0
+Requires-Dist: numpy>=2.0.0
+Requires-Dist: torch==2.5.1; platform_system == "Linux" and platform_machine == "x86_64"
+Requires-Dist: torchvision==0.20.1; platform_system == "Linux" and platform_machine == "x86_64"
+Requires-Dist: pycocotools>=2.0.0
+Requires-Dist: scipy>=1.9.0
+Requires-Dist: shapely>=2.0.0
+Requires-Dist: matplotlib>=3.6.0
+Requires-Dist: terminaltables>=3.1.0
+Requires-Dist: tqdm>=4.60.0
+Requires-Dist: parameterized>=0.8.0
+Requires-Dist: flash_window_attention>=0.1.0

@@ -1,0 +1,15 @@
+visengine>=0.1.0
+viscv>=0.1.0
+numpy>=2.0.0
+pycocotools>=2.0.0
+scipy>=1.9.0
+shapely>=2.0.0
+matplotlib>=3.6.0
+terminaltables>=3.1.0
+tqdm>=4.60.0
+parameterized>=0.8.0
+flash_window_attention>=0.1.0
+
+[:platform_system == "Linux" and platform_machine == "x86_64"]
+torch==2.5.1
+torchvision==0.20.1
