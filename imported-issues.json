@@ -8789,6 +8789,186 @@
       "fork_url": "",
       "imported_at": "2025-10-21T09:50:47.679915",
       "title": "Can't train on a custom model."
+    },
+    "1": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:57:54.300912",
+      "title": "Implement target computing methods"
+    },
+    "2": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:57:56.885822",
+      "title": "General training and testing interfaces"
+    },
+    "3": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:57:59.327080",
+      "title": "Add backbones"
+    },
+    "4": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:58:02.188050",
+      "title": "Add single-stage detectors"
+    },
+    "5": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:58:04.666067",
+      "title": "Add more normalization layers"
+    },
+    "6": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:58:07.092217",
+      "title": "Add Cascade R-CNN"
+    },
+    "13": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:58:09.434001",
+      "title": "Add high-level APIs for training and inference"
+    },
+    "15": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:58:11.767306",
+      "title": "did this paper can download \"FishNet: A Versatile Network Backbone for Image Region and Pixel Level Prediction\u201c?"
+    },
+    "22": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:58:14.150595",
+      "title": "ImportError:  roi_align_cuda"
+    },
+    "23": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:58:16.484566",
+      "title": "Is caffe-style pretrained models available?"
+    },
+    "24": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:58:18.885730",
+      "title": "Segmentation fault"
+    },
+    "25": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:58:21.351310",
+      "title": "Training with default \"configs/faster_rcnn_r50_fpn_1x.py\" only gets AP=35.6"
+    },
+    "26": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:58:23.827336",
+      "title": "Support for PASCAL VOC?"
+    },
+    "27": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:58:26.316430",
+      "title": "FishNet backbone and Guided Anchoring?"
+    },
+    "29": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:58:28.865513",
+      "title": "How to train with cityscapes dataset?"
+    },
+    "30": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:58:31.302899",
+      "title": "Pytorch 1.0 support feature"
+    },
+    "34": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:58:33.671313",
+      "title": "CPU support?"
+    },
+    "36": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:58:36.017743",
+      "title": "The parameter 'validate' is not work."
+    },
+    "37": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:58:38.387370",
+      "title": "Evaluation segmentation API not work?"
+    },
+    "38": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:58:40.827478",
+      "title": "Evaluation segmentation API not work?"
+    },
+    "39": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:58:43.220278",
+      "title": "Where does the 'weight' as the input of the Focal Loss come from? "
+    },
+    "40": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:58:45.556074",
+      "title": "RuntimeError: arguments are located on different GPUs when test"
+    },
+    "41": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:58:47.894931",
+      "title": "run '.\\datasets\\loader\\build_loader.py', ModuleNotFoundError: No module named 'resource'"
+    },
+    "42": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:58:50.406610",
+      "title": "when to support cpu predict?"
+    },
+    "43": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:58:52.753085",
+      "title": "Does the project support Fast RCNN"
+    },
+    "45": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:58:55.205581",
+      "title": "How to train/eval simultaneously on multiple COCO-style datasets?"
+    },
+    "46": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:58:57.686576",
+      "title": "error when testing"
+    },
+    "47": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:59:00.431877",
+      "title": "how to create results.pkl?"
+    },
+    "48": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:59:02.912142",
+      "title": "undefined symbol: _ZN2at5ErrorC1ENS_14SourceLocationESs"
+    },
+    "49": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:59:05.549212",
+      "title": "ERROR: Unexpected segmentation fault encountered in worker."
+    },
+    "52": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:59:08.412321",
+      "title": "BUG REPORT for convfc_bbox_head.py"
+    },
+    "53": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:59:11.025664",
+      "title": "Has this code been tested with cuda 10.0?"
+    },
+    "55": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:59:13.450052",
+      "title": "Can I use mmdetection to train CornerNet?"
+    },
+    "56": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:59:15.864482",
+      "title": "Cannot train a (faster + res50 + fpn) model with similar mAP using one GPU"
+    },
+    "57": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:59:18.325789",
+      "title": "RetinaNet"
+    },
+    "58": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:59:20.768464",
+      "title": "Strange behaviours when training with imgs_per_gpu=3."
     }
   }
 }

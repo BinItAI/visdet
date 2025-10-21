@@ -21,7 +21,7 @@ UPSTREAM_REPO = "open-mmlab/mmdetection"
 FORK_REPO = "BinItAI/visdet"
 UPSTREAM_LABEL = "from-mmdetection"
 TRACKING_FILE = "imported-issues.json"
-RATE_LIMIT_DELAY = 1.5  # seconds between issue creation
+RATE_LIMIT_DELAY = 10  # seconds between issue creation (increased to avoid GitHub secondary rate limits)
 
 
 def run_gh_command(args: list[str]) -> str:
@@ -65,41 +65,81 @@ def ensure_label_exists() -> None:
 
 
 def fetch_upstream_issues() -> list[dict[str, Any]]:
-    """Fetch all open issues from the upstream repository."""
-    print(f"Fetching open issues from {UPSTREAM_REPO}...")
+    """Fetch all issues (open and closed) from the upstream repository using GraphQL pagination."""
+    print(f"Fetching all issues from {UPSTREAM_REPO}...")
 
+    owner, repo = UPSTREAM_REPO.split("/")
     all_issues = []
-    page_size = 1000
+    has_next_page = True
+    cursor = None
     page = 1
 
-    while True:
-        print(f"  Fetching page {page} (limit: {page_size})...")
+    while has_next_page:
+        print(f"  Fetching page {page}...")
+
+        # Build GraphQL query with pagination
+        after_clause = f', after: "{cursor}"' if cursor else ""
+        query = f"""
+        {{
+          repository(owner: "{owner}", name: "{repo}") {{
+            issues(first: 100{after_clause}, orderBy: {{field: CREATED_AT, direction: ASC}}) {{
+              pageInfo {{
+                hasNextPage
+                endCursor
+              }}
+              nodes {{
+                number
+                title
+                body
+                url
+                createdAt
+                updatedAt
+                state
+                labels(first: 10) {{
+                  nodes {{
+                    name
+                  }}
+                }}
+              }}
+            }}
+          }}
+        }}
+        """
+
         try:
-            # Calculate the starting issue number based on page
-            # Note: We need to use --limit with a large enough value to get all issues
-            # GitHub CLI doesn't have great pagination support, so we'll try 10000
-            output = run_gh_command(
-                [
-                    "issue",
-                    "list",
-                    "--repo",
-                    UPSTREAM_REPO,
-                    "--state",
-                    "open",
-                    "--limit",
-                    "10000",  # Increased limit to fetch all issues
-                    "--json",
-                    "number,title,body,labels,createdAt,updatedAt,url",
-                ]
-            )
-            issues = json.loads(output)
-            all_issues = issues  # Since we're fetching all at once now
-            break
+            output = run_gh_command(["api", "graphql", "-f", f"query={query}"])
+            result = json.loads(output)
+
+            issues_data = result["data"]["repository"]["issues"]
+            nodes = issues_data["nodes"]
+
+            # Convert GraphQL format to match the CLI format
+            for node in nodes:
+                issue = {
+                    "number": node["number"],
+                    "title": node["title"],
+                    "body": node.get("body", ""),
+                    "url": node["url"],
+                    "createdAt": node["createdAt"],
+                    "updatedAt": node["updatedAt"],
+                    "state": node["state"],
+                    "labels": [{"name": label["name"]} for label in node["labels"]["nodes"]],
+                }
+                all_issues.append(issue)
+
+            # Update pagination info
+            page_info = issues_data["pageInfo"]
+            has_next_page = page_info["hasNextPage"]
+            cursor = page_info["endCursor"]
+            page += 1
+
+            print(f"    Fetched {len(nodes)} issues (total so far: {len(all_issues)})")
+
         except subprocess.CalledProcessError as e:
             print(f"  Error fetching issues: {e}")
             raise
 
-    print(f"✓ Found {len(all_issues)} open issues")
+    print(f"✓ Found {len(all_issues)} issues")
     return all_issues
 
 
@@ -123,9 +163,11 @@ def format_issue_body(issue: dict[str, Any]) -> str:
     original_url = issue["url"]
     created_at = datetime.fromisoformat(issue["createdAt"].replace("Z", "+00:00"))
     updated_at = datetime.fromisoformat(issue["updatedAt"].replace("Z", "+00:00"))
+    state = issue.get("state", "OPEN")
 
     body_parts = [
         f"**Original issue:** {original_url}",
+        f"**State in upstream:** {state}",
         f"**Created:** {created_at.strftime('%Y-%m-%d')}",
         f"**Last updated:** {updated_at.strftime('%Y-%m-%d')}",
         "",
@@ -165,15 +207,34 @@ def create_issue(issue: dict[str, Any]) -> str:
             UPSTREAM_LABEL,  # Always add the upstream label
         ]
 
-        output = run_gh_command(cmd)
-        fork_issue_url = output.strip()
+        run_gh_command(cmd)
+
+        # gh issue create doesn't always output URL in non-interactive mode
+        # Fetch the latest issue to get the number
+        latest_output = run_gh_command(
+            [
+                "issue",
+                "list",
+                "--repo",
+                FORK_REPO,
+                "--limit",
+                "1",
+                "--state",
+                "all",
+                "--json",
+                "number,url",
+            ]
+        )
+        latest_issues = json.loads(latest_output)
+        if not latest_issues:
+            raise ValueError("No issues found after creation")
+
+        issue_number = str(latest_issues[0]["number"])
+        fork_issue_url = latest_issues[0]["url"]
+
     finally:
         # Clean up the temporary file
         Path(body_file).unlink(missing_ok=True)
-
-    # Try to add other labels if they exist
-    # Extract issue number from URL
-    issue_number = fork_issue_url.split("/")[-1]
 
     if issue.get("labels"):
         for label in issue["labels"]:
@@ -195,7 +256,26 @@ def create_issue(issue: dict[str, Any]) -> str:
                 # Label doesn't exist in fork, skip it
                 pass
 
-    print(f"  ✓ Created: {fork_issue_url}")
+    # Close the issue if it was closed in upstream
+    if issue.get("state") == "CLOSED":
+        try:
+            run_gh_command(
+                [
+                    "issue",
+                    "close",
+                    issue_number,
+                    "--repo",
+                    FORK_REPO,
+                    "--reason",
+                    "completed",
+                ]
+            )
+            print(f"  ✓ Created and closed: {fork_issue_url}")
+        except subprocess.CalledProcessError:
+            print(f"  ✓ Created (failed to close): {fork_issue_url}")
+    else:
+        print(f"  ✓ Created: {fork_issue_url}")
+
     return fork_issue_url
 
 
