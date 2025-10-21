@@ -131,7 +131,13 @@ Find more new features in [3.x branch](https://github.com/open-mmlab/mmdetection
 
 ## Installation
 
-Please refer to [Installation](docs/en/get_started.md/#Installation) for installation instructions.
+Install visdet using [uv](https://docs.astral.sh/uv/):
+
+```bash
+uv pip install visdet
+```
+
+For detailed installation instructions including development setup, please refer to [Installation](https://binitai.github.io/visdet/getting-started/installation/).
 
 ## Getting Started
 
