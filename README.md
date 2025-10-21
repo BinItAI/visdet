@@ -38,6 +38,11 @@ English | [简体中文](README_zh-CN.md)
   <a href="https://www.youtube.com/openmmlab" style="text-decoration:none;">
     <img src="https://user-images.githubusercontent.com/25839884/218346691-ceb2116a-465a-40af-8424-9f30d2348ca9.png" width="3%" alt="" /></a>
 </div>
+
+> **Note**: This is a fork of the MMDetection library, customized for internal use at [Visia](https://www.visia.ai/). The original project can be found at https://github.com/open-mmlab/mmdetection
+>
+> Maintained by the Visia ML Engineering team
+
 ## Introduction
 
 MMDetection is an open source object detection toolbox based on PyTorch. It is
