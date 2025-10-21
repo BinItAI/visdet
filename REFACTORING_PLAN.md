@@ -37,7 +37,7 @@ Created wrapper files to support dotted imports like `from visdet.cv.transforms 
 - ✅ `ops.py`
 - ✅ `image.py`
 
-**visdet/engine/** (14 submodules):
+**visdet/engine/** (15 submodules):
 - ✅ `registry.py`
 - ✅ `structures.py`
 - ✅ `utils.py`
@@ -51,6 +51,7 @@ Created wrapper files to support dotted imports like `from visdet.cv.transforms 
 - ✅ `dist.py`
 - ✅ `infer.py`
 - ✅ `evaluator.py`
+- ✅ `hooks.py`
 
 Each file follows the pattern:
 ```python
@@ -96,7 +97,7 @@ cd libs/visengine && uv pip install -e .
 - `ops` (4 uses)
 - `image` (1 use)
 
-**visengine submodules** (14 total, 120+ usages):
+**visengine submodules** (15 total, 120+ usages):
 - `registry` (24 uses)
 - `structures` (21 uses)
 - `utils` (14 uses)
@@ -108,8 +109,8 @@ cd libs/visengine && uv pip install -e .
 - `runner` (4 uses)
 - `visualization` (3 uses)
 - `dist` (3 uses)
-- `infer` (1 use)
 - `hooks` (1 use)
+- `infer` (1 use)
 - `evaluator` (1 use)
 
 ---
@@ -180,12 +181,14 @@ Execute in 5 domain-based groups for easier rollback:
 
 ### Testing After Each Group
 
+**Prerequisites**: Activate virtual environment and ensure dependencies are installed in editable mode.
+
 ```bash
 # 1. Run import smoke test
-/home/georgepearse/visdet/.venv/bin/python scripts/test_import_smoke.py
+python scripts/test_import_smoke.py
 
 # 2. Run relevant tests for that group
-/home/georgepearse/visdet/.venv/bin/pytest visdet/tests/test_models/  # for Group 3, etc.
+pytest visdet/tests/test_models/  # for Group 3, etc.
 
 # 3. Type check with mypy (per CLAUDE.md)
 mypy visdet/visdet/models/  # for Group 3, etc.
@@ -332,8 +335,41 @@ This can be deferred to reduce immediate scope.
 - ✅ `visdet/visdet/engine/dist.py`
 - ✅ `visdet/visdet/engine/infer.py`
 - ✅ `visdet/visdet/engine/evaluator.py`
+- ✅ `visdet/visdet/engine/hooks.py`
 - ✅ `scripts/test_import_smoke.py`
 - ✅ `REFACTORING_PLAN.md` (this file)
+
+---
+
+## Gemini 2.5 Pro Review (Phase 0)
+
+**Review Date**: October 21, 2025
+**Reviewer**: Gemini 2.5 Pro (via Zen MCP)
+**Verdict**: Phase 0 work is excellent with minor fixes required
+
+### Issues Found & Fixed
+
+**🔴 CRITICAL** (Fixed):
+- Missing `visdet/engine/hooks.py` wrapper - Created ✅
+
+**🟠 HIGH** (Fixed):
+- Hardcoded absolute paths in smoke test - Removed ✅
+
+**🟡 MEDIUM** (Fixed):
+- `exec()` usage replaced with `importlib.import_module()` ✅
+- Test function duplication eliminated via `_test_submodules()` helper ✅
+- Documentation paths made environment-agnostic ✅
+
+### Positive Feedback
+
+Gemini praised:
+- "Exceptional Planning" - REFACTORING_PLAN.md is a model of clarity
+- "Correct Architectural Pattern" - Wrapper approach is industry-standard
+- "Robust Tooling Choice" - LibCST selection is correct and modern
+- "Comprehensive Testing Strategy" - Multiple validation layers
+- "Proactive Regression Prevention" - CI enforcement planned from start
+
+**Status**: All Gemini-identified issues have been addressed ✅
 
 ---
 

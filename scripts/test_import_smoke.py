@@ -6,41 +6,51 @@ This test verifies that:
 1. All visdet.cv.* imports work
 2. All visdet.engine.* imports work
 3. The wrapper modules correctly re-export upstream functionality
+
+Usage:
+    Run from project root with dependencies installed in editable mode:
+    $ python scripts/test_import_smoke.py
 """
 
+import importlib
 import sys
 from typing import List, Tuple
 
 
+def _test_submodules(parent_module: str, submodules: List[str]) -> List[Tuple[str, bool, str]]:
+    """Generic helper to test submodules of a given parent module.
+
+    Args:
+        parent_module: Parent module name (e.g., "cv" or "engine")
+        submodules: List of submodule names to test
+
+    Returns:
+        List of (module_name, success, message) tuples
+    """
+    results = []
+    for submod in submodules:
+        module_name = f"visdet.{parent_module}.{submod}"
+        try:
+            importlib.import_module(module_name)
+            results.append((module_name, True, "OK"))
+        except Exception as e:
+            results.append((module_name, False, str(e)))
+    return results
+
+
 def test_cv_submodules() -> List[Tuple[str, bool, str]]:
     """Test that all visdet.cv submodules can be imported."""
-    results = []
-
     cv_submodules = [
         "transforms",
         "cnn",
         "ops",
         "image",
     ]
-
-    for submod in cv_submodules:
-        try:
-            # Import the mirror module directly
-            import sys
-
-            sys.path.insert(0, "/home/georgepearse/visdet/visdet")
-            exec(f"import visdet.cv.{submod}")
-            results.append((f"visdet.cv.{submod}", True, "OK"))
-        except Exception as e:
-            results.append((f"visdet.cv.{submod}", False, str(e)))
-
-    return results
+    return _test_submodules("cv", cv_submodules)
 
 
 def test_engine_submodules() -> List[Tuple[str, bool, str]]:
     """Test that all visdet.engine submodules can be imported."""
-    results = []
-
     engine_submodules = [
         "registry",
         "structures",
@@ -55,20 +65,9 @@ def test_engine_submodules() -> List[Tuple[str, bool, str]]:
         "dist",
         "infer",
         "evaluator",
+        "hooks",  # Added per Gemini review
     ]
-
-    for submod in engine_submodules:
-        try:
-            # Import the mirror module directly
-            import sys
-
-            sys.path.insert(0, "/home/georgepearse/visdet/visdet")
-            exec(f"import visdet.engine.{submod}")
-            results.append((f"visdet.engine.{submod}", True, "OK"))
-        except Exception as e:
-            results.append((f"visdet.engine.{submod}", False, str(e)))
-
-    return results
+    return _test_submodules("engine", engine_submodules)
 
 
 def test_top_level_imports() -> List[Tuple[str, bool, str]]:
