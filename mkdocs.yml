@@ -12,6 +12,8 @@ site_dir: site
 
 theme:
   name: material
+  logo: https://ik.imagekit.io/binit/visia-website/visia-logo-white-1.svg
+  favicon: https://www.visia.ai/favicon.ico
   palette:
     # Palette toggle for light mode
     - media: "(prefers-color-scheme: light)"
