@@ -49,6 +49,24 @@ This makes visdet significantly easier to install and deploy compared to the ori
 
 ---
 
+## 🧠 Modern Training Philosophy
+
+visdet draws inspiration from the pioneering work of **fast.ai**, which demonstrated that common-sense training techniques could dramatically improve both accessibility and performance in deep learning. The abandoned **icevision** project attempted to bring these ideas to object detection but is no longer maintained.
+
+**We're continuing that mission** by porting battle-tested techniques from image classification and LLM training:
+
+- **Progressive Image Resizing**: Start training with smaller images, gradually increase resolution for faster convergence and better performance
+- **Learning Rate Finders**: Automatically discover optimal learning rates instead of manual tuning
+- **Discriminative Learning Rates**: Apply different learning rates to different network layers
+- **1cycle Learning Rate Schedules**: Achieve better generalization with cyclical learning rates
+- **Modern Fine-tuning Techniques**: Bringing approaches from LLM training (LoRA-style adaptations) to object detection
+
+These techniques are proven in image classification and LLM fine-tuning but have been largely absent from object detection frameworks. visdet aims to make them **accessible and practical** for detection tasks, with sensible defaults and clear documentation.
+
+> **Philosophy**: If a technique works reliably for ImageNet classification or LLM fine-tuning, it should work for object detection too. We're bringing the best ideas from across deep learning to vision tasks.
+
+---
+
 ## 🚀 Quick Start
 
 ### Installation
