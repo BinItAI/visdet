@@ -5,9 +5,9 @@ site_url: https://binitai.github.io/visdet/
 
 repo_name: BinItAI/visdet
 repo_url: https://github.com/BinItAI/visdet
-edit_uri: edit/master/mkdocs_docs/
+edit_uri: edit/master/docs/
 
-docs_dir: mkdocs_docs
+docs_dir: docs
 site_dir: site
 
 theme:

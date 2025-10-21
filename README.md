@@ -42,6 +42,15 @@ English | [简体中文](README_zh-CN.md)
 >
 > Maintained by the Visia ML Engineering team
 
+## Key Improvements in visdet
+
+**Simplified Installation & Dependencies**
+- **Integrated Dependencies**: MMCV and MMEngine are bundled directly into the package, eliminating complex multi-package dependency management
+- **No Custom CUDA Required**: All custom CUDA operations have been removed, making installation straightforward with just `pip install visdet`
+- **Python-Only Implementation**: Pure Python/PyTorch implementation means faster installation and better compatibility across different environments
+
+This makes visdet significantly easier to install and deploy compared to the original MMDetection, which required careful coordination of multiple packages and custom CUDA compilation.
+
 ## Introduction
 
 MMDetection is an open source object detection toolbox based on PyTorch. It is
