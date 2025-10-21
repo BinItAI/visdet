@@ -94,6 +94,7 @@ nav:
   - Getting Started:
       - Installation: getting-started/installation.md
       - Quick Start: getting-started/quick-start.md
+  - Model Zoo: model-zoo.md
   - User Guide:
       - Training: user-guide/training.md
       - Inference: user-guide/inference.md
