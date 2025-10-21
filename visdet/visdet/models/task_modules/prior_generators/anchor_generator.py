@@ -11,7 +11,7 @@ import numpy as np
 # ruff: noqa
 # type: ignore
 import torch
-from visengine.utils import is_tuple_of
+from visdet.engine.utils import is_tuple_of
 from torch import Tensor
 from torch.nn.modules.utils import _pair
 

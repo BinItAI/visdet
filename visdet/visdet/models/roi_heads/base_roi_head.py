@@ -2,8 +2,8 @@
 from abc import ABCMeta, abstractmethod
 
 from torch import Tensor
-from visengine.model import BaseModule
 
+from visdet.engine.model import BaseModule
 from visdet.registry import MODELS
 from visdet.structures import SampleList
 from visdet.utils import InstanceList, OptConfigType, OptMultiConfig

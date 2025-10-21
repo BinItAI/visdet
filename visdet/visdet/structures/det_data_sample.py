@@ -3,7 +3,7 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 from typing import Optional
 
-from visengine.structures import BaseDataElement, InstanceData, PixelData
+from visdet.engine.structures import BaseDataElement, InstanceData, PixelData
 
 
 class DetDataSample(BaseDataElement):

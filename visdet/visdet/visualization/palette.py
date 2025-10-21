@@ -2,7 +2,7 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 
 import numpy as np
-from visengine.utils import is_str
+from visdet.engine.utils import is_str
 
 
 def palette_val(palette: list[tuple]) -> list[tuple]:

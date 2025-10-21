@@ -6,9 +6,9 @@ from os.path import dirname, exists, join
 
 import numpy as np
 import torch
-from visengine.config import Config
-from visengine.dataset import pseudo_collate
-from visengine.structures import InstanceData, PixelData
+from visdet.engine.config import Config
+from visdet.engine.dataset import pseudo_collate
+from visdet.engine.structures import InstanceData, PixelData
 
 from ..registry import TASK_UTILS
 from ..structures import DetDataSample

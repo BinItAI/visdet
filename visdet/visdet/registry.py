@@ -10,27 +10,27 @@ More details can be found at
 https://mmengine.readthedocs.io/en/latest/tutorials/registry.html.
 """
 
-from visengine.registry import DATA_SAMPLERS as VISENGINE_DATA_SAMPLERS
-from visengine.registry import DATASETS as VISENGINE_DATASETS
-from visengine.registry import EVALUATOR as VISENGINE_EVALUATOR
-from visengine.registry import HOOKS as VISENGINE_HOOKS
-from visengine.registry import LOG_PROCESSORS as VISENGINE_LOG_PROCESSORS
-from visengine.registry import LOOPS as VISENGINE_LOOPS
-from visengine.registry import METRICS as VISENGINE_METRICS
-from visengine.registry import MODEL_WRAPPERS as VISENGINE_MODEL_WRAPPERS
-from visengine.registry import MODELS as VISENGINE_MODELS
-from visengine.registry import OPTIM_WRAPPER_CONSTRUCTORS as VISENGINE_OPTIM_WRAPPER_CONSTRUCTORS
-from visengine.registry import OPTIM_WRAPPERS as VISENGINE_OPTIM_WRAPPERS
-from visengine.registry import OPTIMIZERS as VISENGINE_OPTIMIZERS
-from visengine.registry import PARAM_SCHEDULERS as VISENGINE_PARAM_SCHEDULERS
-from visengine.registry import RUNNER_CONSTRUCTORS as VISENGINE_RUNNER_CONSTRUCTORS
-from visengine.registry import RUNNERS as VISENGINE_RUNNERS
-from visengine.registry import TASK_UTILS as VISENGINE_TASK_UTILS
-from visengine.registry import TRANSFORMS as VISENGINE_TRANSFORMS
-from visengine.registry import VISBACKENDS as VISENGINE_VISBACKENDS
-from visengine.registry import VISUALIZERS as VISENGINE_VISUALIZERS
-from visengine.registry import WEIGHT_INITIALIZERS as VISENGINE_WEIGHT_INITIALIZERS
-from visengine.registry import Registry
+from visdet.engine.registry import DATA_SAMPLERS as VISENGINE_DATA_SAMPLERS
+from visdet.engine.registry import DATASETS as VISENGINE_DATASETS
+from visdet.engine.registry import EVALUATOR as VISENGINE_EVALUATOR
+from visdet.engine.registry import HOOKS as VISENGINE_HOOKS
+from visdet.engine.registry import LOG_PROCESSORS as VISENGINE_LOG_PROCESSORS
+from visdet.engine.registry import LOOPS as VISENGINE_LOOPS
+from visdet.engine.registry import METRICS as VISENGINE_METRICS
+from visdet.engine.registry import MODEL_WRAPPERS as VISENGINE_MODEL_WRAPPERS
+from visdet.engine.registry import MODELS as VISENGINE_MODELS
+from visdet.engine.registry import OPTIM_WRAPPER_CONSTRUCTORS as VISENGINE_OPTIM_WRAPPER_CONSTRUCTORS
+from visdet.engine.registry import OPTIM_WRAPPERS as VISENGINE_OPTIM_WRAPPERS
+from visdet.engine.registry import OPTIMIZERS as VISENGINE_OPTIMIZERS
+from visdet.engine.registry import PARAM_SCHEDULERS as VISENGINE_PARAM_SCHEDULERS
+from visdet.engine.registry import RUNNER_CONSTRUCTORS as VISENGINE_RUNNER_CONSTRUCTORS
+from visdet.engine.registry import RUNNERS as VISENGINE_RUNNERS
+from visdet.engine.registry import TASK_UTILS as VISENGINE_TASK_UTILS
+from visdet.engine.registry import TRANSFORMS as VISENGINE_TRANSFORMS
+from visdet.engine.registry import VISBACKENDS as VISENGINE_VISBACKENDS
+from visdet.engine.registry import VISUALIZERS as VISENGINE_VISUALIZERS
+from visdet.engine.registry import WEIGHT_INITIALIZERS as VISENGINE_WEIGHT_INITIALIZERS
+from visdet.engine.registry import Registry
 
 # manage all kinds of runners like `EpochBasedRunner` and `IterBasedRunner`
 RUNNERS = Registry("runner", parent=VISENGINE_RUNNERS, locations=["visengine.runner"])

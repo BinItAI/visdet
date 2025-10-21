@@ -1,5 +1,5 @@
 # Copyright (c) OpenMMLab. All rights reserved.
-from visengine.utils import is_str
+from visdet.engine.utils import is_str
 
 
 def wider_face_classes() -> list:

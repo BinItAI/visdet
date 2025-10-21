@@ -20,10 +20,15 @@ All visengine functionality is re-exported here for backwards compatibility
 and namespace consistency within the visdet package.
 """
 
-from . import hooks
-
 # Re-export all visengine functionality
 from visengine import *  # noqa: F401, F403
 
-# Keep hooks in __all__ for visdet-specific functionality
-__all__ = ["hooks"]
+# NOTE: We don't eagerly import hooks here to avoid circular imports.
+# The hooks package can still be accessed via explicit import:
+#   from visdet.engine import hooks
+# or:
+#   from visdet.engine.hooks import DetVisualizationHook
+#
+# Uncomment this if needed (but it causes circular imports with visengine):
+# from . import hooks
+# __all__ = ["hooks"]

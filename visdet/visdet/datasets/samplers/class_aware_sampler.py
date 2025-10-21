@@ -6,9 +6,9 @@ from typing import Dict, Optional, Union
 import numpy as np
 import torch
 from torch.utils.data import Sampler
-from visengine.dataset import BaseDataset
-from visengine.dist import get_dist_info, sync_random_seed
 
+from visdet.engine.dataset import BaseDataset
+from visdet.engine.dist import get_dist_info, sync_random_seed
 from visdet.registry import DATA_SAMPLERS
 
 

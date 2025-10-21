@@ -10,7 +10,7 @@ from typing import Optional
 import torch
 from torch import Tensor
 
-from visengine.logging import MMLogger
+from visdet.engine.logging import MMLogger
 from visdet.registry import MODELS
 from visdet.structures import DetDataSample
 from visdet.utils.typing_utils import ConfigType, OptConfigType, OptMultiConfig

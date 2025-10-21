@@ -4,7 +4,7 @@
 import datetime
 import warnings
 
-from visengine.registry import DefaultScope  # type: ignore
+from visdet.engine.registry import DefaultScope  # type: ignore
 
 
 def register_all_modules(init_default_scope: bool = True) -> None:

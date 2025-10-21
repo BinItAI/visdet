@@ -8,9 +8,9 @@ import urllib
 import warnings
 
 import torch
-from visengine.config import Config, ConfigDict
-from visengine.logging import print_log
-from visengine.utils import scandir
+from visdet.engine.config import Config, ConfigDict
+from visdet.engine.logging import print_log
+from visdet.engine.utils import scandir
 
 IMG_EXTENSIONS = (
     ".jpg",

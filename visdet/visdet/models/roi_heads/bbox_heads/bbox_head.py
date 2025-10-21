@@ -5,10 +5,10 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch import Tensor
 from torch.nn.modules.utils import _pair
-from visengine.config import ConfigDict
-from visengine.model import BaseModule
-from visengine.structures import InstanceData
 
+from visdet.engine.config import ConfigDict
+from visdet.engine.model import BaseModule
+from visdet.engine.structures import InstanceData
 from visdet.models.layers import multiclass_nms
 from visdet.models.losses import accuracy
 from visdet.models.task_modules.samplers import SamplingResult

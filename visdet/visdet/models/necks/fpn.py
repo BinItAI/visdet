@@ -4,9 +4,9 @@
 
 import torch.nn as nn
 import torch.nn.functional as F
-from visengine.model import BaseModule
+from visdet.engine.model import BaseModule
 from torch import Tensor
-from viscv.cnn import ConvModule
+from visdet.cv.cnn import ConvModule
 
 from visdet.registry import MODELS
 from typing import Optional, Union, List

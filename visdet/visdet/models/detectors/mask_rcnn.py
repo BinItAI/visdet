@@ -3,7 +3,7 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 """Mask R-CNN implementation for visdet."""
 
-from visengine.config import ConfigDict
+from visdet.engine.config import ConfigDict
 
 from visdet.registry import MODELS
 from visdet.utils.typing_utils import OptConfigType, OptMultiConfig

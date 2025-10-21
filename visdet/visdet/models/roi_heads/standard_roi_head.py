@@ -5,7 +5,7 @@ import torch.nn as nn
 from visdet.registry import MODELS, TASK_UTILS
 from visdet.structures.bbox import bbox2roi
 from visdet.models.utils import empty_instances, unpack_gt_instances
-from visengine.structures import InstanceData
+from visdet.engine.structures import InstanceData
 from visdet.utils.typing_utils import ConfigType
 from visdet.utils import InstanceList, OptConfigType, OptMultiConfig
 from visdet.structures import DetDataSample, SampleList

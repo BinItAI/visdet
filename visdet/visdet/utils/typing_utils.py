@@ -6,8 +6,8 @@
 from collections.abc import Sequence
 from typing import Optional, Union
 
-from visengine.config import ConfigDict
-from visengine.structures import InstanceData, PixelData
+from visdet.engine.config import ConfigDict
+from visdet.engine.structures import InstanceData, PixelData
 
 # TODO: Need to avoid circular import with assigner and sampler
 # Type hint of config data

@@ -4,8 +4,8 @@
 from multiprocessing import Pool
 
 import numpy as np
-from visengine.logging import print_log
-from visengine.utils import is_str
+from visdet.engine.logging import print_log
+from visdet.engine.utils import is_str
 from terminaltables import AsciiTable
 
 from .bbox_overlaps import bbox_overlaps

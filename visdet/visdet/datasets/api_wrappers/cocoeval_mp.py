@@ -8,7 +8,8 @@ import numpy as np
 import torch.multiprocessing as mp
 from pycocotools.cocoeval import COCOeval
 from tqdm import tqdm
-from visengine.logging import MMLogger
+
+from visdet.engine.logging import MMLogger
 
 
 class COCOevalMP(COCOeval):

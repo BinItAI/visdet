@@ -7,7 +7,7 @@ from collections.abc import Sequence
 from typing import TypeVar
 
 import cv2
-import viscv
+import visdet.cv as viscv
 import numpy as np
 import pycocotools.mask as maskUtils
 import shapely.geometry as geometry
@@ -365,7 +365,7 @@ class BitmapMasks(BaseInstanceMasks):
         binarize=True,
     ):
         # Only import when needed
-        from viscv.ops.roi_align import roi_align
+        from visdet.cv.ops.roi_align import roi_align
 
         """See :func:`BaseInstanceMasks.crop_and_resize`."""
         if len(self.masks) == 0:

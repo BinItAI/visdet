@@ -4,12 +4,12 @@ from typing import Optional, Tuple, Union
 import numpy as np
 import pycocotools.mask as maskUtils
 import torch
-from viscv.transforms import BaseTransform, LoadImageFromFile
-from viscv.transforms import LoadAnnotations as MMCV_LoadAnnotations
-from visengine.fileio import get
-from visengine.structures import BaseDataElement
 
-import viscv
+import visdet.cv as viscv
+from visdet.cv.transforms import BaseTransform, LoadImageFromFile
+from visdet.cv.transforms import LoadAnnotations as MMCV_LoadAnnotations
+from visdet.engine.fileio import get
+from visdet.engine.structures import BaseDataElement
 from visdet.registry import TRANSFORMS
 from visdet.structures.bbox import get_box_type
 from visdet.structures.bbox.box_type import autocast_box_type

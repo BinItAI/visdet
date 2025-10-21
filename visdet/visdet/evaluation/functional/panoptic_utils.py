@@ -9,9 +9,9 @@
 import multiprocessing
 import os
 
-import viscv
+import visdet.cv as viscv
 import numpy as np
-from visengine.fileio import get
+from visdet.engine.fileio import get
 
 # A custom value to distinguish instance ID and category ID; need to
 # be greater than the number of categories.

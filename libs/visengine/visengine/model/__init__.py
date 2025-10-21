@@ -46,14 +46,14 @@ __all__ = [
     "BaseModule",
     "Caffe2XavierInit",
     "ConstantInit",
-    "ExponentialMovingAverage",
+    # "ExponentialMovingAverage",  # Not imported - EMA is in hooks module
     "ImgDataPreprocessor",
     "KaimingInit",
     "MMDistributedDataParallel",
     "MMSeparateDistributedDataParallel",
     "ModuleDict",
     "ModuleList",
-    "MomentumAnnealingEMA",
+    # "MomentumAnnealingEMA",  # Not imported - EMA is in hooks module
     "NormalInit",
     "PretrainedInit",
     "Sequential",

@@ -9,11 +9,11 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from visengine.dist import barrier, broadcast, get_dist_info
-from visengine.logging import MessageHub, MMLogger
-from visengine.model import BaseDataPreprocessor, ImgDataPreprocessor
-from visengine.structures import PixelData
-from visengine.utils import is_seq_of
+from visdet.engine.dist import barrier, broadcast, get_dist_info
+from visdet.engine.logging import MessageHub, MMLogger
+from visdet.engine.model import BaseDataPreprocessor, ImgDataPreprocessor
+from visdet.engine.structures import PixelData
+from visdet.engine.utils import is_seq_of
 from torch import Tensor
 
 from visdet.models.utils import unfold_wo_center

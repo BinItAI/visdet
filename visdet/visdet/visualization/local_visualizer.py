@@ -4,11 +4,11 @@ from typing import Dict, List, Optional, Tuple, Union
 import cv2
 import numpy as np
 import torch
-from visengine.dist import master_only
-from visengine.structures import InstanceData, PixelData
-from visengine.visualization import Visualizer
 
-import viscv
+import visdet.cv as viscv
+from visdet.engine.dist import master_only
+from visdet.engine.structures import InstanceData, PixelData
+from visdet.engine.visualization import Visualizer
 
 from ..evaluation import INSTANCE_OFFSET
 from ..registry import VISUALIZERS

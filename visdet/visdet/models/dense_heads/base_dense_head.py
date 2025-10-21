@@ -6,11 +6,11 @@ from typing import List, Optional, Tuple
 
 import torch
 from torch import Tensor
-from viscv.ops import batched_nms
-from visengine.config import ConfigDict
-from visengine.model import BaseModule, constant_init
-from visengine.structures import InstanceData
 
+from visdet.cv.ops import batched_nms
+from visdet.engine.config import ConfigDict
+from visdet.engine.model import BaseModule, constant_init
+from visdet.engine.structures import InstanceData
 from visdet.structures import SampleList
 from visdet.structures.bbox import cat_boxes, get_box_tensor, get_box_wh, scale_boxes
 from visdet.utils import InstanceList, OptMultiConfig

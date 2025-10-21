@@ -4,7 +4,7 @@
 import numpy as np
 import pycocotools.mask as mask_util
 import torch
-from visengine.utils import slice_list
+from visdet.engine.utils import slice_list
 
 
 def split_combined_polys(polys, poly_lens, polys_per_mask):

@@ -2,9 +2,9 @@
 
 import torch.nn as nn
 from torch import Tensor
-from viscv.cnn import ConvModule
-from visengine.config import ConfigDict
 
+from visdet.cv.cnn import ConvModule
+from visdet.engine.config import ConfigDict
 from visdet.registry import MODELS
 
 from .bbox_head import BBoxHead

@@ -11,12 +11,12 @@ import torch
 import torch.nn as nn
 
 # from viscv.ops import RoIPool  # Removed - eliminating C++ ops
-from viscv.transforms import Compose
-from visengine.config import Config
-from visengine.dataset import default_collate
-from visengine.model.utils import revert_sync_batchnorm
-from visengine.registry import init_default_scope
-from visengine.runner import load_checkpoint
+from visdet.cv.transforms import Compose
+from visdet.engine.config import Config
+from visdet.engine.dataset import default_collate
+from visdet.engine.model.utils import revert_sync_batchnorm
+from visdet.engine.registry import init_default_scope
+from visdet.engine.runner import load_checkpoint
 
 from visdet.registry import DATASETS
 from visdet.utils import ConfigType

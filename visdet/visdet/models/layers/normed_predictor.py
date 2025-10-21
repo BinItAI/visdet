@@ -3,8 +3,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch import Tensor
-from visengine.utils import digit_version
 
+from visdet.engine.utils import digit_version
 from visdet.registry import MODELS
 
 MODELS.register_module("Linear", module=nn.Linear)

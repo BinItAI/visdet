@@ -8,7 +8,7 @@ from typing import Union, Optional
 
 import torch
 from torch import Tensor
-from visengine.model import BaseModel
+from visdet.engine.model import BaseModel
 
 from visdet.structures import DetDataSample
 from visdet.utils.typing_utils import InstanceList, OptConfigType, OptMultiConfig

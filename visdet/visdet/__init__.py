@@ -1,8 +1,8 @@
 # ruff: noqa
 # Copyright (c) OpenMMLab. All rights reserved.
-import viscv
-import visengine
-from visengine.utils import digit_version
+import visdet.cv as viscv
+import visdet.engine as visengine
+from visdet.engine.utils import digit_version
 
 from .version import __version__, version_info
 

@@ -3,7 +3,7 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 from abc import ABCMeta, abstractmethod
 
-from visengine.structures import InstanceData
+from visdet.engine.structures import InstanceData
 
 
 class BaseAssigner(metaclass=ABCMeta):

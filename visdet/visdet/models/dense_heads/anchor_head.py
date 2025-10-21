@@ -4,8 +4,8 @@ import warnings
 import torch
 import torch.nn as nn
 from torch import Tensor
-from visengine.structures import InstanceData
 
+from visdet.engine.structures import InstanceData
 from visdet.models.dense_heads.base_dense_head import BaseDenseHead
 from visdet.models.task_modules.prior_generators import (
     AnchorGenerator,

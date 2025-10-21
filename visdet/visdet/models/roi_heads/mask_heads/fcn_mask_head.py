@@ -6,11 +6,11 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch import Tensor
 from torch.nn.modules.utils import _pair
-from viscv.cnn import ConvModule, build_conv_layer, build_upsample_layer
-from visengine.config import ConfigDict
-from visengine.model import BaseModule, ModuleList
-from visengine.structures import InstanceData
 
+from visdet.cv.cnn import ConvModule, build_conv_layer, build_upsample_layer
+from visdet.engine.config import ConfigDict
+from visdet.engine.model import BaseModule, ModuleList
+from visdet.engine.structures import InstanceData
 from visdet.models.task_modules.samplers import SamplingResult
 from visdet.models.utils import empty_instances
 from visdet.registry import MODELS

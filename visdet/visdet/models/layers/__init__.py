@@ -3,8 +3,8 @@ import math
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from visengine.model import BaseModule
-from visengine.utils import to_2tuple
+from visdet.engine.model import BaseModule
+from visdet.engine.utils import to_2tuple
 from .bbox_nms import multiclass_nms
 from . import normed_predictor  # This registers Linear in MODELS registry
 

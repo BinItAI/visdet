@@ -3,14 +3,14 @@
 # It sort of makes sense for the viscv transforms to be here, but the visdet transforms should be in the visdet package.
 # I'm not sure why they are here.
 
-from viscv.transforms import LoadImageFromFile as _LoadImageFromFile
-from viscv.transforms import Normalize as _Normalize
-from viscv.transforms import RandomApply as _RandomApply
-from viscv.transforms import RandomChoice as _RandomChoice
-from viscv.transforms import RandomFlip as _RandomFlip
-from viscv.transforms import RandomResize as _RandomResize
-from viscv.transforms import Resize as _Resize
-from viscv.transforms.processing import RandomChoiceResize as _RandomChoiceResize
+from visdet.cv.transforms import LoadImageFromFile as _LoadImageFromFile
+from visdet.cv.transforms import Normalize as _Normalize
+from visdet.cv.transforms import RandomApply as _RandomApply
+from visdet.cv.transforms import RandomChoice as _RandomChoice
+from visdet.cv.transforms import RandomFlip as _RandomFlip
+from visdet.cv.transforms import RandomResize as _RandomResize
+from visdet.cv.transforms import Resize as _Resize
+from visdet.cv.transforms.processing import RandomChoiceResize as _RandomChoiceResize
 
 # Can't be imported from this location!! Where is it then??
 from visdet.datasets.transforms.formatting import PackDetInputs as _PackDetInputs

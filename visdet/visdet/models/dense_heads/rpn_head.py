@@ -8,9 +8,9 @@ import copy
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from visengine.config import ConfigDict
-from visengine.structures import InstanceData
-from viscv.cnn import ConvModule
+from visdet.engine.config import ConfigDict
+from visdet.engine.structures import InstanceData
+from visdet.cv.cnn import ConvModule
 from torch import Tensor
 from typing import Union, List
 

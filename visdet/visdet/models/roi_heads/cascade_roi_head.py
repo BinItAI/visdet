@@ -11,7 +11,7 @@ import torch
 import torch.nn as nn
 from torch import Tensor
 
-from visengine.structures import InstanceData
+from visdet.engine.structures import InstanceData
 
 from visdet.models.task_modules.samplers import SamplingResult
 from visdet.models.test_time_augs import merge_aug_masks

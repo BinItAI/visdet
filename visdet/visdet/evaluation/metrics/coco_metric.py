@@ -9,11 +9,11 @@ from collections.abc import Sequence
 import numpy as np
 import torch
 from terminaltables import AsciiTable
-from visengine.evaluator import BaseMetric
-from visengine.fileio import dump, get_local_path, load
-from visengine.logging import MMLogger
 
 from visdet.datasets.api_wrappers import COCO, COCOeval, COCOevalMP
+from visdet.engine.evaluator import BaseMetric
+from visdet.engine.fileio import dump, get_local_path, load
+from visdet.engine.logging import MMLogger
 from visdet.registry import METRICS
 from visdet.structures.mask import encode_mask_results
 

@@ -1,10 +1,10 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 
 import numpy as np
-from viscv.transforms import to_tensor
-from viscv.transforms.base import BaseTransform
-from visengine.structures import InstanceData, PixelData
 
+from visdet.cv.transforms import to_tensor
+from visdet.cv.transforms.base import BaseTransform
+from visdet.engine.structures import InstanceData, PixelData
 from visdet.registry import TRANSFORMS
 from visdet.structures import DetDataSample
 from visdet.structures.bbox import BaseBoxes

@@ -6,8 +6,8 @@ from functools import partial
 
 import numpy as np
 import torch
-from visengine.structures import InstanceData
-from visengine.utils import digit_version
+from visdet.engine.structures import InstanceData
+from visdet.engine.utils import digit_version
 from torch import Tensor
 from torch.autograd import Function
 from torch.nn import functional as F

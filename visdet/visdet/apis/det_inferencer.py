@@ -9,18 +9,18 @@ import warnings
 from collections.abc import Iterable, Sequence
 from typing import Union
 
-import viscv
-import visengine
+import visdet.cv as viscv
+import visdet.engine as visengine
 import numpy as np
 import torch.nn as nn
-from viscv.transforms import LoadImageFromFile
-from visengine.dataset import Compose
-from visengine.fileio import get_file_backend, isdir, join_path, list_dir_or_file
-from visengine.infer.infer import BaseInferencer, ModelType
-from visengine.model.utils import revert_sync_batchnorm
-from visengine.registry import init_default_scope
-from visengine.runner.checkpoint import _load_checkpoint_to_model
-from visengine.visualization import Visualizer
+from visdet.cv.transforms import LoadImageFromFile
+from visdet.engine.dataset import Compose
+from visdet.engine.fileio import get_file_backend, isdir, join_path, list_dir_or_file
+from visdet.engine.infer.infer import BaseInferencer, ModelType
+from visdet.engine.model.utils import revert_sync_batchnorm
+from visdet.engine.registry import init_default_scope
+from visdet.engine.runner.checkpoint import _load_checkpoint_to_model
+from visdet.engine.visualization import Visualizer
 from rich.progress import track
 
 from visdet.evaluation import INSTANCE_OFFSET

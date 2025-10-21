@@ -4,9 +4,9 @@ import logging
 
 import torch
 from torch import Tensor
-from visengine.logging import print_log
-from visengine.structures import InstanceData
 
+from visdet.engine.logging import print_log
+from visdet.engine.structures import InstanceData
 from visdet.registry import TASK_UTILS
 
 from .assign_result import AssignResult

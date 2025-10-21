@@ -4,9 +4,9 @@ from abc import ABCMeta, abstractmethod
 import torch
 import torch.nn as nn
 from torch import Tensor
-from visengine.model import BaseModule
 
-from viscv import ops
+from visdet.cv import ops
+from visdet.engine.model import BaseModule
 from visdet.utils import ConfigType, OptMultiConfig
 
 

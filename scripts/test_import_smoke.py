@@ -65,7 +65,7 @@ def test_engine_submodules() -> List[Tuple[str, bool, str]]:
         "dist",
         "infer",
         "evaluator",
-        "hooks",  # Added per Gemini review
+        # hooks is a package (directory), not a simple module, so not included here
     ]
     return _test_submodules("engine", engine_submodules)
 

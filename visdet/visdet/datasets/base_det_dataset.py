@@ -3,9 +3,9 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import os.path as osp
 
-from visengine.dataset import BaseDataset
-from visengine.fileio import load
-from visengine.utils import is_abs
+from visdet.engine.dataset import BaseDataset
+from visdet.engine.fileio import load
+from visdet.engine.utils import is_abs
 
 from ..registry import DATASETS
 

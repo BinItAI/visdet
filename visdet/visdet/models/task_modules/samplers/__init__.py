@@ -2,7 +2,7 @@
 import torch
 from visdet.registry import TASK_UTILS
 from visdet.utils import util_mixins
-from visengine.structures import InstanceData
+from visdet.engine.structures import InstanceData
 
 
 class SamplingResult(util_mixins.NiceRepr):
