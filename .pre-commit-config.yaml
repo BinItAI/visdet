@@ -28,10 +28,11 @@ repos:
     hooks:
       - id: nbstripout
 
-  - repo: https://github.com/RobertCraigie/pyright-python
-    rev: v1.1.405
-    hooks:
-      - id: pyright
+  # Disabled pyright due to missing dependencies in pre-commit environment
+  # - repo: https://github.com/RobertCraigie/pyright-python
+  #   rev: v1.1.405
+  #   hooks:
+  #     - id: pyright
 
   # Documentation link checker
   - repo: https://github.com/tcort/markdown-link-check
