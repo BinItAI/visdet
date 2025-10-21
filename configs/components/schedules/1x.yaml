@@ -1,0 +1,17 @@
+# 1x training schedule (12 epochs for COCO)
+#
+# Standard 1x schedule:
+# - 12 epochs total
+# - LR decay at epochs 8 and 11
+# - Validation every epoch
+
+# Training configuration
+max_epochs: 12
+val_interval: 1
+by_epoch: true
+
+# Learning rate schedule
+lr_schedule:
+  type: MultiStepLR
+  milestones: [8, 11]
+  gamma: 0.1

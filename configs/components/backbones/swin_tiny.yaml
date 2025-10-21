@@ -1,0 +1,24 @@
+# Swin Transformer Tiny backbone configuration
+#
+# This config defines a Swin Transformer with Tiny architecture:
+# - embed_dims: 96
+# - depths: [2, 2, 6, 2] (4 stages)
+# - num_heads: [3, 6, 12, 24]
+# - window_size: 7
+
+type: SwinTransformer
+embed_dims: 96
+depths: [2, 2, 6, 2]
+num_heads: [3, 6, 12, 24]
+window_size: 7
+mlp_ratio: 4
+qkv_bias: true
+qk_scale: null
+drop_rate: 0.0
+attn_drop_rate: 0.0
+drop_path_rate: 0.2
+patch_norm: true
+out_indices: [0, 1, 2, 3]
+with_cp: false
+convert_weights: true
+frozen_stages: -1
