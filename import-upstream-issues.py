@@ -9,6 +9,7 @@ corresponding issues in the visdet repository, with links back to the originals.
 import json
 import subprocess
 import sys
+import tempfile
 import time
 from datetime import datetime
 from pathlib import Path
@@ -144,22 +145,31 @@ def create_issue(issue: dict[str, Any]) -> str:
 
     print(f"  Creating issue #{upstream_number}: {title[:60]}...")
 
-    # Create the issue without labels first
-    cmd = [
-        "issue",
-        "create",
-        "--repo",
-        FORK_REPO,
-        "--title",
-        title,
-        "--body",
-        body,
-        "--label",
-        UPSTREAM_LABEL,  # Always add the upstream label
-    ]
+    # Write body to a temporary file to avoid command line length limits
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".md", delete=False) as f:
+        f.write(body)
+        body_file = f.name
 
-    output = run_gh_command(cmd)
-    fork_issue_url = output.strip()
+    try:
+        # Create the issue using the body file
+        cmd = [
+            "issue",
+            "create",
+            "--repo",
+            FORK_REPO,
+            "--title",
+            title,
+            "--body-file",
+            body_file,
+            "--label",
+            UPSTREAM_LABEL,  # Always add the upstream label
+        ]
+
+        output = run_gh_command(cmd)
+        fork_issue_url = output.strip()
+    finally:
+        # Clean up the temporary file
+        Path(body_file).unlink(missing_ok=True)
 
     # Try to add other labels if they exist
     # Extract issue number from URL

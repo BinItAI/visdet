@@ -7054,6 +7054,1741 @@
       "fork_url": "https://github.com/BinItAI/visdet/issues/793",
       "imported_at": "2025-10-21T09:30:33.858328",
       "title": "[Feature] Enhanced geospatial support"
+    },
+    "9325": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/794",
+      "imported_at": "2025-10-21T09:30:40.179681",
+      "title": "[Bug] On A100 80GB PCIe gives Cuda Illegal memory access if samples_per_gpu>x such that VRAM>30GB"
+    },
+    "9311": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/795",
+      "imported_at": "2025-10-21T09:30:43.723979",
+      "title": "[Bug] YOLOX \"loss_bbox\" may sometimes equal to zero in training."
+    },
+    "9309": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/796",
+      "imported_at": "2025-10-21T09:30:46.974619",
+      "title": "[Feature] [3.x] May I ask the reason why the color palette value based on the model?"
+    },
+    "9299": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/797",
+      "imported_at": "2025-10-21T09:30:49.566892",
+      "title": "average inference time per frame/per video increases for htc object detection and segmenation model"
+    },
+    "9298": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/798",
+      "imported_at": "2025-10-21T09:30:53.230809",
+      "title": "[New Models] Domain Adaptive Object Detection"
+    },
+    "9291": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/799",
+      "imported_at": "2025-10-21T09:30:56.014630",
+      "title": "AssertionError: loss log variables are different across GPUs!  I used cascade Rcnn to train object365,and I have processed the dataset. However,the loss always turn to NAN and it can not run the first epoch successfully."
+    },
+    "9211": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/800",
+      "imported_at": "2025-10-21T09:30:58.766392",
+      "title": "[Bug] mask_rcnn got all loss=0.000 for custom COCO dataset with RLE instance segmentation encoding"
+    },
+    "9203": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/801",
+      "imported_at": "2025-10-21T09:31:01.318976",
+      "title": "How to get polygon"
+    },
+    "9193": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/802",
+      "imported_at": "2025-10-21T09:31:03.910962",
+      "title": "mmdet\u5199\u7684CrossEntropyLoss\u4e0epytorch\u7684CrossEntropyLoss\u6709\u70b9\u4e0d\u4e00\u6837"
+    },
+    "9182": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/803",
+      "imported_at": "2025-10-21T09:31:07.582963",
+      "title": "[Feature] omit setting gt labels to be zeros in RPN Head"
+    },
+    "9138": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/804",
+      "imported_at": "2025-10-21T09:31:10.287512",
+      "title": "[Reimplementation] YOLOX bbox pred using t,l,r,b format always produce loss_bbox: 5.0"
+    },
+    "9070": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/805",
+      "imported_at": "2025-10-21T09:31:14.271470",
+      "title": "[Feature Request] TensorboardVisBackend Images"
+    },
+    "9020": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/806",
+      "imported_at": "2025-10-21T09:31:17.152024",
+      "title": "Cannot use half-precision training when replacing cascade_rcnn's RPN with gflhead"
+    },
+    "9018": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/807",
+      "imported_at": "2025-10-21T09:31:20.310945",
+      "title": "About the format of .json"
+    },
+    "9011": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/808",
+      "imported_at": "2025-10-21T09:31:23.454524",
+      "title": "Can panoptic FPN be export to ONNX\uff1f\uff1f"
+    },
+    "9002": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/809",
+      "imported_at": "2025-10-21T09:31:27.325134",
+      "title": "Huggingface Hub Integration"
+    },
+    "8998": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/810",
+      "imported_at": "2025-10-21T09:31:30.459860",
+      "title": "MMDET is not fully Multi-Backend supported"
+    },
+    "8994": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/811",
+      "imported_at": "2025-10-21T09:31:33.824176",
+      "title": "\u8bf7\u95ee\u5982\u4f55\u5728\u6027\u80fd\u6307\u6807\u4e2d\u6dfb\u52a0precision"
+    },
+    "8960": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/812",
+      "imported_at": "2025-10-21T09:31:37.980020",
+      "title": "support val and test dataset in `tools/analysis_tools/browse_dataset.py` (MMDet 2.x and MMDet 3.x)"
+    },
+    "8939": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/813",
+      "imported_at": "2025-10-21T09:31:40.840664",
+      "title": "Creating multi-modal (bi-modal) detectors / pipelines for them"
+    },
+    "8922": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/814",
+      "imported_at": "2025-10-21T09:31:43.330295",
+      "title": "None results while using async_inference_detector"
+    },
+    "8921": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/815",
+      "imported_at": "2025-10-21T09:31:46.318178",
+      "title": "Adding the possibility of getting ratio-preserving resizes performed according to height and width (i.e. not according to shortest size and longest size)"
+    },
+    "8911": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/816",
+      "imported_at": "2025-10-21T09:31:48.782779",
+      "title": "implement a model of FSAF model in distributed GPU's has an error of 'utf-8' codec can't decode byte 0x80 "
+    },
+    "8910": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/817",
+      "imported_at": "2025-10-21T09:31:52.744725",
+      "title": "[Feature Request] Direct SageMaker support?"
+    },
+    "8890": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/818",
+      "imported_at": "2025-10-21T09:31:56.724927",
+      "title": "concat 2 diff types dataset train ,val and test issue"
+    },
+    "8865": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/819",
+      "imported_at": "2025-10-21T09:31:59.363769",
+      "title": "Custom iou_thrs cause bbox_mAP_50 and bbox_mAP_75 equal to -1"
+    },
+    "8832": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/820",
+      "imported_at": "2025-10-21T09:32:01.850099",
+      "title": "Inference on M1 processor with device = MPS : RuntimeError: Placeholder storage has not been allocated on MPS device"
+    },
+    "8766": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/821",
+      "imported_at": "2025-10-21T09:32:04.393668",
+      "title": "The testing results of the whole dataset is empty. OrderedDict()   when running test.py for convnext"
+    },
+    "8765": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/822",
+      "imported_at": "2025-10-21T09:32:06.901911",
+      "title": "using jetson nano kit "
+    },
+    "8762": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/823",
+      "imported_at": "2025-10-21T09:32:10.368164",
+      "title": "Introducing mmselfsup.core in mmdet leads to unexpected results."
+    },
+    "8748": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/824",
+      "imported_at": "2025-10-21T09:32:12.936193",
+      "title": "onnx tensorrt model infer results are different in some special shapes."
+    },
+    "8747": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/825",
+      "imported_at": "2025-10-21T09:32:17.102459",
+      "title": "pip install -v -e . Warning!!!"
+    },
+    "8742": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/826",
+      "imported_at": "2025-10-21T09:32:20.215899",
+      "title": "Getting sample-wise loss"
+    },
+    "8705": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/827",
+      "imported_at": "2025-10-21T09:32:22.838714",
+      "title": "model.show_result  label modify"
+    },
+    "8687": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/828",
+      "imported_at": "2025-10-21T09:32:25.835887",
+      "title": "AssertionError: loss log variables are different across GPUs!"
+    },
+    "8669": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/829",
+      "imported_at": "2025-10-21T09:32:28.590933",
+      "title": "Inference time of YOLACT is too slow"
+    },
+    "8666": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/830",
+      "imported_at": "2025-10-21T09:32:31.171975",
+      "title": "Errors in panoptic_gt_processing for maskformer series models"
+    },
+    "8657": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/831",
+      "imported_at": "2025-10-21T09:32:33.966641",
+      "title": "using dish_train.sh raise subprocess.CalledProcessError\u591a\u5361\u8bad\u7ec3\u62a5\u9519\uff0c\u5355\u5361\u8bad\u7ec3\u6ca1\u51fa\u73b0\u5f02\u5e38"
+    },
+    "8647": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/832",
+      "imported_at": "2025-10-21T09:32:36.614207",
+      "title": "use trained model to separate files"
+    },
+    "8629": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/833",
+      "imported_at": "2025-10-21T09:32:39.158736",
+      "title": "Precision and recall at different confidence score"
+    },
+    "8621": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/834",
+      "imported_at": "2025-10-21T09:32:42.131225",
+      "title": "Missing output of masks when serving Mask R-CNN with pytorch serve"
+    },
+    "8616": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/835",
+      "imported_at": "2025-10-21T09:32:47.069829",
+      "title": "Fix swin backbone absolute pos_embed"
+    },
+    "8610": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/836",
+      "imported_at": "2025-10-21T09:32:50.058816",
+      "title": "Some problems that occurred while panoptic segmentation using mask2former (Cityscapes)"
+    },
+    "8601": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/837",
+      "imported_at": "2025-10-21T09:32:53.169464",
+      "title": "Panoptic dataloader for Cityscapes to train maskformer or mask2former"
+    },
+    "8599": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/838",
+      "imported_at": "2025-10-21T09:32:55.742815",
+      "title": "How can I only use mask and images to train Instance segmentation, such as Mask2former?"
+    },
+    "8585": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/839",
+      "imported_at": "2025-10-21T09:32:58.257929",
+      "title": "MMDetWandbHook not logging images "
+    },
+    "8583": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/840",
+      "imported_at": "2025-10-21T09:33:01.571582",
+      "title": "Can pretrained models from torchvision hub be used with mmdetection?"
+    },
+    "8577": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/841",
+      "imported_at": "2025-10-21T09:33:05.789770",
+      "title": "Any plan support ViTDet?"
+    },
+    "8574": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/842",
+      "imported_at": "2025-10-21T09:33:09.905547",
+      "title": "typo in msdeformattn_pixel_decoder.py"
+    },
+    "8538": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/843",
+      "imported_at": "2025-10-21T09:33:12.428669",
+      "title": "Tracing Forward Function"
+    },
+    "8536": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/844",
+      "imported_at": "2025-10-21T09:33:14.925247",
+      "title": "FoveaBox : wrong initialization of bbox_targets "
+    },
+    "8534": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/845",
+      "imported_at": "2025-10-21T09:33:17.453176",
+      "title": "How to compute F1 score for each class? "
+    },
+    "8531": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/846",
+      "imported_at": "2025-10-21T09:33:20.099567",
+      "title": "Find a bug in load_masks"
+    },
+    "8529": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/847",
+      "imported_at": "2025-10-21T09:33:22.858635",
+      "title": "IndexError: list index out of range"
+    },
+    "8488": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/848",
+      "imported_at": "2025-10-21T09:33:27.410660",
+      "title": "How to get the instance segmentation of mask2fomrer after training model on coco?"
+    },
+    "8486": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/849",
+      "imported_at": "2025-10-21T09:33:30.134218",
+      "title": "when i use mask rcnn to detection,result is false"
+    },
+    "8471": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/850",
+      "imported_at": "2025-10-21T09:33:33.810264",
+      "title": "Low mAP on coco with mask_rcnn_x101_32x8d_fpn_mstrain-poly_3x"
+    },
+    "8455": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/851",
+      "imported_at": "2025-10-21T09:33:37.733061",
+      "title": "About MMDetWandbHook"
+    },
+    "8453": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/852",
+      "imported_at": "2025-10-21T09:33:40.415964",
+      "title": "How to calculate average precision of each class"
+    },
+    "8427": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/853",
+      "imported_at": "2025-10-21T09:33:43.696348",
+      "title": "Implementing problems in Rotated YOLOX"
+    },
+    "8426": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/854",
+      "imported_at": "2025-10-21T09:33:46.498672",
+      "title": "Request for best checkpoint from training"
+    },
+    "8418": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/855",
+      "imported_at": "2025-10-21T09:33:49.708121",
+      "title": "How to perform semantic segmentation with semantic FPN?"
+    },
+    "8379": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/856",
+      "imported_at": "2025-10-21T09:33:52.355169",
+      "title": "Multi-gpu training get stacked at the first epoch"
+    },
+    "8364": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/857",
+      "imported_at": "2025-10-21T09:33:55.659663",
+      "title": "FCOS + Cityscapes -> insufficient accuracy"
+    },
+    "8356": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/858",
+      "imported_at": "2025-10-21T09:33:58.227498",
+      "title": "How to show only precision and recall at different confidence threshold and IoU threshold"
+    },
+    "8354": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/859",
+      "imported_at": "2025-10-21T09:34:00.864572",
+      "title": "Mask2Former training with V100 instead of A100 GPUs"
+    },
+    "8328": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/860",
+      "imported_at": "2025-10-21T09:34:03.451455",
+      "title": "Where is the tool for writing detection results to a json files"
+    },
+    "8326": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/861",
+      "imported_at": "2025-10-21T09:34:06.263542",
+      "title": "Getting Top K bounding box predictions"
+    },
+    "8324": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/862",
+      "imported_at": "2025-10-21T09:34:08.848334",
+      "title": "Augmented test raises exception, shape '[-1, 4]' is invalid for input of size 485"
+    },
+    "8320": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/863",
+      "imported_at": "2025-10-21T09:34:12.039812",
+      "title": "Unexpected keyword argument"
+    },
+    "8318": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/864",
+      "imported_at": "2025-10-21T09:34:14.851264",
+      "title": "How to make the hyper-parameters of the model gradually increase with the iteration of training?"
+    },
+    "8313": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/865",
+      "imported_at": "2025-10-21T09:34:17.856530",
+      "title": "How to supervise two head branches using one loss function?"
+    },
+    "8312": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/866",
+      "imported_at": "2025-10-21T09:34:20.474637",
+      "title": "YOLOv3: iou_calculation and label assign"
+    },
+    "8311": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/867",
+      "imported_at": "2025-10-21T09:34:23.111333",
+      "title": "Can anyone explain how to implement CASCADE MASK R C NNN on custom dataset?"
+    },
+    "8309": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/868",
+      "imported_at": "2025-10-21T09:34:25.833928",
+      "title": "One suggestion for MinIoURandomCrop"
+    },
+    "8307": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/869",
+      "imported_at": "2025-10-21T09:34:28.745557",
+      "title": "RuntimeError: Distributed package doesn't have NCCL built in"
+    },
+    "8304": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/870",
+      "imported_at": "2025-10-21T09:34:31.378760",
+      "title": "Visualization of FasterRCNN graph from Tensorboard"
+    },
+    "8302": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/871",
+      "imported_at": "2025-10-21T09:34:34.619524",
+      "title": "AvoidCUDAOOM usage"
+    },
+    "8296": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/872",
+      "imported_at": "2025-10-21T09:34:37.646440",
+      "title": "Add tools to help visualize effective receptive field"
+    },
+    "8291": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/873",
+      "imported_at": "2025-10-21T09:34:40.747502",
+      "title": "UnicodeDecodeError: 'gbk' codec can't decode byte 0xaa in position 34: illegal multibyte sequence"
+    },
+    "8288": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/874",
+      "imported_at": "2025-10-21T09:34:45.857759",
+      "title": "Trained model weights for \"Strong Baselines\""
+    },
+    "8285": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/875",
+      "imported_at": "2025-10-21T09:34:49.061084",
+      "title": "Train Mask2Former with Swin-L backbone for instance segmentation on one GPU"
+    },
+    "8267": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/876",
+      "imported_at": "2025-10-21T09:34:51.658574",
+      "title": "Link error in docs"
+    },
+    "8265": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/877",
+      "imported_at": "2025-10-21T09:34:54.213874",
+      "title": "train with multi gpus, always blocking..."
+    },
+    "8259": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/878",
+      "imported_at": "2025-10-21T09:34:57.269040",
+      "title": "Multi GPU training (ConvNeXT) using Weights and Biases Hook makes the training freeze after 50 steps"
+    },
+    "8238": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/879",
+      "imported_at": "2025-10-21T09:35:00.397283",
+      "title": "train error"
+    },
+    "8233": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/880",
+      "imported_at": "2025-10-21T09:35:03.000232",
+      "title": "How to get and evaluate the semantic segmentation result of HTC ?"
+    },
+    "8231": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/881",
+      "imported_at": "2025-10-21T09:35:06.833776",
+      "title": "analyze_results.py doesn't accept format of test.py's results.pkl"
+    },
+    "8224": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/882",
+      "imported_at": "2025-10-21T09:35:09.596152",
+      "title": "Following best practice, installation leads to dependency conflict"
+    },
+    "8223": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/883",
+      "imported_at": "2025-10-21T09:35:12.116344",
+      "title": "[HowTo] AR in validationset evaluation for TensorBoard "
+    },
+    "8222": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/884",
+      "imported_at": "2025-10-21T09:35:14.739043",
+      "title": "When i train the detr_r50_8*2_150e_coco.py on my own coco dataset, but the ap=0?"
+    },
+    "8219": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/885",
+      "imported_at": "2025-10-21T09:35:17.381656",
+      "title": "Swin Transformer\u4f5c\u4e3a\u4e3b\u5e72\u7f51\u7edc\u7684\u6a21\u578b\u8ba1\u7b97\u91cf\u95ee\u9898"
+    },
+    "8211": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/886",
+      "imported_at": "2025-10-21T09:35:20.550725",
+      "title": "Data Registration"
+    },
+    "8208": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/887",
+      "imported_at": "2025-10-21T09:35:23.221580",
+      "title": "Partially freeze SWIN backbone"
+    },
+    "8199": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/888",
+      "imported_at": "2025-10-21T09:35:25.884270",
+      "title": "Adjusting the output format of a model (mask2former)"
+    },
+    "8197": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/889",
+      "imported_at": "2025-10-21T09:35:28.650054",
+      "title": "Error while trying to train the model for a different data set"
+    },
+    "8184": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/890",
+      "imported_at": "2025-10-21T09:35:31.885507",
+      "title": "Saving MMDet's installation in Google Drive "
+    },
+    "8183": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/891",
+      "imported_at": "2025-10-21T09:35:35.371291",
+      "title": "\u4ec0\u4e48\u65f6\u5019\u652f\u6301GHOSTnet\u6a21\u5757"
+    },
+    "8178": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/892",
+      "imported_at": "2025-10-21T09:35:38.018043",
+      "title": "Plot Confusion Matrix for each Individual Image in Test Dataset"
+    },
+    "8175": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/893",
+      "imported_at": "2025-10-21T09:35:40.738214",
+      "title": "Exported Mask-RCNN model shows worse accuracy with larger image sizes"
+    },
+    "8172": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/894",
+      "imported_at": "2025-10-21T09:35:43.308599",
+      "title": "Some question about the analysis speed of model with fp16 ?"
+    },
+    "8170": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/895",
+      "imported_at": "2025-10-21T09:35:47.025626",
+      "title": "Discobox evaluation failed with custom dataset - implementation based on mmdet"
+    },
+    "8153": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/896",
+      "imported_at": "2025-10-21T09:35:49.827617",
+      "title": "Get the confusion matrix"
+    },
+    "8149": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/897",
+      "imported_at": "2025-10-21T09:35:53.627033",
+      "title": "Minimum IoF overlap in RandomCrop Transform"
+    },
+    "8146": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/898",
+      "imported_at": "2025-10-21T09:35:56.921466",
+      "title": "How to test a model on a custom dataset?"
+    },
+    "8145": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/899",
+      "imported_at": "2025-10-21T09:36:00.684212",
+      "title": "deadlock using Wandb"
+    },
+    "8139": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/900",
+      "imported_at": "2025-10-21T09:36:03.426064",
+      "title": "Why i had  set mmdet/datasets/coco.py iou_thrs=[0.50], but it occur map=-1?"
+    },
+    "8124": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/901",
+      "imported_at": "2025-10-21T09:36:06.061085",
+      "title": "Question about Data parrel cuda out of memory problems."
+    },
+    "8110": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/902",
+      "imported_at": "2025-10-21T09:36:10.430948",
+      "title": "Potential bugs when mmdetection runs on PyTorch < 1.8"
+    },
+    "8092": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/903",
+      "imported_at": "2025-10-21T09:36:13.089673",
+      "title": "Inconsistent behavior of the test script in mmdet vs mmdeploy"
+    },
+    "8086": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/904",
+      "imported_at": "2025-10-21T09:36:15.694495",
+      "title": "rpn head\u4e2d\u5c06gts\u4f5c\u4e3aproposals\u65f6\uff0cnum_valid_anchors\u662f\u4e0d\u662f\u4e5f\u5e94\u8be5\u52a0\u4e0anum_gts?"
+    },
+    "8078": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/905",
+      "imported_at": "2025-10-21T09:36:19.615288",
+      "title": "Panoptic FPN support for Cityscapes"
+    },
+    "8066": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/906",
+      "imported_at": "2025-10-21T09:36:22.813149",
+      "title": "Deformable DETR\u2014\u2014Error docstring in `DeformableDetrTransformer.get_reference_points()`"
+    },
+    "8036": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/907",
+      "imported_at": "2025-10-21T09:36:25.872104",
+      "title": "the min_overlap(0.3) is different from CenterNet Code(0.7)"
+    },
+    "8028": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/908",
+      "imported_at": "2025-10-21T09:36:28.306646",
+      "title": "TypeError: TwoStageDetectionAUGFPN: __init__() got an unexpected keyword argument 'roi_head'"
+    },
+    "8023": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/909",
+      "imported_at": "2025-10-21T09:36:30.822810",
+      "title": "Bug in MultiScaleDeformableAttention?"
+    },
+    "8018": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/910",
+      "imported_at": "2025-10-21T09:36:33.956222",
+      "title": "Problem installing and running mmcv-full on nvidia cuda docker"
+    },
+    "8013": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/911",
+      "imported_at": "2025-10-21T09:36:36.547641",
+      "title": "add CBAM attention mechanism block within Resnet backbone "
+    },
+    "8000": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/912",
+      "imported_at": "2025-10-21T09:36:39.120556",
+      "title": "bbox_targets of samples with label=0 is [0. ,0. ,0. , 0.]"
+    },
+    "7998": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/913",
+      "imported_at": "2025-10-21T09:36:41.910015",
+      "title": "Bboxes export as json from video / frames / images. "
+    },
+    "7976": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/914",
+      "imported_at": "2025-10-21T09:36:44.354371",
+      "title": "Multi-GPU training hangs"
+    },
+    "7957": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/915",
+      "imported_at": "2025-10-21T09:36:47.519878",
+      "title": "I change the code but it is not changed. why this situations is occur?? "
+    },
+    "7948": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/916",
+      "imported_at": "2025-10-21T09:36:50.117782",
+      "title": "About batch, iter and augmentation"
+    },
+    "7947": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/917",
+      "imported_at": "2025-10-21T09:36:52.683598",
+      "title": "How to change the activation function?"
+    },
+    "7944": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/918",
+      "imported_at": "2025-10-21T09:36:55.348964",
+      "title": "Are there any tutorials to ensemble models (specially for instance segmentation)?"
+    },
+    "7942": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/919",
+      "imported_at": "2025-10-21T09:36:58.078645",
+      "title": "Inference on Video and saving results as video(mp4)"
+    },
+    "7934": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/920",
+      "imported_at": "2025-10-21T09:37:01.245302",
+      "title": "checkpoint file of YOLOX-m model trained on COCO dataset"
+    },
+    "7930": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/921",
+      "imported_at": "2025-10-21T09:37:04.900719",
+      "title": "\u65b0\u7684\u6a21\u578b\u5e93"
+    },
+    "7919": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/922",
+      "imported_at": "2025-10-21T09:37:07.486515",
+      "title": "How to upload media at wandb"
+    },
+    "7918": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/923",
+      "imported_at": "2025-10-21T09:37:10.790144",
+      "title": "[Feature Request] PyTorch Profiler support"
+    },
+    "7898": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/924",
+      "imported_at": "2025-10-21T09:37:13.468128",
+      "title": "\u80fd\u5426\u5b9e\u73b0\u4e0d\u540c\u5c3a\u5ea6\u4e0b\u63a8\u7406\u4e0e\u6807\u6ce8\u5dee\u5f02\u7684\u53ef\u89c6\u5316"
+    },
+    "7896": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/925",
+      "imported_at": "2025-10-21T09:37:16.202818",
+      "title": "Point Sampling for Point Rend"
+    },
+    "7892": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/926",
+      "imported_at": "2025-10-21T09:37:18.679070",
+      "title": "mask rcnn swin b"
+    },
+    "7875": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/927",
+      "imported_at": "2025-10-21T09:37:21.824813",
+      "title": "Add the crop-like setting to the test or val dateset pipeline"
+    },
+    "7860": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/928",
+      "imported_at": "2025-10-21T09:37:25.703796",
+      "title": "Nonlocal block question?"
+    },
+    "7858": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/929",
+      "imported_at": "2025-10-21T09:37:28.925022",
+      "title": "Support CSwin"
+    },
+    "7831": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/930",
+      "imported_at": "2025-10-21T09:37:33.573939",
+      "title": "Solo question?"
+    },
+    "7827": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/931",
+      "imported_at": "2025-10-21T09:37:36.365253",
+      "title": "error during training my custom dataset on centriapetalNet/tensors must be long"
+    },
+    "7826": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/932",
+      "imported_at": "2025-10-21T09:37:39.037893",
+      "title": "difference confidence_threshold and score_threshold"
+    },
+    "7823": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/933",
+      "imported_at": "2025-10-21T09:37:41.598179",
+      "title": "Labelling Training Set - Bounding Boxes"
+    },
+    "7822": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/934",
+      "imported_at": "2025-10-21T09:37:44.379562",
+      "title": "Error when pretrained on Cascade mask RCNN SwinTransformer"
+    },
+    "7819": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/935",
+      "imported_at": "2025-10-21T09:37:46.972945",
+      "title": "Question of using my own dataset "
+    },
+    "7818": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/936",
+      "imported_at": "2025-10-21T09:37:49.673685",
+      "title": "Can I use HTC directly for target detection?"
+    },
+    "7817": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/937",
+      "imported_at": "2025-10-21T09:37:53.524874",
+      "title": "How can I do not use the pretraining model?"
+    },
+    "7786": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/938",
+      "imported_at": "2025-10-21T09:37:56.714158",
+      "title": "Severe memory leaks when num_workers != 0"
+    },
+    "7783": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/939",
+      "imported_at": "2025-10-21T09:38:01.329113",
+      "title": "faster rcnn \u4e0d\u540closs\u7684\u914d\u7f6e\u6587\u4ef6"
+    },
+    "7746": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/940",
+      "imported_at": "2025-10-21T09:38:03.956442",
+      "title": "\"TypeError: argument of type 'NoneType' is not iterable\" when use mixup and alub augmentation together"
+    },
+    "7744": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/941",
+      "imported_at": "2025-10-21T09:38:06.755484",
+      "title": "Where can i see validation loss "
+    },
+    "7734": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/942",
+      "imported_at": "2025-10-21T09:38:09.429599",
+      "title": "Documentation resource on Anchor Generation Faster Rcnn parameters"
+    },
+    "7730": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/943",
+      "imported_at": "2025-10-21T09:38:12.040375",
+      "title": "Instance Segmentation result on test image"
+    },
+    "7719": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/944",
+      "imported_at": "2025-10-21T09:38:14.689276",
+      "title": "Model Addition of SOLOv2 and CBNetv2"
+    },
+    "7714": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/945",
+      "imported_at": "2025-10-21T09:38:17.907179",
+      "title": "# Support exporting K-Net to ONNX in MMDploy After MMDetection official KNet."
+    },
+    "7713": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/946",
+      "imported_at": "2025-10-21T09:38:21.053203",
+      "title": "# Support Panoptic SegFormer on COCO instance segmentation and panoptic segmentation"
+    },
+    "7705": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/947",
+      "imported_at": "2025-10-21T09:38:25.168877",
+      "title": "Video_demo not finishing"
+    },
+    "7681": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/948",
+      "imported_at": "2025-10-21T09:38:27.885320",
+      "title": "Fail to allocate bitmap"
+    },
+    "7657": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/949",
+      "imported_at": "2025-10-21T09:38:30.946974",
+      "title": "TensorRT deploy error"
+    },
+    "7655": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/950",
+      "imported_at": "2025-10-21T09:38:34.777496",
+      "title": "Transfer Learning bewteen models with different dataset, partially same in classes. "
+    },
+    "7597": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/951",
+      "imported_at": "2025-10-21T09:38:37.537718",
+      "title": "How to use command python tools/train.py configs/xxxx.py"
+    },
+    "7556": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/952",
+      "imported_at": "2025-10-21T09:38:40.258292",
+      "title": "IndexError: CocoDataset: list index out of range"
+    },
+    "7546": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/953",
+      "imported_at": "2025-10-21T09:38:43.827852",
+      "title": "[Feature Request] TorchData example"
+    },
+    "7534": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/954",
+      "imported_at": "2025-10-21T09:38:47.483246",
+      "title": "[Feature Request] Lightning support"
+    },
+    "7528": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/955",
+      "imported_at": "2025-10-21T09:38:51.143021",
+      "title": "QueryInst with FP16  RuntimeError: transform: failed to synchronize: cudaErrorIllegalAddress: an illegal memory access was encountered"
+    },
+    "7526": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/956",
+      "imported_at": "2025-10-21T09:38:54.963612",
+      "title": "auto_resume support ceph checkpoint"
+    },
+    "7524": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/957",
+      "imported_at": "2025-10-21T09:38:58.693969",
+      "title": "Will open some lane det model ?"
+    },
+    "7518": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/958",
+      "imported_at": "2025-10-21T09:39:03.061037",
+      "title": "Will add Keypoint-RCNN like detectron2 ? Thanks"
+    },
+    "7488": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/959",
+      "imported_at": "2025-10-21T09:39:05.741701",
+      "title": "pls help me, i can't train the model on custom dataset."
+    },
+    "7487": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/960",
+      "imported_at": "2025-10-21T09:39:08.487550",
+      "title": "about resume training, loss is large as initial"
+    },
+    "7486": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/961",
+      "imported_at": "2025-10-21T09:39:11.179264",
+      "title": "About analysis_logs"
+    },
+    "7465": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/962",
+      "imported_at": "2025-10-21T09:39:14.471367",
+      "title": "About Evaluation.metric"
+    },
+    "7455": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/963",
+      "imported_at": "2025-10-21T09:39:17.681623",
+      "title": "How can i get the .pkl file to use on DetVisGUI\u3002"
+    },
+    "7453": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/964",
+      "imported_at": "2025-10-21T09:39:22.459148",
+      "title": "Swin V2"
+    },
+    "7445": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/965",
+      "imported_at": "2025-10-21T09:39:25.169115",
+      "title": "Very poor performance on custom dataset with partly overlapping instances"
+    },
+    "7439": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/966",
+      "imported_at": "2025-10-21T09:39:27.786605",
+      "title": "Slow Training Speed On LVIS_V1 DataSet."
+    },
+    "7416": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/967",
+      "imported_at": "2025-10-21T09:39:31.106061",
+      "title": "Support K-Net"
+    },
+    "7411": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/968",
+      "imported_at": "2025-10-21T09:39:34.286328",
+      "title": "\u8bf7\u95eeResNeSt\u8d85\u53c2\u6570cardinality\u5728\u54ea\u8bbe\u7f6e\uff1f"
+    },
+    "7406": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/969",
+      "imported_at": "2025-10-21T09:39:37.540446",
+      "title": "Support instance segmentation on PASCAL VOC dataset. This will serve as quick examples for users to know and try the codebase."
+    },
+    "7404": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/970",
+      "imported_at": "2025-10-21T09:39:40.880688",
+      "title": "Support Dynamic Area Threshold in Datasets"
+    },
+    "7395": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/971",
+      "imported_at": "2025-10-21T09:39:43.473238",
+      "title": "Stack of general questions"
+    },
+    "7382": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/972",
+      "imported_at": "2025-10-21T09:39:45.997242",
+      "title": "open-mmlab organization on Hugging Face"
+    },
+    "7373": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/973",
+      "imported_at": "2025-10-21T09:39:51.141678",
+      "title": "I think the matching of \"analysis result\" is not correct"
+    },
+    "7361": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/974",
+      "imported_at": "2025-10-21T09:39:54.831242",
+      "title": "What is the difference of the bbox_map of coco and map of voc? "
+    },
+    "7356": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/975",
+      "imported_at": "2025-10-21T09:39:58.603168",
+      "title": "Number of Dets is too high"
+    },
+    "7352": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/976",
+      "imported_at": "2025-10-21T09:40:01.928607",
+      "title": "unable to register customdataset"
+    },
+    "7316": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/977",
+      "imported_at": "2025-10-21T09:40:06.480138",
+      "title": "Please add classwise results to the logger output json file"
+    },
+    "7291": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/978",
+      "imported_at": "2025-10-21T09:40:11.112081",
+      "title": "loss is nan when training on voc dataset"
+    },
+    "7286": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/979",
+      "imported_at": "2025-10-21T09:40:15.047755",
+      "title": "Confusion about padding when training COCO"
+    },
+    "7284": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/980",
+      "imported_at": "2025-10-21T09:40:17.734704",
+      "title": "YOLOX: num_last_epochs might not be the exact number what it's supposed to be"
+    },
+    "7283": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/981",
+      "imported_at": "2025-10-21T09:40:25.274404",
+      "title": "How to use tow box-losses at the same time in roi_head of faster-rcnn model"
+    },
+    "7280": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/982",
+      "imported_at": "2025-10-21T09:40:28.537269",
+      "title": "'NoneType' object has no attribute 'sample_all'"
+    },
+    "7251": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/983",
+      "imported_at": "2025-10-21T09:40:33.891258",
+      "title": "yolact  inference multi images in batch "
+    },
+    "7248": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/984",
+      "imported_at": "2025-10-21T09:40:37.314182",
+      "title": "\u8fd0\u884cAutoAugment\u7c7b\u4e2dexample\u793a\u4f8b\u4ee3\u7801\u62a5\u9519"
+    },
+    "7236": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/985",
+      "imported_at": "2025-10-21T09:40:41.614442",
+      "title": "How to get AR for every class?"
+    },
+    "7233": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/986",
+      "imported_at": "2025-10-21T09:40:44.526859",
+      "title": "image sizes in pretrained models for SwinTransformer vs dataset image size"
+    },
+    "7207": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/987",
+      "imported_at": "2025-10-21T09:40:47.590553",
+      "title": "Stochastic depth on backbone"
+    },
+    "7189": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/988",
+      "imported_at": "2025-10-21T09:40:52.842690",
+      "title": "Grad_norm is Nan when resume training"
+    },
+    "7186": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/989",
+      "imported_at": "2025-10-21T09:40:56.064612",
+      "title": "error in ms_deformable_col2im_cuda: an illegal memory access was encountered"
+    },
+    "7182": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/990",
+      "imported_at": "2025-10-21T09:40:58.875318",
+      "title": "Runtime issues with mask_rcnn_swin-t-p4-w7_fpn_fp16_ms-crop-3x_coco.py"
+    },
+    "7171": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/991",
+      "imported_at": "2025-10-21T09:41:03.207722",
+      "title": "[Feature Request] Add LoadImageFromNdarray  alias for LoadImageFromWebcam"
+    },
+    "7165": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/992",
+      "imported_at": "2025-10-21T09:41:07.369611",
+      "title": "Wandb Sweep with mmdetection"
+    },
+    "7148": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/993",
+      "imported_at": "2025-10-21T09:41:12.098564",
+      "title": "yolact Out of memory during training"
+    },
+    "7126": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/994",
+      "imported_at": "2025-10-21T09:41:17.268512",
+      "title": "Questions on implementation of YOLOF"
+    },
+    "7119": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/995",
+      "imported_at": "2025-10-21T09:41:20.055326",
+      "title": "Calculate mAP for different scenario ( easy, moderate, hard )"
+    },
+    "7116": {
+      "fork_url": "https://github.com/BinItAI/visdet/issues/996",
+      "imported_at": "2025-10-21T09:41:22.745687",
+      "title": "'loss log variables are different across GPUs!' HowTo prevent?"
+    },
+    "7115": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:41:25.475171",
+      "title": "TypeError: forward() missing 1 required positional argument: 'img_metas'"
+    },
+    "7100": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:41:28.105476",
+      "title": "Questions related to training"
+    },
+    "7093": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:41:30.757200",
+      "title": "Visualize detection outputs during training"
+    },
+    "7068": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:41:33.157517",
+      "title": "pycocotools installed from mim can not run on M1 Pro MacBook "
+    },
+    "7056": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:41:35.776169",
+      "title": "any support for ffcv"
+    },
+    "7042": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:41:38.489459",
+      "title": "How to get IoU in validation metrics?"
+    },
+    "7037": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:41:41.139103",
+      "title": "Inference error: AttributeError: module 'pycocotools' has no attribute '__version__'`"
+    },
+    "7031": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:41:43.595856",
+      "title": "RuntimeError: DataLoader worker (pid 41956) is killed by signal: Hangup. "
+    },
+    "7018": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:41:46.035673",
+      "title": "A problem about kill process "
+    },
+    "7013": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:41:48.695227",
+      "title": "\u8fd0\u884c\u7ed3\u679c\u6dfb\u52a0\u6df1\u5ea6\u4fe1\u606f"
+    },
+    "7010": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:41:51.765804",
+      "title": "No CUDA runtime is found, using CUDA_HOME='/usr/local/cuda-10.2'"
+    },
+    "6991": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:41:54.500986",
+      "title": "GN to BN in auto_assign head, mAP for coco drops 3%\uff0e"
+    },
+    "6963": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:41:56.994288",
+      "title": "Saving the model with state dict BEFORE training"
+    },
+    "6949": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:41:59.567549",
+      "title": "segmentation results"
+    },
+    "6948": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:42:02.261418",
+      "title": "IndexError: too many indices for array: array is 1-dimensional, but 2 were indexed"
+    },
+    "6945": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:42:04.837160",
+      "title": "\u5565\u65f6\u5019\u6709yolor"
+    },
+    "6940": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:42:07.356215",
+      "title": "how can i use the se_layer in mmdet/models/utils/se_layer after the backbond like resnet"
+    },
+    "6928": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:42:09.834247",
+      "title": "PASCAL VOC segmentation support "
+    },
+    "6922": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:42:12.210113",
+      "title": "inference_detector"
+    },
+    "6914": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:42:14.685664",
+      "title": "mmdetection custom dataset training error"
+    },
+    "6911": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:42:17.120758",
+      "title": "loss_cls: 0.0000, loss_bbox: 0.0000 when training YOLOX on my own dataset"
+    },
+    "6910": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:42:19.871877",
+      "title": "shuffling in Concatenate datasets"
+    },
+    "6907": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:42:22.261582",
+      "title": "TypeError: 'NoneType' object is not iterable for mask_target.py"
+    },
+    "6901": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:42:24.774786",
+      "title": "Questions on handling images of different sizes with DataContainer"
+    },
+    "6900": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:42:27.376525",
+      "title": "Image normalization on my own dataset. "
+    },
+    "6898": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:42:29.954161",
+      "title": "How to ensure the correctness"
+    },
+    "6895": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:42:32.458990",
+      "title": "Will \"Evaluating Large-Vocabulary Object Detectors: The Devil is in the Details\" be implemented for promoting research on the long-tail datasets?"
+    },
+    "6894": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:42:34.982722",
+      "title": "Parameter scope for PhotoMetricDistortion"
+    },
+    "6891": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:42:37.399390",
+      "title": "Issue with 'inference_detector' in MMDetection"
+    },
+    "6889": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:42:40.071313",
+      "title": "How to install a previous version of mmdet?"
+    },
+    "6888": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:42:42.497787",
+      "title": "export torchscript"
+    },
+    "6887": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:42:44.919874",
+      "title": "Memory leak during testing"
+    },
+    "6886": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:42:47.449446",
+      "title": "Possible Bug:multiclass_nms"
+    },
+    "6884": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:42:50.052606",
+      "title": "Is eval_recalls(proposal_nums = 1) same as COCO ARmax=1?? "
+    },
+    "6882": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:42:52.688166",
+      "title": "YOLOv3 with bigger res."
+    },
+    "6879": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:42:55.258549",
+      "title": "function eval_map in file mean_ap.py is very slow"
+    },
+    "6875": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:42:57.821292",
+      "title": "The class is changed and displayed on the image saved as a result."
+    },
+    "6870": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:43:00.328103",
+      "title": "about pre_process"
+    },
+    "6866": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:43:02.912713",
+      "title": "Show detected results is only support non distributed mode"
+    },
+    "6859": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:43:05.615672",
+      "title": "mmlab\u8bbe\u8ba1\u7684\u7b2c\u4e09\u65b9\u5305decord(\u89c6\u9891\u5feb\u901f\u89e3\u7801)\u5b58\u5728\u5185\u5b58\u6cc4\u9732"
+    },
+    "6857": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:43:08.207947",
+      "title": "Does mm detection allows to detect persons class only by using default weight files?"
+    },
+    "6856": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:43:10.736575",
+      "title": "Wrong links in `configs/faster_rcnn/README.md`"
+    },
+    "6855": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:43:13.222599",
+      "title": "IndexError: too many indices for array: array is 1-dimensional, but 2 were indexed"
+    },
+    "6853": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:43:15.792805",
+      "title": "Plan to support AI-TODs and VisDrone2019??"
+    },
+    "6851": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:43:18.235541",
+      "title": "I want to see val loss on tensorboard but face with error TypeError: loss() missing 1 required positional argument: 'img_metas'"
+    },
+    "6848": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:43:20.809203",
+      "title": "Can use SeesawLoss for one-stage dectectors?"
+    },
+    "6847": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:43:23.674530",
+      "title": "Test the validation set at the 1250th iteration, instead of the 7330th."
+    },
+    "6842": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:43:26.140358",
+      "title": "\u5efa\u8bae\u4e00\u79cd\u6bd4\u8f83\u4f18\u96c5\u7684\u6846\u67b6\u5199\u6cd5\uff0c\u5efa\u8bae\u91cd\u5199mmdet"
+    },
+    "6835": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:43:28.734212",
+      "title": "Please remove pycocotools-windows on requirements since this lib doen't actively maintained caused Python3.9 users unable install on wndows!"
+    },
+    "6829": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:43:31.263344",
+      "title": "edit mmdet saved checkpoint pth file's meta data"
+    },
+    "6826": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:43:34.227966",
+      "title": "Filter annotations in dataset by an (annotation_area  / image_area) ratio threshold "
+    },
+    "6824": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:43:36.576318",
+      "title": "Suggest for changing \"diagonal flip\""
+    },
+    "6788": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:43:39.128961",
+      "title": "Mobilenet v3"
+    },
+    "6757": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:43:41.961915",
+      "title": "strange behaviour in log analysis graphs "
+    },
+    "6749": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:43:44.484960",
+      "title": "Test-time Loss"
+    },
+    "6747": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:43:47.011005",
+      "title": "Patch Merging in swin "
+    },
+    "6739": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:43:49.663113",
+      "title": "I want to know why the box and mask are not appear."
+    },
+    "6702": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:43:52.127726",
+      "title": "\u80fd\u5426\u589e\u52a0\u6570\u636e\u96c6\u5212\u5206\u529f\u80fd\uff1f"
+    },
+    "6635": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:43:54.408956",
+      "title": "How can I save the checkpoint by iteration, not epoch?"
+    },
+    "6601": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:43:56.884861",
+      "title": "Add a notice about thread unsafety of 'mmdet.apis.init_detector'"
+    },
+    "6598": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:43:59.417194",
+      "title": "PIoU Loss Implementation in MMdetection"
+    },
+    "6534": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:44:01.908839",
+      "title": "Multi-gpu training gets stuck"
+    },
+    "6531": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:44:04.488318",
+      "title": "YOLOR Support"
+    },
+    "6497": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:44:07.065886",
+      "title": "Torchserve error:  Load model failed: modelname, error: Worker died"
+    },
+    "6468": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:44:09.686941",
+      "title": "TypeError: CocoDataset: string indices must be integers"
+    },
+    "6453": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:44:12.425103",
+      "title": "How to initialize the backbone which is mixed with custom module? "
+    },
+    "6448": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:44:14.876858",
+      "title": "Is it possible to log Tensorboard metrics as a function of epochs rather than iterations?"
+    },
+    "6439": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:44:17.460185",
+      "title": "How can I easily get the feature when I test a model I have saved?"
+    },
+    "6424": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:44:20.183748",
+      "title": "About SeesawLoss questions in use of YOLOX"
+    },
+    "6411": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:44:22.489886",
+      "title": "ERROR: Command errored out with exit status 1\uff0cimport io, os, sys, setuptools, tokenize; sys.argv[0]"
+    },
+    "6351": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:44:25.199662",
+      "title": "Custom dataset COCO-format annotations for empty images"
+    },
+    "6327": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:44:27.693798",
+      "title": "wobbly edges of predicted masks with custom implementation in mmdetection"
+    },
+    "6295": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:44:29.956180",
+      "title": "how to save proposals in faster R-cnn models?"
+    },
+    "6292": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:44:32.469392",
+      "title": "Easier way to edit cfg file // Pycharm auto-suggestion"
+    },
+    "6247": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:44:35.460447",
+      "title": "Get Labels of the predicted images as a .txt file"
+    },
+    "6235": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:44:38.100875",
+      "title": "When will gfocal loss+use_sigmoid=False be implemented?"
+    },
+    "6219": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:44:40.472898",
+      "title": "Apex AMP erroring out on checkpointing after epoch and pre-trained models can't be loaded for fine-tuning/warm restart"
+    },
+    "6202": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:44:42.898323",
+      "title": "[Object detection & Keypoint regression] MMDetection VS MMPose VS Detectron2 "
+    },
+    "6165": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:44:45.326393",
+      "title": "How to modify the codes and find the configs after installed with mim?"
+    },
+    "6162": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:44:47.824501",
+      "title": "Input type (torch.cuda.FloatTensor) and weight type (torch.FloatTensor) should be the same"
+    },
+    "6135": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:44:50.545157",
+      "title": "adding export_onnx for QueryInst/Sparse RCNN"
+    },
+    "6133": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:44:53.258273",
+      "title": "[Feature Request] More documentation on creating config files?"
+    },
+    "6106": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:44:55.784534",
+      "title": "Training pipeline transformation order?"
+    },
+    "6082": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:44:58.305928",
+      "title": "About deformable detr"
+    },
+    "6015": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:45:00.839436",
+      "title": "CenterMask implementation"
+    },
+    "5927": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:45:03.449755",
+      "title": "How to add the parameter gt_bboxes_ignore in model"
+    },
+    "5885": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:45:06.134022",
+      "title": "ImportError: Cannot load backend 'TkAgg' which requires the 'tk' interactive framework, as 'headless' is currently running"
+    },
+    "5681": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:45:08.491614",
+      "title": "ImportError: cannot import name 'deform_conv_cuda' from 'ops.dcn.src' (unknown location)"
+    },
+    "5679": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:45:11.013420",
+      "title": "mmdetection v1.0 cascade rcnn\u6a21\u578b \u8f6c\u6210v2\u540efinetune\u95ee\u9898"
+    },
+    "5661": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:45:13.528135",
+      "title": "How to adjust stride in RPN_head in fpn"
+    },
+    "5658": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:45:15.930906",
+      "title": "TensorRT does not show any speed improvement ???"
+    },
+    "5578": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:45:18.397508",
+      "title": "OHEM missing  2 required positional arguments: 'num' and 'pos_fraction'"
+    },
+    "5572": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:45:20.778391",
+      "title": "Integrating Kornia batch augmentation pipeline."
+    },
+    "5565": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:45:23.322364",
+      "title": "Low localization accuracy for Grid RCNN Model"
+    },
+    "5517": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:45:25.866542",
+      "title": "Are there evaluations of detections on images and mAP on wandblogger?"
+    },
+    "5458": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:45:28.222818",
+      "title": "Assign GPU to null"
+    },
+    "5352": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:45:30.589624",
+      "title": "mIoU evaluation metric"
+    },
+    "5306": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:45:32.986228",
+      "title": "How to update the config file for other ResNet backbones ?"
+    },
+    "5293": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:45:35.501541",
+      "title": "Get error when use albumentations: It seems that scikit-image has not been built correctly."
+    },
+    "5235": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:45:37.944419",
+      "title": "In two stage model, will RPN's regression output, bbox_preds, be in the computation graph of downstream BBoxHead?"
+    },
+    "5203": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:45:40.209012",
+      "title": "how to get the proposal pkl files ?  rpn_r50_fpn_1x_val2017.pkl"
+    },
+    "5182": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:45:42.597506",
+      "title": "How to inference with model.half"
+    },
+    "5176": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:45:45.158753",
+      "title": "Deployment of trained model to the Raspberry Pi computer"
+    },
+    "5161": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:45:47.540674",
+      "title": "DetectoRS segmentation"
+    },
+    "5156": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:45:49.871281",
+      "title": "Can we use pretrained ResNext Backbone for a model with 4 channel Images as Input."
+    },
+    "5124": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:45:52.481138",
+      "title": "FCOS v2"
+    },
+    "5116": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:45:55.037722",
+      "title": "Pseudo label training"
+    },
+    "5115": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:45:57.688710",
+      "title": "Using train pipeline on evaluation data"
+    },
+    "5094": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:46:00.175596",
+      "title": "when test image size not equal to train image size"
+    },
+    "5093": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:46:02.655613",
+      "title": "How do I configure WBF to mmdetection"
+    },
+    "5087": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:46:05.120455",
+      "title": "when i use the faster_rcnn_r50_fpn_dconv_c3-c5_1x_coco.py,i meet problem."
+    },
+    "5023": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:46:07.556998",
+      "title": "SomeThing Weird About The Yolact SegHead"
+    },
+    "4985": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:46:09.948944",
+      "title": "how to use the trained model on cpu\uff1f"
+    },
+    "4975": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:46:12.470358",
+      "title": "why the input of single_level_roi_extractor roi extractor parameters  rois.shape=(2048,5) while bs=4, it doesn't have batch_size dimension,but feats always(b,c,w,h) has batch_size dimension"
+    },
+    "4974": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:46:14.918812",
+      "title": "Issue with custom model inference"
+    },
+    "4882": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:46:17.416848",
+      "title": "what is the 'get_cat_ids' in xml_style dataset used for?"
+    },
+    "4874": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:46:19.930673",
+      "title": "why performance of mask-rcnn-r50-fpn with syncBN in mmdetection is poor than that in detectron2?"
+    },
+    "4863": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:46:22.280202",
+      "title": "Export model in Torchscript format"
+    },
+    "4837": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:46:24.765940",
+      "title": "when validate the model\uff0cthe gtbox num is wrong\u3002"
+    },
+    "4830": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:46:27.220695",
+      "title": "Add support for IterDet"
+    },
+    "4821": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:46:29.844017",
+      "title": "Error happens when change the roi_head of cascade_rcnn to double_heads "
+    },
+    "4760": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:46:32.310285",
+      "title": "a bug in distributed training of grid r-cnn"
+    },
+    "4751": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:46:34.931456",
+      "title": "lugin: Could not load the Qt platform plugin \"xcb\""
+    },
+    "4747": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:46:37.994349",
+      "title": "Add support for SAM (Sharpness Awareness Minimization) based optimization"
+    },
+    "4651": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:46:40.487056",
+      "title": "Customized data augmentation pipeline based on albumentations"
+    },
+    "4589": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:46:42.881891",
+      "title": "Training with Pascal VOC and using mAP does not include mAP on wandb"
+    },
+    "4488": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:46:45.181598",
+      "title": "Images normalization using too much cpu during inference"
+    },
+    "4436": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:46:47.772590",
+      "title": "CocoDataset uses annotation 'area' property to decide whether bbox should be used"
+    },
+    "4215": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:46:50.425277",
+      "title": "Add option so `simple_test` simply returns the output of `self.bbox_head.get_bboxes`. "
+    },
+    "4037": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:46:53.080698",
+      "title": "Problems with cityscapes evaluation"
+    },
+    "3939": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:46:55.516229",
+      "title": "Rethinking positional arguments in the API"
+    },
+    "3920": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:46:58.026166",
+      "title": "How to implement two branches for faster-rcnn that shares the same weights?"
+    },
+    "3710": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:47:00.455598",
+      "title": "How do I deal with situations where there is no object in the detected results?"
+    },
+    "3596": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:47:03.074923",
+      "title": "At the beginning of training, the GPU memory occupied was very large."
+    },
+    "3259": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:47:05.429168",
+      "title": "After an update, acc is 100% and loss is 0 on first epoch when training on COCO format db"
+    },
+    "3041": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:47:07.912389",
+      "title": "DCN on Jetson TX2"
+    },
+    "2931": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:47:10.361253",
+      "title": "Roadmap of MMDetection"
+    },
+    "2873": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:47:12.709848",
+      "title": "Imbalanced and small quantity dataset.Which model can I try?"
+    },
+    "1827": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:47:15.291608",
+      "title": "EfficientDet implementation"
+    },
+    "1563": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:47:17.627065",
+      "title": "make mmdetection compatible with jetson tx2 and xavier."
+    },
+    "1450": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:47:20.112399",
+      "title": "Adding TTFNet"
+    },
+    "1170": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:47:22.841496",
+      "title": "CPU and GPU memory consumption during inference"
+    },
+    "95": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:47:25.231787",
+      "title": "Keyboard Interruption checkpoint saving?"
+    },
+    "11472": {
+      "fork_url": "",
+      "imported_at": "2025-10-21T09:50:47.679915",
+      "title": "Can't train on a custom model."
     }
   }
 }
