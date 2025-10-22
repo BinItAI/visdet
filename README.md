@@ -72,6 +72,24 @@ These techniques are proven in image classification and LLM fine-tuning but have
 
 ---
 
+## 🔮 Future Integrations
+
+visdet is committed to integrating cutting-edge tools that improve performance, developer experience, and training efficiency:
+
+### [Kornia](https://kornia.github.io/)
+Differentiable computer vision library for PyTorch with geometric transformations, filtering, and augmentation pipelines. **Planned integration** for enhanced data augmentation capabilities with full gradient support.
+
+### [Triton](https://triton-lang.org/)
+OpenAI's Python-like GPU programming language for writing high-performance kernels without CUDA expertise. Could enable custom operators achieving performance comparable to expert-level CUDA code.
+
+### [SPDL](https://facebookresearch.github.io/spdl/)
+Meta's Scalable and Performant Data Loading library with built-in performance observability. Under evaluation for replacing current data loading bottlenecks.
+
+### [DALI](https://developer.nvidia.com/dali)
+NVIDIA's GPU-accelerated data loading library that offloads preprocessing to the GPU. Being considered for systems with high GPU-to-CPU ratios where CPU preprocessing becomes a bottleneck.
+
+---
+
 ## 🚀 Quick Start
 
 ### Installation
