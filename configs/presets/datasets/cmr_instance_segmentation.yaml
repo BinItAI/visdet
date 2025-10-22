@@ -1,0 +1,98 @@
+# CMR (Battery) Instance Segmentation Dataset Preset
+#
+# Dataset configuration for CMR instance segmentation with 69 battery categories
+
+# Dataset type
+type: CocoDataset
+
+# Paths
+data_root: /home/georgepearse/data/
+ann_file: cmr/annotations/2025-05-15_12:38:23.077836_train_ordered.json
+data_prefix:
+  img: images/
+
+# Pipeline (transforms)
+pipeline:
+  - type: LoadImageFromFile
+  - type: LoadAnnotations
+    with_bbox: true
+    with_mask: true
+  - type: Resize
+    scale: [1333, 800]
+    keep_ratio: true
+  - type: RandomFlip
+    prob: 0.5
+  - type: PackDetInputs
+
+# Metadata with all 69 battery classes
+metainfo:
+  classes:
+    - TR133R Mercury Battery
+    - Default
+    - Unknown Battery
+    - LiMNO2 Single Cell Battery
+    - C_D_Carbon Zinc Battery
+    - 6V Alkaline Battery Casing
+    - 6V Carbon Zinc Battery Casing
+    - Multicell NiMH Battery Pack
+    - C_D Alkaline Battery
+    - AA Lithium Ion Battery
+    - Button Alkaline Battery
+    - 6V Lead Acid Battery Casing
+    - 9V Lithium Metal Battery
+    - Burgess
+    - AA_AAA Alkaline Battery
+    - 9V Alkaline Battery
+    - Lithium Iron Phosphate Battery
+    - CR_AA_AAA Lithium Metal
+    - AAA Zinc Chloride Battery
+    - Multicell Lithium Ion Battery Pack
+    - 2.4V NiMH Battery
+    - AA_AAA_or_2-3V_NiCd NiMH Battery
+    - Lithium Polymer Battery
+    - Conveyor Belt Metal
+    - C_D_Lithium Metal Battery
+    - 3.5V NiCd Battery
+    - Carbon Zinc Burgess
+    - 4.5V Carbon Zinc Battery
+    - 3V_3.6V_3.7V_Lithium Ion Battery
+    - Lead Acid Battery
+    - C NiCd_NiMH Battery
+    - 3.6V NiMH Battery
+    - Multicell Carbon Zinc Battery Pack
+    - Battery Components
+    - Random Metal Object
+    - Crushed Battery Casing
+    - D NiCd Battery
+    - 2.5V NiCd Battery
+    - 9V NiCd Battery
+    - AA_AAA Carbon Zinc Battery
+    - Multicell Lead Acid Battery Pack
+    - Button Lithium Metal Battery
+    - 2CR5 Lithium Metal Battery Casing
+    - Small 3.7V Lithium Ion Battery
+    - D NiMH Battery
+    - Button NiMH Battery
+    - RCR2 Lithium Phosphate Battery
+    - 1.5V Alkaline Battery
+    - Multicell Alkaline Battery Pack
+    - 9V NiMH Battery
+    - Coin
+    - Button Silver Oxide Battery
+    - Button Zinc Air Battery
+    - 9.6V NiMH Battery
+    - 1.5V Carbon Zinc Battery
+    - AA Lithium Phosphate Battery
+    - Multicell Lithium Metal Battery Pack
+    - 9V Carbon Zinc Battery
+    - 4.5V Alkaline Battery
+    - RCR123A Lithium Phosphate Battery
+    - AA Lithium Iron Battery
+    - AAAA_23A_LR1 Alkaline Battery
+    - LiMNO2 MultiCell Battery Pack
+    - Multicell NiCd Battery Pack
+    - 12V Carbon Zinc Battery Casing
+    - Battery Connector Wire
+    - Multicell Silver Oxide Battery Pack
+    - TR133R NiCd Battery
+    - Lithium Ion Battery

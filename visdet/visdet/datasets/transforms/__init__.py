@@ -10,8 +10,9 @@ from visdet.cv.transforms import RandomChoice as _RandomChoice
 from visdet.cv.transforms import RandomFlip as _RandomFlip
 from visdet.cv.transforms import RandomResize as _RandomResize
 from visdet.cv.transforms import Resize as _Resize
-from visdet.cv.transforms.processing import RandomChoiceResize as _RandomChoiceResize
 
+# RandomChoiceResize doesn't exist in visdet.cv.transforms.processing
+# from visdet.cv.transforms.processing import RandomChoiceResize as _RandomChoiceResize
 # Can't be imported from this location!! Where is it then??
 from visdet.datasets.transforms.formatting import PackDetInputs as _PackDetInputs
 from visdet.datasets.transforms.loading import LoadAnnotations as _LoadAnnotations
@@ -30,7 +31,7 @@ PackDetInputs = TRANSFORMS.register_module()(_PackDetInputs)
 RandomApply = TRANSFORMS.register_module()(_RandomApply)
 RandomCrop = TRANSFORMS.register_module()(_RandomCrop)
 RandomChoice = TRANSFORMS.register_module()(_RandomChoice)
-RandomChoiceResize = TRANSFORMS.register_module()(_RandomChoiceResize)
+# RandomChoiceResize = TRANSFORMS.register_module()(_RandomChoiceResize)
 
 __all__ = [
     "LoadAnnotations",
@@ -40,7 +41,7 @@ __all__ = [
     "Pad",
     "RandomApply",
     "RandomChoice",
-    "RandomChoiceResize",
+    # "RandomChoiceResize",  # Commented out - doesn't exist
     "RandomCrop",
     "RandomFlip",
     "RandomResize",
