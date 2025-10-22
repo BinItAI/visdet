@@ -2,18 +2,9 @@
   <img src="resources/visia-logo-white.svg" width="600"/>
   <div>&nbsp;</div>
 
-  <!-- Core Badges -->
   <p>
     <a href="https://pypi.org/project/visdet"><img src="https://img.shields.io/pypi/v/visdet?style=flat-square&color=blue" alt="PyPI"/></a>
     <a href="https://binitai.github.io/visdet/"><img src="https://img.shields.io/badge/docs-latest-brightgreen?style=flat-square" alt="Documentation"/></a>
-    <a href="https://github.com/BinItAI/visdet/actions/workflows/publish-pypi.yml"><img src="https://img.shields.io/github/actions/workflow/status/BinItAI/visdet/publish-pypi.yml?style=flat-square&label=build" alt="Build Status"/></a>
-    <a href="https://github.com/BinItAI/visdet/blob/master/LICENSE"><img src="https://img.shields.io/github/license/BinItAI/visdet.svg?style=flat-square&color=blue" alt="License"/></a>
-  </p>
-
-  <!-- Issue Badges -->
-  <p>
-    <a href="https://github.com/BinItAI/visdet/issues"><img src="https://img.shields.io/github/issues/BinItAI/visdet?style=flat-square&color=orange" alt="Open Issues"/></a>
-    <a href="https://github.com/BinItAI/visdet/issues"><img src="https://img.shields.io/github/issues-closed/BinItAI/visdet?style=flat-square&color=green" alt="Closed Issues"/></a>
   </p>
 
   <!-- Navigation -->
