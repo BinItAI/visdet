@@ -589,7 +589,13 @@ class Registry:
 
         assert isinstance(registry, Registry)
         assert registry.scope is not None
-        assert registry.scope not in self.children, f"scope {registry.scope} exists in {self.name} registry"
+        # Allow re-registration of the same registry (idempotent)
+        if registry.scope in self.children:
+            if self.children[registry.scope] is registry:
+                # Same registry instance, skip
+                return
+            else:
+                raise AssertionError(f"scope {registry.scope} exists in {self.name} registry")
         self.children[registry.scope] = registry
 
     def _register_module(
