@@ -18,8 +18,8 @@ Usage:
 Transformations (alias-preserving):
     import viscv                    → import visdet.cv as viscv
     import visengine                → import visdet.engine as visengine
-    from viscv.X import Y           → from visdet.cv.X import Y
-    from visengine.X import Y       → from visdet.engine.X import Y
+    from visdet.cv.X import Y           → from visdet.cv.X import Y
+    from visdet.engine.X import Y       → from visdet.engine.X import Y
 """
 
 import argparse
@@ -93,8 +93,8 @@ class ImportRefactorTransformer(cst.CSTTransformer):
     def leave_ImportFrom(self, original_node: cst.ImportFrom, updated_node: cst.ImportFrom) -> cst.ImportFrom:
         """
         Transform:
-            from viscv.X import Y → from visdet.cv.X import Y
-            from visengine.X import Y → from visdet.engine.X import Y
+            from visdet.cv.X import Y → from visdet.cv.X import Y
+            from visdet.engine.X import Y → from visdet.engine.X import Y
         """
         module = updated_node.module
         if module is None:
@@ -113,14 +113,14 @@ class ImportRefactorTransformer(cst.CSTTransformer):
         """Transform viscv.X → visdet.cv.X and visengine.X → visdet.engine.X"""
 
         if isinstance(module, cst.Name):
-            # Handle simple case: from viscv import X
+            # Handle simple case: from visdet.cv import X
             if module.value == "viscv":
                 return cst.Attribute(value=cst.Name("visdet"), attr=cst.Name("cv"))
             elif module.value == "visengine":
                 return cst.Attribute(value=cst.Name("visdet"), attr=cst.Name("engine"))
 
         elif isinstance(module, cst.Attribute):
-            # Handle dotted imports: from viscv.transforms import X
+            # Handle dotted imports: from visdet.cv.transforms import X
             # Recursively transform the left side
             new_value = self._transform_module_path(module.value)
 

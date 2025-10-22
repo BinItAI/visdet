@@ -46,7 +46,7 @@ repos:
     hooks:
       - id: no-old-style-imports
         name: Block old-style viscv/visengine imports
-        entry: bash -c 'git grep -n "^import viscv\|^from viscv\|^import visengine\|^from visengine" -- "*.py" ":(exclude)libs/" ":(exclude)visdet/visdet/cv/" ":(exclude)visdet/visdet/engine/" && exit 1 || exit 0'
+        entry: bash -c 'git grep -n "^import viscv\|^from viscv\|^import visengine\|^from visengine" -- "*.py" && exit 1 || exit 0'
         language: system
         pass_filenames: false
         always_run: true

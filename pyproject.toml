@@ -145,8 +145,6 @@ dev = [
     "zuban>=0.1.2",
 ]
 
-[tool.uv.workspace]
-members = ["libs/viscv", "libs/visengine"]
 
 # Note: mmtracking git dependency removed due to build isolation issues
 # To install for tests: uv pip install --no-build-isolation git+https://github.com/open-mmlab/mmtracking.git

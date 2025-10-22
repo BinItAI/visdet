@@ -8,7 +8,7 @@ import warnings
 from pathlib import Path
 from typing import Any, Dict, Optional, Union
 
-from visengine.config import Config as BaseConfig
+from visdet.engine.config import Config as BaseConfig
 
 from .schema_generator import validate_config_with_schema
 from .yaml_loader import load_yaml_config
