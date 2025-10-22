@@ -91,6 +91,9 @@ NVIDIA's GPU-accelerated data loading library that offloads preprocessing to the
 ### [Modal](https://modal.com/)
 Serverless GPU compute platform for Python that makes cloud training and inference effortless. Zero infrastructure setup with elastic GPU scaling and 100x faster cold starts than Docker. Could enable seamless cloud-based training workflows.
 
+### [Tutel](https://github.com/microsoft/tutel)
+Microsoft's highly optimized Mixture of Experts (MoE) implementation for PyTorch. Enables efficient sparse model training with dynamic expert routing and load balancing. Could enable scaling to much larger models while maintaining computational efficiency through conditional computation.
+
 ---
 
 ## 🚀 Quick Start
