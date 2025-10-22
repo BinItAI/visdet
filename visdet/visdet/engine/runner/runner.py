@@ -21,7 +21,7 @@ from torch.optim import Optimizer
 from torch.utils.data import DataLoader
 
 import visdet.engine
-from visdet.engine.version import __version__
+from visdet.version import __version__
 from visdet.engine.utils.version_utils import get_git_hash
 from visdet.engine.config import Config, ConfigDict
 from visdet.engine.dataset import worker_init_fn as default_worker_init_fn
