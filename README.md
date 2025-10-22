@@ -168,6 +168,27 @@ This project is released under the [Apache 2.0 License](https://binitai.github.i
 
 ---
 
+## 🔗 Related Projects
+
+visdet is part of a rich ecosystem of object detection frameworks. Here are other notable projects in this space:
+
+### [MMDetection](https://github.com/open-mmlab/mmdetection)
+The original framework that visdet is based on. A comprehensive object detection toolbox with modular design, supporting 40+ architectures including detection, instance segmentation, and panoptic segmentation. Part of the OpenMMLab project with extensive model zoo and state-of-the-art implementations.
+
+### [Detectron2](https://github.com/facebookresearch/detectron2)
+Facebook AI Research's production-grade detection library. Supports object detection, instance segmentation, panoptic segmentation, DensePose, and more. Known for excellent performance and deployment flexibility with TorchScript/Caffe2 export. The foundation for many research projects.
+
+### [detrex](https://github.com/IDEA-Research/detrex)
+A specialized research platform built on top of Detectron2, focused specifically on Transformer-based detection algorithms (DETR variants). Provides unified modular design for 20+ Transformer models including DETR, Deformable-DETR, DINO, and MaskDINO. Uses LazyConfig for flexible configuration.
+
+**Choosing a Framework:**
+- **visdet**: Best for simplified installation, pure Python/PyTorch, and modern training techniques
+- **MMDetection**: Best for comprehensive model zoo and maximum algorithm variety
+- **Detectron2**: Best for production deployment and Facebook ecosystem integration
+- **detrex**: Best for Transformer-based detection research and DETR experimentation
+
+---
+
 ## 🙏 Acknowledgements
 
 visdet is built on top of the excellent [MMDetection](https://github.com/open-mmlab/mmdetection) framework from OpenMMLab. We are grateful to all contributors of the original project.
