@@ -1,14 +1,4 @@
-# ruff: noqa
-"""
-Re-export of viscv.cnn for dotted import support.
+# Copyright (c) OpenMMLab. All rights reserved.
+from .bricks import ConvModule, build_conv_layer, build_upsample_layer
 
-This module allows `from visdet.cv.cnn import X` to work properly.
-"""
-
-from viscv.cnn import *  # noqa: F401, F403
-
-# Preserve the __all__ from upstream if it exists
-try:
-    from visdet.cv.cnn import __all__  # noqa: F401
-except ImportError:
-    pass
+__all__ = ["ConvModule", "build_conv_layer", "build_upsample_layer"]

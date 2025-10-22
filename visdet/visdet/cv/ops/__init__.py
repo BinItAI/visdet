@@ -1,14 +1,5 @@
-# ruff: noqa
-"""
-Re-export of viscv.ops for dotted import support.
+# Copyright (c) OpenMMLab. All rights reserved.
+from .nms import batched_nms, nms
+from .roi_align import RoIAlign, roi_align
 
-This module allows `from visdet.cv.ops import X` to work properly.
-"""
-
-from viscv.ops import *  # noqa: F401, F403
-
-# Preserve the __all__ from upstream if it exists
-try:
-    from visdet.cv.ops import __all__  # noqa: F401
-except ImportError:
-    pass
+__all__ = ["RoIAlign", "batched_nms", "nms", "roi_align"]

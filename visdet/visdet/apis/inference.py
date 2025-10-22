@@ -10,7 +10,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 
-# from viscv.ops import RoIPool  # Removed - eliminating C++ ops
+# from visdet.cv.ops import RoIPool  # Removed - eliminating C++ ops
 from visdet.cv.transforms import Compose
 from visdet.engine.config import Config
 from visdet.engine.dataset import default_collate
