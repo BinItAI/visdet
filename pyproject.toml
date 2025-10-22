@@ -140,7 +140,7 @@ exclude_lines = [
 
 [dependency-groups]
 dev = [
-    "pre-commit",
+    "prek>=0.2.10",
     "ruff",
 ]
 

@@ -1,0 +1,69 @@
+# Prek configuration - Git hooks for code quality
+# See https://github.com/j178/prek for more information
+
+fail_fast = false
+
+[[hook]]
+id = "trailing-whitespace"
+repo = "https://github.com/pre-commit/pre-commit-hooks"
+rev = "v6.0.0"
+
+[[hook]]
+id = "end-of-file-fixer"
+repo = "https://github.com/pre-commit/pre-commit-hooks"
+rev = "v6.0.0"
+
+[[hook]]
+id = "check-added-large-files"
+repo = "https://github.com/pre-commit/pre-commit-hooks"
+rev = "v6.0.0"
+args = ["--maxkb=3000"]
+
+[[hook]]
+id = "requirements-txt-fixer"
+repo = "https://github.com/pre-commit/pre-commit-hooks"
+rev = "v6.0.0"
+
+[[hook]]
+id = "check-merge-conflict"
+repo = "https://github.com/pre-commit/pre-commit-hooks"
+rev = "v6.0.0"
+
+# Ruff linter
+[[hook]]
+id = "ruff"
+repo = "https://github.com/astral-sh/ruff-pre-commit"
+rev = "v0.13.2"
+args = ["--fix", "--config=pyproject.toml"]
+exclude = "^archive/"
+
+# Ruff formatter
+[[hook]]
+id = "ruff-format"
+repo = "https://github.com/astral-sh/ruff-pre-commit"
+rev = "v0.13.2"
+args = ["--config=pyproject.toml"]
+exclude = "^archive/"
+
+# nbstripout
+[[hook]]
+id = "nbstripout"
+repo = "https://github.com/kynan/nbstripout"
+rev = "0.8.1"
+
+# Block old-style viscv/visengine imports
+[[hook]]
+id = "no-old-style-imports"
+name = "Block old-style viscv/visengine imports"
+entry = "bash -c 'git grep -n \"^import viscv\\|^from viscv\\|^import visengine\\|^from visengine\" -- \"*.py\" \":(exclude)libs/\" \":(exclude)visdet/visdet/cv/\" \":(exclude)visdet/visdet/engine/\" && exit 1 || exit 0'"
+language = "system"
+pass_filenames = false
+always_run = true
+
+# Documentation link checker
+[[hook]]
+id = "markdown-link-check"
+repo = "https://github.com/tcort/markdown-link-check"
+rev = "v3.12.2"
+args = ["--config", ".markdown-link-check.json"]
+files = "^docs/.*\\.md$"
