@@ -88,6 +88,9 @@ Meta's Scalable and Performant Data Loading library with built-in performance ob
 ### [DALI](https://developer.nvidia.com/dali)
 NVIDIA's GPU-accelerated data loading library that offloads preprocessing to the GPU. Being considered for systems with high GPU-to-CPU ratios where CPU preprocessing becomes a bottleneck.
 
+### [Modal](https://modal.com/)
+Serverless GPU compute platform for Python that makes cloud training and inference effortless. Zero infrastructure setup with elastic GPU scaling and 100x faster cold starts than Docker. Could enable seamless cloud-based training workflows.
+
 ---
 
 ## 🚀 Quick Start
