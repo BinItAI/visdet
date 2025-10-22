@@ -170,22 +170,27 @@ This project is released under the [Apache 2.0 License](https://binitai.github.i
 
 ## 🔗 Related Projects
 
-visdet is part of a rich ecosystem of object detection frameworks. Here are other notable projects in this space:
+visdet is part of a rich ecosystem of object detection frameworks. Here's how visdet compares to other notable projects:
 
 ### [MMDetection](https://github.com/open-mmlab/mmdetection)
 The original framework that visdet is based on. A comprehensive object detection toolbox with modular design, supporting 40+ architectures including detection, instance segmentation, and panoptic segmentation. Part of the OpenMMLab project with extensive model zoo and state-of-the-art implementations.
 
+**Choose MMDetection if:** You need the original framework with all dependencies or prefer the traditional MMDetection workflow with MMCV and MMEngine as separate packages.
+
 ### [Detectron2](https://github.com/facebookresearch/detectron2)
 Facebook AI Research's production-grade detection library. Supports object detection, instance segmentation, panoptic segmentation, DensePose, and more. Known for excellent performance and deployment flexibility with TorchScript/Caffe2 export. The foundation for many research projects.
+
+**Choose Detectron2 if:** You need production deployment, Facebook ecosystem integration, or prefer Facebook's design philosophy and tooling.
 
 ### [detrex](https://github.com/IDEA-Research/detrex)
 A specialized research platform built on top of Detectron2, focused specifically on Transformer-based detection algorithms (DETR variants). Provides unified modular design for 20+ Transformer models including DETR, Deformable-DETR, DINO, and MaskDINO. Uses LazyConfig for flexible configuration.
 
-**Choosing a Framework:**
-- **visdet**: Best for simplified installation (no CUDA compilation), pure Python/PyTorch, and modern training techniques (progressive resizing, 1cycle schedules, etc.)
-- **[MMDetection](https://github.com/open-mmlab/mmdetection)**: Best if you need the original framework with all dependencies or prefer the traditional MMDetection workflow
-- **[Detectron2](https://github.com/facebookresearch/detectron2)**: Best for production deployment, Facebook ecosystem integration, and if you prefer Facebook's design philosophy
-- **[detrex](https://github.com/IDEA-Research/detrex)**: Best for cutting-edge Transformer-based detection research and DETR experimentation
+**Choose detrex if:** You're doing cutting-edge Transformer-based detection research or want to experiment with DETR variants.
+
+### visdet (this project)
+A streamlined fork of MMDetection with integrated dependencies, no CUDA compilation requirements, and modern training techniques from fast.ai and LLM fine-tuning.
+
+**Choose visdet if:** You want simplified installation (no CUDA compilation), pure Python/PyTorch implementation, and modern training techniques like progressive resizing, 1cycle schedules, and learning rate finders.
 
 ---
 
