@@ -5,7 +5,7 @@ import cv2
 import numpy as np
 import torch
 
-import visdet.cv as viscv
+from visdet.cv import imwrite
 from visdet.engine.dist import master_only
 from visdet.engine.structures import InstanceData, PixelData
 from visdet.engine.visualization import Visualizer
@@ -45,7 +45,7 @@ class DetLocalVisualizer(Visualizer):
     Examples:
         >>> import numpy as np
         >>> import torch
-        >>> from visengine.structures import InstanceData
+        >>> from visdet.engine.structures import InstanceData
         >>> from visdet.structures import DetDataSample
         >>> from visdet.visualization import DetLocalVisualizer
 
@@ -508,6 +508,6 @@ class DetLocalVisualizer(Visualizer):
             self.show(drawn_img, win_name=name, wait_time=wait_time)
 
         if out_file is not None:
-            viscv.imwrite(drawn_img[..., ::-1], out_file)
+            imwrite(drawn_img[..., ::-1], out_file)
         else:
             self.add_image(name, drawn_img, step)

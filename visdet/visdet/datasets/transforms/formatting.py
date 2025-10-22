@@ -36,7 +36,7 @@ class PackDetInputs(BaseTransform):
 
     Args:
         meta_keys (Sequence[str], optional): Meta keys to be converted to
-            ``viscv.DataContainer`` and collected in ``data[img_metas]``.
+            ``visdet.cv.DataContainer`` and collected in ``data[img_metas]``.
             Default: ``('img_id', 'img_path', 'ori_shape', 'img_shape',
             'scale_factor', 'flip', 'flip_direction')``
     """

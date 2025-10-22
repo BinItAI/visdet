@@ -183,7 +183,7 @@ class MaxIoUAssigner(BaseAssigner):
             :obj:`AssignResult`: The assign result.
 
         Example:
-            >>> from visengine.structures import InstanceData
+            >>> from visdet.engine.structures import InstanceData
             >>> self = MaxIoUAssigner(0.5, 0.5)
             >>> pred_instances = InstanceData()
             >>> pred_instances.priors = torch.Tensor([[0, 0, 10, 10],

@@ -69,7 +69,7 @@ def update_data_root(cfg, logger=None):
         cfg (:obj:`Config`): The model config need to modify
         logger (logging.Logger | str | None): the way to print msg
     """
-    assert isinstance(cfg, Config), f"cfg got wrong type: {type(cfg)}, expected visengine.Config"
+    assert isinstance(cfg, Config), f"cfg got wrong type: {type(cfg)}, expected visdet.engine.Config"
 
     if "MMDET_DATASETS" in os.environ:
         dst_root = os.environ["MMDET_DATASETS"]
@@ -77,7 +77,7 @@ def update_data_root(cfg, logger=None):
     else:
         return
 
-    assert isinstance(cfg, Config), f"cfg got wrong type: {type(cfg)}, expected visengine.Config"
+    assert isinstance(cfg, Config), f"cfg got wrong type: {type(cfg)}, expected visdet.engine.Config"
 
     def update(cfg, src_str, dst_str):
         for k, v in cfg.items():

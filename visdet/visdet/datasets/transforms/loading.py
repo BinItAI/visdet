@@ -5,7 +5,7 @@ import numpy as np
 import pycocotools.mask as maskUtils
 import torch
 
-import visdet.cv as viscv
+from visdet.cv import imfrombytes
 from visdet.cv.transforms import BaseTransform, LoadImageFromFile
 from visdet.cv.transforms import LoadAnnotations as MMCV_LoadAnnotations
 from visdet.engine.fileio import get
@@ -81,11 +81,11 @@ class LoadMultiChannelImageFromFiles(BaseTransform):
         to_float32 (bool): Whether to convert the loaded image to a float32
             numpy array. If set to False, the loaded image is an uint8 array.
             Defaults to False.
-        color_type (str): The flag argument for :func:``viscv.imfrombytes``.
+        color_type (str): The flag argument for :func:``visdet.cv.imfrombytes``.
             Defaults to 'unchanged'.
         imdecode_backend (str): The image decoding backend type. The backend
-            argument for :func:``viscv.imfrombytes``.
-            See :func:``viscv.imfrombytes`` for details.
+            argument for :func:``visdet.cv.imfrombytes``.
+            See :func:``visdet.cv.imfrombytes`` for details.
             Defaults to 'cv2'.
         file_client_args (dict): Arguments to instantiate the
             corresponding backend in mmdet <= 3.0.0rc6. Defaults to None.
@@ -127,7 +127,7 @@ class LoadMultiChannelImageFromFiles(BaseTransform):
         img = []
         for name in results["img_path"]:
             img_bytes = get(name, backend_args=self.backend_args)
-            img.append(viscv.imfrombytes(img_bytes, flag=self.color_type, backend=self.imdecode_backend))
+            img.append(imfrombytes(img_bytes, flag=self.color_type, backend=self.imdecode_backend))
         img = np.stack(img, axis=-1)
         if self.to_float32:
             img = img.astype(np.float32)
@@ -242,8 +242,8 @@ class LoadAnnotations(MMCV_LoadAnnotations):
         ignore_index (int): The label index to be ignored.
             Valid only if reduce_zero_label is true. Defaults is 255.
         imdecode_backend (str): The image decoding backend type. The backend
-            argument for :func:``viscv.imfrombytes``.
-            See :fun:``viscv.imfrombytes`` for details.
+            argument for :func:``visdet.cv.imfrombytes``.
+            See :fun:``visdet.cv.imfrombytes`` for details.
             Defaults to 'cv2'.
         backend_args (dict, optional): Arguments to instantiate the
             corresponding backend. Defaults to None.
@@ -388,7 +388,7 @@ class LoadAnnotations(MMCV_LoadAnnotations):
         """Private function to load semantic segmentation annotations.
 
         Args:
-            results (dict): Result dict from :obj:``viscv.BaseDataset``.
+            results (dict): Result dict from :obj:``visdet.engine.BaseDataset``.
 
         Returns:
             dict: The dict contains loaded semantic segmentation annotations.
@@ -397,7 +397,7 @@ class LoadAnnotations(MMCV_LoadAnnotations):
             return
 
         img_bytes = get(results["seg_map_path"], backend_args=self.backend_args)
-        gt_semantic_seg = viscv.imfrombytes(img_bytes, flag="unchanged", backend=self.imdecode_backend).squeeze()
+        gt_semantic_seg = imfrombytes(img_bytes, flag="unchanged", backend=self.imdecode_backend).squeeze()
 
         if self.reduce_zero_label:
             # avoid using underflow conversion
@@ -539,8 +539,8 @@ class LoadPanopticAnnotations(LoadAnnotations):
             annotation. Defaults to False.
         box_type (str): The box mode used to wrap the bboxes.
         imdecode_backend (str): The image decoding backend type. The backend
-            argument for :func:``viscv.imfrombytes``.
-            See :fun:``viscv.imfrombytes`` for details.
+            argument for :func:``visdet.cv.imfrombytes``.
+            See :fun:``visdet.cv.imfrombytes`` for details.
             Defaults to 'cv2'.
         backend_args (dict, optional): Arguments to instantiate the
             corresponding backend in mmdet >= 3.0.0rc7. Defaults to None.
@@ -592,7 +592,7 @@ class LoadPanopticAnnotations(LoadAnnotations):
             return
 
         img_bytes = get(results["seg_map_path"], backend_args=self.backend_args)
-        pan_png = viscv.imfrombytes(img_bytes, flag="color", channel_order="rgb").squeeze()
+        pan_png = imfrombytes(img_bytes, flag="color", channel_order="rgb").squeeze()
         pan_png = self.rgb2id(pan_png)
 
         gt_masks = []
@@ -992,7 +992,7 @@ class LoadTrackAnnotations(LoadAnnotations):
         """Private function to load bounding box annotations.
 
         Args:
-            results (dict): Result dict from :obj:``viscv.BaseDataset``.
+            results (dict): Result dict from :obj:``visdet.engine.BaseDataset``.
 
         Returns:
             dict: The dict contains loaded bounding box annotations.
@@ -1022,7 +1022,7 @@ class LoadTrackAnnotations(LoadAnnotations):
         """Private function to load instances id annotations.
 
         Args:
-            results (dict): Result dict from :obj :obj:``viscv.BaseDataset``.
+            results (dict): Result dict from :obj :obj:``visdet.engine.BaseDataset``.
 
         Returns:
             dict: The dict containing instances id annotations.
@@ -1036,7 +1036,7 @@ class LoadTrackAnnotations(LoadAnnotations):
         """Function to load multiple types annotations.
 
         Args:
-            results (dict): Result dict from :obj:``viscv.BaseDataset``.
+            results (dict): Result dict from :obj:``visdet.engine.BaseDataset``.
 
         Returns:
             dict: The dict contains loaded bounding box, label, instances id

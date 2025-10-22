@@ -5,13 +5,13 @@ from collections.abc import Sequence
 from typing import Optional
 
 import numpy as np
-from visengine.fileio import get
-from visengine.hooks import Hook
-from visengine.runner import Runner
-from visengine.utils import mkdir_or_exist
-from visengine.visualization import Visualizer
 
-import visdet.cv as viscv
+from visdet.cv import imfrombytes, imwrite
+from visdet.engine.fileio import get
+from visdet.engine.hooks import Hook
+from visdet.engine.runner import Runner
+from visdet.engine.utils import mkdir_or_exist
+from visdet.engine.visualization import Visualizer
 from visdet.registry import HOOKS
 from visdet.structures import DetDataSample
 from visdet.structures.bbox import BaseBoxes
@@ -106,7 +106,7 @@ class DetVisualizationHook(Hook):
         # Visualize only the first data
         img_path = outputs[0].img_path
         img_bytes = get(img_path, backend_args=self.backend_args)
-        img = viscv.imfrombytes(img_bytes, channel_order="rgb")
+        img = imfrombytes(img_bytes, channel_order="rgb")
 
         if total_curr_iter % self.interval == 0:
             self._visualizer.add_datasample(
@@ -147,7 +147,7 @@ class DetVisualizationHook(Hook):
 
             img_path = data_sample.img_path
             img_bytes = get(img_path, backend_args=self.backend_args)
-            img = viscv.imfrombytes(img_bytes, channel_order="rgb")
+            img = imfrombytes(img_bytes, channel_order="rgb")
 
             out_file = None
             if self.test_out_dir is not None:
@@ -227,7 +227,7 @@ class GroundingVisualizationHook(DetVisualizationHook):
 
             img_path = data_sample.img_path
             img_bytes = get(img_path, backend_args=self.backend_args)
-            img = viscv.imfrombytes(img_bytes, channel_order="rgb")
+            img = imfrombytes(img_bytes, channel_order="rgb")
 
             out_file = None
             if self.test_out_dir is not None:
@@ -346,7 +346,7 @@ class GroundingVisualizationHook(DetVisualizationHook):
                         wait_time=self.wait_time,
                     )
                 if out_file is not None:
-                    viscv.imwrite(drawn_img[..., ::-1], out_file)
+                    imwrite(drawn_img[..., ::-1], out_file)
                 else:
                     self.add_image("test_img", drawn_img, self._test_index)
             else:  # OD

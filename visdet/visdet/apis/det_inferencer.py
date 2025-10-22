@@ -9,13 +9,12 @@ import warnings
 from collections.abc import Iterable, Sequence
 from typing import Union
 
-import visdet.cv as viscv
-import visdet.engine as visengine
 import numpy as np
 import torch.nn as nn
+from visdet.cv import imfrombytes, imwrite
 from visdet.cv.transforms import LoadImageFromFile
 from visdet.engine.dataset import Compose
-from visdet.engine.fileio import get_file_backend, isdir, join_path, list_dir_or_file
+from visdet.engine.fileio import dump, get, get_file_backend, isdir, join_path, list_dir_or_file
 from visdet.engine.infer.infer import BaseInferencer, ModelType
 from visdet.engine.model.utils import revert_sync_batchnorm
 from visdet.engine.registry import init_default_scope
@@ -483,8 +482,8 @@ class DetInferencer(BaseInferencer):
 
         for single_input, pred in zip(inputs, preds, strict=False):
             if isinstance(single_input, str):
-                img_bytes = visengine.fileio.get(single_input)
-                img = viscv.imfrombytes(img_bytes)
+                img_bytes = get(single_input)
+                img = imfrombytes(img_bytes)
                 img = img[:, :, ::-1]
                 img_name = osp.basename(single_input)
             elif isinstance(single_input, np.ndarray):
@@ -646,12 +645,12 @@ class DetInferencer(BaseInferencer):
             pan = id2rgb(pan).astype(np.uint8)
 
             if is_save_pred:
-                viscv.imwrite(pan[:, :, ::-1], out_img_path)
+                imwrite(pan[:, :, ::-1], out_img_path)
                 result["panoptic_seg_path"] = out_img_path
             else:
                 result["panoptic_seg"] = pan
 
         if is_save_pred:
-            visengine.dump(result, out_json_path)
+            dump(result, out_json_path)
 
         return result

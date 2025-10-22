@@ -29,7 +29,7 @@ class DetDataSample(BaseDataElement):
     Examples:
          >>> import torch
          >>> import numpy as np
-         >>> from visengine.structures import InstanceData
+         >>> from visdet.engine.structures import InstanceData
          >>> from visdet.structures import DetDataSample
 
          >>> data_sample = DetDataSample()

@@ -7,8 +7,9 @@ from collections.abc import Sequence
 from typing import TypeVar
 
 import cv2
-import visdet.cv as viscv
 import numpy as np
+
+from visdet.cv import image
 import pycocotools.mask as maskUtils
 import shapely.geometry as geometry
 import torch
@@ -299,11 +300,11 @@ class BitmapMasks(BaseInstanceMasks):
     def rescale(self, scale, interpolation="nearest"):
         """See :func:`BaseInstanceMasks.rescale`."""
         if len(self.masks) == 0:
-            new_w, new_h = viscv.image.rescale_size((self.width, self.height), scale)
+            new_w, new_h = image.rescale_size((self.width, self.height), scale)
             rescaled_masks = np.empty((0, new_h, new_w), dtype=np.uint8)
         else:
             rescaled_masks = np.stack(
-                [viscv.image.imrescale(mask, scale, interpolation=interpolation) for mask in self.masks]
+                [image.imrescale(mask, scale, interpolation=interpolation) for mask in self.masks]
             )
         height, width = rescaled_masks.shape[1:]
         return BitmapMasks(rescaled_masks, height, width)
@@ -314,7 +315,7 @@ class BitmapMasks(BaseInstanceMasks):
             resized_masks = np.empty((0, *out_shape), dtype=np.uint8)
         else:
             resized_masks = np.stack(
-                [viscv.image.imresize(mask, out_shape[::-1], interpolation=interpolation) for mask in self.masks]
+                [image.imresize(mask, out_shape[::-1], interpolation=interpolation) for mask in self.masks]
             )
         return BitmapMasks(resized_masks, *out_shape)
 
@@ -325,7 +326,7 @@ class BitmapMasks(BaseInstanceMasks):
         if len(self.masks) == 0:
             flipped_masks = self.masks
         else:
-            flipped_masks = np.stack([viscv.image.imflip(mask, direction=flip_direction) for mask in self.masks])
+            flipped_masks = np.stack([image.imflip(mask, direction=flip_direction) for mask in self.masks])
         return BitmapMasks(flipped_masks, self.height, self.width)
 
     def pad(self, out_shape, pad_val=0):
@@ -333,7 +334,7 @@ class BitmapMasks(BaseInstanceMasks):
         if len(self.masks) == 0:
             padded_masks = np.empty((0, *out_shape), dtype=np.uint8)
         else:
-            padded_masks = np.stack([viscv.image.impad(mask, shape=out_shape, pad_val=pad_val) for mask in self.masks])
+            padded_masks = np.stack([image.impad(mask, shape=out_shape, pad_val=pad_val) for mask in self.masks])
         return BitmapMasks(padded_masks, *out_shape)
 
     def crop(self, bbox):
@@ -448,7 +449,7 @@ class BitmapMasks(BaseInstanceMasks):
                 min_w = min(out_shape[1], masks.shape[2])
                 empty_masks[:, :min_h, :min_w] = masks[:, :min_h, :min_w]
                 masks = empty_masks
-            translated_masks = viscv.image.imtranslate(
+            translated_masks = image.imtranslate(
                 masks.transpose((1, 2, 0)),
                 offset,
                 direction,
@@ -485,7 +486,7 @@ class BitmapMasks(BaseInstanceMasks):
         if len(self.masks) == 0:
             sheared_masks = np.empty((0, *out_shape), dtype=np.uint8)
         else:
-            sheared_masks = viscv.image.imshear(
+            sheared_masks = image.imshear(
                 self.masks.transpose((1, 2, 0)),
                 magnitude,
                 direction,
@@ -525,7 +526,7 @@ class BitmapMasks(BaseInstanceMasks):
         if len(self.masks) == 0:
             rotated_masks = np.empty((0, *out_shape), dtype=self.masks.dtype)
         else:
-            rotated_masks = viscv.image.imrotate(
+            rotated_masks = image.imrotate(
                 self.masks.transpose((1, 2, 0)),
                 angle,
                 center=center,
@@ -679,7 +680,7 @@ class PolygonMasks(BaseInstanceMasks):
 
     def rescale(self, scale, interpolation=None):
         """see :func:`BaseInstanceMasks.rescale`"""
-        new_w, new_h = viscv.image.rescale_size((self.width, self.height), scale)
+        new_w, new_h = image.rescale_size((self.width, self.height), scale)
         if len(self.masks) == 0:
             rescaled_masks = PolygonMasks([], new_h, new_w)
         else:

@@ -5,6 +5,7 @@ import warnings
 import numpy as np
 
 import visdet.cv.fileio as fileio
+from visdet.cv import imfrombytes
 from visdet.cv.transforms import BaseTransform
 from visdet.registry import TRANSFORMS
 
@@ -96,9 +97,8 @@ class LoadImageFromFile(BaseTransform):
                 img_bytes = file_client.get(filename)
             else:
                 img_bytes = fileio.get(filename, backend_args=self.backend_args)
-            import visdet.cv as viscv
 
-            img = viscv.imfrombytes(img_bytes, flag=self.color_type, backend=self.imdecode_backend)
+            img = imfrombytes(img_bytes, flag=self.color_type, backend=self.imdecode_backend)
         except Exception as e:
             if self.ignore_empty:
                 return None

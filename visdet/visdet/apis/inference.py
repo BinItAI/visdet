@@ -37,7 +37,7 @@ def init_detector(
     """Initialize a detector from config file.
 
     Args:
-        config (str, :obj:`Path`, or :obj:`visengine.Config`): Config file path,
+        config (str, :obj:`Path`, or :obj:`visdet.engine.Config`): Config file path,
             :obj:`Path`, or the config object.
         checkpoint (str, optional): Checkpoint path. If left as None, the model
             will not load any weights.
@@ -304,7 +304,7 @@ def init_track_model(
     """Initialize a model from config file.
 
     Args:
-        config (str or :obj:`visengine.Config`): Config file path or the config
+        config (str or :obj:`visdet.engine.Config`): Config file path or the config
             object.
         checkpoint (Optional[str], optional): Checkpoint path. Defaults to
             None.

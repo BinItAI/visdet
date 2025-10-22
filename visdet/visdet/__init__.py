@@ -1,7 +1,5 @@
 # ruff: noqa
 # Copyright (c) OpenMMLab. All rights reserved.
-import visdet.cv as viscv
-import visdet.engine as visengine
 from visdet.engine.utils import digit_version
 
 from .version import __version__, version_info
@@ -9,10 +7,10 @@ from .version import __version__, version_info
 # Import models to register components
 from . import models
 
-# Import engine to register hooks (also re-exports visengine)
+# Import engine to register hooks
 from . import engine
 
-# Import cv (re-exports viscv)
+# Import cv
 from . import cv
 
 # Import visualization to register components

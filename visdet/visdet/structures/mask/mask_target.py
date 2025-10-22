@@ -20,7 +20,7 @@ def mask_target(pos_proposals_list, pos_assigned_gt_inds_list, gt_masks_list, cf
         Tensor: Mask target of each image, has shape (num_pos, w, h).
 
     Example:
-        >>> from visengine.config import Config
+        >>> from visdet.engine.config import Config
         >>> import visdet
         >>> from visdet.data_elements.mask import BitmapMasks
         >>> from visdet.data_elements.mask.mask_target import *
@@ -82,7 +82,7 @@ def mask_target_single(pos_proposals, pos_assigned_gt_inds, gt_masks, cfg):
         Tensor: Mask target of each positive proposals in the image.
 
     Example:
-        >>> from visengine.config import Config
+        >>> from visdet.engine.config import Config
         >>> import visdet
         >>> from visdet.data_elements.mask import BitmapMasks
         >>> from visdet.data_elements.mask.mask_target import *  # NOQA

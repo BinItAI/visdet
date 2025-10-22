@@ -9,8 +9,9 @@
 import multiprocessing
 import os
 
-import visdet.cv as viscv
 import numpy as np
+
+from visdet.cv import imfrombytes
 from visdet.engine.fileio import get
 
 # A custom value to distinguish instance ID and category ID; need to
@@ -68,15 +69,12 @@ def pq_compute_single_core(
         # The gt images can be on the local disk or `ceph`, so we use
         # backend here.
         img_bytes = get(os.path.join(gt_folder, gt_ann["file_name"]), backend_args=backend_args)
-        pan_gt = viscv.imfrombytes(img_bytes, flag="color", channel_order="rgb")
+        pan_gt = imfrombytes(img_bytes, flag="color", channel_order="rgb")
         pan_gt = rgb2id(pan_gt)
 
         # The predictions can only be on the local dist now.
-        pan_pred = viscv.imread(
-            os.path.join(pred_folder, pred_ann["file_name"]),
-            flag="color",
-            channel_order="rgb",
-        )
+        pred_img_bytes = get(os.path.join(pred_folder, pred_ann["file_name"]))
+        pan_pred = imfrombytes(pred_img_bytes, flag="color", channel_order="rgb")
         pan_pred = rgb2id(pan_pred)
 
         gt_segms = {el["id"]: el for el in gt_ann["segments_info"]}

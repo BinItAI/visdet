@@ -79,7 +79,7 @@ def eval_recalls(
         proposal_nums (int | Sequence[int]): Top N proposals to be evaluated.
         iou_thrs (float | Sequence[float]): IoU thresholds. Default: 0.5.
         logger (logging.Logger | str | None): The way to print the recall
-            summary. See `visengine.logging.print_log()` for details.
+            summary. See `visdet.engine.logging.print_log()` for details.
             Default: None.
         use_legacy_coordinate (bool): Whether use coordinate system
             in visdet v1.x. "1" was added to both height and width
@@ -129,7 +129,7 @@ def print_recall_summary(recalls, proposal_nums, iou_thrs, row_idxs=None, col_id
         row_idxs (ndarray): which rows(proposal nums) to print
         col_idxs (ndarray): which cols(iou thresholds) to print
         logger (logging.Logger | str | None): The way to print the recall
-            summary. See `visengine.logging.print_log()` for details.
+            summary. See `visdet.engine.logging.print_log()` for details.
             Default: None.
     """
     proposal_nums = np.array(proposal_nums, dtype=np.int32)
