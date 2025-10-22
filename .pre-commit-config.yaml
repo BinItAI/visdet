@@ -30,6 +30,17 @@ repos:
     hooks:
       - id: nbstripout
 
+  # Zuban type checker
+  - repo: local
+    hooks:
+      - id: zuban
+        name: Zuban type checker
+        entry: uv run zuban check
+        language: system
+        types: [python]
+        pass_filenames: false
+        exclude: ^(archive|tests)/
+
   # Block old-style viscv/visengine imports
   - repo: local
     hooks:
