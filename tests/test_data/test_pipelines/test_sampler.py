@@ -1,8 +1,7 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import torch
-
-from mmdet.core.bbox.assigners import MaxIoUAssigner
-from mmdet.core.bbox.samplers import OHEMSampler, RandomSampler, ScoreHLRSampler
+from visdet.core.bbox.assigners import MaxIoUAssigner
+from visdet.core.bbox.samplers import OHEMSampler, RandomSampler, ScoreHLRSampler
 
 
 def test_random_sampler():
@@ -106,7 +105,7 @@ def _context_for_ohem():
     model = _get_detector_cfg("faster_rcnn/faster_rcnn_r50_fpn_ohem_1x_coco.py")
     model["pretrained"] = None
 
-    from mmdet.models import build_detector
+    from visdet.models import build_detector
 
     context = build_detector(model).roi_head
     return context
@@ -235,7 +234,7 @@ def test_ohem_sampler_empty_pred():
 
 
 def test_random_sample_result():
-    from mmdet.core.bbox.samplers.sampling_result import SamplingResult
+    from visdet.core.bbox.samplers.sampling_result import SamplingResult
 
     SamplingResult.random(num_gts=0, num_preds=0)
     SamplingResult.random(num_gts=0, num_preds=3)

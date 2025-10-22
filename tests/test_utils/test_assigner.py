@@ -8,8 +8,7 @@ CommandLine:
 
 import pytest
 import torch
-
-from mmdet.core.bbox.assigners import (
+from visdet.core.bbox.assigners import (
     ApproxMaxIoUAssigner,
     AscendMaxIoUAssigner,
     CenterRegionAssigner,
@@ -312,7 +311,7 @@ def test_approx_iou_assigner_with_empty_boxes_and_gt():
 
 def test_random_assign_result():
     """Test random instantiation of assign result to catch corner cases."""
-    from mmdet.core.bbox.assigners.assign_result import AssignResult
+    from visdet.core.bbox.assigners.assign_result import AssignResult
 
     AssignResult.random()
 

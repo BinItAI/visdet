@@ -3,8 +3,7 @@ from unittest.mock import patch
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-
-from mmdet.models.utils import AdaptiveAvgPool2d, adaptive_avg_pool2d
+from visdet.models.utils import AdaptiveAvgPool2d, adaptive_avg_pool2d
 
 if torch.__version__ != "parrots":
     torch_version = "1.7"

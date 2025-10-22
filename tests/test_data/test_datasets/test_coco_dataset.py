@@ -2,10 +2,9 @@
 import os.path as osp
 import tempfile
 
-import mmcv
 import pytest
-
-from mmdet.datasets import CocoDataset
+import visdet.cv as mmcv
+from visdet.datasets import CocoDataset
 
 
 def _create_ids_error_coco_json(json_name):

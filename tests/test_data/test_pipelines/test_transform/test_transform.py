@@ -2,14 +2,13 @@
 import copy
 import os.path as osp
 
-import mmcv
 import numpy as np
 import pytest
 import torch
-from mmcv.utils import build_from_cfg
-
-from mmdet.core.evaluation.bbox_overlaps import bbox_overlaps
-from mmdet.datasets.builder import PIPELINES
+import visdet.cv as mmcv
+from visdet.core.evaluation.bbox_overlaps import bbox_overlaps
+from visdet.cv.utils import build_from_cfg
+from visdet.datasets.builder import PIPELINES
 
 from .utils import create_full_masks, create_random_bboxes
 

@@ -1,8 +1,7 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import pytest
 import torch
-
-from mmdet.models import Accuracy, build_loss
+from visdet.models import Accuracy, build_loss
 
 
 def test_ce_loss():

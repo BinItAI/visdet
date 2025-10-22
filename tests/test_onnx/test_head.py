@@ -2,15 +2,15 @@
 import os.path as osp
 from functools import partial
 
-import mmcv
 import numpy as np
 import pytest
 import torch
-from mmcv.cnn import Scale
+import visdet.cv as mmcv
+from visdet.cv.cnn import Scale
+from visdet.models import build_detector
+from visdet.models.dense_heads import FCOSHead, FSAFHead, RetinaHead, SSDHead, YOLOV3Head
 
-from mmdet import digit_version
-from mmdet.models import build_detector
-from mmdet.models.dense_heads import FCOSHead, FSAFHead, RetinaHead, SSDHead, YOLOV3Head
+from visdet import digit_version
 
 from .utils import ort_validate
 

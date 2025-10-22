@@ -1,8 +1,7 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import pytest
 import torch
-
-from mmdet.models.utils import ConvUpsample
+from visdet.models.utils import ConvUpsample
 
 
 @pytest.mark.parametrize("num_layers", [0, 1, 2])

@@ -6,13 +6,12 @@ import os
 import sys
 
 import asynctest
-import mmcv
 import torch
-
-from mmdet.apis import async_inference_detector, init_detector
+import visdet.cv as mmcv
+from visdet.apis import async_inference_detector, init_detector
 
 if sys.version_info >= (3, 7):
-    from mmdet.utils.contextmanagers import concurrent
+    from visdet.utils.contextmanagers import concurrent
 
 
 class AsyncTestCase(asynctest.TestCase):

@@ -1,8 +1,7 @@
 # Copyright (c) OpenMMLab. All rights reserved.
-import mmcv
 import torch
-
-from mmdet.models.dense_heads import DDODHead
+import visdet.cv as mmcv
+from visdet.models.dense_heads import DDODHead
 
 
 def test_ddod_head_loss():

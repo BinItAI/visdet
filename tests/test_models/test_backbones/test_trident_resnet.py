@@ -1,9 +1,8 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import pytest
 import torch
-
-from mmdet.models.backbones import TridentResNet
-from mmdet.models.backbones.trident_resnet import TridentBottleneck
+from visdet.models.backbones import TridentResNet
+from visdet.models.backbones.trident_resnet import TridentBottleneck
 
 
 def test_trident_resnet_bottleneck():

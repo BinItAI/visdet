@@ -16,7 +16,7 @@ def _get_config_directory():
         repo_dpath = dirname(dirname(dirname(__file__)))
     except NameError:
         # For IPython development when this __file__ is not defined
-        import mmdet
+        import visdet as mmdet
 
         repo_dpath = dirname(dirname(mmdet.__file__))
     config_dpath = join(repo_dpath, "configs")
@@ -27,7 +27,7 @@ def _get_config_directory():
 
 def _get_config_module(fname):
     """Load a configuration as a python module."""
-    from mmcv import Config
+    from visdet.cv import Config
 
     config_dpath = _get_config_directory()
     config_fpath = join(config_dpath, fname)
@@ -61,7 +61,7 @@ def test_sparse_rcnn_forward():
     model = _get_detector_cfg(config_path)
     model = _replace_r50_with_r18(model)
     model.backbone.init_cfg = None
-    from mmdet.models import build_detector
+    from visdet.models import build_detector
 
     detector = build_detector(model)
     detector.init_weights()
@@ -120,7 +120,7 @@ def test_rpn_forward():
     model = _replace_r50_with_r18(model)
     model.backbone.init_cfg = None
 
-    from mmdet.models import build_detector
+    from visdet.models import build_detector
 
     detector = build_detector(model)
 
@@ -169,7 +169,7 @@ def test_single_stage_forward_gpu(cfg_file):
     model = _replace_r50_with_r18(model)
     model.backbone.init_cfg = None
 
-    from mmdet.models import build_detector
+    from visdet.models import build_detector
 
     detector = build_detector(model)
 
@@ -202,7 +202,7 @@ def test_faster_rcnn_ohem_forward():
     model = _replace_r50_with_r18(model)
     model.backbone.init_cfg = None
 
-    from mmdet.models import build_detector
+    from visdet.models import build_detector
 
     detector = build_detector(model)
 
@@ -280,7 +280,7 @@ def test_two_stage_forward(cfg_file):
         model.test_cfg.rcnn.score_thr = 0.05
         model.test_cfg.rcnn.max_per_img = 100
 
-    from mmdet.models import build_detector
+    from visdet.models import build_detector
 
     detector = build_detector(model)
 
@@ -384,7 +384,7 @@ def test_single_stage_forward_cpu(cfg_file):
     model = _replace_r50_with_r18(model)
     model.backbone.init_cfg = None
 
-    from mmdet.models import build_detector
+    from visdet.models import build_detector
 
     detector = build_detector(model)
 
@@ -425,7 +425,7 @@ def _demo_mm_inputs(input_shape=(1, 3, 300, 300),
         num_classes (int):
             number of different labels a box might have
     """
-    from mmdet.core import BitmapMasks
+    from visdet.core import BitmapMasks
 
     (N, C, H, W) = input_shape
 
@@ -494,7 +494,7 @@ def test_yolact_forward():
     model = _replace_r50_with_r18(model)
     model.backbone.init_cfg = None
 
-    from mmdet.models import build_detector
+    from visdet.models import build_detector
 
     detector = build_detector(model)
 
@@ -538,7 +538,7 @@ def test_detr_forward():
     model.bbox_head.in_channels = 512
     model.backbone.init_cfg = None
 
-    from mmdet.models import build_detector
+    from visdet.models import build_detector
 
     detector = build_detector(model)
 
@@ -579,10 +579,9 @@ def test_detr_forward():
 
 
 def test_inference_detector():
-    from mmcv import ConfigDict
-
-    from mmdet.apis import inference_detector
-    from mmdet.models import build_detector
+    from visdet.apis import inference_detector
+    from visdet.cv import ConfigDict
+    from visdet.models import build_detector
 
     # small RetinaNet
     num_class = 3
@@ -642,7 +641,7 @@ def test_inference_detector():
 
 
 def test_yolox_random_size():
-    from mmdet.models import build_detector
+    from visdet.models import build_detector
 
     model = _get_detector_cfg("yolox/yolox_tiny_8x8_300e_coco.py")
     model.random_size_range = (2, 2)
@@ -683,8 +682,8 @@ def test_maskformer_forward():
     model_cfg.panoptic_head.transformer_decoder.transformerlayers.ffn_cfgs.feedforward_channels = base_channels * 8
     model_cfg.panoptic_head.transformer_decoder.transformerlayers.feedforward_channels = base_channels * 8
 
-    from mmdet.core import BitmapMasks
-    from mmdet.models import build_detector
+    from visdet.core import BitmapMasks
+    from visdet.models import build_detector
 
     detector = build_detector(model_cfg)
 
@@ -793,8 +792,8 @@ def test_mask2former_forward(cfg_file):
 
     num_stuff_classes = model_cfg.panoptic_head.num_stuff_classes
 
-    from mmdet.core import BitmapMasks
-    from mmdet.models import build_detector
+    from visdet.core import BitmapMasks
+    from visdet.models import build_detector
 
     detector = build_detector(model_cfg)
 

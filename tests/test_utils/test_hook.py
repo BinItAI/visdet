@@ -9,13 +9,12 @@ import numpy as np
 import pytest
 import torch
 import torch.nn as nn
-from mmcv.runner import CheckpointHook, IterTimerHook, PaviLoggerHook, build_runner
 from torch.nn.init import constant_
 from torch.utils.data import DataLoader, Dataset
-
-from mmdet.core.hook import ExpMomentumEMAHook, YOLOXLrUpdaterHook
-from mmdet.core.hook.sync_norm_hook import SyncNormHook
-from mmdet.core.hook.sync_random_size_hook import SyncRandomSizeHook
+from visdet.core.hook import ExpMomentumEMAHook, YOLOXLrUpdaterHook
+from visdet.core.hook.sync_norm_hook import SyncNormHook
+from visdet.core.hook.sync_random_size_hook import SyncRandomSizeHook
+from visdet.cv.runner import CheckpointHook, IterTimerHook, PaviLoggerHook, build_runner
 
 
 def _build_demo_runner_without_hook(
@@ -339,14 +338,14 @@ def test_memory_profiler_hook():
 
     # test ImportError without psutil and memory_profiler
     with pytest.raises(ImportError):
-        from mmdet.core.hook import MemoryProfilerHook
+        from visdet.core.hook import MemoryProfilerHook
 
         MemoryProfilerHook(1)
 
     # test ImportError without memory_profiler
     sys.modules["psutil"] = MagicMock()
     with pytest.raises(ImportError):
-        from mmdet.core.hook import MemoryProfilerHook
+        from visdet.core.hook import MemoryProfilerHook
 
         MemoryProfilerHook(1)
 
@@ -378,7 +377,7 @@ def test_memory_profiler_hook():
     @patch("psutil.virtual_memory", mock_virtual_memory)
     @patch("memory_profiler.memory_usage", mock_memory_usage)
     def _test_memory_profiler_hook():
-        from mmdet.core.hook import MemoryProfilerHook
+        from visdet.core.hook import MemoryProfilerHook
 
         hook = MemoryProfilerHook(1)
         runner = _build_demo_runner()

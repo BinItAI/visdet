@@ -2,9 +2,8 @@
 import pytest
 import torch
 import torch.nn.functional as F
-from mmcv.cnn import constant_init
-
-from mmdet.models.utils import DyReLU, SELayer
+from visdet.cv.cnn import constant_init
+from visdet.models.utils import DyReLU, SELayer
 
 
 def test_se_layer():

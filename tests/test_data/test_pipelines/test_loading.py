@@ -2,12 +2,11 @@
 import copy
 import os.path as osp
 
-import mmcv
 import numpy as np
 import pytest
-
-from mmdet.core.mask import BitmapMasks, PolygonMasks
-from mmdet.datasets.pipelines import (
+import visdet.cv as mmcv
+from visdet.core.mask import BitmapMasks, PolygonMasks
+from visdet.datasets.pipelines import (
     FilterAnnotations,
     LoadImageFromFile,
     LoadImageFromWebcam,

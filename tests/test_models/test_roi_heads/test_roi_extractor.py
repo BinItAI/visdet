@@ -1,8 +1,7 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import pytest
 import torch
-
-from mmdet.models.roi_heads.roi_extractors import GenericRoIExtractor
+from visdet.models.roi_heads.roi_extractors import GenericRoIExtractor
 
 
 def test_groie():

@@ -1,7 +1,6 @@
 import pytest
 import torch
-
-from mmdet.core.post_processing import mask_matrix_nms
+from visdet.core.post_processing import mask_matrix_nms
 
 
 def _create_mask(N, h, w):

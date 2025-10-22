@@ -5,17 +5,16 @@ import tempfile
 import numpy as np
 import pytest
 import torch
-
-from mmdet.core.bbox import distance2bbox
-from mmdet.core.mask.structures import BitmapMasks, PolygonMasks
-from mmdet.core.utils import (
+from visdet.core.bbox import distance2bbox
+from visdet.core.mask.structures import BitmapMasks, PolygonMasks
+from visdet.core.utils import (
     center_of_mass,
     filter_scores_and_topk,
     flip_tensor,
     mask2ndarray,
     select_single_mlvl,
 )
-from mmdet.utils import find_latest_checkpoint
+from visdet.utils import find_latest_checkpoint
 
 
 def dummy_raw_polygon_masks(size):

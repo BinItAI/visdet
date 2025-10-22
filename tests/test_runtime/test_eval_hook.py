@@ -8,11 +8,10 @@ from unittest.mock import MagicMock, patch
 import pytest
 import torch
 import torch.nn as nn
-from mmcv.runner import EpochBasedRunner, build_optimizer
-from mmcv.utils import get_logger
 from torch.utils.data import DataLoader, Dataset
-
-from mmdet.core import DistEvalHook, EvalHook
+from visdet.core import DistEvalHook, EvalHook
+from visdet.cv.runner import EpochBasedRunner, build_optimizer
+from visdet.cv.utils import get_logger
 
 
 class ExampleDataset(Dataset):

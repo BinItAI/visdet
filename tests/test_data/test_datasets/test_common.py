@@ -5,16 +5,15 @@ import os.path as osp
 import tempfile
 from unittest.mock import MagicMock, patch
 
-import mmcv
 import numpy as np
 import pytest
 import torch
 import torch.nn as nn
-from mmcv.runner import EpochBasedRunner
+import visdet.cv as mmcv
 from torch.utils.data import DataLoader
-
-from mmdet.core.evaluation import DistEvalHook, EvalHook
-from mmdet.datasets import DATASETS, CocoDataset, CustomDataset, build_dataset
+from visdet.core.evaluation import DistEvalHook, EvalHook
+from visdet.cv.runner import EpochBasedRunner
+from visdet.datasets import DATASETS, CocoDataset, CustomDataset, build_dataset
 
 
 def _create_dummy_coco_json(json_name):

@@ -1,10 +1,9 @@
 import os.path as osp
 from tempfile import TemporaryDirectory
 
-import mmcv
 import numpy as np
-
-from mmdet.datasets import OccludedSeparatedCocoDataset
+import visdet.cv as mmcv
+from visdet.datasets import OccludedSeparatedCocoDataset
 
 
 def test_occluded_separated_coco_dataset():

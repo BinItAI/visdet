@@ -1,13 +1,12 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import os.path as osp
 
-import mmcv
 import torch
-from mmcv.parallel import collate
-from mmcv.utils import build_from_cfg
-
-from mmdet.datasets.builder import PIPELINES
-from mmdet.models import build_detector
+import visdet.cv as mmcv
+from visdet.cv.parallel import collate
+from visdet.cv.utils import build_from_cfg
+from visdet.datasets.builder import PIPELINES
+from visdet.models import build_detector
 
 
 def model_aug_test_template(cfg_file):

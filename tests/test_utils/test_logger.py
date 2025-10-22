@@ -1,7 +1,6 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import pytest
-
-from mmdet.utils import get_caller_name, log_img_scale
+from visdet.utils import get_caller_name, log_img_scale
 
 
 def callee_func():

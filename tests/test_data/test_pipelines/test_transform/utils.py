@@ -1,7 +1,6 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import numpy as np
-
-from mmdet.core.mask import BitmapMasks, PolygonMasks
+from visdet.core.mask import BitmapMasks, PolygonMasks
 
 
 def _check_fields(results, pipeline_results, keys):

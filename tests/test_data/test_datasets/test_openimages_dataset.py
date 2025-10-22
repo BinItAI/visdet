@@ -2,11 +2,10 @@ import csv
 import os.path as osp
 import tempfile
 
-import mmcv
 import numpy as np
 import pytest
-
-from mmdet.datasets import OpenImagesChallengeDataset, OpenImagesDataset
+import visdet.cv as mmcv
+from visdet.datasets import OpenImagesChallengeDataset, OpenImagesDataset
 
 
 def _create_ids_error_oid_csv(

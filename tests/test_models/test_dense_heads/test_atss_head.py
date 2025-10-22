@@ -1,8 +1,7 @@
 # Copyright (c) OpenMMLab. All rights reserved.
-import mmcv
 import torch
-
-from mmdet.models.dense_heads import ATSSHead
+import visdet.cv as mmcv
+from visdet.models.dense_heads import ATSSHead
 
 
 def test_atss_head_loss():

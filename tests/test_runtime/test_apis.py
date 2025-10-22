@@ -2,8 +2,7 @@ import os
 from pathlib import Path
 
 import pytest
-
-from mmdet.apis import init_detector
+from visdet.apis import init_detector
 
 
 def test_init_detector():

@@ -1,10 +1,9 @@
 # Copyright (c) OpenMMLab. All rights reserved.
-import mmcv
 import numpy as np
 import torch
-
-from mmdet.models.dense_heads import LADHead, lad_head
-from mmdet.models.dense_heads.lad_head import levels_to_images
+import visdet.cv as mmcv
+from visdet.models.dense_heads import LADHead, lad_head
+from visdet.models.dense_heads.lad_head import levels_to_images
 
 
 def test_lad_head_loss():

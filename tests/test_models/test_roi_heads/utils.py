@@ -1,7 +1,6 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import torch
-
-from mmdet.core import build_assigner, build_sampler
+from visdet.core import build_assigner, build_sampler
 
 
 def _dummy_bbox_sampling(proposal_list, gt_bboxes, gt_labels):

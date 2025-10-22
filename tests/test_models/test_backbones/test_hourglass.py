@@ -1,8 +1,7 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import pytest
 import torch
-
-from mmdet.models.backbones.hourglass import HourglassNet
+from visdet.models.backbones.hourglass import HourglassNet
 
 
 def test_hourglass_backbone():

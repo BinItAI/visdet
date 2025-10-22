@@ -1,9 +1,8 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import pytest
 import torch
-
-from mmdet.models.backbones.hrnet import HRModule, HRNet
-from mmdet.models.backbones.resnet import BasicBlock, Bottleneck
+from visdet.models.backbones.hrnet import HRModule, HRNet
+from visdet.models.backbones.resnet import BasicBlock, Bottleneck
 
 
 @pytest.mark.parametrize("block", [BasicBlock, Bottleneck])

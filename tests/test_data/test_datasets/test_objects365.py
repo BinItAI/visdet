@@ -2,10 +2,9 @@
 import os.path as osp
 import tempfile
 
-import mmcv
 import pytest
-
-from mmdet.datasets import Objects365V1Dataset, Objects365V2Dataset
+import visdet.cv as mmcv
+from visdet.datasets import Objects365V1Dataset, Objects365V2Dataset
 
 
 def _create_objects365_json(json_name):

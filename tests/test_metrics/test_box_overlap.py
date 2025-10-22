@@ -2,9 +2,8 @@
 import numpy as np
 import pytest
 import torch
-
-from mmdet.core import BboxOverlaps2D, bbox_overlaps
-from mmdet.core.evaluation.bbox_overlaps import bbox_overlaps as recall_overlaps
+from visdet.core import BboxOverlaps2D, bbox_overlaps
+from visdet.core.evaluation.bbox_overlaps import bbox_overlaps as recall_overlaps
 
 
 def test_bbox_overlaps_2d(eps=1e-7):

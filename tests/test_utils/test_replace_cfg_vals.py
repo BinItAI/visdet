@@ -3,9 +3,8 @@ import tempfile
 from copy import deepcopy
 
 import pytest
-from mmcv.utils import Config
-
-from mmdet.utils import replace_cfg_vals
+from visdet.cv.utils import Config
+from visdet.utils import replace_cfg_vals
 
 
 def test_replace_cfg_vals():

@@ -1,9 +1,8 @@
 # Copyright (c) OpenMMLab. All rights reserved.
-import mmcv
 import torch
-
-from mmdet.models.dense_heads.autoassign_head import AutoAssignHead
-from mmdet.models.dense_heads.paa_head import levels_to_images
+import visdet.cv as mmcv
+from visdet.models.dense_heads.autoassign_head import AutoAssignHead
+from visdet.models.dense_heads.paa_head import levels_to_images
 
 
 def test_autoassign_head_loss():

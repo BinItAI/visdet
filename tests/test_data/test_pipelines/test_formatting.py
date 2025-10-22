@@ -1,9 +1,8 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import os.path as osp
 
-from mmcv.utils import build_from_cfg
-
-from mmdet.datasets.builder import PIPELINES
+from visdet.cv.utils import build_from_cfg
+from visdet.datasets.builder import PIPELINES
 
 
 def test_default_format_bundle():

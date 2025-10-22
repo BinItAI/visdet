@@ -1,0 +1,1186 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.11, pytest-8.4.2, pluggy-1.6.0 -- /home/georgepearse/visdet/.venv/bin/python3
+cachedir: .pytest_cache
+rootdir: /home/georgepearse/visdet
+configfile: pytest.ini
+plugins: cov-7.0.0, xdoctest-1.3.0
+collecting ... collected 43 items / 102 errors
+
+==================================== ERRORS ====================================
+_____ ERROR collecting tests/test_data/test_datasets/test_coco_dataset.py ______
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_data/test_datasets/test_coco_dataset.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_data/test_datasets/test_coco_dataset.py:5: in <module>
+    import mmcv
+E   ModuleNotFoundError: No module named 'mmcv'
+_____ ERROR collecting tests/test_data/test_datasets/test_coco_occluded.py _____
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_data/test_datasets/test_coco_occluded.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_data/test_datasets/test_coco_occluded.py:4: in <module>
+    import mmcv
+E   ModuleNotFoundError: No module named 'mmcv'
+________ ERROR collecting tests/test_data/test_datasets/test_common.py _________
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_data/test_datasets/test_common.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_data/test_datasets/test_common.py:8: in <module>
+    import mmcv
+E   ModuleNotFoundError: No module named 'mmcv'
+____ ERROR collecting tests/test_data/test_datasets/test_custom_dataset.py _____
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_data/test_datasets/test_custom_dataset.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_data/test_datasets/test_custom_dataset.py:8: in <module>
+    from mmdet.datasets import DATASETS
+E   ModuleNotFoundError: No module named 'mmdet'
+____ ERROR collecting tests/test_data/test_datasets/test_dataset_wrapper.py ____
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_data/test_datasets/test_dataset_wrapper.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_data/test_datasets/test_dataset_wrapper.py:10: in <module>
+    from mmdet.datasets import (
+E   ModuleNotFoundError: No module named 'mmdet'
+______ ERROR collecting tests/test_data/test_datasets/test_objects365.py _______
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_data/test_datasets/test_objects365.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_data/test_datasets/test_objects365.py:5: in <module>
+    import mmcv
+E   ModuleNotFoundError: No module named 'mmcv'
+__ ERROR collecting tests/test_data/test_datasets/test_openimages_dataset.py ___
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_data/test_datasets/test_openimages_dataset.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_data/test_datasets/test_openimages_dataset.py:5: in <module>
+    import mmcv
+E   ModuleNotFoundError: No module named 'mmcv'
+___ ERROR collecting tests/test_data/test_datasets/test_panoptic_dataset.py ____
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_data/test_datasets/test_panoptic_dataset.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_data/test_datasets/test_panoptic_dataset.py:5: in <module>
+    import mmcv
+E   ModuleNotFoundError: No module named 'mmcv'
+______ ERROR collecting tests/test_data/test_datasets/test_xml_dataset.py ______
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_data/test_datasets/test_xml_dataset.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_data/test_datasets/test_xml_dataset.py:4: in <module>
+    from mmdet.datasets import DATASETS
+E   ModuleNotFoundError: No module named 'mmdet'
+______ ERROR collecting tests/test_data/test_pipelines/test_formatting.py ______
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_data/test_pipelines/test_formatting.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_data/test_pipelines/test_formatting.py:4: in <module>
+    from mmcv.utils import build_from_cfg
+E   ModuleNotFoundError: No module named 'mmcv'
+_______ ERROR collecting tests/test_data/test_pipelines/test_loading.py ________
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_data/test_pipelines/test_loading.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_data/test_pipelines/test_loading.py:5: in <module>
+    import mmcv
+E   ModuleNotFoundError: No module named 'mmcv'
+_______ ERROR collecting tests/test_data/test_pipelines/test_sampler.py ________
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_data/test_pipelines/test_sampler.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_data/test_pipelines/test_sampler.py:4: in <module>
+    from mmdet.core.bbox.assigners import MaxIoUAssigner
+E   ModuleNotFoundError: No module named 'mmdet'
+_ ERROR collecting tests/test_data/test_pipelines/test_transform/test_img_augment.py _
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_data/test_pipelines/test_transform/test_img_augment.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_data/test_pipelines/test_transform/__init__.py:2: in <module>
+    from .utils import check_result_same, construct_toy_data, create_random_bboxes
+tests/test_data/test_pipelines/test_transform/utils.py:4: in <module>
+    from mmdet.core.mask import BitmapMasks, PolygonMasks
+E   ModuleNotFoundError: No module named 'mmdet'
+_ ERROR collecting tests/test_data/test_pipelines/test_transform/test_models_aug_test.py _
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_data/test_pipelines/test_transform/test_models_aug_test.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_data/test_pipelines/test_transform/__init__.py:2: in <module>
+    from .utils import check_result_same, construct_toy_data, create_random_bboxes
+tests/test_data/test_pipelines/test_transform/utils.py:4: in <module>
+    from mmdet.core.mask import BitmapMasks, PolygonMasks
+E   ModuleNotFoundError: No module named 'mmdet'
+_ ERROR collecting tests/test_data/test_pipelines/test_transform/test_rotate.py _
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_data/test_pipelines/test_transform/test_rotate.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_data/test_pipelines/test_transform/__init__.py:2: in <module>
+    from .utils import check_result_same, construct_toy_data, create_random_bboxes
+tests/test_data/test_pipelines/test_transform/utils.py:4: in <module>
+    from mmdet.core.mask import BitmapMasks, PolygonMasks
+E   ModuleNotFoundError: No module named 'mmdet'
+_ ERROR collecting tests/test_data/test_pipelines/test_transform/test_shear.py _
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_data/test_pipelines/test_transform/test_shear.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_data/test_pipelines/test_transform/__init__.py:2: in <module>
+    from .utils import check_result_same, construct_toy_data, create_random_bboxes
+tests/test_data/test_pipelines/test_transform/utils.py:4: in <module>
+    from mmdet.core.mask import BitmapMasks, PolygonMasks
+E   ModuleNotFoundError: No module named 'mmdet'
+_ ERROR collecting tests/test_data/test_pipelines/test_transform/test_transform.py _
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_data/test_pipelines/test_transform/test_transform.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_data/test_pipelines/test_transform/__init__.py:2: in <module>
+    from .utils import check_result_same, construct_toy_data, create_random_bboxes
+tests/test_data/test_pipelines/test_transform/utils.py:4: in <module>
+    from mmdet.core.mask import BitmapMasks, PolygonMasks
+E   ModuleNotFoundError: No module named 'mmdet'
+_ ERROR collecting tests/test_data/test_pipelines/test_transform/test_translate.py _
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_data/test_pipelines/test_transform/test_translate.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_data/test_pipelines/test_transform/__init__.py:2: in <module>
+    from .utils import check_result_same, construct_toy_data, create_random_bboxes
+tests/test_data/test_pipelines/test_transform/utils.py:4: in <module>
+    from mmdet.core.mask import BitmapMasks, PolygonMasks
+E   ModuleNotFoundError: No module named 'mmdet'
+________________ ERROR collecting tests/test_data/test_utils.py ________________
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_data/test_utils.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_data/test_utils.py:4: in <module>
+    from mmdet.datasets import get_loading_pipeline, replace_ImageToTensor
+E   ModuleNotFoundError: No module named 'mmdet'
+____________ ERROR collecting tests/test_downstream/test_mmtrack.py ____________
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_downstream/test_mmtrack.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_downstream/test_mmtrack.py:8: in <module>
+    from mmcv import Config
+E   ModuleNotFoundError: No module named 'mmcv'
+___________ ERROR collecting tests/test_metrics/test_box_overlap.py ____________
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_metrics/test_box_overlap.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_metrics/test_box_overlap.py:6: in <module>
+    from mmdet.core import BboxOverlaps2D, bbox_overlaps
+E   ModuleNotFoundError: No module named 'mmdet'
+______________ ERROR collecting tests/test_metrics/test_losses.py ______________
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_metrics/test_losses.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_metrics/test_losses.py:5: in <module>
+    from mmdet.models import Accuracy, build_loss
+E   ModuleNotFoundError: No module named 'mmdet'
+_____________ ERROR collecting tests/test_metrics/test_mean_ap.py ______________
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_metrics/test_mean_ap.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_metrics/test_mean_ap.py:3: in <module>
+    from mmdet.core.evaluation.mean_ap import (
+E   ModuleNotFoundError: No module named 'mmdet'
+______________ ERROR collecting tests/test_metrics/test_recall.py ______________
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_metrics/test_recall.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_metrics/test_recall.py:3: in <module>
+    from mmdet.core.evaluation.recall import eval_recalls
+E   ModuleNotFoundError: No module named 'mmdet'
+____ ERROR collecting tests/test_models/test_backbones/test_csp_darknet.py _____
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_models/test_backbones/test_csp_darknet.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_models/test_backbones/__init__.py:2: in <module>
+    from .utils import check_norm_state, is_block, is_norm
+tests/test_models/test_backbones/utils.py:5: in <module>
+    from mmdet.models.backbones.res2net import Bottle2neck
+E   ModuleNotFoundError: No module named 'mmdet'
+__ ERROR collecting tests/test_models/test_backbones/test_detectors_resnet.py __
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_models/test_backbones/test_detectors_resnet.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_models/test_backbones/__init__.py:2: in <module>
+    from .utils import check_norm_state, is_block, is_norm
+tests/test_models/test_backbones/utils.py:5: in <module>
+    from mmdet.models.backbones.res2net import Bottle2neck
+E   ModuleNotFoundError: No module named 'mmdet'
+____ ERROR collecting tests/test_models/test_backbones/test_efficientnet.py ____
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_models/test_backbones/test_efficientnet.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_models/test_backbones/__init__.py:2: in <module>
+    from .utils import check_norm_state, is_block, is_norm
+tests/test_models/test_backbones/utils.py:5: in <module>
+    from mmdet.models.backbones.res2net import Bottle2neck
+E   ModuleNotFoundError: No module named 'mmdet'
+_____ ERROR collecting tests/test_models/test_backbones/test_hourglass.py ______
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_models/test_backbones/test_hourglass.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_models/test_backbones/__init__.py:2: in <module>
+    from .utils import check_norm_state, is_block, is_norm
+tests/test_models/test_backbones/utils.py:5: in <module>
+    from mmdet.models.backbones.res2net import Bottle2neck
+E   ModuleNotFoundError: No module named 'mmdet'
+_______ ERROR collecting tests/test_models/test_backbones/test_hrnet.py ________
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_models/test_backbones/test_hrnet.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_models/test_backbones/__init__.py:2: in <module>
+    from .utils import check_norm_state, is_block, is_norm
+tests/test_models/test_backbones/utils.py:5: in <module>
+    from mmdet.models.backbones.res2net import Bottle2neck
+E   ModuleNotFoundError: No module named 'mmdet'
+____ ERROR collecting tests/test_models/test_backbones/test_mobilenet_v2.py ____
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_models/test_backbones/test_mobilenet_v2.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_models/test_backbones/__init__.py:2: in <module>
+    from .utils import check_norm_state, is_block, is_norm
+tests/test_models/test_backbones/utils.py:5: in <module>
+    from mmdet.models.backbones.res2net import Bottle2neck
+E   ModuleNotFoundError: No module named 'mmdet'
+________ ERROR collecting tests/test_models/test_backbones/test_pvt.py _________
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_models/test_backbones/test_pvt.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_models/test_backbones/__init__.py:2: in <module>
+    from .utils import check_norm_state, is_block, is_norm
+tests/test_models/test_backbones/utils.py:5: in <module>
+    from mmdet.models.backbones.res2net import Bottle2neck
+E   ModuleNotFoundError: No module named 'mmdet'
+_______ ERROR collecting tests/test_models/test_backbones/test_regnet.py _______
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_models/test_backbones/test_regnet.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_models/test_backbones/__init__.py:2: in <module>
+    from .utils import check_norm_state, is_block, is_norm
+tests/test_models/test_backbones/utils.py:5: in <module>
+    from mmdet.models.backbones.res2net import Bottle2neck
+E   ModuleNotFoundError: No module named 'mmdet'
+_______ ERROR collecting tests/test_models/test_backbones/test_renext.py _______
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_models/test_backbones/test_renext.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_models/test_backbones/__init__.py:2: in <module>
+    from .utils import check_norm_state, is_block, is_norm
+tests/test_models/test_backbones/utils.py:5: in <module>
+    from mmdet.models.backbones.res2net import Bottle2neck
+E   ModuleNotFoundError: No module named 'mmdet'
+______ ERROR collecting tests/test_models/test_backbones/test_res2net.py _______
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_models/test_backbones/test_res2net.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_models/test_backbones/__init__.py:2: in <module>
+    from .utils import check_norm_state, is_block, is_norm
+tests/test_models/test_backbones/utils.py:5: in <module>
+    from mmdet.models.backbones.res2net import Bottle2neck
+E   ModuleNotFoundError: No module named 'mmdet'
+______ ERROR collecting tests/test_models/test_backbones/test_resnest.py _______
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_models/test_backbones/test_resnest.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_models/test_backbones/__init__.py:2: in <module>
+    from .utils import check_norm_state, is_block, is_norm
+tests/test_models/test_backbones/utils.py:5: in <module>
+    from mmdet.models.backbones.res2net import Bottle2neck
+E   ModuleNotFoundError: No module named 'mmdet'
+_______ ERROR collecting tests/test_models/test_backbones/test_resnet.py _______
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_models/test_backbones/test_resnet.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_models/test_backbones/__init__.py:2: in <module>
+    from .utils import check_norm_state, is_block, is_norm
+tests/test_models/test_backbones/utils.py:5: in <module>
+    from mmdet.models.backbones.res2net import Bottle2neck
+E   ModuleNotFoundError: No module named 'mmdet'
+________ ERROR collecting tests/test_models/test_backbones/test_swin.py ________
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_models/test_backbones/test_swin.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_models/test_backbones/__init__.py:2: in <module>
+    from .utils import check_norm_state, is_block, is_norm
+tests/test_models/test_backbones/utils.py:5: in <module>
+    from mmdet.models.backbones.res2net import Bottle2neck
+E   ModuleNotFoundError: No module named 'mmdet'
+___ ERROR collecting tests/test_models/test_backbones/test_trident_resnet.py ___
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_models/test_backbones/test_trident_resnet.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_models/test_backbones/__init__.py:2: in <module>
+    from .utils import check_norm_state, is_block, is_norm
+tests/test_models/test_backbones/utils.py:5: in <module>
+    from mmdet.models.backbones.res2net import Bottle2neck
+E   ModuleNotFoundError: No module named 'mmdet'
+___ ERROR collecting tests/test_models/test_dense_heads/test_anchor_head.py ____
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_models/test_dense_heads/test_anchor_head.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_models/test_dense_heads/test_anchor_head.py:2: in <module>
+    import mmcv
+E   ModuleNotFoundError: No module named 'mmcv'
+___ ERROR collecting tests/test_models/test_dense_heads/test_ascend_head.py ____
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_models/test_dense_heads/test_ascend_head.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_models/test_dense_heads/test_ascend_head.py:2: in <module>
+    import mmcv
+E   ModuleNotFoundError: No module named 'mmcv'
+____ ERROR collecting tests/test_models/test_dense_heads/test_atss_head.py _____
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_models/test_dense_heads/test_atss_head.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_models/test_dense_heads/test_atss_head.py:2: in <module>
+    import mmcv
+E   ModuleNotFoundError: No module named 'mmcv'
+_ ERROR collecting tests/test_models/test_dense_heads/test_autoassign_head.py __
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_models/test_dense_heads/test_autoassign_head.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_models/test_dense_heads/test_autoassign_head.py:2: in <module>
+    import mmcv
+E   ModuleNotFoundError: No module named 'mmcv'
+__ ERROR collecting tests/test_models/test_dense_heads/test_centernet_head.py __
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_models/test_dense_heads/test_centernet_head.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_models/test_dense_heads/test_centernet_head.py:4: in <module>
+    from mmcv import ConfigDict
+E   ModuleNotFoundError: No module named 'mmcv'
+___ ERROR collecting tests/test_models/test_dense_heads/test_corner_head.py ____
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_models/test_dense_heads/test_corner_head.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_models/test_dense_heads/test_corner_head.py:4: in <module>
+    from mmdet.core.evaluation.bbox_overlaps import bbox_overlaps
+E   ModuleNotFoundError: No module named 'mmdet'
+____ ERROR collecting tests/test_models/test_dense_heads/test_ddod_head.py _____
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_models/test_dense_heads/test_ddod_head.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_models/test_dense_heads/test_ddod_head.py:2: in <module>
+    import mmcv
+E   ModuleNotFoundError: No module named 'mmcv'
+_ ERROR collecting tests/test_models/test_dense_heads/test_dense_heads_attr.py _
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_models/test_dense_heads/test_dense_heads_attr.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_models/test_dense_heads/test_dense_heads_attr.py:6: in <module>
+    from mmdet.models import dense_heads
+E   ModuleNotFoundError: No module named 'mmdet'
+____ ERROR collecting tests/test_models/test_dense_heads/test_detr_head.py _____
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_models/test_dense_heads/test_detr_head.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_models/test_dense_heads/test_detr_head.py:3: in <module>
+    from mmcv import ConfigDict
+E   ModuleNotFoundError: No module named 'mmcv'
+____ ERROR collecting tests/test_models/test_dense_heads/test_fcos_head.py _____
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_models/test_dense_heads/test_fcos_head.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_models/test_dense_heads/test_fcos_head.py:2: in <module>
+    import mmcv
+E   ModuleNotFoundError: No module named 'mmcv'
+____ ERROR collecting tests/test_models/test_dense_heads/test_fsaf_head.py _____
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_models/test_dense_heads/test_fsaf_head.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_models/test_dense_heads/test_fsaf_head.py:2: in <module>
+    import mmcv
+E   ModuleNotFoundError: No module named 'mmcv'
+__ ERROR collecting tests/test_models/test_dense_heads/test_ga_anchor_head.py __
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_models/test_dense_heads/test_ga_anchor_head.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_models/test_dense_heads/test_ga_anchor_head.py:2: in <module>
+    import mmcv
+E   ModuleNotFoundError: No module named 'mmcv'
+_____ ERROR collecting tests/test_models/test_dense_heads/test_gfl_head.py _____
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_models/test_dense_heads/test_gfl_head.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_models/test_dense_heads/test_gfl_head.py:2: in <module>
+    import mmcv
+E   ModuleNotFoundError: No module named 'mmcv'
+_____ ERROR collecting tests/test_models/test_dense_heads/test_lad_head.py _____
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_models/test_dense_heads/test_lad_head.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_models/test_dense_heads/test_lad_head.py:2: in <module>
+    import mmcv
+E   ModuleNotFoundError: No module named 'mmcv'
+_____ ERROR collecting tests/test_models/test_dense_heads/test_ld_head.py ______
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_models/test_dense_heads/test_ld_head.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_models/test_dense_heads/test_ld_head.py:2: in <module>
+    import mmcv
+E   ModuleNotFoundError: No module named 'mmcv'
+_ ERROR collecting tests/test_models/test_dense_heads/test_mask2former_head.py _
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_models/test_dense_heads/test_mask2former_head.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_models/test_dense_heads/test_mask2former_head.py:4: in <module>
+    from mmcv import ConfigDict
+E   ModuleNotFoundError: No module named 'mmcv'
+_ ERROR collecting tests/test_models/test_dense_heads/test_maskformer_head.py __
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_models/test_dense_heads/test_maskformer_head.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_models/test_dense_heads/test_maskformer_head.py:3: in <module>
+    from mmcv import ConfigDict
+E   ModuleNotFoundError: No module named 'mmcv'
+_____ ERROR collecting tests/test_models/test_dense_heads/test_paa_head.py _____
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_models/test_dense_heads/test_paa_head.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_models/test_dense_heads/test_paa_head.py:2: in <module>
+    import mmcv
+E   ModuleNotFoundError: No module named 'mmcv'
+____ ERROR collecting tests/test_models/test_dense_heads/test_pisa_head.py _____
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_models/test_dense_heads/test_pisa_head.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_models/test_dense_heads/test_pisa_head.py:2: in <module>
+    import mmcv
+E   ModuleNotFoundError: No module named 'mmcv'
+_ ERROR collecting tests/test_models/test_dense_heads/test_sabl_retina_head.py _
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_models/test_dense_heads/test_sabl_retina_head.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_models/test_dense_heads/test_sabl_retina_head.py:2: in <module>
+    import mmcv
+E   ModuleNotFoundError: No module named 'mmcv'
+____ ERROR collecting tests/test_models/test_dense_heads/test_solo_head.py _____
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_models/test_dense_heads/test_solo_head.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_models/test_dense_heads/test_solo_head.py:4: in <module>
+    from mmdet.models.dense_heads import DecoupledSOLOHead, DecoupledSOLOLightHead, SOLOHead
+E   ModuleNotFoundError: No module named 'mmdet'
+____ ERROR collecting tests/test_models/test_dense_heads/test_tood_head.py _____
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_models/test_dense_heads/test_tood_head.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_models/test_dense_heads/test_tood_head.py:2: in <module>
+    import mmcv
+E   ModuleNotFoundError: No module named 'mmcv'
+____ ERROR collecting tests/test_models/test_dense_heads/test_vfnet_head.py ____
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_models/test_dense_heads/test_vfnet_head.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_models/test_dense_heads/test_vfnet_head.py:2: in <module>
+    import mmcv
+E   ModuleNotFoundError: No module named 'mmcv'
+___ ERROR collecting tests/test_models/test_dense_heads/test_yolact_head.py ____
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_models/test_dense_heads/test_yolact_head.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_models/test_dense_heads/test_yolact_head.py:2: in <module>
+    import mmcv
+E   ModuleNotFoundError: No module named 'mmcv'
+____ ERROR collecting tests/test_models/test_dense_heads/test_yolof_head.py ____
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_models/test_dense_heads/test_yolof_head.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_models/test_dense_heads/test_yolof_head.py:2: in <module>
+    import mmcv
+E   ModuleNotFoundError: No module named 'mmcv'
+____ ERROR collecting tests/test_models/test_dense_heads/test_yolox_head.py ____
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_models/test_dense_heads/test_yolox_head.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_models/test_dense_heads/test_yolox_head.py:2: in <module>
+    import mmcv
+E   ModuleNotFoundError: No module named 'mmcv'
+_______________ ERROR collecting tests/test_models/test_loss.py ________________
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_models/test_loss.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_models/test_loss.py:4: in <module>
+    from mmcv.utils import digit_version
+E   ModuleNotFoundError: No module named 'mmcv'
+_______________ ERROR collecting tests/test_models/test_necks.py _______________
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_models/test_necks.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_models/test_necks.py:6: in <module>
+    from mmdet.models.necks import (
+E   ModuleNotFoundError: No module named 'mmdet'
+______________ ERROR collecting tests/test_models/test_plugins.py ______________
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_models/test_plugins.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_models/test_plugins.py:4: in <module>
+    from mmcv import ConfigDict
+E   ModuleNotFoundError: No module named 'mmcv'
+_____ ERROR collecting tests/test_models/test_roi_heads/test_bbox_head.py ______
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_models/test_roi_heads/test_bbox_head.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_models/test_roi_heads/__init__.py:2: in <module>
+    from .utils import _dummy_bbox_sampling
+tests/test_models/test_roi_heads/utils.py:4: in <module>
+    from mmdet.core import build_assigner, build_sampler
+E   ModuleNotFoundError: No module named 'mmdet'
+_____ ERROR collecting tests/test_models/test_roi_heads/test_mask_head.py ______
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_models/test_roi_heads/test_mask_head.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_models/test_roi_heads/__init__.py:2: in <module>
+    from .utils import _dummy_bbox_sampling
+tests/test_models/test_roi_heads/utils.py:4: in <module>
+    from mmdet.core import build_assigner, build_sampler
+E   ModuleNotFoundError: No module named 'mmdet'
+___ ERROR collecting tests/test_models/test_roi_heads/test_roi_extractor.py ____
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_models/test_roi_heads/test_roi_extractor.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_models/test_roi_heads/__init__.py:2: in <module>
+    from .utils import _dummy_bbox_sampling
+tests/test_models/test_roi_heads/utils.py:4: in <module>
+    from mmdet.core import build_assigner, build_sampler
+E   ModuleNotFoundError: No module named 'mmdet'
+___ ERROR collecting tests/test_models/test_roi_heads/test_sabl_bbox_head.py ___
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_models/test_roi_heads/test_sabl_bbox_head.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_models/test_roi_heads/__init__.py:2: in <module>
+    from .utils import _dummy_bbox_sampling
+tests/test_models/test_roi_heads/utils.py:4: in <module>
+    from mmdet.core import build_assigner, build_sampler
+E   ModuleNotFoundError: No module named 'mmdet'
+_ ERROR collecting tests/test_models/test_seg_heads/test_maskformer_fusion_head.py _
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_models/test_seg_heads/test_maskformer_fusion_head.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_models/test_seg_heads/test_maskformer_fusion_head.py:3: in <module>
+    from mmcv import ConfigDict
+E   ModuleNotFoundError: No module named 'mmcv'
+_____ ERROR collecting tests/test_models/test_utils/test_brick_wrappers.py _____
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_models/test_utils/test_brick_wrappers.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_models/test_utils/test_brick_wrappers.py:7: in <module>
+    from mmdet.models.utils import AdaptiveAvgPool2d, adaptive_avg_pool2d
+E   ModuleNotFoundError: No module named 'mmdet'
+_____ ERROR collecting tests/test_models/test_utils/test_conv_upsample.py ______
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_models/test_utils/test_conv_upsample.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_models/test_utils/test_conv_upsample.py:5: in <module>
+    from mmdet.models.utils import ConvUpsample
+E   ModuleNotFoundError: No module named 'mmdet'
+___ ERROR collecting tests/test_models/test_utils/test_inverted_residual.py ____
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_models/test_utils/test_inverted_residual.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_models/test_utils/test_inverted_residual.py:4: in <module>
+    from mmcv.cnn import is_norm
+E   ModuleNotFoundError: No module named 'mmcv'
+_______ ERROR collecting tests/test_models/test_utils/test_model_misc.py _______
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_models/test_utils/test_model_misc.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_models/test_utils/test_model_misc.py:6: in <module>
+    from mmdet.models.utils import interpolate_as, sigmoid_geometric_mean
+E   ModuleNotFoundError: No module named 'mmdet'
+___ ERROR collecting tests/test_models/test_utils/test_position_encoding.py ____
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_models/test_utils/test_position_encoding.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_models/test_utils/test_position_encoding.py:5: in <module>
+    from mmdet.models.utils import LearnedPositionalEncoding, SinePositionalEncoding
+E   ModuleNotFoundError: No module named 'mmdet'
+________ ERROR collecting tests/test_models/test_utils/test_se_layer.py ________
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_models/test_utils/test_se_layer.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_models/test_utils/test_se_layer.py:5: in <module>
+    from mmcv.cnn import constant_init
+E   ModuleNotFoundError: No module named 'mmcv'
+______ ERROR collecting tests/test_models/test_utils/test_transformer.py _______
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_models/test_utils/test_transformer.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_models/test_utils/test_transformer.py:4: in <module>
+    from mmcv.utils import ConfigDict
+E   ModuleNotFoundError: No module named 'mmcv'
+________________ ERROR collecting tests/test_onnx/test_head.py _________________
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_onnx/test_head.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_onnx/__init__.py:2: in <module>
+    from .utils import ort_validate
+tests/test_onnx/utils.py:7: in <module>
+    import onnx
+E   ModuleNotFoundError: No module named 'onnx'
+________________ ERROR collecting tests/test_onnx/test_neck.py _________________
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_onnx/test_neck.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_onnx/__init__.py:2: in <module>
+    from .utils import ort_validate
+tests/test_onnx/utils.py:7: in <module>
+    import onnx
+E   ModuleNotFoundError: No module named 'onnx'
+_______________ ERROR collecting tests/test_runtime/test_apis.py _______________
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_runtime/test_apis.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_runtime/test_apis.py:6: in <module>
+    from mmdet.apis import init_detector
+E   ModuleNotFoundError: No module named 'mmdet'
+______________ ERROR collecting tests/test_runtime/test_async.py _______________
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_runtime/test_async.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_runtime/test_async.py:8: in <module>
+    import asynctest
+E   ModuleNotFoundError: No module named 'asynctest'
+______________ ERROR collecting tests/test_runtime/test_config.py ______________
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_runtime/test_config.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_runtime/test_config.py:7: in <module>
+    from mmdet.core import BitmapMasks, PolygonMasks
+E   ModuleNotFoundError: No module named 'mmdet'
+____________ ERROR collecting tests/test_runtime/test_eval_hook.py _____________
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_runtime/test_eval_hook.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_runtime/test_eval_hook.py:11: in <module>
+    from mmcv.runner import EpochBasedRunner, build_optimizer
+E   ModuleNotFoundError: No module named 'mmcv'
+_______________ ERROR collecting tests/test_runtime/test_fp16.py _______________
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_runtime/test_fp16.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_runtime/test_fp16.py:6: in <module>
+    from mmcv.runner import auto_fp16, force_fp32
+E   ModuleNotFoundError: No module named 'mmcv'
+______________ ERROR collecting tests/test_utils/test_assigner.py ______________
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_utils/test_assigner.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_utils/test_assigner.py:12: in <module>
+    from mmdet.core.bbox.assigners import (
+E   ModuleNotFoundError: No module named 'mmdet'
+_______________ ERROR collecting tests/test_utils/test_coder.py ________________
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_utils/test_coder.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_utils/test_coder.py:5: in <module>
+    from mmdet.core.bbox.coder import (
+E   ModuleNotFoundError: No module named 'mmdet'
+___________ ERROR collecting tests/test_utils/test_compat_config.py ____________
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_utils/test_compat_config.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_utils/test_compat_config.py:2: in <module>
+    from mmcv import ConfigDict
+E   ModuleNotFoundError: No module named 'mmcv'
+____________ ERROR collecting tests/test_utils/test_general_data.py ____________
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_utils/test_general_data.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_utils/test_general_data.py:7: in <module>
+    from mmdet.core import GeneralData, InstanceData
+E   ModuleNotFoundError: No module named 'mmdet'
+________________ ERROR collecting tests/test_utils/test_hook.py ________________
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_utils/test_hook.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_utils/test_hook.py:12: in <module>
+    from mmcv.runner import CheckpointHook, IterTimerHook, PaviLoggerHook, build_runner
+E   ModuleNotFoundError: No module named 'mmcv'
+_ ERROR collecting tests/test_utils/test_layer_decay_optimizer_constructor.py __
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_utils/test_layer_decay_optimizer_constructor.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_utils/test_layer_decay_optimizer_constructor.py:4: in <module>
+    from mmcv.cnn import ConvModule
+E   ModuleNotFoundError: No module named 'mmcv'
+_______________ ERROR collecting tests/test_utils/test_logger.py _______________
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_utils/test_logger.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_utils/test_logger.py:4: in <module>
+    from mmdet.utils import get_caller_name, log_img_scale
+E   ModuleNotFoundError: No module named 'mmdet'
+_______________ ERROR collecting tests/test_utils/test_masks.py ________________
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_utils/test_masks.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_utils/test_masks.py:6: in <module>
+    from mmdet.core import BitmapMasks, PolygonMasks, mask2bbox
+E   ModuleNotFoundError: No module named 'mmdet'
+_______________ ERROR collecting tests/test_utils/test_memory.py _______________
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_utils/test_memory.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_utils/test_memory.py:5: in <module>
+    from mmdet.utils import AvoidOOM
+E   ModuleNotFoundError: No module named 'mmdet'
+________________ ERROR collecting tests/test_utils/test_misc.py ________________
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_utils/test_misc.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_utils/test_misc.py:9: in <module>
+    from mmdet.core.bbox import distance2bbox
+E   ModuleNotFoundError: No module named 'mmdet'
+________________ ERROR collecting tests/test_utils/test_nms.py _________________
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_utils/test_nms.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_utils/test_nms.py:4: in <module>
+    from mmdet.core.post_processing import mask_matrix_nms
+E   ModuleNotFoundError: No module named 'mmdet'
+__________ ERROR collecting tests/test_utils/test_replace_cfg_vals.py __________
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_utils/test_replace_cfg_vals.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_utils/test_replace_cfg_vals.py:6: in <module>
+    from mmcv.utils import Config
+E   ModuleNotFoundError: No module named 'mmcv'
+_____________ ERROR collecting tests/test_utils/test_setup_env.py ______________
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_utils/test_setup_env.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_utils/test_setup_env.py:7: in <module>
+    from mmcv import Config
+E   ModuleNotFoundError: No module named 'mmcv'
+____________ ERROR collecting tests/test_utils/test_split_batch.py _____________
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_utils/test_split_batch.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_utils/test_split_batch.py:5: in <module>
+    import mmcv
+E   ModuleNotFoundError: No module named 'mmcv'
+______________ ERROR collecting tests/test_utils/test_version.py _______________
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_utils/test_version.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_utils/test_version.py:2: in <module>
+    from mmdet import digit_version
+E   ModuleNotFoundError: No module named 'mmdet'
+___________ ERROR collecting tests/test_utils/test_visualization.py ____________
+ImportError while importing test module '/home/georgepearse/visdet/tests/test_utils/test_visualization.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_utils/test_visualization.py:6: in <module>
+    import mmcv
+E   ModuleNotFoundError: No module named 'mmcv'
+=========================== short test summary info ============================
+ERROR tests/test_data/test_datasets/test_coco_dataset.py
+ERROR tests/test_data/test_datasets/test_coco_occluded.py
+ERROR tests/test_data/test_datasets/test_common.py
+ERROR tests/test_data/test_datasets/test_custom_dataset.py
+ERROR tests/test_data/test_datasets/test_dataset_wrapper.py
+ERROR tests/test_data/test_datasets/test_objects365.py
+ERROR tests/test_data/test_datasets/test_openimages_dataset.py
+ERROR tests/test_data/test_datasets/test_panoptic_dataset.py
+ERROR tests/test_data/test_datasets/test_xml_dataset.py
+ERROR tests/test_data/test_pipelines/test_formatting.py
+ERROR tests/test_data/test_pipelines/test_loading.py
+ERROR tests/test_data/test_pipelines/test_sampler.py
+ERROR tests/test_data/test_pipelines/test_transform/test_img_augment.py
+ERROR tests/test_data/test_pipelines/test_transform/test_models_aug_test.py
+ERROR tests/test_data/test_pipelines/test_transform/test_rotate.py
+ERROR tests/test_data/test_pipelines/test_transform/test_shear.py
+ERROR tests/test_data/test_pipelines/test_transform/test_transform.py
+ERROR tests/test_data/test_pipelines/test_transform/test_translate.py
+ERROR tests/test_data/test_utils.py
+ERROR tests/test_downstream/test_mmtrack.py
+ERROR tests/test_metrics/test_box_overlap.py
+ERROR tests/test_metrics/test_losses.py
+ERROR tests/test_metrics/test_mean_ap.py
+ERROR tests/test_metrics/test_recall.py
+ERROR tests/test_models/test_backbones/test_csp_darknet.py
+ERROR tests/test_models/test_backbones/test_detectors_resnet.py
+ERROR tests/test_models/test_backbones/test_efficientnet.py
+ERROR tests/test_models/test_backbones/test_hourglass.py
+ERROR tests/test_models/test_backbones/test_hrnet.py
+ERROR tests/test_models/test_backbones/test_mobilenet_v2.py
+ERROR tests/test_models/test_backbones/test_pvt.py
+ERROR tests/test_models/test_backbones/test_regnet.py
+ERROR tests/test_models/test_backbones/test_renext.py
+ERROR tests/test_models/test_backbones/test_res2net.py
+ERROR tests/test_models/test_backbones/test_resnest.py
+ERROR tests/test_models/test_backbones/test_resnet.py
+ERROR tests/test_models/test_backbones/test_swin.py
+ERROR tests/test_models/test_backbones/test_trident_resnet.py
+ERROR tests/test_models/test_dense_heads/test_anchor_head.py
+ERROR tests/test_models/test_dense_heads/test_ascend_head.py
+ERROR tests/test_models/test_dense_heads/test_atss_head.py
+ERROR tests/test_models/test_dense_heads/test_autoassign_head.py
+ERROR tests/test_models/test_dense_heads/test_centernet_head.py
+ERROR tests/test_models/test_dense_heads/test_corner_head.py
+ERROR tests/test_models/test_dense_heads/test_ddod_head.py
+ERROR tests/test_models/test_dense_heads/test_dense_heads_attr.py
+ERROR tests/test_models/test_dense_heads/test_detr_head.py
+ERROR tests/test_models/test_dense_heads/test_fcos_head.py
+ERROR tests/test_models/test_dense_heads/test_fsaf_head.py
+ERROR tests/test_models/test_dense_heads/test_ga_anchor_head.py
+ERROR tests/test_models/test_dense_heads/test_gfl_head.py
+ERROR tests/test_models/test_dense_heads/test_lad_head.py
+ERROR tests/test_models/test_dense_heads/test_ld_head.py
+ERROR tests/test_models/test_dense_heads/test_mask2former_head.py
+ERROR tests/test_models/test_dense_heads/test_maskformer_head.py
+ERROR tests/test_models/test_dense_heads/test_paa_head.py
+ERROR tests/test_models/test_dense_heads/test_pisa_head.py
+ERROR tests/test_models/test_dense_heads/test_sabl_retina_head.py
+ERROR tests/test_models/test_dense_heads/test_solo_head.py
+ERROR tests/test_models/test_dense_heads/test_tood_head.py
+ERROR tests/test_models/test_dense_heads/test_vfnet_head.py
+ERROR tests/test_models/test_dense_heads/test_yolact_head.py
+ERROR tests/test_models/test_dense_heads/test_yolof_head.py
+ERROR tests/test_models/test_dense_heads/test_yolox_head.py
+ERROR tests/test_models/test_loss.py
+ERROR tests/test_models/test_necks.py
+ERROR tests/test_models/test_plugins.py
+ERROR tests/test_models/test_roi_heads/test_bbox_head.py
+ERROR tests/test_models/test_roi_heads/test_mask_head.py
+ERROR tests/test_models/test_roi_heads/test_roi_extractor.py
+ERROR tests/test_models/test_roi_heads/test_sabl_bbox_head.py
+ERROR tests/test_models/test_seg_heads/test_maskformer_fusion_head.py
+ERROR tests/test_models/test_utils/test_brick_wrappers.py
+ERROR tests/test_models/test_utils/test_conv_upsample.py
+ERROR tests/test_models/test_utils/test_inverted_residual.py
+ERROR tests/test_models/test_utils/test_model_misc.py
+ERROR tests/test_models/test_utils/test_position_encoding.py
+ERROR tests/test_models/test_utils/test_se_layer.py
+ERROR tests/test_models/test_utils/test_transformer.py
+ERROR tests/test_onnx/test_head.py
+ERROR tests/test_onnx/test_neck.py
+ERROR tests/test_runtime/test_apis.py
+ERROR tests/test_runtime/test_async.py
+ERROR tests/test_runtime/test_config.py
+ERROR tests/test_runtime/test_eval_hook.py
+ERROR tests/test_runtime/test_fp16.py
+ERROR tests/test_utils/test_assigner.py
+ERROR tests/test_utils/test_coder.py
+ERROR tests/test_utils/test_compat_config.py
+ERROR tests/test_utils/test_general_data.py
+ERROR tests/test_utils/test_hook.py
+ERROR tests/test_utils/test_layer_decay_optimizer_constructor.py
+ERROR tests/test_utils/test_logger.py
+ERROR tests/test_utils/test_masks.py
+ERROR tests/test_utils/test_memory.py
+ERROR tests/test_utils/test_misc.py
+ERROR tests/test_utils/test_nms.py
+ERROR tests/test_utils/test_replace_cfg_vals.py
+ERROR tests/test_utils/test_setup_env.py
+ERROR tests/test_utils/test_split_batch.py
+ERROR tests/test_utils/test_version.py
+ERROR tests/test_utils/test_visualization.py
+!!!!!!!!!!!!!!!!!! Interrupted: 102 errors during collection !!!!!!!!!!!!!!!!!!!
+============================= 102 errors in 3.13s ==============================

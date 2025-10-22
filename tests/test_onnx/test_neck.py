@@ -1,12 +1,12 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import os.path as osp
 
-import mmcv
 import pytest
 import torch
+import visdet.cv as mmcv
+from visdet.models.necks import FPN, YOLOV3Neck
 
-from mmdet import digit_version
-from mmdet.models.necks import FPN, YOLOV3Neck
+from visdet import digit_version
 
 from .utils import ort_validate
 

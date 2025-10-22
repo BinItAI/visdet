@@ -1,8 +1,7 @@
 import pytest
 import torch
-from mmcv import ConfigDict
-
-from mmdet.models.seg_heads.panoptic_fusion_heads import MaskFormerFusionHead
+from visdet.cv import ConfigDict
+from visdet.models.seg_heads.panoptic_fusion_heads import MaskFormerFusionHead
 
 
 def test_maskformer_fusion_head():

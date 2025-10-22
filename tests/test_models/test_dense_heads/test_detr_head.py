@@ -1,8 +1,7 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import torch
-from mmcv import ConfigDict
-
-from mmdet.models.dense_heads import DETRHead
+from visdet.cv import ConfigDict
+from visdet.models.dense_heads import DETRHead
 
 
 def test_detr_head_loss():

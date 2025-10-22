@@ -1,10 +1,9 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import pytest
 import torch
-from mmcv import ConfigDict
-from mmcv.cnn import build_plugin_layer
-
-from mmdet.models.plugins import DropBlock
+from visdet.cv import ConfigDict
+from visdet.cv.cnn import build_plugin_layer
+from visdet.models.plugins import DropBlock
 
 
 def test_dropblock():

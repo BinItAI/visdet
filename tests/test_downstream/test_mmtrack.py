@@ -5,7 +5,7 @@ from collections import defaultdict
 import numpy as np
 import pytest
 import torch
-from mmcv import Config
+from visdet.cv import Config
 
 
 @pytest.mark.parametrize("cfg_file", ["./tests/data/configs_mmtrack/selsa_faster_rcnn_r101_dc5_1x.py"])
@@ -166,7 +166,7 @@ def _demo_mm_inputs(input_shape=(1, 3, 300, 300), num_items=None, num_classes=10
         num_classes (int):
             number of different labels a box might have
     """
-    from mmdet.core import BitmapMasks
+    from visdet.core import BitmapMasks
 
     (N, C, H, W) = input_shape
 

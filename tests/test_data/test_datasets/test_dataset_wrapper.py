@@ -6,8 +6,7 @@ from unittest.mock import MagicMock
 
 import numpy as np
 import pytest
-
-from mmdet.datasets import (
+from visdet.datasets import (
     ClassBalancedDataset,
     ConcatDataset,
     CustomDataset,

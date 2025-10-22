@@ -1,7 +1,6 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import pytest
-
-from mmdet.datasets import DATASETS
+from visdet.datasets import DATASETS
 
 
 def test_xml_dataset():

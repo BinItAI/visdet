@@ -16,7 +16,7 @@ def _get_config_directory():
         repo_dpath = dirname(dirname(dirname(__file__)))
     except NameError:
         # For IPython development when this __file__ is not defined
-        import mmdet
+        import visdet as mmdet
 
         repo_dpath = dirname(dirname(mmdet.__file__))
     config_dpath = join(repo_dpath, "configs")
@@ -27,7 +27,7 @@ def _get_config_directory():
 
 def _get_config_module(fname):
     """Load a configuration as a python module."""
-    from mmcv import Config
+    from visdet.cv import Config
 
     config_dpath = _get_config_directory()
     config_fpath = join(config_dpath, fname)
@@ -81,7 +81,7 @@ def test_bbox_loss_compatibility(loss_bbox):
 
     cfg_model.roi_head.bbox_head.loss_bbox = loss_bbox
 
-    from mmdet.models import build_detector
+    from visdet.models import build_detector
 
     detector = build_detector(cfg_model)
 
@@ -118,7 +118,7 @@ def test_cls_loss_compatibility(loss_cls):
     # for loss_cls in loss_clses:
     cfg_model.roi_head.bbox_head.loss_cls = loss_cls
 
-    from mmdet.models import build_detector
+    from visdet.models import build_detector
 
     detector = build_detector(cfg_model)
 
@@ -143,7 +143,7 @@ def _demo_mm_inputs(input_shape=(1, 3, 300, 300),
         num_classes (int):
             number of different labels a box might have
     """
-    from mmdet.core import BitmapMasks
+    from visdet.core import BitmapMasks
 
     (N, C, H, W) = input_shape
 

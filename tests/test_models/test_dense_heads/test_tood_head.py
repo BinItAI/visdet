@@ -1,8 +1,7 @@
 # Copyright (c) OpenMMLab. All rights reserved.
-import mmcv
 import torch
-
-from mmdet.models.dense_heads import TOODHead
+import visdet.cv as mmcv
+from visdet.models.dense_heads import TOODHead
 
 
 def test_tood_head_loss():

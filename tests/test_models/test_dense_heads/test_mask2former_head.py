@@ -1,10 +1,9 @@
 import numpy as np
 import pytest
 import torch
-from mmcv import ConfigDict
-
-from mmdet.core.mask import BitmapMasks
-from mmdet.models.dense_heads import Mask2FormerHead
+from visdet.core.mask import BitmapMasks
+from visdet.cv import ConfigDict
+from visdet.models.dense_heads import Mask2FormerHead
 
 
 @pytest.mark.parametrize(

@@ -1,9 +1,8 @@
 # Copyright (c) OpenMMLab. All rights reserved.
-import mmcv
 import torch
-
-from mmdet.core import bbox2roi
-from mmdet.models.roi_heads.bbox_heads import SABLHead
+import visdet.cv as mmcv
+from visdet.core import bbox2roi
+from visdet.models.roi_heads.bbox_heads import SABLHead
 
 from .utils import _dummy_bbox_sampling
 

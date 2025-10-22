@@ -1,9 +1,8 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import pytest
 import torch
-from mmcv.utils import ConfigDict
-
-from mmdet.models.utils.transformer import (
+from visdet.cv.utils import ConfigDict
+from visdet.models.utils.transformer import (
     AdaptivePadding,
     DetrTransformerDecoder,
     DetrTransformerEncoder,

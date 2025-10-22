@@ -1,11 +1,10 @@
 # Copyright (c) OpenMMLab. All rights reserved.
-import mmcv
 import numpy as np
 import pytest
 import torch
-
-from mmdet.core import bbox2roi
-from mmdet.models.roi_heads.bbox_heads import BBoxHead
+import visdet.cv as mmcv
+from visdet.core import bbox2roi
+from visdet.models.roi_heads.bbox_heads import BBoxHead
 
 from .utils import _dummy_bbox_sampling
 
@@ -135,8 +134,7 @@ def _demodata_refine_boxes(n_roi, n_img, rng=0):
     """Create random test data for the
     ``mmdet.models.bbox_heads.bbox_head.BBoxHead.refine_boxes`` method."""
     import numpy as np
-
-    from mmdet.core.bbox.demodata import ensure_rng, random_boxes
+    from visdet.core.bbox.demodata import ensure_rng, random_boxes
 
     try:
         import kwarray

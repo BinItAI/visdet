@@ -1,8 +1,7 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import pytest
 import torch
-
-from mmdet.core.bbox.coder import (
+from visdet.core.bbox.coder import (
     DeltaXYWHBBoxCoder,
     DistancePointBBoxCoder,
     TBLRBBoxCoder,

@@ -1,6 +1,5 @@
 import numpy as np
-
-from mmdet.core.evaluation.mean_ap import (
+from visdet.core.evaluation.mean_ap import (
     eval_map,
     tpfp_default,
     tpfp_imagenet,

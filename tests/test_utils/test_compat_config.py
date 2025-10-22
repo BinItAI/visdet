@@ -1,7 +1,6 @@
 import pytest
-from mmcv import ConfigDict
-
-from mmdet.utils.compat_config import (
+from visdet.cv import ConfigDict
+from visdet.utils.compat_config import (
     compat_imgs_per_gpu,
     compat_loader_args,
     compat_runner_args,

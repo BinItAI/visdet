@@ -2,12 +2,11 @@
 import os.path as osp
 import tempfile
 
-import mmcv
 import numpy as np
-
-from mmdet.core import encode_mask_results
-from mmdet.datasets.api_wrappers import pq_compute_single_core
-from mmdet.datasets.coco_panoptic import INSTANCE_OFFSET, CocoPanopticDataset
+import visdet.cv as mmcv
+from visdet.core import encode_mask_results
+from visdet.datasets.api_wrappers import pq_compute_single_core
+from visdet.datasets.coco_panoptic import INSTANCE_OFFSET, CocoPanopticDataset
 
 try:
     from panopticapi.utils import id2rgb

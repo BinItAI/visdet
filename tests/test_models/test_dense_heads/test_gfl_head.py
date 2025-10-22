@@ -1,8 +1,7 @@
 # Copyright (c) OpenMMLab. All rights reserved.
-import mmcv
 import torch
-
-from mmdet.models.dense_heads import GFLHead
+import visdet.cv as mmcv
+from visdet.models.dense_heads import GFLHead
 
 
 def test_gfl_head_loss():

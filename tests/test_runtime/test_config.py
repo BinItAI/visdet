@@ -3,10 +3,9 @@ from os.path import dirname, exists, join
 from unittest.mock import Mock
 
 import pytest
-
-from mmdet.core import BitmapMasks, PolygonMasks
-from mmdet.datasets.builder import DATASETS
-from mmdet.datasets.utils import NumClassCheckHook
+from visdet.core import BitmapMasks, PolygonMasks
+from visdet.datasets.builder import DATASETS
+from visdet.datasets.utils import NumClassCheckHook
 
 
 def _get_config_directory():
@@ -17,7 +16,7 @@ def _get_config_directory():
         repo_dpath = join(repo_dpath, "..")
     except NameError:
         # For IPython development when this __file__ is not defined
-        import mmdet
+        import visdet as mmdet
 
         repo_dpath = dirname(dirname(mmdet.__file__))
     config_dpath = join(repo_dpath, "configs")
@@ -247,9 +246,8 @@ def test_config_data_pipeline(config_rpath):
             test_config.py test_config_build_data_pipeline
     """
     import numpy as np
-    from mmcv import Config
-
-    from mmdet.datasets.pipelines import Compose
+    from visdet.cv import Config
+    from visdet.datasets.pipelines import Compose
 
     config_dpath = _get_config_directory()
     print(f"Found config_dpath = {config_dpath}")

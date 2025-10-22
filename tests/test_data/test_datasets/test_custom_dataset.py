@@ -4,8 +4,7 @@ import unittest
 from unittest.mock import MagicMock, patch
 
 import pytest
-
-from mmdet.datasets import DATASETS
+from visdet.datasets import DATASETS
 
 
 @patch("mmdet.datasets.CocoDataset.load_annotations", MagicMock())

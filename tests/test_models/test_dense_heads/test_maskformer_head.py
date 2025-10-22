@@ -1,9 +1,8 @@
 import numpy as np
 import torch
-from mmcv import ConfigDict
-
-from mmdet.core.mask import BitmapMasks
-from mmdet.models.dense_heads import MaskFormerHead
+from visdet.core.mask import BitmapMasks
+from visdet.cv import ConfigDict
+from visdet.models.dense_heads import MaskFormerHead
 
 
 def test_maskformer_head_loss():

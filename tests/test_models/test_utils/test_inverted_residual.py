@@ -1,10 +1,9 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import pytest
 import torch
-from mmcv.cnn import is_norm
 from torch.nn.modules import GroupNorm
-
-from mmdet.models.utils import InvertedResidual, SELayer
+from visdet.cv.cnn import is_norm
+from visdet.models.utils import InvertedResidual, SELayer
 
 
 def test_inverted_residual():

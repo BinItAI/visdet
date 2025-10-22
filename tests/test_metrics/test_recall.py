@@ -1,6 +1,5 @@
 import numpy as np
-
-from mmdet.core.evaluation.recall import eval_recalls
+from visdet.core.evaluation.recall import eval_recalls
 
 det_bboxes = np.array(
     [

@@ -1,9 +1,8 @@
 # Copyright (c) OpenMMLab. All rights reserved.
-import mmcv
 import torch
-from mmcv.cnn import ConvModule, DepthwiseSeparableConvModule
-
-from mmdet.models.dense_heads import YOLOXHead
+import visdet.cv as mmcv
+from visdet.cv.cnn import ConvModule, DepthwiseSeparableConvModule
+from visdet.models.dense_heads import YOLOXHead
 
 
 def test_yolox_head_loss():

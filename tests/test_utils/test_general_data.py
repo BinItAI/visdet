@@ -3,8 +3,7 @@ import copy
 import numpy as np
 import pytest
 import torch
-
-from mmdet.core import GeneralData, InstanceData
+from visdet.core import GeneralData, InstanceData
 
 
 def _equal(a, b):
@@ -145,7 +144,7 @@ def test_general_data():
     # test meta values
     instance_data = GeneralData(meta_info, data=dict(bboxes=10))
     # torch 1.3 eq() can not compare str and tensor
-    from mmdet import digit_version
+    from visdet import digit_version
 
     if digit_version(torch.__version__) >= [1, 4]:
         assert "dadfaff" in instance_data.meta_info_values()

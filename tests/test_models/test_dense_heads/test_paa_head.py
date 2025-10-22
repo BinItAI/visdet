@@ -1,10 +1,9 @@
 # Copyright (c) OpenMMLab. All rights reserved.
-import mmcv
 import numpy as np
 import torch
-
-from mmdet.models.dense_heads import PAAHead, paa_head
-from mmdet.models.dense_heads.paa_head import levels_to_images
+import visdet.cv as mmcv
+from visdet.models.dense_heads import PAAHead, paa_head
+from visdet.models.dense_heads.paa_head import levels_to_images
 
 
 def test_paa_head_loss():

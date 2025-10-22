@@ -2,11 +2,10 @@
 import os.path as osp
 from copy import deepcopy
 
-import mmcv
 import numpy as np
 import torch
-
-from mmdet.utils import split_batch
+import visdet.cv as mmcv
+from visdet.utils import split_batch
 
 
 def test_split_batch():

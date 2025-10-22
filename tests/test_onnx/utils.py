@@ -11,7 +11,7 @@ import torch.nn as nn
 
 ort_custom_op_path = ""
 try:
-    from mmcv.ops import get_onnxruntime_op_path
+    from visdet.cv.ops import get_onnxruntime_op_path
 
     ort_custom_op_path = get_onnxruntime_op_path()
 except (ImportError, ModuleNotFoundError):

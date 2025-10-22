@@ -1,5 +1,5 @@
 # Copyright (c) OpenMMLab. All rights reserved.
-from mmdet import digit_version
+from visdet import digit_version
 
 
 def test_version_check():

@@ -1,7 +1,6 @@
 import pytest
 import torch
-
-from mmdet.models.dense_heads import DecoupledSOLOHead, DecoupledSOLOLightHead, SOLOHead
+from visdet.models.dense_heads import DecoupledSOLOHead, DecoupledSOLOLightHead, SOLOHead
 
 
 def test_solo_head_loss():

@@ -3,13 +3,12 @@ import os
 import os.path as osp
 import tempfile
 
-import mmcv
 import numpy as np
 import pytest
 import torch
-
-from mmdet.core import visualization as vis
-from mmdet.datasets import (
+import visdet.cv as mmcv
+from visdet.core import visualization as vis
+from visdet.datasets import (
     CityscapesDataset,
     CocoDataset,
     CocoPanopticDataset,

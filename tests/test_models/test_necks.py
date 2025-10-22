@@ -2,8 +2,7 @@
 import pytest
 import torch
 from torch.nn.modules.batchnorm import _BatchNorm
-
-from mmdet.models.necks import (
+from visdet.models.necks import (
     FPG,
     FPN,
     FPN_CARAFE,
@@ -399,7 +398,7 @@ def test_ssd_neck():
     )
     assert not hasattr(ssd_neck, "l2_norm")
 
-    from mmcv.cnn.bricks import DepthwiseSeparableConvModule
+    from visdet.cv.cnn.bricks import DepthwiseSeparableConvModule
 
     assert isinstance(ssd_neck.extra_layers[0][-1], DepthwiseSeparableConvModule)
 
@@ -426,7 +425,7 @@ def test_yolox_pafpn():
     # test depth-wise
     neck = YOLOXPAFPN(in_channels=in_channels, out_channels=out_channels, use_depthwise=True)
 
-    from mmcv.cnn.bricks import DepthwiseSeparableConvModule
+    from visdet.cv.cnn.bricks import DepthwiseSeparableConvModule
 
     assert isinstance(neck.downsamples[0], DepthwiseSeparableConvModule)
 

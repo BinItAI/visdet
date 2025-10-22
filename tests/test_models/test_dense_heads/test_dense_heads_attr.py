@@ -2,9 +2,8 @@
 import warnings
 
 from terminaltables import AsciiTable
-
-from mmdet.models import dense_heads
-from mmdet.models.dense_heads import *  # noqa: F401,F403
+from visdet.models import dense_heads
+from visdet.models.dense_heads import *  # noqa: F401,F403
 
 
 def test_dense_heads_test_attr():
