@@ -7,13 +7,8 @@ import numpy as np
 import pytest
 import torch
 import visdet.cv as mmcv
-from visdet.core import visualization as vis
-from visdet.datasets import (
-    CityscapesDataset,
-    CocoDataset,
-    CocoPanopticDataset,
-    VOCDataset,
-)
+from visdet.datasets import CocoDataset, CocoPanopticDataset
+from visdet.engine import visualization as vis
 
 
 def test_color():
@@ -143,19 +138,13 @@ def test_palette():
     for color in palette:
         assert color == (255, 0, 0)
 
-    # test dataset str
+    # test dataset str (COCO only)
     palette = vis.get_palette("coco", len(CocoDataset.CLASSES))
     assert len(palette) == len(CocoDataset.CLASSES)
     assert palette[0] == (220, 20, 60)
     palette = vis.get_palette("coco", len(CocoPanopticDataset.CLASSES))
     assert len(palette) == len(CocoPanopticDataset.CLASSES)
     assert palette[-1] == (250, 141, 255)
-    palette = vis.get_palette("voc", len(VOCDataset.CLASSES))
-    assert len(palette) == len(VOCDataset.CLASSES)
-    assert palette[0] == (106, 0, 228)
-    palette = vis.get_palette("citys", len(CityscapesDataset.CLASSES))
-    assert len(palette) == len(CityscapesDataset.CLASSES)
-    assert palette[0] == (220, 20, 60)
 
     # test random
     palette1 = vis.get_palette("random", 3)
