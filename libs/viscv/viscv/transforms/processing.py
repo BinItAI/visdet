@@ -155,20 +155,6 @@ class Resize(BaseTransform):
         if "gt_bboxes" in results:
             bboxes = results["gt_bboxes"]
 
-            # Debug logging
-            from vision.mmdet.custom_albumentations import log_vis_event
-
-            # Log initial bbox state
-            log_vis_event(
-                "Resize.before_resize",
-                img_path=results.get("img_path", "unknown"),
-                bbox_type=str(type(bboxes)),
-                has_rescale=hasattr(bboxes, "rescale"),
-                bbox_shape=str(bboxes.shape if hasattr(bboxes, "shape") else "no shape"),
-                bbox_sample=str(bboxes[:2] if hasattr(bboxes, "__getitem__") else "no getitem"),
-                level="WARNING",
-            )
-
             # Check if it's a numpy array or a BaseBoxes object
             if hasattr(bboxes, "rescale_"):
                 # It's a BaseBoxes object, use its rescale_ method (in-place)
@@ -180,18 +166,6 @@ class Resize(BaseTransform):
                 bboxes[:, 0::2] *= scale_factor[0]  # x coordinates
                 bboxes[:, 1::2] *= scale_factor[1]  # y coordinates
                 results["gt_bboxes"] = bboxes
-
-            # Log after resize
-            log_vis_event(
-                "Resize.after_resize",
-                img_path=results.get("img_path", "unknown"),
-                bbox_type=str(type(results["gt_bboxes"])),
-                bbox_shape=str(results["gt_bboxes"].shape if hasattr(results["gt_bboxes"], "shape") else "no shape"),
-                bbox_sample=str(
-                    results["gt_bboxes"][:2] if hasattr(results["gt_bboxes"], "__getitem__") else "no getitem"
-                ),
-                level="WARNING",
-            )
 
         # Resize masks
         if "gt_masks" in results:
@@ -1166,12 +1140,15 @@ class RandomFlip(BaseTransform):
         Returns:
             numpy.ndarray: Flipped bounding boxes.
         """
-        assert bboxes.shape[-1] % 4 == 0
-        # Handle both numpy arrays and BaseBoxes objects
-        if hasattr(bboxes, "clone"):
+        # Handle BaseBoxes objects using their own flip method
+        if hasattr(bboxes, "flip_"):
             flipped = bboxes.clone()
-        else:
-            flipped = bboxes.copy()
+            flipped.flip_(img_shape, direction)
+            return flipped
+
+        # Handle numpy arrays
+        assert bboxes.shape[-1] % 4 == 0
+        flipped = bboxes.copy()
         h, w = img_shape
         if direction == "horizontal":
             flipped[..., 0::4] = w - bboxes[..., 2::4]

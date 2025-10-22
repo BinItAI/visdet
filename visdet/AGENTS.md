@@ -10,6 +10,7 @@ the reference mmdetection repo we have locally.
 1. **Single Model Focus**: Only support Swin Transformer + Mask R-CNN
 2. **COCO Format**: Only support COCO-style datasets
 3. **Essential Components**: Keep only what's needed for this specific model
+4. **Absolute Imports**: Always use absolute imports (e.g., `from visdet.engine import X`) instead of relative imports (e.g., `from .engine import X`) to avoid circular import issues
 
 ## What to Keep
 

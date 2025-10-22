@@ -1,0 +1,1560 @@
+2025/10/22 18:42:34 - visengine - INFO -
+------------------------------------------------------------
+System environment:
+    sys.platform: linux
+    Python: 3.12.11 (main, Jul  8 2025, 20:59:33) [Clang 20.1.4 ]
+    CUDA available: True
+    numpy_random_seed: 1526553162
+    GPU 0: Tesla V100-SXM2-16GB
+    PyTorch: 2.5.1+cu124
+    TorchVision: 0.20.1+cu124
+    OpenCV: 4.11.0
+    VisEngine: 0.10.6
+
+Runtime environment:
+    dist_cfg: {'backend': 'nccl'}
+    seed: 1526553162
+    Distributed launcher: none
+    Distributed training: False
+    GPU number: 1
+------------------------------------------------------------
+
+2025/10/22 18:42:35 - visengine - INFO - Config:
+default_hooks = dict(
+    checkpoint=dict(interval=1, type='CheckpointHook'),
+    logger=dict(interval=50, type='LoggerHook'),
+    param_scheduler=dict(type='ParamSchedulerHook'),
+    sampler_seed=dict(type='DistSamplerSeedHook'),
+    timer=dict(type='IterTimerHook'),
+    visualization=dict(type='DetVisualizationHook'))
+default_scope = 'visdet'
+model = dict(
+    backbone=dict(
+        attn_drop_rate=0.0,
+        convert_weights=True,
+        depths=[
+            2,
+            2,
+            18,
+            2,
+        ],
+        drop_path_rate=0.3,
+        drop_rate=0.0,
+        embed_dims=96,
+        frozen_stages=-1,
+        mlp_ratio=4,
+        num_heads=[
+            3,
+            6,
+            12,
+            24,
+        ],
+        out_indices=[
+            0,
+            1,
+            2,
+            3,
+        ],
+        patch_norm=True,
+        qk_scale=None,
+        qkv_bias=True,
+        type='SwinTransformer',
+        window_size=7,
+        with_cp=False),
+    data_preprocessor=dict(
+        bgr_to_rgb=True,
+        mean=[
+            123.675,
+            116.28,
+            103.53,
+        ],
+        pad_mask=True,
+        pad_size_divisor=32,
+        std=[
+            58.395,
+            57.12,
+            57.375,
+        ],
+        type='DetDataPreprocessor'),
+    neck=dict(
+        in_channels=[
+            96,
+            192,
+            384,
+            768,
+        ],
+        num_outs=5,
+        out_channels=256,
+        type='FPN'),
+    roi_head=dict(
+        bbox_head=dict(
+            bbox_coder=dict(
+                target_means=[
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                ],
+                target_stds=[
+                    0.1,
+                    0.1,
+                    0.2,
+                    0.2,
+                ],
+                type='DeltaXYWHBBoxCoder'),
+            fc_out_channels=1024,
+            in_channels=256,
+            loss_bbox=dict(loss_weight=1.0, type='L1Loss'),
+            loss_cls=dict(
+                loss_weight=1.0, type='CrossEntropyLoss', use_sigmoid=False),
+            num_classes=69,
+            reg_class_agnostic=False,
+            roi_feat_size=7,
+            type='Shared2FCBBoxHead'),
+        bbox_roi_extractor=dict(
+            featmap_strides=[
+                4,
+                8,
+                16,
+                32,
+            ],
+            out_channels=256,
+            roi_layer=dict(output_size=7, sampling_ratio=0, type='RoIAlign'),
+            type='SingleRoIExtractor'),
+        mask_head=dict(
+            conv_out_channels=256,
+            in_channels=256,
+            loss_mask=dict(
+                loss_weight=1.0, type='CrossEntropyLoss', use_mask=True),
+            num_classes=69,
+            num_convs=4,
+            type='FCNMaskHead'),
+        mask_roi_extractor=dict(
+            featmap_strides=[
+                4,
+                8,
+                16,
+                32,
+            ],
+            out_channels=256,
+            roi_layer=dict(output_size=14, sampling_ratio=0, type='RoIAlign'),
+            type='SingleRoIExtractor'),
+        type='StandardRoIHead'),
+    rpn_head=dict(
+        anchor_generator=dict(
+            ratios=[
+                0.5,
+                1.0,
+                2.0,
+            ],
+            scales=[
+                8,
+            ],
+            strides=[
+                4,
+                8,
+                16,
+                32,
+                64,
+            ],
+            type='AnchorGenerator'),
+        bbox_coder=dict(
+            target_means=[
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+            ],
+            target_stds=[
+                1.0,
+                1.0,
+                1.0,
+                1.0,
+            ],
+            type='DeltaXYWHBBoxCoder'),
+        feat_channels=256,
+        in_channels=256,
+        loss_bbox=dict(loss_weight=1.0, type='L1Loss'),
+        loss_cls=dict(
+            loss_weight=1.0, type='CrossEntropyLoss', use_sigmoid=True),
+        type='RPNHead'),
+    test_cfg=dict(
+        rcnn=dict(
+            mask_thr_binary=0.5,
+            max_per_img=100,
+            nms=dict(iou_threshold=0.5, type='nms'),
+            score_thr=0.05),
+        rpn=dict(
+            max_per_img=1000,
+            min_bbox_size=0,
+            nms=dict(iou_threshold=0.7, type='nms'),
+            nms_pre=1000)),
+    train_cfg=dict(
+        rcnn=dict(
+            assigner=dict(
+                ignore_iof_thr=-1,
+                match_low_quality=True,
+                min_pos_iou=0.5,
+                neg_iou_thr=0.5,
+                pos_iou_thr=0.5,
+                type='MaxIoUAssigner'),
+            debug=False,
+            mask_size=28,
+            pos_weight=-1,
+            sampler=dict(
+                add_gt_as_proposals=True,
+                neg_pos_ub=-1,
+                num=512,
+                pos_fraction=0.25,
+                type='RandomSampler')),
+        rpn=dict(
+            allowed_border=-1,
+            assigner=dict(
+                ignore_iof_thr=-1,
+                match_low_quality=True,
+                min_pos_iou=0.3,
+                neg_iou_thr=0.3,
+                pos_iou_thr=0.7,
+                type='MaxIoUAssigner'),
+            debug=False,
+            pos_weight=-1,
+            sampler=dict(
+                add_gt_as_proposals=False,
+                neg_pos_ub=-1,
+                num=256,
+                pos_fraction=0.5,
+                type='RandomSampler')),
+        rpn_proposal=dict(
+            max_per_img=1000,
+            min_bbox_size=0,
+            nms=dict(iou_threshold=0.7, type='nms'),
+            nms_pre=2000)),
+    type='MaskRCNN')
+optim_wrapper = dict(
+    optimizer=dict(
+        betas=[
+            0.9,
+            0.999,
+        ],
+        eps=1e-08,
+        lr=0.0001,
+        type='AdamW',
+        weight_decay=0.05))
+train_cfg = dict(max_epochs=1, type='EpochBasedTrainLoop', val_interval=1)
+train_dataloader = dict(
+    batch_size=2,
+    dataset=dict(
+        ann_file=
+        'cmr/annotations/2025-05-15_12:38:23.077836_train_ordered.json',
+        data_prefix=dict(img='images/'),
+        data_root='/home/georgepearse/data/',
+        metainfo=dict(classes=[
+            'TR133R Mercury Battery',
+            'Default',
+            'Unknown Battery',
+            'LiMNO2 Single Cell Battery',
+            'C_D_Carbon Zinc Battery',
+            '6V Alkaline Battery Casing',
+            '6V Carbon Zinc Battery Casing',
+            'Multicell NiMH Battery Pack',
+            'C_D Alkaline Battery',
+            'AA Lithium Ion Battery',
+            'Button Alkaline Battery',
+            '6V Lead Acid Battery Casing',
+            '9V Lithium Metal Battery',
+            'Burgess',
+            'AA_AAA Alkaline Battery',
+            '9V Alkaline Battery',
+            'Lithium Iron Phosphate Battery',
+            'CR_AA_AAA Lithium Metal',
+            'AAA Zinc Chloride Battery',
+            'Multicell Lithium Ion Battery Pack',
+            '2.4V NiMH Battery',
+            'AA_AAA_or_2-3V_NiCd NiMH Battery',
+            'Lithium Polymer Battery',
+            'Conveyor Belt Metal',
+            'C_D_Lithium Metal Battery',
+            '3.5V NiCd Battery',
+            'Carbon Zinc Burgess',
+            '4.5V Carbon Zinc Battery',
+            '3V_3.6V_3.7V_Lithium Ion Battery',
+            'Lead Acid Battery',
+            'C NiCd_NiMH Battery',
+            '3.6V NiMH Battery',
+            'Multicell Carbon Zinc Battery Pack',
+            'Battery Components',
+            'Random Metal Object',
+            'Crushed Battery Casing',
+            'D NiCd Battery',
+            '2.5V NiCd Battery',
+            '9V NiCd Battery',
+            'AA_AAA Carbon Zinc Battery',
+            'Multicell Lead Acid Battery Pack',
+            'Button Lithium Metal Battery',
+            '2CR5 Lithium Metal Battery Casing',
+            'Small 3.7V Lithium Ion Battery',
+            'D NiMH Battery',
+            'Button NiMH Battery',
+            'RCR2 Lithium Phosphate Battery',
+            '1.5V Alkaline Battery',
+            'Multicell Alkaline Battery Pack',
+            '9V NiMH Battery',
+            'Coin',
+            'Button Silver Oxide Battery',
+            'Button Zinc Air Battery',
+            '9.6V NiMH Battery',
+            '1.5V Carbon Zinc Battery',
+            'AA Lithium Phosphate Battery',
+            'Multicell Lithium Metal Battery Pack',
+            '9V Carbon Zinc Battery',
+            '4.5V Alkaline Battery',
+            'RCR123A Lithium Phosphate Battery',
+            'AA Lithium Iron Battery',
+            'AAAA_23A_LR1 Alkaline Battery',
+            'LiMNO2 MultiCell Battery Pack',
+            'Multicell NiCd Battery Pack',
+            '12V Carbon Zinc Battery Casing',
+            'Battery Connector Wire',
+            'Multicell Silver Oxide Battery Pack',
+            'TR133R NiCd Battery',
+            'Lithium Ion Battery',
+        ]),
+        pipeline=[
+            dict(type='LoadImageFromFile'),
+            dict(type='LoadAnnotations', with_bbox=True, with_mask=True),
+            dict(keep_ratio=True, scale=[
+                1333,
+                800,
+            ], type='Resize'),
+            dict(prob=0.5, type='RandomFlip'),
+            dict(type='PackDetInputs'),
+        ],
+        type='CocoDataset'),
+    num_workers=2,
+    persistent_workers=True,
+    sampler=dict(shuffle=True, type='DefaultSampler'))
+val_cfg = None
+val_dataloader = None
+val_evaluator = None
+work_dir = './work_dirs/cmr_test'
+
+2025/10/22 18:42:37 - visengine - INFO - Distributed training is not used, all SyncBatchNorm (SyncBN) layers in the model will be automatically reverted to BatchNormXd layers if they are used.
+2025/10/22 18:42:37 - visengine - INFO - Hooks will be executed in the following order:
+before_run:
+(VERY_HIGH   ) RuntimeInfoHook
+(BELOW_NORMAL) LoggerHook
+ --------------------
+before_train:
+(VERY_HIGH   ) RuntimeInfoHook
+(NORMAL      ) IterTimerHook
+(VERY_LOW    ) CheckpointHook
+ --------------------
+before_train_epoch:
+(VERY_HIGH   ) RuntimeInfoHook
+(NORMAL      ) IterTimerHook
+(NORMAL      ) DistSamplerSeedHook
+ --------------------
+before_train_iter:
+(VERY_HIGH   ) RuntimeInfoHook
+(NORMAL      ) IterTimerHook
+ --------------------
+after_train_iter:
+(VERY_HIGH   ) RuntimeInfoHook
+(NORMAL      ) IterTimerHook
+(BELOW_NORMAL) LoggerHook
+(LOW         ) ParamSchedulerHook
+(VERY_LOW    ) CheckpointHook
+ --------------------
+after_train_epoch:
+(NORMAL      ) IterTimerHook
+(LOW         ) ParamSchedulerHook
+(VERY_LOW    ) CheckpointHook
+ --------------------
+before_val:
+(VERY_HIGH   ) RuntimeInfoHook
+ --------------------
+before_val_epoch:
+(NORMAL      ) IterTimerHook
+ --------------------
+before_val_iter:
+(NORMAL      ) IterTimerHook
+ --------------------
+after_val_iter:
+(NORMAL      ) IterTimerHook
+(NORMAL      ) DetVisualizationHook
+(BELOW_NORMAL) LoggerHook
+ --------------------
+after_val_epoch:
+(VERY_HIGH   ) RuntimeInfoHook
+(NORMAL      ) IterTimerHook
+(BELOW_NORMAL) LoggerHook
+(LOW         ) ParamSchedulerHook
+(VERY_LOW    ) CheckpointHook
+ --------------------
+after_val:
+(VERY_HIGH   ) RuntimeInfoHook
+ --------------------
+after_train:
+(VERY_HIGH   ) RuntimeInfoHook
+(VERY_LOW    ) CheckpointHook
+ --------------------
+before_test:
+(VERY_HIGH   ) RuntimeInfoHook
+ --------------------
+before_test_epoch:
+(NORMAL      ) IterTimerHook
+ --------------------
+before_test_iter:
+(NORMAL      ) IterTimerHook
+ --------------------
+after_test_iter:
+(NORMAL      ) IterTimerHook
+(NORMAL      ) DetVisualizationHook
+(BELOW_NORMAL) LoggerHook
+ --------------------
+after_test_epoch:
+(VERY_HIGH   ) RuntimeInfoHook
+(NORMAL      ) IterTimerHook
+(BELOW_NORMAL) LoggerHook
+ --------------------
+after_test:
+(VERY_HIGH   ) RuntimeInfoHook
+ --------------------
+after_run:
+(BELOW_NORMAL) LoggerHook
+ --------------------
+2025/10/22 18:42:38 - visengine - WARNING - Warning: Pad is already registered in transform at visdet.datasets.transforms.transforms, it will be overwritten by the module at visdet.datasets.transforms.transforms
+2025/10/22 18:42:38 - visengine - WARNING - Warning: RandomFlip is already registered in transform at visdet.datasets.transforms.transforms, it will be overwritten by the module at viscv.transforms.processing
+2025/10/22 18:42:38 - visengine - WARNING - Warning: LoadAnnotations is already registered in transform at visdet.datasets.transforms.loading, it will be overwritten by the module at visdet.datasets.transforms.loading
+2025/10/22 18:42:38 - visengine - WARNING - Warning: PackDetInputs is already registered in transform at visdet.datasets.transforms.formatting, it will be overwritten by the module at visdet.datasets.transforms.formatting
+2025/10/22 18:42:38 - visengine - WARNING - Warning: RandomCrop is already registered in transform at visdet.datasets.transforms.transforms, it will be overwritten by the module at visdet.datasets.transforms.transforms
+2025/10/22 18:42:40 - visengine - WARNING - No pre-trained weights for SwinTransformer, training start from scratch
+Name of parameter - Initialization information
+
+backbone.patch_embed.proj.weight - torch.Size([96, 3, 4, 4]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.patch_embed.proj.bias - torch.Size([96]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.patch_embed.norm.weight - torch.Size([96]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.patch_embed.norm.bias - torch.Size([96]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.0.blocks.0.norm1.weight - torch.Size([96]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.0.blocks.0.norm1.bias - torch.Size([96]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.0.blocks.0.attn.w_msa.relative_position_bias_table - torch.Size([169, 3]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.0.blocks.0.attn.w_msa.qkv.weight - torch.Size([288, 96]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.0.blocks.0.attn.w_msa.qkv.bias - torch.Size([288]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.0.blocks.0.attn.w_msa.proj.weight - torch.Size([96, 96]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.0.blocks.0.attn.w_msa.proj.bias - torch.Size([96]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.0.blocks.0.norm2.weight - torch.Size([96]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.0.blocks.0.norm2.bias - torch.Size([96]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.0.blocks.0.ffn.layers.0.0.weight - torch.Size([384, 96]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.0.blocks.0.ffn.layers.0.0.bias - torch.Size([384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.0.blocks.0.ffn.layers.1.weight - torch.Size([96, 384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.0.blocks.0.ffn.layers.1.bias - torch.Size([96]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.0.blocks.1.norm1.weight - torch.Size([96]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.0.blocks.1.norm1.bias - torch.Size([96]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.0.blocks.1.attn.w_msa.relative_position_bias_table - torch.Size([169, 3]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.0.blocks.1.attn.w_msa.qkv.weight - torch.Size([288, 96]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.0.blocks.1.attn.w_msa.qkv.bias - torch.Size([288]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.0.blocks.1.attn.w_msa.proj.weight - torch.Size([96, 96]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.0.blocks.1.attn.w_msa.proj.bias - torch.Size([96]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.0.blocks.1.norm2.weight - torch.Size([96]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.0.blocks.1.norm2.bias - torch.Size([96]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.0.blocks.1.ffn.layers.0.0.weight - torch.Size([384, 96]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.0.blocks.1.ffn.layers.0.0.bias - torch.Size([384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.0.blocks.1.ffn.layers.1.weight - torch.Size([96, 384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.0.blocks.1.ffn.layers.1.bias - torch.Size([96]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.0.downsample.reduction.weight - torch.Size([192, 384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.0.downsample.norm.weight - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.0.downsample.norm.bias - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.1.blocks.0.norm1.weight - torch.Size([192]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.1.blocks.0.norm1.bias - torch.Size([192]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.1.blocks.0.attn.w_msa.relative_position_bias_table - torch.Size([169, 6]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.1.blocks.0.attn.w_msa.qkv.weight - torch.Size([576, 192]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.1.blocks.0.attn.w_msa.qkv.bias - torch.Size([576]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.1.blocks.0.attn.w_msa.proj.weight - torch.Size([192, 192]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.1.blocks.0.attn.w_msa.proj.bias - torch.Size([192]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.1.blocks.0.norm2.weight - torch.Size([192]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.1.blocks.0.norm2.bias - torch.Size([192]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.1.blocks.0.ffn.layers.0.0.weight - torch.Size([768, 192]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.1.blocks.0.ffn.layers.0.0.bias - torch.Size([768]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.1.blocks.0.ffn.layers.1.weight - torch.Size([192, 768]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.1.blocks.0.ffn.layers.1.bias - torch.Size([192]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.1.blocks.1.norm1.weight - torch.Size([192]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.1.blocks.1.norm1.bias - torch.Size([192]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.1.blocks.1.attn.w_msa.relative_position_bias_table - torch.Size([169, 6]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.1.blocks.1.attn.w_msa.qkv.weight - torch.Size([576, 192]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.1.blocks.1.attn.w_msa.qkv.bias - torch.Size([576]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.1.blocks.1.attn.w_msa.proj.weight - torch.Size([192, 192]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.1.blocks.1.attn.w_msa.proj.bias - torch.Size([192]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.1.blocks.1.norm2.weight - torch.Size([192]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.1.blocks.1.norm2.bias - torch.Size([192]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.1.blocks.1.ffn.layers.0.0.weight - torch.Size([768, 192]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.1.blocks.1.ffn.layers.0.0.bias - torch.Size([768]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.1.blocks.1.ffn.layers.1.weight - torch.Size([192, 768]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.1.blocks.1.ffn.layers.1.bias - torch.Size([192]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.1.downsample.reduction.weight - torch.Size([384, 768]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.1.downsample.norm.weight - torch.Size([768]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.1.downsample.norm.bias - torch.Size([768]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.0.norm1.weight - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.0.norm1.bias - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.0.attn.w_msa.relative_position_bias_table - torch.Size([169, 12]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.0.attn.w_msa.qkv.weight - torch.Size([1152, 384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.0.attn.w_msa.qkv.bias - torch.Size([1152]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.0.attn.w_msa.proj.weight - torch.Size([384, 384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.0.attn.w_msa.proj.bias - torch.Size([384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.0.norm2.weight - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.0.norm2.bias - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.0.ffn.layers.0.0.weight - torch.Size([1536, 384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.0.ffn.layers.0.0.bias - torch.Size([1536]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.0.ffn.layers.1.weight - torch.Size([384, 1536]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.0.ffn.layers.1.bias - torch.Size([384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.1.norm1.weight - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.1.norm1.bias - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.1.attn.w_msa.relative_position_bias_table - torch.Size([169, 12]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.1.attn.w_msa.qkv.weight - torch.Size([1152, 384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.1.attn.w_msa.qkv.bias - torch.Size([1152]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.1.attn.w_msa.proj.weight - torch.Size([384, 384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.1.attn.w_msa.proj.bias - torch.Size([384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.1.norm2.weight - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.1.norm2.bias - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.1.ffn.layers.0.0.weight - torch.Size([1536, 384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.1.ffn.layers.0.0.bias - torch.Size([1536]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.1.ffn.layers.1.weight - torch.Size([384, 1536]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.1.ffn.layers.1.bias - torch.Size([384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.2.norm1.weight - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.2.norm1.bias - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.2.attn.w_msa.relative_position_bias_table - torch.Size([169, 12]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.2.attn.w_msa.qkv.weight - torch.Size([1152, 384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.2.attn.w_msa.qkv.bias - torch.Size([1152]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.2.attn.w_msa.proj.weight - torch.Size([384, 384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.2.attn.w_msa.proj.bias - torch.Size([384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.2.norm2.weight - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.2.norm2.bias - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.2.ffn.layers.0.0.weight - torch.Size([1536, 384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.2.ffn.layers.0.0.bias - torch.Size([1536]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.2.ffn.layers.1.weight - torch.Size([384, 1536]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.2.ffn.layers.1.bias - torch.Size([384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.3.norm1.weight - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.3.norm1.bias - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.3.attn.w_msa.relative_position_bias_table - torch.Size([169, 12]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.3.attn.w_msa.qkv.weight - torch.Size([1152, 384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.3.attn.w_msa.qkv.bias - torch.Size([1152]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.3.attn.w_msa.proj.weight - torch.Size([384, 384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.3.attn.w_msa.proj.bias - torch.Size([384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.3.norm2.weight - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.3.norm2.bias - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.3.ffn.layers.0.0.weight - torch.Size([1536, 384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.3.ffn.layers.0.0.bias - torch.Size([1536]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.3.ffn.layers.1.weight - torch.Size([384, 1536]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.3.ffn.layers.1.bias - torch.Size([384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.4.norm1.weight - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.4.norm1.bias - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.4.attn.w_msa.relative_position_bias_table - torch.Size([169, 12]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.4.attn.w_msa.qkv.weight - torch.Size([1152, 384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.4.attn.w_msa.qkv.bias - torch.Size([1152]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.4.attn.w_msa.proj.weight - torch.Size([384, 384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.4.attn.w_msa.proj.bias - torch.Size([384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.4.norm2.weight - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.4.norm2.bias - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.4.ffn.layers.0.0.weight - torch.Size([1536, 384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.4.ffn.layers.0.0.bias - torch.Size([1536]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.4.ffn.layers.1.weight - torch.Size([384, 1536]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.4.ffn.layers.1.bias - torch.Size([384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.5.norm1.weight - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.5.norm1.bias - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.5.attn.w_msa.relative_position_bias_table - torch.Size([169, 12]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.5.attn.w_msa.qkv.weight - torch.Size([1152, 384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.5.attn.w_msa.qkv.bias - torch.Size([1152]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.5.attn.w_msa.proj.weight - torch.Size([384, 384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.5.attn.w_msa.proj.bias - torch.Size([384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.5.norm2.weight - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.5.norm2.bias - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.5.ffn.layers.0.0.weight - torch.Size([1536, 384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.5.ffn.layers.0.0.bias - torch.Size([1536]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.5.ffn.layers.1.weight - torch.Size([384, 1536]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.5.ffn.layers.1.bias - torch.Size([384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.6.norm1.weight - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.6.norm1.bias - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.6.attn.w_msa.relative_position_bias_table - torch.Size([169, 12]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.6.attn.w_msa.qkv.weight - torch.Size([1152, 384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.6.attn.w_msa.qkv.bias - torch.Size([1152]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.6.attn.w_msa.proj.weight - torch.Size([384, 384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.6.attn.w_msa.proj.bias - torch.Size([384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.6.norm2.weight - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.6.norm2.bias - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.6.ffn.layers.0.0.weight - torch.Size([1536, 384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.6.ffn.layers.0.0.bias - torch.Size([1536]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.6.ffn.layers.1.weight - torch.Size([384, 1536]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.6.ffn.layers.1.bias - torch.Size([384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.7.norm1.weight - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.7.norm1.bias - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.7.attn.w_msa.relative_position_bias_table - torch.Size([169, 12]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.7.attn.w_msa.qkv.weight - torch.Size([1152, 384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.7.attn.w_msa.qkv.bias - torch.Size([1152]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.7.attn.w_msa.proj.weight - torch.Size([384, 384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.7.attn.w_msa.proj.bias - torch.Size([384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.7.norm2.weight - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.7.norm2.bias - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.7.ffn.layers.0.0.weight - torch.Size([1536, 384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.7.ffn.layers.0.0.bias - torch.Size([1536]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.7.ffn.layers.1.weight - torch.Size([384, 1536]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.7.ffn.layers.1.bias - torch.Size([384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.8.norm1.weight - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.8.norm1.bias - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.8.attn.w_msa.relative_position_bias_table - torch.Size([169, 12]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.8.attn.w_msa.qkv.weight - torch.Size([1152, 384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.8.attn.w_msa.qkv.bias - torch.Size([1152]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.8.attn.w_msa.proj.weight - torch.Size([384, 384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.8.attn.w_msa.proj.bias - torch.Size([384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.8.norm2.weight - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.8.norm2.bias - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.8.ffn.layers.0.0.weight - torch.Size([1536, 384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.8.ffn.layers.0.0.bias - torch.Size([1536]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.8.ffn.layers.1.weight - torch.Size([384, 1536]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.8.ffn.layers.1.bias - torch.Size([384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.9.norm1.weight - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.9.norm1.bias - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.9.attn.w_msa.relative_position_bias_table - torch.Size([169, 12]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.9.attn.w_msa.qkv.weight - torch.Size([1152, 384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.9.attn.w_msa.qkv.bias - torch.Size([1152]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.9.attn.w_msa.proj.weight - torch.Size([384, 384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.9.attn.w_msa.proj.bias - torch.Size([384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.9.norm2.weight - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.9.norm2.bias - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.9.ffn.layers.0.0.weight - torch.Size([1536, 384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.9.ffn.layers.0.0.bias - torch.Size([1536]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.9.ffn.layers.1.weight - torch.Size([384, 1536]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.9.ffn.layers.1.bias - torch.Size([384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.10.norm1.weight - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.10.norm1.bias - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.10.attn.w_msa.relative_position_bias_table - torch.Size([169, 12]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.10.attn.w_msa.qkv.weight - torch.Size([1152, 384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.10.attn.w_msa.qkv.bias - torch.Size([1152]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.10.attn.w_msa.proj.weight - torch.Size([384, 384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.10.attn.w_msa.proj.bias - torch.Size([384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.10.norm2.weight - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.10.norm2.bias - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.10.ffn.layers.0.0.weight - torch.Size([1536, 384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.10.ffn.layers.0.0.bias - torch.Size([1536]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.10.ffn.layers.1.weight - torch.Size([384, 1536]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.10.ffn.layers.1.bias - torch.Size([384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.11.norm1.weight - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.11.norm1.bias - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.11.attn.w_msa.relative_position_bias_table - torch.Size([169, 12]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.11.attn.w_msa.qkv.weight - torch.Size([1152, 384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.11.attn.w_msa.qkv.bias - torch.Size([1152]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.11.attn.w_msa.proj.weight - torch.Size([384, 384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.11.attn.w_msa.proj.bias - torch.Size([384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.11.norm2.weight - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.11.norm2.bias - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.11.ffn.layers.0.0.weight - torch.Size([1536, 384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.11.ffn.layers.0.0.bias - torch.Size([1536]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.11.ffn.layers.1.weight - torch.Size([384, 1536]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.11.ffn.layers.1.bias - torch.Size([384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.12.norm1.weight - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.12.norm1.bias - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.12.attn.w_msa.relative_position_bias_table - torch.Size([169, 12]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.12.attn.w_msa.qkv.weight - torch.Size([1152, 384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.12.attn.w_msa.qkv.bias - torch.Size([1152]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.12.attn.w_msa.proj.weight - torch.Size([384, 384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.12.attn.w_msa.proj.bias - torch.Size([384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.12.norm2.weight - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.12.norm2.bias - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.12.ffn.layers.0.0.weight - torch.Size([1536, 384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.12.ffn.layers.0.0.bias - torch.Size([1536]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.12.ffn.layers.1.weight - torch.Size([384, 1536]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.12.ffn.layers.1.bias - torch.Size([384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.13.norm1.weight - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.13.norm1.bias - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.13.attn.w_msa.relative_position_bias_table - torch.Size([169, 12]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.13.attn.w_msa.qkv.weight - torch.Size([1152, 384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.13.attn.w_msa.qkv.bias - torch.Size([1152]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.13.attn.w_msa.proj.weight - torch.Size([384, 384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.13.attn.w_msa.proj.bias - torch.Size([384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.13.norm2.weight - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.13.norm2.bias - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.13.ffn.layers.0.0.weight - torch.Size([1536, 384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.13.ffn.layers.0.0.bias - torch.Size([1536]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.13.ffn.layers.1.weight - torch.Size([384, 1536]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.13.ffn.layers.1.bias - torch.Size([384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.14.norm1.weight - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.14.norm1.bias - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.14.attn.w_msa.relative_position_bias_table - torch.Size([169, 12]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.14.attn.w_msa.qkv.weight - torch.Size([1152, 384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.14.attn.w_msa.qkv.bias - torch.Size([1152]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.14.attn.w_msa.proj.weight - torch.Size([384, 384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.14.attn.w_msa.proj.bias - torch.Size([384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.14.norm2.weight - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.14.norm2.bias - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.14.ffn.layers.0.0.weight - torch.Size([1536, 384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.14.ffn.layers.0.0.bias - torch.Size([1536]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.14.ffn.layers.1.weight - torch.Size([384, 1536]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.14.ffn.layers.1.bias - torch.Size([384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.15.norm1.weight - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.15.norm1.bias - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.15.attn.w_msa.relative_position_bias_table - torch.Size([169, 12]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.15.attn.w_msa.qkv.weight - torch.Size([1152, 384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.15.attn.w_msa.qkv.bias - torch.Size([1152]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.15.attn.w_msa.proj.weight - torch.Size([384, 384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.15.attn.w_msa.proj.bias - torch.Size([384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.15.norm2.weight - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.15.norm2.bias - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.15.ffn.layers.0.0.weight - torch.Size([1536, 384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.15.ffn.layers.0.0.bias - torch.Size([1536]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.15.ffn.layers.1.weight - torch.Size([384, 1536]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.15.ffn.layers.1.bias - torch.Size([384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.16.norm1.weight - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.16.norm1.bias - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.16.attn.w_msa.relative_position_bias_table - torch.Size([169, 12]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.16.attn.w_msa.qkv.weight - torch.Size([1152, 384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.16.attn.w_msa.qkv.bias - torch.Size([1152]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.16.attn.w_msa.proj.weight - torch.Size([384, 384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.16.attn.w_msa.proj.bias - torch.Size([384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.16.norm2.weight - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.16.norm2.bias - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.16.ffn.layers.0.0.weight - torch.Size([1536, 384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.16.ffn.layers.0.0.bias - torch.Size([1536]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.16.ffn.layers.1.weight - torch.Size([384, 1536]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.16.ffn.layers.1.bias - torch.Size([384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.17.norm1.weight - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.17.norm1.bias - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.17.attn.w_msa.relative_position_bias_table - torch.Size([169, 12]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.17.attn.w_msa.qkv.weight - torch.Size([1152, 384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.17.attn.w_msa.qkv.bias - torch.Size([1152]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.17.attn.w_msa.proj.weight - torch.Size([384, 384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.17.attn.w_msa.proj.bias - torch.Size([384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.17.norm2.weight - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.17.norm2.bias - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.blocks.17.ffn.layers.0.0.weight - torch.Size([1536, 384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.17.ffn.layers.0.0.bias - torch.Size([1536]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.17.ffn.layers.1.weight - torch.Size([384, 1536]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.blocks.17.ffn.layers.1.bias - torch.Size([384]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.downsample.reduction.weight - torch.Size([768, 1536]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.2.downsample.norm.weight - torch.Size([1536]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.2.downsample.norm.bias - torch.Size([1536]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.3.blocks.0.norm1.weight - torch.Size([768]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.3.blocks.0.norm1.bias - torch.Size([768]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.3.blocks.0.attn.w_msa.relative_position_bias_table - torch.Size([169, 24]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.3.blocks.0.attn.w_msa.qkv.weight - torch.Size([2304, 768]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.3.blocks.0.attn.w_msa.qkv.bias - torch.Size([2304]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.3.blocks.0.attn.w_msa.proj.weight - torch.Size([768, 768]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.3.blocks.0.attn.w_msa.proj.bias - torch.Size([768]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.3.blocks.0.norm2.weight - torch.Size([768]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.3.blocks.0.norm2.bias - torch.Size([768]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.3.blocks.0.ffn.layers.0.0.weight - torch.Size([3072, 768]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.3.blocks.0.ffn.layers.0.0.bias - torch.Size([3072]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.3.blocks.0.ffn.layers.1.weight - torch.Size([768, 3072]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.3.blocks.0.ffn.layers.1.bias - torch.Size([768]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.3.blocks.1.norm1.weight - torch.Size([768]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.3.blocks.1.norm1.bias - torch.Size([768]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.3.blocks.1.attn.w_msa.relative_position_bias_table - torch.Size([169, 24]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.3.blocks.1.attn.w_msa.qkv.weight - torch.Size([2304, 768]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.3.blocks.1.attn.w_msa.qkv.bias - torch.Size([2304]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.3.blocks.1.attn.w_msa.proj.weight - torch.Size([768, 768]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.3.blocks.1.attn.w_msa.proj.bias - torch.Size([768]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.3.blocks.1.norm2.weight - torch.Size([768]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.3.blocks.1.norm2.bias - torch.Size([768]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.stages.3.blocks.1.ffn.layers.0.0.weight - torch.Size([3072, 768]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.3.blocks.1.ffn.layers.0.0.bias - torch.Size([3072]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.3.blocks.1.ffn.layers.1.weight - torch.Size([768, 3072]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.stages.3.blocks.1.ffn.layers.1.bias - torch.Size([768]):
+Initialized by user-defined `init_weights` in SwinTransformer
+
+backbone.norm0.weight - torch.Size([96]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.norm0.bias - torch.Size([96]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.norm1.weight - torch.Size([192]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.norm1.bias - torch.Size([192]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.norm2.weight - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.norm2.bias - torch.Size([384]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.norm3.weight - torch.Size([768]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+backbone.norm3.bias - torch.Size([768]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+neck.lateral_convs.0.conv.weight - torch.Size([256, 96, 1, 1]):
+XavierInit: gain=1, distribution=uniform, bias=0
+
+neck.lateral_convs.0.conv.bias - torch.Size([256]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+neck.lateral_convs.1.conv.weight - torch.Size([256, 192, 1, 1]):
+XavierInit: gain=1, distribution=uniform, bias=0
+
+neck.lateral_convs.1.conv.bias - torch.Size([256]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+neck.lateral_convs.2.conv.weight - torch.Size([256, 384, 1, 1]):
+XavierInit: gain=1, distribution=uniform, bias=0
+
+neck.lateral_convs.2.conv.bias - torch.Size([256]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+neck.lateral_convs.3.conv.weight - torch.Size([256, 768, 1, 1]):
+XavierInit: gain=1, distribution=uniform, bias=0
+
+neck.lateral_convs.3.conv.bias - torch.Size([256]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+neck.fpn_convs.0.conv.weight - torch.Size([256, 256, 3, 3]):
+XavierInit: gain=1, distribution=uniform, bias=0
+
+neck.fpn_convs.0.conv.bias - torch.Size([256]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+neck.fpn_convs.1.conv.weight - torch.Size([256, 256, 3, 3]):
+XavierInit: gain=1, distribution=uniform, bias=0
+
+neck.fpn_convs.1.conv.bias - torch.Size([256]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+neck.fpn_convs.2.conv.weight - torch.Size([256, 256, 3, 3]):
+XavierInit: gain=1, distribution=uniform, bias=0
+
+neck.fpn_convs.2.conv.bias - torch.Size([256]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+neck.fpn_convs.3.conv.weight - torch.Size([256, 256, 3, 3]):
+XavierInit: gain=1, distribution=uniform, bias=0
+
+neck.fpn_convs.3.conv.bias - torch.Size([256]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+rpn_head.rpn_conv.weight - torch.Size([256, 256, 3, 3]):
+NormalInit: mean=0, std=0.01, bias=0
+
+rpn_head.rpn_conv.bias - torch.Size([256]):
+NormalInit: mean=0, std=0.01, bias=0
+
+rpn_head.rpn_cls.weight - torch.Size([3, 256, 1, 1]):
+NormalInit: mean=0, std=0.01, bias=0
+
+rpn_head.rpn_cls.bias - torch.Size([3]):
+NormalInit: mean=0, std=0.01, bias=0
+
+rpn_head.rpn_reg.weight - torch.Size([12, 256, 1, 1]):
+NormalInit: mean=0, std=0.01, bias=0
+
+rpn_head.rpn_reg.bias - torch.Size([12]):
+NormalInit: mean=0, std=0.01, bias=0
+
+roi_head.bbox_head.fc_cls.weight - torch.Size([70, 1024]):
+NormalInit: mean=0, std=0.01, bias=0
+
+roi_head.bbox_head.fc_cls.bias - torch.Size([70]):
+NormalInit: mean=0, std=0.01, bias=0
+
+roi_head.bbox_head.fc_reg.weight - torch.Size([276, 1024]):
+NormalInit: mean=0, std=0.001, bias=0
+
+roi_head.bbox_head.fc_reg.bias - torch.Size([276]):
+NormalInit: mean=0, std=0.001, bias=0
+
+roi_head.bbox_head.shared_fcs.0.weight - torch.Size([1024, 12544]):
+XavierInit: gain=1, distribution=uniform, bias=0
+
+roi_head.bbox_head.shared_fcs.0.bias - torch.Size([1024]):
+XavierInit: gain=1, distribution=uniform, bias=0
+
+roi_head.bbox_head.shared_fcs.1.weight - torch.Size([1024, 1024]):
+XavierInit: gain=1, distribution=uniform, bias=0
+
+roi_head.bbox_head.shared_fcs.1.bias - torch.Size([1024]):
+XavierInit: gain=1, distribution=uniform, bias=0
+
+roi_head.mask_head.convs.0.conv.weight - torch.Size([256, 256, 3, 3]):
+Initialized by user-defined `init_weights` in ConvModule
+
+roi_head.mask_head.convs.0.conv.bias - torch.Size([256]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+roi_head.mask_head.convs.1.conv.weight - torch.Size([256, 256, 3, 3]):
+Initialized by user-defined `init_weights` in ConvModule
+
+roi_head.mask_head.convs.1.conv.bias - torch.Size([256]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+roi_head.mask_head.convs.2.conv.weight - torch.Size([256, 256, 3, 3]):
+Initialized by user-defined `init_weights` in ConvModule
+
+roi_head.mask_head.convs.2.conv.bias - torch.Size([256]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+roi_head.mask_head.convs.3.conv.weight - torch.Size([256, 256, 3, 3]):
+Initialized by user-defined `init_weights` in ConvModule
+
+roi_head.mask_head.convs.3.conv.bias - torch.Size([256]):
+The value is the same before and after calling `init_weights` of MaskRCNN
+
+roi_head.mask_head.upsample.weight - torch.Size([256, 256, 2, 2]):
+Initialized by user-defined `init_weights` in FCNMaskHead
+
+roi_head.mask_head.upsample.bias - torch.Size([256]):
+Initialized by user-defined `init_weights` in FCNMaskHead
+
+roi_head.mask_head.conv_logits.weight - torch.Size([69, 256, 1, 1]):
+Initialized by user-defined `init_weights` in FCNMaskHead
+
+roi_head.mask_head.conv_logits.bias - torch.Size([69]):
+Initialized by user-defined `init_weights` in FCNMaskHead
+2025/10/22 18:42:40 - visengine - WARNING - "FileClient" will be deprecated in future. Please use io functions in https://mmengine.readthedocs.io/en/latest/api/fileio.html#file-io
+2025/10/22 18:42:40 - visengine - WARNING - "HardDiskBackend" is the alias of "LocalBackend" and the former will be deprecated in future.
+2025/10/22 18:42:40 - visengine - INFO - Checkpoints will be saved to /home/georgepearse/visdet/work_dirs/cmr_test.

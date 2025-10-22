@@ -94,6 +94,9 @@ Serverless GPU compute platform for Python that makes cloud training and inferen
 ### [Tutel](https://github.com/microsoft/tutel)
 Microsoft's highly optimized Mixture of Experts (MoE) implementation for PyTorch. Enables efficient sparse model training with dynamic expert routing and load balancing. Could enable scaling to much larger models while maintaining computational efficiency through conditional computation.
 
+### [DeepSpeed](https://github.com/deepspeedai/DeepSpeed)
+Microsoft's deep learning optimization library featuring ZeRO (Zero Redundancy Optimizer) for training massive models with limited GPU memory. Includes model compression techniques, efficient training optimizations, and inference acceleration. Could enable training larger detection models and faster inference through quantization and compression.
+
 ---
 
 ## 🚀 Quick Start

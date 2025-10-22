@@ -2,8 +2,7 @@
 
 import numpy as np
 
-from visdet.cv.transforms import to_tensor
-from visdet.cv.transforms.base import BaseTransform
+from visdet.cv.transforms import BaseTransform, to_tensor
 from visdet.engine.structures import InstanceData, PixelData
 from visdet.registry import TRANSFORMS
 from visdet.structures import DetDataSample

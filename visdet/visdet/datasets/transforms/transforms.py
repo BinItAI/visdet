@@ -4,9 +4,9 @@ from typing import Tuple, Union
 import numpy as np
 
 from visdet.cv.image import imflip
+from visdet.cv.transforms import BaseTransform
 from visdet.cv.transforms import Pad as MMCV_Pad
 from visdet.cv.transforms import RandomFlip as MMCV_RandomFlip
-from visdet.cv.transforms.base import BaseTransform
 from visdet.registry import TRANSFORMS
 from visdet.structures.bbox import autocast_box_type
 

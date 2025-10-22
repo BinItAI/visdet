@@ -366,7 +366,7 @@ class BitmapMasks(BaseInstanceMasks):
         binarize=True,
     ):
         # Only import when needed
-        from visdet.cv.ops.roi_align import roi_align
+        from visdet.cv.ops import roi_align
 
         """See :func:`BaseInstanceMasks.crop_and_resize`."""
         if len(self.masks) == 0:

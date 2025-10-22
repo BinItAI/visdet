@@ -10,6 +10,9 @@ from . import models
 # Import engine to register hooks
 from . import engine
 
+# Explicitly import hooks to register them (not done automatically by engine)
+from .engine import hooks
+
 # Import cv
 from . import cv
 
