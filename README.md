@@ -183,9 +183,9 @@ A specialized research platform built on top of Detectron2, focused specifically
 
 **Choosing a Framework:**
 - **visdet**: Best for simplified installation (no CUDA compilation), pure Python/PyTorch, and modern training techniques (progressive resizing, 1cycle schedules, etc.)
-- **MMDetection**: Best if you need the original framework with all dependencies or prefer the traditional MMDetection workflow
-- **Detectron2**: Best for production deployment, Facebook ecosystem integration, and if you prefer Facebook's design philosophy
-- **detrex**: Best for cutting-edge Transformer-based detection research and DETR experimentation
+- **[MMDetection](https://github.com/open-mmlab/mmdetection)**: Best if you need the original framework with all dependencies or prefer the traditional MMDetection workflow
+- **[Detectron2](https://github.com/facebookresearch/detectron2)**: Best for production deployment, Facebook ecosystem integration, and if you prefer Facebook's design philosophy
+- **[detrex](https://github.com/IDEA-Research/detrex)**: Best for cutting-edge Transformer-based detection research and DETR experimentation
 
 ---
 
