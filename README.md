@@ -182,10 +182,10 @@ Facebook AI Research's production-grade detection library. Supports object detec
 A specialized research platform built on top of Detectron2, focused specifically on Transformer-based detection algorithms (DETR variants). Provides unified modular design for 20+ Transformer models including DETR, Deformable-DETR, DINO, and MaskDINO. Uses LazyConfig for flexible configuration.
 
 **Choosing a Framework:**
-- **visdet**: Best for simplified installation, pure Python/PyTorch, and modern training techniques
-- **MMDetection**: Best for comprehensive model zoo and maximum algorithm variety
-- **Detectron2**: Best for production deployment and Facebook ecosystem integration
-- **detrex**: Best for Transformer-based detection research and DETR experimentation
+- **visdet**: Best for simplified installation (no CUDA compilation), pure Python/PyTorch, and modern training techniques (progressive resizing, 1cycle schedules, etc.)
+- **MMDetection**: Best if you need the original framework with all dependencies or prefer the traditional MMDetection workflow
+- **Detectron2**: Best for production deployment, Facebook ecosystem integration, and if you prefer Facebook's design philosophy
+- **detrex**: Best for cutting-edge Transformer-based detection research and DETR experimentation
 
 ---
 
