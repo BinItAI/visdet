@@ -7,6 +7,7 @@ Handles normalization for semantic comparison.
 
 import ast
 import hashlib
+import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
@@ -239,10 +240,18 @@ class NormalizationVisitor(ast.NodeTransformer):
         return self.generic_visit(node)
 
     @staticmethod
-    def normalize_source(source_code: str) -> str:
+    def normalize_source(source_code: str, normalize_imports: bool = False) -> str:
         """Normalize source code for semantic comparison.
 
         Removes comments and extra whitespace while preserving structure.
+
+        Args:
+            source_code: Source code to normalize
+            normalize_imports: If True, replace mmcv with visdet.cv and mmengine with visdet.engine
+                             for feature parity comparison with original repo
+
+        Returns:
+            Normalized source code
         """
         lines = source_code.split("\n")
         normalized_lines = []
@@ -253,6 +262,18 @@ class NormalizationVisitor(ast.NodeTransformer):
                 code_part = line[: line.index("#")]
             else:
                 code_part = line
+
+            # Normalize imports for feature parity checking
+            if normalize_imports:
+                # Replace mmcv imports with visdet.cv
+                code_part = re.sub(r"\bfrom\s+mmcv\b", "from visdet.cv", code_part)
+                code_part = re.sub(r"\bimport\s+mmcv\b", "import visdet.cv", code_part)
+                code_part = re.sub(r"\bmmcv\.", "visdet.cv.", code_part)
+
+                # Replace mmengine imports with visdet.engine
+                code_part = re.sub(r"\bfrom\s+mmengine\b", "from visdet.engine", code_part)
+                code_part = re.sub(r"\bimport\s+mmengine\b", "import visdet.engine", code_part)
+                code_part = re.sub(r"\bmmengine\.", "visdet.engine.", code_part)
 
             # Strip trailing whitespace but preserve leading for indentation
             code_part = code_part.rstrip()

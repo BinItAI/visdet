@@ -15,17 +15,18 @@ class SemanticHasher:
     """Generate semantic hashes for code elements."""
 
     @staticmethod
-    def hash_function(func_info: FunctionInfo) -> str:
+    def hash_function(func_info: FunctionInfo, normalize_imports: bool = False) -> str:
         """Generate semantic hash for a function.
 
         Args:
             func_info: FunctionInfo object to hash
+            normalize_imports: If True, replace mmcv with visdet.cv and mmengine with visdet.engine
 
         Returns:
             Hex string of semantic hash
         """
         # Normalize the source code for hashing
-        normalized = NormalizationVisitor.normalize_source(func_info.source_code)
+        normalized = NormalizationVisitor.normalize_source(func_info.source_code, normalize_imports=normalize_imports)
 
         # Try to parse and normalize the AST for more robust hashing
         try:
@@ -107,12 +108,14 @@ class HashMatcher:
     def find_matches(
         source_items: Dict[str, Union[FunctionInfo, ClassInfo]],
         target_items: Dict[str, Union[FunctionInfo, ClassInfo]],
+        normalize_imports: bool = False,
     ) -> Dict[str, Tuple[str, float]]:
         """Find potential name-based matches between source and target items.
 
         Args:
             source_items: Source code items keyed by name
             target_items: Target code items keyed by name
+            normalize_imports: If True, replace mmcv with visdet.cv and mmengine with visdet.engine
 
         Returns:
             Dict mapping source names to (target_name, similarity) tuples
@@ -123,14 +126,14 @@ class HashMatcher:
         source_hashes = {}
         for name, item in source_items.items():
             if isinstance(item, FunctionInfo):
-                source_hashes[name] = SemanticHasher.hash_function(item)
+                source_hashes[name] = SemanticHasher.hash_function(item, normalize_imports=normalize_imports)
             else:
                 source_hashes[name] = SemanticHasher.hash_class(item)
 
         target_hashes = {}
         for name, item in target_items.items():
             if isinstance(item, FunctionInfo):
-                target_hashes[name] = SemanticHasher.hash_function(item)
+                target_hashes[name] = SemanticHasher.hash_function(item, normalize_imports=normalize_imports)
             else:
                 target_hashes[name] = SemanticHasher.hash_class(item)
 

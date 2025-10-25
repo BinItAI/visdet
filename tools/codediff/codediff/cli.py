@@ -113,10 +113,16 @@ Examples:
         help="Number of context lines to show in diffs (default: 3)",
     )
 
+    parser.add_argument(
+        "--normalize-imports",
+        action="store_true",
+        help="Normalize imports for feature parity checking: replace mmcv→visdet.cv and mmengine→visdet.engine",
+    )
+
     args = parser.parse_args()
 
     try:
-        comparator = CodeComparator()
+        comparator = CodeComparator(normalize_imports=args.normalize_imports)
 
         source_path = Path(args.source)
         target_path = Path(args.target)

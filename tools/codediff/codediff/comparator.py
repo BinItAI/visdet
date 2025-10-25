@@ -65,9 +65,15 @@ class FileChange:
 class CodeComparator:
     """Compare two code trees and identify differences."""
 
-    def __init__(self):
-        """Initialize the comparator."""
+    def __init__(self, normalize_imports: bool = False):
+        """Initialize the comparator.
+
+        Args:
+            normalize_imports: If True, replace mmcv with visdet.cv and mmengine with visdet.engine
+                             for feature parity comparison with original repo
+        """
         self.parser = CodeParser()
+        self.normalize_imports = normalize_imports
 
     def compare_directories(
         self,
@@ -274,7 +280,9 @@ class CodeComparator:
         unmatched_source = {k: v for k, v in source_funcs.items() if k not in matched}
         unmatched_target = {k: v for k, v in target_funcs.items() if k not in matched}
 
-        rename_matches = HashMatcher.find_matches(unmatched_source, unmatched_target)
+        rename_matches = HashMatcher.find_matches(
+            unmatched_source, unmatched_target, normalize_imports=self.normalize_imports
+        )
         for old_name, (new_name, similarity) in rename_matches.items():
             source_func = unmatched_source[old_name]
             target_func = unmatched_target[new_name]

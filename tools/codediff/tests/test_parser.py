@@ -159,3 +159,72 @@ class TestNormalization:
         # Check that indentation is preserved
         lines = normalized.split("\n")
         assert any(line.startswith("    if") for line in lines)
+
+    def test_normalize_source_imports_mmcv(self):
+        """Test that mmcv imports are normalized to visdet.cv when flag is set."""
+        from codediff.parser import NormalizationVisitor
+
+        code = """from mmcv.ops import nms
+from mmcv import build
+import mmcv
+x = mmcv.Config.fromfile('config.py')
+"""
+        # Without normalization
+        normalized_without = NormalizationVisitor.normalize_source(code, normalize_imports=False)
+        assert "from mmcv" in normalized_without
+        assert "import mmcv" in normalized_without
+        assert "mmcv.Config" in normalized_without
+
+        # With normalization
+        normalized_with = NormalizationVisitor.normalize_source(code, normalize_imports=True)
+        assert "from visdet.cv" in normalized_with
+        assert "import visdet.cv" in normalized_with
+        assert "visdet.cv.Config" in normalized_with
+        assert "from mmcv" not in normalized_with
+        assert "import mmcv" not in normalized_with
+
+    def test_normalize_source_imports_mmengine(self):
+        """Test that mmengine imports are normalized to visdet.engine when flag is set."""
+        from codediff.parser import NormalizationVisitor
+
+        code = """from mmengine.config import Config
+from mmengine import build
+import mmengine
+logger = mmengine.get_logger('test')
+"""
+        # Without normalization
+        normalized_without = NormalizationVisitor.normalize_source(code, normalize_imports=False)
+        assert "from mmengine" in normalized_without
+        assert "import mmengine" in normalized_without
+        assert "mmengine.get_logger" in normalized_without
+
+        # With normalization
+        normalized_with = NormalizationVisitor.normalize_source(code, normalize_imports=True)
+        assert "from visdet.engine" in normalized_with
+        assert "import visdet.engine" in normalized_with
+        assert "visdet.engine.get_logger" in normalized_with
+        assert "from mmengine" not in normalized_with
+        assert "import mmengine" not in normalized_with
+
+    def test_normalize_source_mixed_imports(self):
+        """Test normalization of both mmcv and mmengine imports together."""
+        from codediff.parser import NormalizationVisitor
+
+        code = """from mmcv.ops import nms
+from mmengine.config import Config
+from mmcv import build as mmcv_build
+from mmengine import build as mmengine_build
+x = mmcv.ops.nms(scores)
+y = mmengine.config.Config()
+"""
+        normalized = NormalizationVisitor.normalize_source(code, normalize_imports=True)
+
+        assert "from visdet.cv" in normalized
+        assert "from visdet.engine" in normalized
+        assert "visdet.cv.ops.nms" in normalized
+        assert "visdet.engine.config.Config" in normalized
+        # Check that the imports have been replaced (variable names like mmcv_build are aliases and unchanged)
+        assert "from mmcv.ops" not in normalized
+        assert "from mmengine.config" not in normalized
+        assert "mmcv.ops.nms" not in normalized
+        assert "mmengine.config.Config" not in normalized

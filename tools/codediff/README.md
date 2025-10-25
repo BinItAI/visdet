@@ -66,6 +66,10 @@ Granular Filtering:
 Detailed Output:
   --show-diff           Show detailed code differences
   --context-lines N     Lines of context for diffs (default: 3)
+
+Feature Parity:
+  --normalize-imports   Normalize imports for feature parity checking:
+                        Replace mmcv→visdet.cv and mmengine→visdet.engine
 ```
 
 ### Output Formats
@@ -240,6 +244,75 @@ The tool normalizes code and generates semantic fingerprints:
 - Generates SHA256 hash for comparison
 
 Items with hashes within 15% similarity are considered potential renames.
+
+## Feature Parity Checking
+
+One of the most powerful use cases of `codediff` is validating **feature parity** between refactored codebases. When migrating code from one framework/library to another, import paths typically change even though the implementation remains the same. For example:
+
+```python
+# Original MMDetection
+from mmcv.ops import nms
+from mmengine.config import Config
+
+# Refactored VisDet
+from visdet.cv.ops import nms
+from visdet.engine.config import Config
+```
+
+Without special handling, these would show as "modified" even though the logic is identical. The `--normalize-imports` flag solves this:
+
+```bash
+# Compare implementations while normalizing library imports
+codediff archive/mmdet/models/ visdet/models/ \
+  --normalize-imports \
+  --modified-only \
+  --show-diff \
+  --format markdown
+```
+
+**What `--normalize-imports` does:**
+- Replaces all `mmcv` imports with `visdet.cv`
+- Replaces all `mmengine` imports with `visdet.engine`
+- Allows you to see **only real semantic differences**, not import path changes
+- Filters out false positives in your diff analysis
+
+### Feature Parity Validation Workflow
+
+1. **Find truly different implementations:**
+```bash
+codediff archive/mmdet/models/ visdet/models/ \
+  --normalize-imports \
+  --modified-only \
+  --output real_changes.json
+```
+
+2. **Verify you have all required code (not just different imports):**
+```bash
+codediff archive/mmdet/models/ visdet/models/ \
+  --normalize-imports \
+  --missing-only \
+  --format markdown \
+  --output missing_code.md
+```
+
+3. **Check for renamed/moved functions:**
+```bash
+codediff archive/mmdet/models/ visdet/models/ \
+  --normalize-imports \
+  --renamed-only \
+  --show-diff \
+  --output renames.md
+```
+
+4. **Analyze specific module changes:**
+```bash
+codediff archive/mmdet/models/backbones/ visdet/models/backbones/ \
+  --normalize-imports \
+  --pattern "ResNet" \
+  --modified-only \
+  --show-diff \
+  --context-lines 10
+```
 
 ## Use Cases
 
