@@ -40,6 +40,34 @@ Compare two files:
 codediff archive/mmdet/file.py visdet/file.py
 ```
 
+### Command-Line Options
+
+```
+positional arguments:
+  source                Source directory or file to compare
+  target                Target directory or file to compare
+
+optional arguments:
+  -o, --output OUTPUT   Output file path (default: stdout)
+  -f, --format {json,markdown}
+                        Output format (default: json)
+
+Change Type Filters:
+  --missing-only        Show only removed items (missing in target)
+  --added-only          Show only added items (new in target)
+  --modified-only       Show only modified items
+  --renamed-only        Show only renamed items
+
+Granular Filtering:
+  --function FUNC       Filter to specific function(s) - can repeat
+  --class CLASS         Filter to specific class(es) - can repeat
+  --pattern PATTERN     Filter by name pattern (regex)
+
+Detailed Output:
+  --show-diff           Show detailed code differences
+  --context-lines N     Lines of context for diffs (default: 3)
+```
+
 ### Output Formats
 
 **JSON output** (default - optimal for LLMs):
@@ -78,6 +106,66 @@ Show only modified items:
 
 ```bash
 codediff tests/ visdet/tests/ --modified-only
+```
+
+### Advanced Filtering - Find Specific Changes
+
+**Filter to specific function changes:**
+
+```bash
+# Show only changes to test_swin_transformer and related tests
+codediff tests/ visdet/tests/ \
+  --function test_swin_transformer \
+  --modified-only \
+  --show-diff
+
+# Show multiple functions (can repeat --function)
+codediff tests/ visdet/tests/ \
+  --function test_forward \
+  --function test_backward \
+  --function test_loss
+```
+
+**Filter to specific class tests:**
+
+```bash
+# Show only changes to TestMaskRCNN class
+codediff tests/test_models/ visdet/tests/test_models/ \
+  --class TestMaskRCNN \
+  --modified-only
+```
+
+**Filter by name pattern (regex):**
+
+```bash
+# Show only changes to test_* functions that contain "head"
+codediff tests/test_models/ visdet/tests/test_models/ \
+  --pattern "test_.*head.*" \
+  --modified-only
+
+# Show all test functions that start with test_swin
+codediff tests/test_models/test_backbones/ \
+         visdet/tests/test_models/test_backbones/ \
+  --pattern "^test_swin" \
+  --show-diff
+```
+
+**Detailed diff output:**
+
+```bash
+# Show code-level diffs for all modified tests
+codediff tests/ visdet/tests/ \
+  --modified-only \
+  --show-diff \
+  --context-lines 5 \
+  --format markdown \
+  --output detailed_changes.md
+
+# Focus on specific test file with full diff
+codediff tests/test_models/test_backbones/test_swin.py \
+         visdet/tests/test_models/test_backbones/test_swin.py \
+  --show-diff \
+  --context-lines 3
 ```
 
 ## Output Format

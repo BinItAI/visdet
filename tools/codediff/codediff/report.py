@@ -4,11 +4,12 @@ Report generation for code comparison results.
 Generates JSON and markdown output from comparison results.
 """
 
+import difflib
 import json
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, Union
+from typing import Any, Dict, Optional, Union
 
 from codediff.comparator import ChangeType, ClassChange, FileChange, FunctionChange
 
@@ -19,13 +20,23 @@ class ComparisonReport:
 
     file_changes: Dict[str, FileChange]
     stats: Dict[str, Any]
+    show_diff: bool = False
+    context_lines: int = 3
+    diffs: Dict[str, str] = field(default_factory=dict)
 
     @classmethod
-    def from_comparison(cls, file_changes: Dict[str, FileChange]) -> "ComparisonReport":
+    def from_comparison(
+        cls,
+        file_changes: Dict[str, FileChange],
+        show_diff: bool = False,
+        context_lines: int = 3,
+    ) -> "ComparisonReport":
         """Create a report from comparison results.
 
         Args:
             file_changes: Dictionary of FileChange objects
+            show_diff: Whether to generate detailed diffs
+            context_lines: Number of context lines for diffs
 
         Returns:
             ComparisonReport instance
@@ -33,9 +44,17 @@ class ComparisonReport:
         # Calculate statistics
         stats = cls._calculate_stats(file_changes)
 
+        # Generate diffs if requested
+        diffs: Dict[str, str] = {}
+        if show_diff:
+            diffs = cls._generate_diffs(file_changes, context_lines)
+
         return cls(
             file_changes=file_changes,
             stats=stats,
+            show_diff=show_diff,
+            context_lines=context_lines,
+            diffs=diffs,
         )
 
     @staticmethod
@@ -157,6 +176,12 @@ class ComparisonReport:
                         sig = func_change.new_signature or func_change.old_signature or ""
                         lines.append(f"- **{func_change.change_type.value.upper()}**: `{func_change.name}` {sig}\n")
 
+                        # Include diff if available
+                        if self.show_diff and func_change.change_type == ChangeType.MODIFIED:
+                            diff_key = f"{file_path}::{func_name}"
+                            if diff_key in self.diffs:
+                                lines.append(f"\n```diff\n{self.diffs[diff_key]}\n```\n")
+
         return "".join(lines)
 
     def save_json(self, path: Union[str, Path]) -> None:
@@ -174,6 +199,54 @@ class ComparisonReport:
             path: Output file path
         """
         Path(path).write_text(self.to_markdown())
+
+    @staticmethod
+    def _generate_diffs(file_changes: Dict[str, FileChange], context_lines: int) -> Dict[str, str]:
+        """Generate unified diffs for modified functions/classes.
+
+        Args:
+            file_changes: Dictionary of FileChange objects
+            context_lines: Number of context lines to include
+
+        Returns:
+            Dictionary mapping change keys to diff strings
+        """
+        diffs: Dict[str, str] = {}
+
+        for file_path, file_change in file_changes.items():
+            # Generate diffs for modified functions
+            for func_name, func_change in file_change.function_changes.items():
+                if func_change.change_type == ChangeType.MODIFIED:
+                    if func_change.old_signature and func_change.new_signature:
+                        key = f"{file_path}::{func_name}"
+                        diff = difflib.unified_diff(
+                            [func_change.old_signature],
+                            [func_change.new_signature],
+                            fromfile=f"{func_name} (old)",
+                            tofile=f"{func_name} (new)",
+                            lineterm="",
+                            n=context_lines,
+                        )
+                        diffs[key] = "\n".join(diff)
+
+            # Generate diffs for modified classes
+            for class_name, class_change in file_change.class_changes.items():
+                if class_change.change_type == ChangeType.MODIFIED:
+                    for method_name, method_change in class_change.method_changes.items():
+                        if method_change.change_type == ChangeType.MODIFIED:
+                            key = f"{file_path}::{class_name}.{method_name}"
+                            if method_change.old_signature and method_change.new_signature:
+                                diff = difflib.unified_diff(
+                                    [method_change.old_signature],
+                                    [method_change.new_signature],
+                                    fromfile=f"{class_name}.{method_name} (old)",
+                                    tofile=f"{class_name}.{method_name} (new)",
+                                    lineterm="",
+                                    n=context_lines,
+                                )
+                                diffs[key] = "\n".join(diff)
+
+        return diffs
 
     @staticmethod
     def _serialize_file_change(file_change: FileChange) -> Dict[str, Any]:
