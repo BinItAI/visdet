@@ -25,6 +25,18 @@ repos:
         args: [--config=pyproject.toml]
         exclude: ^archive/
 
+  # Skylos - dead code and security vulnerability detection (local hook)
+  - repo: local
+    hooks:
+      - id: skylos
+        name: Skylos (dead code & security scan)
+        entry: uv run skylos
+        language: system
+        types: [python]
+        args: [--exclude=tests,archive,configs]
+        stages: [commit]
+        pass_filenames: false
+
   - repo: https://github.com/kynan/nbstripout
     rev: 0.8.1
     hooks:

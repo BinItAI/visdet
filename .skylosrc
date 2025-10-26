@@ -1,0 +1,49 @@
+# Skylos Configuration for visdet
+# Reference: https://github.com/duriantaco/skylos
+
+# Directories to exclude from scanning
+exclude:
+  - tests
+  - archive
+  - configs
+  - .venv
+  - venv
+  - __pycache__
+  - .git
+  - build
+  - dist
+  - *.egg-info
+
+# Enable security vulnerability detection
+security:
+  enabled: true
+  check_sql_injection: true
+  check_command_injection: true
+  check_eval_exec: true
+  check_pickle_yaml: true
+  check_weak_hashing: true
+  check_path_traversal: true
+
+# Framework-aware scanning
+frameworks:
+  - flask
+  - django
+  - fastapi
+
+# Dead code detection
+deadcode:
+  enabled: true
+  check_unused_imports: true
+  check_unused_classes: true
+  check_unused_functions: true
+
+# Configure output format
+output:
+  format: table  # Options: table, json, markdown
+  verbose: false
+
+# Confidence thresholds (0.0 to 1.0)
+# Higher threshold = fewer false positives
+confidence:
+  min_deadcode: 0.8
+  min_security: 0.9
