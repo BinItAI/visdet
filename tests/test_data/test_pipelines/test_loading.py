@@ -67,9 +67,10 @@ class TestLoading:
         results = transform(copy.deepcopy(results))
         assert results["img"].shape == (288, 512, 3, 2)
         assert results["img"].dtype == np.uint8
-        assert results["img_shape"] == (288, 512, 3, 2)
+        assert results["img_shape"] == (288, 512)  # img_shape is H×W only
         # ori_shape matches what get set in transform
         assert "ori_shape" in results
+        assert results["ori_shape"] == (288, 512)  # ori_shape is H×W only
         # Check __repr__ contains expected values
         assert "LoadMultiChannelImageFromFiles" in repr(transform)
         assert "to_float32=False" in repr(transform)
@@ -82,8 +83,8 @@ class TestLoading:
         results = transform(copy.deepcopy(results))
         assert results["img"].shape == (288, 512, 3)
         assert results["img"].dtype == np.uint8
-        assert results["img_shape"] == (288, 512, 3)
-        assert results["ori_shape"] == (288, 512, 3)
+        assert results["img_shape"] == (288, 512)  # img_shape is H×W only
+        assert results["ori_shape"] == (288, 512)  # ori_shape is H×W only
 
 
 def _build_filter_annotations_args():
