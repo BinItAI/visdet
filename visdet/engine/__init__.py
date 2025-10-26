@@ -16,3 +16,4 @@ globals()["version_info"] = version_info
 
 # Re-export config utilities
 from .config import Config
+from .registry import DefaultScope
