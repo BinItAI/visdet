@@ -2,9 +2,10 @@
 import copy
 
 import numpy as np
-import visdet.cv as mmcv
 from numpy.testing import assert_array_equal
-from visdet.cv.utils import build_from_cfg
+
+import visdet.cv as mmcv
+from visdet.cv import build_from_cfg
 from visdet.datasets.builder import PIPELINES
 
 from .utils import construct_toy_data

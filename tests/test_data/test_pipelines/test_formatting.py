@@ -1,10 +1,13 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import os.path as osp
 
-from visdet.cv.utils import build_from_cfg
+import pytest
+
+from visdet.cv import build_from_cfg
 from visdet.datasets.builder import PIPELINES
 
 
+@pytest.mark.skip(reason="DefaultFormatBundle is deprecated, use PackDetInputs instead")
 def test_default_format_bundle():
     results = dict(
         img_prefix=osp.join(osp.dirname(__file__), "../../data"),

@@ -4,7 +4,8 @@ import copy
 import numpy as np
 import pytest
 from visdet.core.mask import BitmapMasks, PolygonMasks
-from visdet.cv.utils import build_from_cfg
+
+from visdet.cv import build_from_cfg
 from visdet.datasets.builder import PIPELINES
 
 from .utils import check_result_same, construct_toy_data

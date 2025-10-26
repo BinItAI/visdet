@@ -3,7 +3,8 @@ import tempfile
 from copy import deepcopy
 
 import pytest
-from visdet.cv.utils import Config
+
+from visdet.engine.config import Config
 from visdet.utils import replace_cfg_vals
 
 

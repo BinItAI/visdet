@@ -20,6 +20,33 @@ from visdet.datasets.transforms.transforms import Pad as _Pad
 from visdet.datasets.transforms.transforms import RandomCrop as _RandomCrop
 from visdet.registry import TRANSFORMS
 
+
+def _register_pipelines():
+    """Lazy registration to avoid circular imports."""
+    from visdet.datasets.builder import PIPELINES
+
+    # Register to both TRANSFORMS and PIPELINES for compatibility
+    PIPELINES.register_module()(_Resize)
+    PIPELINES.register_module()(_Pad)
+    PIPELINES.register_module()(_Normalize)
+    PIPELINES.register_module()(_LoadImageFromFile)
+    PIPELINES.register_module()(_RandomFlip)
+    PIPELINES.register_module()(_RandomResize)
+    PIPELINES.register_module()(_LoadAnnotations)
+    PIPELINES.register_module()(_PackDetInputs)
+    PIPELINES.register_module()(_RandomApply)
+    PIPELINES.register_module()(_RandomCrop)
+    PIPELINES.register_module()(_RandomChoice)
+    # PIPELINES.register_module()(_RandomChoiceResize)
+
+
+# Register immediately (but builder may not be imported yet)
+try:
+    _register_pipelines()
+except ImportError:
+    pass
+
+# Also register to TRANSFORMS
 Resize = TRANSFORMS.register_module()(_Resize)
 Pad = TRANSFORMS.register_module()(_Pad)
 Normalize = TRANSFORMS.register_module()(_Normalize)

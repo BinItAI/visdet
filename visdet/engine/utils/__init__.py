@@ -1,6 +1,7 @@
 # ruff: noqa
 # type: ignore
 # Copyright (c) OpenMMLab. All rights reserved.
+from .dl_utils import TORCH_VERSION
 from .manager import ManagerMeta, ManagerMixin
 from .misc import (
     apply_to,
@@ -57,6 +58,7 @@ __all__ = [
     "ManagerMeta",
     "ManagerMixin",
     "ProgressBar",
+    "TORCH_VERSION",
     "Timer",
     "TimerError",
     "apply_to",

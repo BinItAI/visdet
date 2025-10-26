@@ -1,7 +1,6 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import pytest
 import torch
-from visdet.cv.utils import ConfigDict
 from visdet.models.utils.transformer import (
     AdaptivePadding,
     DetrTransformerDecoder,
@@ -10,6 +9,8 @@ from visdet.models.utils.transformer import (
     PatchMerging,
     Transformer,
 )
+
+from visdet.engine.config import ConfigDict
 
 
 def test_adaptive_padding():

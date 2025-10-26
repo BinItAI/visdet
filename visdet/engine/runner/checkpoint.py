@@ -13,8 +13,6 @@ from importlib import import_module
 from tempfile import TemporaryDirectory
 
 import torch
-from cloudpathlib import GSClient, GSPath
-from google.cloud import storage
 
 import visdet.engine
 from visdet.engine.dist import get_dist_info
@@ -442,10 +440,19 @@ def load_from_gcs(filename, map_location=None):
         if not osp.exists(local_filename):
             print_log(f"Downloading checkpoint from GCS: {filename}")
             try:
+                # Import cloudpathlib and google.cloud lazily
+                from cloudpathlib import GSClient, GSPath
+                from google.cloud import storage
+
                 # Use GSPath from cloudpathlib for downloading
                 gs_path = GSPath(filename, client=GSClient(storage_client=storage.Client()))
                 gs_path.download_to(local_filename)
                 print_log(f"Downloaded checkpoint to: {local_filename}")
+            except ImportError:
+                raise RuntimeError(
+                    "Failed to import cloudpathlib or google-cloud-storage. "
+                    "Please install them with: pip install cloudpathlib google-cloud-storage"
+                )
             except Exception as e:
                 raise RuntimeError(f"Failed to download checkpoint from GCS: {e}")
 

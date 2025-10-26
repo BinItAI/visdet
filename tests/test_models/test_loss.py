@@ -1,7 +1,16 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import pytest
 import torch
-from visdet.cv.utils import digit_version
+from visdet.models.losses.ghm_loss import GHMC, GHMR
+from visdet.models.losses.iou_loss import (
+    BoundedIoULoss,
+    CIoULoss,
+    DIoULoss,
+    GIoULoss,
+    IoULoss,
+)
+
+from visdet.engine.utils import digit_version
 from visdet.models.losses import (
     BalancedL1Loss,
     CrossEntropyLoss,
@@ -16,14 +25,6 @@ from visdet.models.losses import (
     SeesawLoss,
     SmoothL1Loss,
     VarifocalLoss,
-)
-from visdet.models.losses.ghm_loss import GHMC, GHMR
-from visdet.models.losses.iou_loss import (
-    BoundedIoULoss,
-    CIoULoss,
-    DIoULoss,
-    GIoULoss,
-    IoULoss,
 )
 
 
