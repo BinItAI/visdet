@@ -1,17 +1,41 @@
 """Enhanced Config class with YAML support.
 
-This module provides an enhanced Config class that extends visengine.Config
-with support for YAML configuration files.
+This module provides an enhanced Config class with support for YAML
+configuration files and Pydantic validation.
 """
 
 import warnings
 from pathlib import Path
 from typing import Any, Dict, Optional, Union
 
-from visengine.config import Config as BaseConfig
-
 from .schema_generator import validate_config_with_schema
 from .yaml_loader import load_yaml_config
+
+
+class BaseConfig(dict):
+    """Minimal base config class for compatibility.
+
+    This provides a dict-like interface for configuration dictionaries.
+    """
+
+    def __init__(self, cfg_dict: Optional[Dict] = None, **kwargs: Any) -> None:
+        """Initialize config from dict or kwargs."""
+        if cfg_dict is None:
+            cfg_dict = {}
+        if kwargs:
+            cfg_dict.update(kwargs)
+        super().__init__(cfg_dict)
+
+    def __getattr__(self, name: str) -> Any:
+        """Get config value by attribute access."""
+        try:
+            return self[name]
+        except KeyError:
+            raise AttributeError(f"'Config' object has no attribute '{name}'")
+
+    def __setattr__(self, name: str, value: Any) -> None:
+        """Set config value by attribute access."""
+        self[name] = value
 
 
 class Config(BaseConfig):

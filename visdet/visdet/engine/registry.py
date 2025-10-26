@@ -8,7 +8,64 @@ datasets, hooks, and other components.
 """
 
 from contextlib import contextmanager
-from typing import Any, Generator, Optional
+from typing import Any, Dict, Generator, Optional
+
+
+class Registry(dict):
+    """Stub Registry class for visdet.
+
+    This is a minimal implementation for type checking.
+    In a full implementation, this would provide enhanced registry features.
+    """
+
+    def __init__(self, name: str = "", parent: Optional["Registry"] = None, locations: Optional[list] = None) -> None:
+        """Initialize registry."""
+        super().__init__()
+        self.name = name
+        self.parent = parent
+        self.locations = locations or []
+
+    def register(self, cls_or_func: Any = None, force: bool = False) -> Any:
+        """Register a class or function."""
+
+        def _register(obj: Any) -> Any:
+            self[obj.__name__] = obj
+            return obj
+
+        if cls_or_func is None:
+            return _register
+        return _register(cls_or_func)
+
+    def build(self, cfg: Dict) -> Any:
+        """Build object from config."""
+        if isinstance(cfg, dict):
+            cfg = cfg.copy()
+            obj_type = cfg.pop("type")
+            return self[obj_type](**cfg)
+        return cfg
+
+
+# Create stub registry instances
+DATA_SAMPLERS = Registry("data_sampler")
+DATASETS = Registry("dataset")
+EVALUATOR = Registry("evaluator")
+HOOKS = Registry("hook")
+LOG_PROCESSORS = Registry("log_processor")
+LOOPS = Registry("loop")
+METRICS = Registry("metric")
+MODEL_WRAPPERS = Registry("model_wrapper")
+MODELS = Registry("model")
+OPTIM_WRAPPER_CONSTRUCTORS = Registry("optimizer_constructor")
+OPTIM_WRAPPERS = Registry("optim_wrapper")
+OPTIMIZERS = Registry("optimizer")
+PARAM_SCHEDULERS = Registry("parameter_scheduler")
+RUNNER_CONSTRUCTORS = Registry("runner_constructor")
+RUNNERS = Registry("runner")
+TASK_UTILS = Registry("task_util")
+TRANSFORMS = Registry("transform")
+VISBACKENDS = Registry("vis_backend")
+VISUALIZERS = Registry("visualizer")
+WEIGHT_INITIALIZERS = Registry("weight_initializer")
 
 
 class DefaultScope:

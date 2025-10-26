@@ -5,10 +5,10 @@ from collections.abc import Sequence
 from typing import Optional
 
 import numpy as np
-from visengine.hooks import Hook
 
 from visdet.cv import imfrombytes, imwrite
 from visdet.engine.fileio import get
+from visdet.engine.hooks.base_hook import Hook
 from visdet.engine.runner import Runner
 from visdet.engine.utils import mkdir_or_exist
 from visdet.engine.visualization import Visualizer

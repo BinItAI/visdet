@@ -1,14 +1,8 @@
 # ruff: noqa
 """
-Re-export of visengine.runner for dotted import support.
+Runner utilities for visdet.
 
-This module allows `from visdet.engine.runner import X` to work properly.
+This module provides training runner implementations.
 """
 
-from visengine.runner import *  # noqa: F401, F403
-
-# Preserve the __all__ from upstream if it exists
-try:
-    from visdet.engine.runner import __all__  # noqa: F401
-except ImportError:
-    pass
+from visdet.engine.runner import *  # noqa: F401, F403

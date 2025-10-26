@@ -1,14 +1,24 @@
 # ruff: noqa
 """
-Re-export of visengine.model for dotted import support.
+Model utilities for visdet.
 
-This module allows `from visdet.engine.model import X` to work properly.
+This module provides base model classes and utilities.
 """
 
-from visengine.model import *  # noqa: F401, F403
+from typing import List
+import torch.nn as nn
 
-# Preserve the __all__ from upstream if it exists
-try:
-    from visdet.engine.model import __all__  # noqa: F401
-except ImportError:
+from .base_module import BaseModule  # noqa: F401
+
+
+# Simple alias for ModuleList
+class ModuleList(nn.ModuleList):
+    """ModuleList for visdet.
+
+    This is an alias for torch.nn.ModuleList with additional features.
+    """
+
     pass
+
+
+__all__ = ["BaseModule", "ModuleList"]
