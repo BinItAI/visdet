@@ -419,6 +419,14 @@ class Pad(BaseTransform):
         results["pad_size_divisor"] = self.size_divisor
         results["img_shape"] = padded_img.shape[:2]
 
+        # Pad other image fields if specified
+        if "img_fields" in results:
+            for img_field in results["img_fields"]:
+                if img_field != "img" and img_field in results:
+                    results[img_field] = impad(
+                        results[img_field], shape=size, pad_val=pad_val, padding_mode=self.padding_mode
+                    )
+
     def _pad_seg(self, results: dict) -> None:
         """Pad semantic segmentation map according to
         ``results['pad_shape']``."""
@@ -432,6 +440,22 @@ class Pad(BaseTransform):
                 pad_val=pad_val,
                 padding_mode=self.padding_mode,
             )
+
+        # Pad other segmentation fields if specified
+        if "seg_fields" in results:
+            pad_val = self.pad_val.get("seg", 255)
+            for seg_field in results["seg_fields"]:
+                if seg_field in results:
+                    if isinstance(pad_val, int) and results[seg_field].ndim == 3:
+                        pad_val_seg = tuple(pad_val for _ in range(results[seg_field].shape[2]))
+                    else:
+                        pad_val_seg = pad_val
+                    results[seg_field] = impad(
+                        results[seg_field],
+                        shape=results["pad_shape"][:2],
+                        pad_val=pad_val_seg,
+                        padding_mode=self.padding_mode,
+                    )
 
     def transform(self, results: dict) -> dict:
         """Call function to pad images, masks, semantic segmentation maps.
