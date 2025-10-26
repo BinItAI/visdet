@@ -29,7 +29,7 @@ We recommend that users follow our best practices to install VisDet using uv. Ho
 **Step 0.** Clone the repository and navigate to it.
 
 ```shell
-git clone https://github.com/BinItAI/visdet.git
+git clone <your-repository-url>
 cd visdet
 ```
 
@@ -160,7 +160,7 @@ Here's how to install visdet with uv on Colab:
 **Step 2.** Clone and install visdet.
 
 ```shell
-!git clone https://github.com/BinItAI/visdet.git
+!git clone <your-repository-url>
 %cd visdet
 !uv sync
 ```
@@ -177,7 +177,7 @@ Within Jupyter, the exclamation mark `!` is used to call external executables an
 
 ### Using VisDet with Docker
 
-We provide a [Dockerfile](https://github.com/BinItAI/visdet/blob/master/docker/Dockerfile) to build an image. Ensure that your [docker version](https://docs.docker.com/engine/install/) >=19.03.
+We provide a Dockerfile in the `docker/` directory to build an image. Ensure that your [docker version](https://docs.docker.com/engine/install/) >=19.03.
 
 ```shell
 # build an image with PyTorch 1.6, CUDA 10.1
@@ -223,5 +223,12 @@ pytest tests/
 
 ## Trouble shooting
 
-If you have some issues during the installation, please first view the [FAQ](faq.md) page.
-You may [open an issue](https://github.com/BinItAI/visdet/issues/new/choose) on GitHub if no solution is found.
+If you have some issues during the installation, please check the documentation carefully.
+
+Common issues and solutions:
+
+- **Import errors**: Make sure you have installed the package with `uv sync`
+- **CUDA issues**: Verify your CUDA version matches your PyTorch installation
+- **Version conflicts**: Try creating a fresh virtual environment
+
+If you encounter problems not covered in the documentation, please refer to the [Contributing Guide](../development/contributing.md) for how to report issues.

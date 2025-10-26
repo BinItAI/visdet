@@ -85,7 +85,6 @@ mmdet/
 
 - [User Guide](../user-guide/training.md)
 - [Tutorials](../tutorials/config.md)
-- [GitHub Repository](https://github.com/BinItAI/visdet)
 
 ## API Stability
 

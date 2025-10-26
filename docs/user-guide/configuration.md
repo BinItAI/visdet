@@ -173,4 +173,3 @@ data_root = os.getenv('DATA_ROOT', 'data/coco/')
 
 - [Training Guide](training.md)
 - [Config Tutorial](../tutorials/config.md)
-- [Base Configs](https://github.com/BinItAI/visdet/tree/master/configs/_base_)
