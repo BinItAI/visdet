@@ -112,10 +112,10 @@ def parse_args():
 
     # DDP arguments
     parser.add_argument(
-        "--ddp-enabled",
+        "--disable-ddp",
         action="store_true",
-        help="Enable automatic DDP (Distributed Data Parallel) for multi-GPU training. "
-        "Automatically detects GPUs and spawns processes. Single-GPU training uses no DDP.",
+        help="Disable automatic DDP (Distributed Data Parallel) for multi-GPU training. "
+        "By default, DDP is enabled and automatically detects GPUs. Single-GPU training uses no DDP.",
     )
 
     return parser.parse_args()
@@ -176,7 +176,7 @@ def main():
     print(f"Epochs:       {args.epochs}")
     print(f"Work Dir:     {args.work_dir}")
     print(f"Val Interval: {args.val_interval}")
-    if args.ddp_enabled:
+    if not args.disable_ddp:
         import torch
 
         gpu_count = torch.cuda.device_count()
@@ -200,7 +200,7 @@ def main():
         runner.train()
 
     # Launch training with optional DDP
-    if args.ddp_enabled:
+    if not args.disable_ddp:
         from visdet.ddp import auto_ddp_train
 
         auto_ddp_train(create_and_train)
