@@ -246,8 +246,8 @@ def test_config_data_pipeline(config_rpath):
             test_config.py test_config_build_data_pipeline
     """
     import numpy as np
-    from visdet.cv import Config
     from visdet.datasets.pipelines import Compose
+    from visdet.engine.config import Config
 
     config_dpath = _get_config_directory()
     print(f"Found config_dpath = {config_dpath}")

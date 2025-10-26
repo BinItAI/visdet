@@ -33,7 +33,7 @@ repos:
         entry: uv run skylos
         language: system
         types: [python]
-        args: [--exclude=tests,archive,configs]
+        args: [".", "--exclude-folder=tests", "--exclude-folder=archive", "--exclude-folder=configs"]
         stages: [commit]
         pass_filenames: false
 

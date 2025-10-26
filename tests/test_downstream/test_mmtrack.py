@@ -5,7 +5,7 @@ from collections import defaultdict
 import numpy as np
 import pytest
 import torch
-from visdet.cv import Config
+from visdet.engine.config import Config
 
 
 @pytest.mark.parametrize("cfg_file", ["./tests/data/configs_mmtrack/selsa_faster_rcnn_r101_dc5_1x.py"])

@@ -27,7 +27,7 @@ def _get_config_directory():
 
 def _get_config_module(fname):
     """Load a configuration as a python module."""
-    from visdet.cv import Config
+    from visdet.engine.config import Config
 
     config_dpath = _get_config_directory()
     config_fpath = join(config_dpath, fname)
