@@ -35,7 +35,7 @@ jobs:
 
       - name: Install project and dependencies
         run: |
-          uv sync --extra dev
+          uv sync --group dev
 
       - name: Run Skylos security scan
         run: |
