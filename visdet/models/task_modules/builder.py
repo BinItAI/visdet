@@ -1,5 +1,5 @@
 # Copyright (c) OpenMMLab. All rights reserved.
-"""Builder functions for task modules (assigners, samplers, coders)."""
+"""Builder functions for task modules (assigners, samplers, coders, prior generators)."""
 
 from visdet.registry import TASK_UTILS
 
@@ -43,4 +43,27 @@ def build_bbox_coder(cfg, **default_args):
     return TASK_UTILS.build(cfg, default_args=default_args)
 
 
-__all__ = ["build_assigner", "build_sampler", "build_bbox_coder"]
+def build_prior_generator(cfg, **default_args):
+    """Builder of prior/anchor generator.
+
+    Args:
+        cfg (dict): Config dict to build prior generator.
+        default_args (dict, optional): Defaults to construct prior generator.
+
+    Returns:
+        PriorGenerator: Built prior generator (e.g., AnchorGenerator).
+    """
+    return TASK_UTILS.build(cfg, default_args=default_args)
+
+
+# Alias for backward compatibility
+build_anchor_generator = build_prior_generator
+
+
+__all__ = [
+    "build_assigner",
+    "build_sampler",
+    "build_bbox_coder",
+    "build_prior_generator",
+    "build_anchor_generator",
+]
