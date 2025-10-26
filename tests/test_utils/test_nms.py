@@ -1,5 +1,6 @@
 import pytest
 import torch
+
 from visdet.core.post_processing import mask_matrix_nms
 
 

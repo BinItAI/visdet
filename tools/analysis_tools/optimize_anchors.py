@@ -26,11 +26,10 @@ import mmcv
 import numpy as np
 import torch
 from mmcv import Config
-from scipy.optimize import differential_evolution
-
 from mmdet.core import bbox_cxcywh_to_xyxy, bbox_overlaps, bbox_xyxy_to_cxcywh
 from mmdet.datasets import build_dataset
 from mmdet.utils import get_root_logger, replace_cfg_vals, update_data_root
+from scipy.optimize import differential_evolution
 
 
 def parse_args():

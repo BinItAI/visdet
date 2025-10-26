@@ -2,6 +2,7 @@
 import numpy as np
 import torch
 from torch.autograd import gradcheck
+
 from visdet.models.utils import interpolate_as, sigmoid_geometric_mean
 
 

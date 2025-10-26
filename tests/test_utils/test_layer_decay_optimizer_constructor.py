@@ -1,6 +1,7 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import torch
 import torch.nn as nn
+
 from visdet.core.optimizers import LearningRateDecayOptimizerConstructor
 from visdet.cv.cnn import ConvModule
 

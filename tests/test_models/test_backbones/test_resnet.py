@@ -3,10 +3,11 @@ import pytest
 import torch
 from torch.nn.modules import AvgPool2d, GroupNorm
 from torch.nn.modules.batchnorm import _BatchNorm
+from visdet.models.backbones.resnet import BasicBlock, Bottleneck
+
 from visdet.cv import assert_params_all_zeros
 from visdet.cv.ops import DeformConv2dPack
 from visdet.models.backbones import ResNet, ResNetV1d
-from visdet.models.backbones.resnet import BasicBlock, Bottleneck
 from visdet.models.utils import ResLayer, SimplifiedBasicBlock
 
 from .utils import check_norm_state, is_block, is_norm
