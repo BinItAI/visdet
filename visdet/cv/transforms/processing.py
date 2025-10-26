@@ -1365,8 +1365,9 @@ class RandomFlip(BaseTransform):
     def _flip(self, results: dict) -> None:
         """Flip images, bounding boxes, semantic segmentation map and
         keypoints."""
-        # flip image
-        results["img"] = imflip(results["img"], direction=results["flip_direction"])
+        # flip all images in img_fields
+        for key in results.get("img_fields", ["img"]):
+            results[key] = imflip(results[key], direction=results["flip_direction"])
 
         img_shape = results["img"].shape[:2]
 
