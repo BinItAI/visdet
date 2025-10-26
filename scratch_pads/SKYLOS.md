@@ -112,17 +112,17 @@ confidence:
   min_security: 0.9
 ```
 
-## Pre-commit Integration
+## prek Hook Integration
 
-Skylos is automatically run as a pre-commit hook. It will:
+Skylos is automatically run as a prek hook. It will:
 1. Scan for dead code and security issues
 2. Report findings in table format
 3. Exclude test files and configuration directories
 
-To run pre-commit manually:
+To run prek manually:
 
 ```bash
-pre-commit run skylos --all-files
+prek run skylos --all-files
 ```
 
 ## CI/CD Integration
