@@ -4,10 +4,10 @@ import copy
 import numpy as np
 import pycocotools.mask as maskUtils
 import pytest
-from visdet.core.mask import BitmapMasks, PolygonMasks
 
 from visdet.cv import build_from_cfg
 from visdet.datasets.builder import PIPELINES
+from visdet.structures.mask.structures import BitmapMasks, PolygonMasks
 
 
 def _check_keys(results, results_translated):
