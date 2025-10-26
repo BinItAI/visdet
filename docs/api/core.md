@@ -4,21 +4,15 @@ This page documents the core APIs in VisDet.
 
 ## Detection APIs
 
-::: mmdet.apis.init_detector
+::: visdet.apis.init_detector
     options:
       show_source: true
 
-::: mmdet.apis.inference_detector
+::: visdet.apis.inference_detector
     options:
       show_source: true
 
-::: mmdet.apis.train_detector
-    options:
-      show_source: true
-
-## Utility Functions
-
-::: mmdet.utils.collect_env
+::: visdet.apis.DetInferencer
     options:
       show_source: true
 

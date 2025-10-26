@@ -6,7 +6,7 @@ This page documents the model APIs in VisDet.
 
 ### Base Detector
 
-::: mmdet.models.detectors.BaseDetector
+::: visdet.models.detectors.BaseDetector
     options:
       show_source: true
       members:
@@ -16,33 +16,33 @@ This page documents the model APIs in VisDet.
 
 ### Two-Stage Detectors
 
-::: mmdet.models.detectors.TwoStageDetector
+::: visdet.models.detectors.TwoStageDetector
     options:
       show_source: true
 
-### Single-Stage Detectors
+### Mask R-CNN
 
-::: mmdet.models.detectors.SingleStageDetector
+::: visdet.models.detectors.MaskRCNN
     options:
       show_source: true
 
 ## Backbones
 
-::: mmdet.models.backbones
+::: visdet.models.backbones
     options:
       show_source: false
       members: false
 
 ## Necks
 
-::: mmdet.models.necks
+::: visdet.models.necks
     options:
       show_source: false
       members: false
 
 ## Heads
 
-::: mmdet.models.dense_heads
+::: visdet.models.dense_heads
     options:
       show_source: false
       members: false
