@@ -141,8 +141,8 @@ class PresetRegistry:
 
 def _get_preset_root() -> Path:
     """Get the root configs/presets directory."""
-    # visdet/visdet/presets/registry.py → visdet/ (repo root)
-    return Path(__file__).parent.parent.parent.parent / "configs" / "presets"
+    # visdet/presets/registry.py → . (repo root) → configs/presets
+    return Path(__file__).parent.parent.parent / "configs" / "presets"
 
 
 _PRESET_ROOT = _get_preset_root()
