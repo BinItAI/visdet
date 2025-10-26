@@ -64,7 +64,8 @@ class Normalize(BaseTransform):
             result dict.
         """
 
-        results["img"] = imnormalize(results["img"], self.mean, self.std, self.to_rgb)
+        for key in results.get("img_fields", ["img"]):
+            results[key] = imnormalize(results[key], self.mean, self.std, self.to_rgb)
         results["img_norm_cfg"] = {
             "mean": self.mean,
             "std": self.std,
@@ -385,13 +386,21 @@ class Pad(BaseTransform):
         self.size = size
         self.size_divisor = size_divisor
         if isinstance(pad_val, int):
+            import warnings
+
+            warnings.warn(
+                f"pad_val of int type is deprecated now, please use pad_val=dict(img={pad_val}, seg=255) instead.",
+                DeprecationWarning,
+            )
             pad_val = dict(img=pad_val, seg=255)
         assert isinstance(pad_val, dict), "pad_val "
         self.pad_val = pad_val
         self.pad_to_square = pad_to_square
 
         if pad_to_square:
-            assert size is None, "The size and size_divisor must be None when pad2square is True"
+            assert size is None and size_divisor is None, (
+                "The size and size_divisor must be None when pad2square is True"
+            )
         else:
             assert size is not None or size_divisor is not None, "only one of size and size_divisor should be valid"
             assert size is None or size_divisor is None
