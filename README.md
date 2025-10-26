@@ -184,11 +184,21 @@ We welcome contributions! Please see the [Contributing Guide](https://binitai.gi
 
 We appreciate all contributions to visdet! Special thanks to our contributors:
 
-| Contributor | Contributions |
-|---|---|
-| [GeorgePearse](https://github.com/GeorgePearse) | 118 |
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<table>
+  <tbody>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/GeorgePearse"><img src="https://avatars.githubusercontent.com/u/26849868?v=4?s=100" width="100px;" alt="George Pearse"/><br /><sub><b>George Pearse</b></sub></a><br /><a href="https://github.com/BinItAI/visdet/commits?author=GeorgePearse" title="Code">💻</a> <a href="https://github.com/BinItAI/visdet/commits?author=GeorgePearse" title="Documentation">📖</a> <a href="#maintenance-GeorgePearse" title="Maintenance">🚧</a></td>
+    </tr>
+  </tbody>
+</table>
 
-[View all contributors →](https://github.com/BinItAI/visdet/graphs/contributors)
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
 
 ---
 

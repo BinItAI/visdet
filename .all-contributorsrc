@@ -1,0 +1,26 @@
+{
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "commitConvention": "apache",
+  "contributorsPerLine": 7,
+  "projectName": "visdet",
+  "projectOwner": "BinItAI",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "contributors": [
+    {
+      "login": "GeorgePearse",
+      "name": "George Pearse",
+      "avatar_url": "https://avatars.githubusercontent.com/u/26849868?v=4",
+      "profile": "https://github.com/GeorgePearse",
+      "contributions": [
+        "code",
+        "doc",
+        "maintenance"
+      ]
+    }
+  ]
+}
