@@ -139,6 +139,7 @@ python_files = "test_*.py"
 python_classes = "Test*"
 python_functions = "test_*"
 addopts = "-v --tb=short --strict-markers"
+norecursedirs = ["archive", ".git", ".venv", "build", "dist"]
 
 [tool.coverage.run]
 source = ["mmdet"]
