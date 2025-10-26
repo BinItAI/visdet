@@ -19,6 +19,9 @@ from visdet.registry import MODELS
 
 from ..layers import PatchEmbed, PatchMerging
 
+# Flash attention function - None when not available
+flash_swin_attn_func = None
+
 
 class WindowMSA(BaseModule):
     """Window based multi-head self-attention (W-MSA) module with relative
@@ -62,7 +65,11 @@ class WindowMSA(BaseModule):
         self.init_cfg = init_cfg
         if backend not in {"torch", "flash"}:
             raise ValueError(f"Unsupported attention backend: {backend}")
-        self.backend = backend
+        # Fall back to torch if flash is not available
+        if backend == "flash" and flash_swin_attn_func is None:
+            self.backend = "torch"
+        else:
+            self.backend = backend
         self.head_embed_dims = head_embed_dims
 
         # define a parameter table of relative position bias
