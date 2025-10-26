@@ -3,6 +3,7 @@ import os.path as osp
 import tempfile
 
 import pytest
+
 import visdet.cv as mmcv
 from visdet.datasets import CocoDataset
 
@@ -56,4 +57,8 @@ def test_coco_annotation_ids_unique():
 
     # test annotation ids not unique error
     with pytest.raises(AssertionError):
-        CocoDataset(ann_file=fake_json_file, classes=("car",), pipeline=[])
+        CocoDataset(
+            ann_file=fake_json_file,
+            data_prefix=dict(img=""),
+            pipeline=[],
+        )
