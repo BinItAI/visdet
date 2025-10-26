@@ -47,6 +47,21 @@ class SamplingResult(util_mixins.NiceRepr):
         """torch.Tensor: concatenated positive and negative priors"""
         return torch.cat([self.pos_priors, self.neg_priors])
 
+    @property
+    def bboxes(self):
+        """torch.Tensor: concatenated positive and negative bboxes (backward compatibility)"""
+        return self.priors
+
+    @property
+    def pos_bboxes(self):
+        """torch.Tensor: positive bboxes (backward compatibility)"""
+        return self.pos_priors
+
+    @property
+    def neg_bboxes(self):
+        """torch.Tensor: negative bboxes (backward compatibility)"""
+        return self.neg_priors
+
     def __nice__(self):
         parts = []
         parts.append(f"num_gts={self.num_gts}")

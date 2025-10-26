@@ -6,11 +6,29 @@
 
 
 def ensure_rng(rng=None):
-    """Ensure we have a random number generator."""
+    """Ensure we have a random number generator.
+
+    Coerces input into a random number generator.
+
+    If the input is None, then a new RandomState is returned.
+
+    If the input is a numeric value, then that is used as a seed to construct a
+    random state. Otherwise the input is returned as-is.
+
+    Args:
+        rng (int | numpy.random.RandomState | None):
+            if None, then defaults to a new RandomState. Otherwise this can be an
+            integer or a RandomState class
+
+    Returns:
+        numpy.random.RandomState : rng - a numpy random number generator
+    """
     import numpy as np
 
     if rng is None:
         return np.random.RandomState()
+    elif isinstance(rng, int):
+        return np.random.RandomState(rng)
     return rng
 
 
