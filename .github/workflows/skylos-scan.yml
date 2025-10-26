@@ -1,0 +1,109 @@
+name: Skylos Security & Dead Code Scan
+
+on:
+  push:
+    branches:
+      - master
+      - main
+      - "feature/**"
+  pull_request:
+    branches:
+      - master
+      - main
+
+jobs:
+  skylos:
+    runs-on: ubuntu-latest
+    name: Dead Code & Security Vulnerability Scan
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for better analysis
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+
+      - name: Install project and dependencies
+        run: |
+          uv sync --extra dev
+
+      - name: Run Skylos security scan
+        run: |
+          uv run skylos . \
+            --exclude=tests,archive,configs \
+            --danger \
+            --secrets \
+            --table
+        continue-on-error: true
+
+      - name: Run Skylos JSON report
+        run: |
+          uv run skylos . \
+            --exclude=tests,archive,configs \
+            --danger \
+            --json > skylos-report.json
+        continue-on-error: true
+
+      - name: Upload Skylos report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: skylos-report
+          path: skylos-report.json
+          retention-days: 30
+
+      - name: Comment on PR with findings
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            try {
+              const report = JSON.parse(fs.readFileSync('skylos-report.json', 'utf8'));
+              const issues = report.issues || [];
+              const security = report.security || [];
+
+              if (issues.length === 0 && security.length === 0) {
+                github.rest.issues.createComment({
+                  issue_number: context.issue.number,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  body: '✅ **Skylos Scan**: No dead code or security issues detected.'
+                });
+              } else {
+                let comment = '⚠️ **Skylos Scan Results**\n\n';
+                if (security.length > 0) {
+                  comment += `**Security Issues:** ${security.length}\n`;
+                  security.slice(0, 5).forEach(issue => {
+                    comment += `- ${issue.type}: ${issue.location}\n`;
+                  });
+                }
+                if (issues.length > 0) {
+                  comment += `\n**Dead Code Issues:** ${issues.length}\n`;
+                  issues.slice(0, 5).forEach(issue => {
+                    comment += `- ${issue.type}: ${issue.name} (${issue.location})\n`;
+                  });
+                }
+                comment += '\nSee artifacts for full report.';
+
+                github.rest.issues.createComment({
+                  issue_number: context.issue.number,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  body: comment
+                });
+              }
+            } catch (error) {
+              console.log('Could not post results comment:', error);
+            }
+        continue-on-error: true
