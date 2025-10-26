@@ -34,7 +34,7 @@ repos:
         language: system
         types: [python]
         args: [".", "--exclude-folder=tests", "--exclude-folder=archive", "--exclude-folder=configs"]
-        stages: [commit]
+        stages: [pre-commit]
         pass_filenames: false
 
   - repo: https://github.com/kynan/nbstripout
