@@ -1,22 +1,6 @@
 <div align="center">
   <img src="assets/visia-logo.svg" width="600"/>
   <div>&nbsp;</div>
-  <div align="center">
-    <b><font size="5">OpenMMLab website</font></b>
-    <sup>
-      <a href="https://openmmlab.com">
-        <i><font size="4">HOT</font></i>
-
-    </sup>
-    &nbsp;&nbsp;&nbsp;&nbsp;
-    <b><font size="5">OpenMMLab platform</font></b>
-    <sup>
-      <a href="https://platform.openmmlab.com">
-        <i><font size="4">TRY IT OUT</font></i>
-
-    </sup>
-  </div>
-  <div>&nbsp;</div>
 
 [![PyPI](https://img.shields.io/pypi/v/visdet)](https://pypi.org/project/visdet)
 [![docs](https://img.shields.io/badge/docs-latest-blue)](https://binitai.github.io/visdet/)
@@ -28,12 +12,6 @@
 [🆕Update News](https://binitai.github.io/visdet/about/changelog/) |
 [🚀Ongoing Projects](https://github.com/BinItAI/visdet/projects) |
 [🤔Reporting Issues](https://github.com/BinItAI/visdet/issues/new/choose)
-
-</div>
-
-<div align="center">
-
-English
 
 </div>
 
