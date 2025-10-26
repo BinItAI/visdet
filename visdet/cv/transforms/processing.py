@@ -1363,6 +1363,12 @@ class RandomFlip(BaseTransform):
         # flip image
         results["img"] = imflip(results["img"], direction=results["flip_direction"])
 
+        # flip other image fields if specified
+        if "img_fields" in results:
+            for img_field in results["img_fields"]:
+                if img_field != "img" and img_field in results:
+                    results[img_field] = imflip(results[img_field], direction=results["flip_direction"])
+
         img_shape = results["img"].shape[:2]
 
         # flip bboxes
@@ -1379,6 +1385,12 @@ class RandomFlip(BaseTransform):
         if results.get("gt_seg_map", None) is not None:
             results["gt_seg_map"] = self._flip_seg_map(results["gt_seg_map"], direction=results["flip_direction"])
             results["swap_seg_labels"] = self.swap_seg_labels
+
+        # flip other segmentation fields if specified
+        if "seg_fields" in results:
+            for seg_field in results["seg_fields"]:
+                if seg_field in results:
+                    results[seg_field] = self._flip_seg_map(results[seg_field], direction=results["flip_direction"])
 
     def _flip_on_direction(self, results: dict) -> None:
         """Function to flip images, bounding boxes, semantic segmentation map
