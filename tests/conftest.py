@@ -9,7 +9,7 @@ for object detection and instance segmentation on COCO format.
 import pytest
 
 
-def pytest_ignore_collect(path, config):
+def pytest_ignore_collect(collection_path, config):
     """Skip collection of test files for non-core functionality."""
     # List of test files to skip collection
     skip_tests = {
@@ -63,7 +63,7 @@ def pytest_ignore_collect(path, config):
         "test_trident_resnet.py",
     }
 
-    path_str = str(path)
+    path_str = str(collection_path)
     for skip_test in skip_tests:
         if skip_test in path_str:
             return True
