@@ -110,6 +110,14 @@ def parse_args():
         help="Category for --show-preset (default: 'model')",
     )
 
+    # DDP arguments
+    parser.add_argument(
+        "--ddp-enabled",
+        action="store_true",
+        help="Enable automatic DDP (Distributed Data Parallel) for multi-GPU training. "
+        "Automatically detects GPUs and spawns processes. Single-GPU training uses no DDP.",
+    )
+
     return parser.parse_args()
 
 
@@ -157,7 +165,7 @@ def main():
         print("Run with --list-datasets to see available options")
         return
 
-    # Create SimpleRunner
+    # Print training configuration
     print(f"\n{'=' * 60}")
     print("Training Configuration")
     print(f"{'=' * 60}")
@@ -168,20 +176,37 @@ def main():
     print(f"Epochs:       {args.epochs}")
     print(f"Work Dir:     {args.work_dir}")
     print(f"Val Interval: {args.val_interval}")
+    if args.ddp_enabled:
+        import torch
+
+        gpu_count = torch.cuda.device_count()
+        print(f"DDP Mode:     Enabled (detected {gpu_count} GPU(s))")
+    else:
+        print("DDP Mode:     Disabled")
     print(f"{'=' * 60}\n")
 
-    runner = SimpleRunner(
-        model=args.model,
-        dataset=args.dataset,
-        optimizer=args.optimizer,
-        scheduler=args.scheduler,
-        work_dir=args.work_dir,
-        epochs=args.epochs,
-        val_interval=args.val_interval,
-    )
+    # Define training function for DDP
+    def create_and_train() -> None:
+        """Create runner and start training."""
+        runner = SimpleRunner(
+            model=args.model,
+            dataset=args.dataset,
+            optimizer=args.optimizer,
+            scheduler=args.scheduler,
+            work_dir=args.work_dir,
+            epochs=args.epochs,
+            val_interval=args.val_interval,
+        )
+        runner.train()
 
-    # Start training
-    runner.train()
+    # Launch training with optional DDP
+    if args.ddp_enabled:
+        from visdet.ddp import auto_ddp_train
+
+        auto_ddp_train(create_and_train)
+    else:
+        # Direct training without DDP
+        create_and_train()
 
     print(f"\n{'=' * 60}")
     print("Training Complete!")
