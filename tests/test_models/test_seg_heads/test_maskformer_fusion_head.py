@@ -1,8 +1,8 @@
 import pytest
 import torch
-from visdet.models.seg_heads.panoptic_fusion_heads import MaskFormerFusionHead
 
 from visdet.engine.config import ConfigDict
+from visdet.models.seg_heads.panoptic_fusion_heads import MaskFormerFusionHead
 
 
 def test_maskformer_fusion_head():

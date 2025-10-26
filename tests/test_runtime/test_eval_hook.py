@@ -9,9 +9,9 @@ import pytest
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader, Dataset
-from visdet.cv.runner import EpochBasedRunner, build_optimizer
 
 from visdet.core import DistEvalHook, EvalHook
+from visdet.cv.runner import EpochBasedRunner, build_optimizer
 from visdet.engine.logging import get_logger
 
 

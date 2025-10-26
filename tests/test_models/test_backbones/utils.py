@@ -1,10 +1,10 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 from torch.nn.modules import GroupNorm
 from torch.nn.modules.batchnorm import _BatchNorm
+
 from visdet.models.backbones.res2net import Bottle2neck
 from visdet.models.backbones.resnet import BasicBlock, Bottleneck
 from visdet.models.backbones.resnext import Bottleneck as BottleneckX
-
 from visdet.models.utils import SimplifiedBasicBlock
 
 

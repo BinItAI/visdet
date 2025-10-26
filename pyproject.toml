@@ -120,6 +120,11 @@ ignore = ["E501", "E721", "F401", "F403"]
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401", "F403"]
 
+[tool.ruff.lint.isort]
+known-first-party = ["visdet"]
+split-on-trailing-comma = true
+force-single-line = false
+
 [tool.pyright]
 typeCheckingMode = "basic"
 pythonVersion = "3.10"

@@ -2,10 +2,10 @@
 import os.path as osp
 
 import torch
-from visdet.cv.parallel import collate
 
 import visdet.cv as mmcv
 from visdet.cv import build_from_cfg
+from visdet.cv.parallel import collate
 from visdet.datasets.builder import PIPELINES
 from visdet.models import build_detector
 
