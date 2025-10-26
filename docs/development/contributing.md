@@ -16,7 +16,7 @@ We use the following tools to maintain code quality:
 
 - `ruff` for linting and formatting
 - `pyright` for type checking
-- `pre-commit` hooks for automated checks
+- `prek` hooks for automated checks (faster Rust-based alternative to pre-commit)
 
 To set up the development environment:
 
@@ -28,8 +28,8 @@ cd visdet
 # Install all dependencies (including dev dependencies)
 uv sync
 
-# Set up pre-commit hooks
-uv run pre-commit install
+# Set up prek hooks
+uv run prek install
 ```
 
 ## Testing
