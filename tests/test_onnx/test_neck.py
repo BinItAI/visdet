@@ -3,10 +3,10 @@ import os.path as osp
 
 import pytest
 import torch
-import visdet.cv as mmcv
-from visdet.models.necks import FPN, YOLOV3Neck
 
+import visdet.cv as mmcv
 from visdet import digit_version
+from visdet.models.necks import FPN, YOLOV3Neck
 
 from .utils import ort_validate
 

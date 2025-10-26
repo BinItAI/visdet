@@ -6,6 +6,7 @@ import tempfile
 import numpy as np
 import pytest
 import torch
+
 import visdet.cv as mmcv
 from visdet.datasets import CocoDataset, CocoPanopticDataset
 from visdet.engine import visualization as vis

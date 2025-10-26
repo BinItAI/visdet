@@ -1,4 +1,5 @@
 import numpy as np
+
 from visdet.core.evaluation.mean_ap import (
     eval_map,
     tpfp_default,

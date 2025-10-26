@@ -4,7 +4,6 @@ import argparse
 import numpy as np
 import torch
 from mmcv import Config, DictAction
-
 from mmdet.models import build_detector
 
 try:

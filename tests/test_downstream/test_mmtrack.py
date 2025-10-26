@@ -5,6 +5,7 @@ from collections import defaultdict
 import numpy as np
 import pytest
 import torch
+
 from visdet.engine.config import Config
 
 

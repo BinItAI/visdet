@@ -7,6 +7,7 @@ import sys
 
 import asynctest
 import torch
+
 import visdet.cv as mmcv
 from visdet.apis import async_inference_detector, init_detector
 

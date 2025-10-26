@@ -3,7 +3,6 @@ import argparse
 
 import mmcv
 from mmcv import Config, DictAction
-
 from mmdet.datasets import build_dataset
 from mmdet.utils import replace_cfg_vals, update_data_root
 

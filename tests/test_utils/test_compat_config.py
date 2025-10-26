@@ -1,10 +1,11 @@
 import pytest
-from visdet.engine.config import ConfigDict
 from visdet.utils.compat_config import (
     compat_imgs_per_gpu,
     compat_loader_args,
     compat_runner_args,
 )
+
+from visdet.engine.config import ConfigDict
 
 
 def test_compat_runner_args():
