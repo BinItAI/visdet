@@ -1,6 +1,7 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import pytest
 import torch
+
 from visdet.models.backbones import Res2Net
 from visdet.models.backbones.res2net import Bottle2neck
 

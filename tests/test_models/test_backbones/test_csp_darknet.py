@@ -2,6 +2,7 @@
 import pytest
 import torch
 from torch.nn.modules.batchnorm import _BatchNorm
+
 from visdet.models.backbones.csp_darknet import CSPDarknet
 
 from .utils import check_norm_state, is_norm

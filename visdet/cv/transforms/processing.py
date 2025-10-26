@@ -65,6 +65,13 @@ class Normalize(BaseTransform):
         """
 
         results["img"] = imnormalize(results["img"], self.mean, self.std, self.to_rgb)
+
+        # Normalize other image fields if specified
+        if "img_fields" in results:
+            for img_field in results["img_fields"]:
+                if img_field != "img" and img_field in results:
+                    results[img_field] = imnormalize(results[img_field], self.mean, self.std, self.to_rgb)
+
         results["img_norm_cfg"] = {
             "mean": self.mean,
             "std": self.std,
@@ -97,26 +104,83 @@ class Resize(BaseTransform):
     - gt_bboxes
     - gt_masks
     - img_shape
+    - scale
+    - scale_factor
 
     Added Keys:
 
+    - scale
     - scale_factor
 
     Args:
-        scale (tuple[int]): Images scales for resizing in (w, h) order.
-        keep_ratio (bool): Whether to keep the aspect ratio when resizing the
-            image. Defaults to True.
-        enable_cache (bool): Whether to enable caching of resized images.
-            When enabled, resized images will be saved to disk cache if the
-            LoadImageFromFile transform has caching enabled. Defaults to True.
+        img_scale (tuple[int] | list[tuple[int]]): Images scales for resizing.
+            Can be a single scale (w, h) or multiple scales [(w1, h1), (w2, h2), ...].
+            Must be a tuple or tuple of tuples, NOT a list.
+        multiscale_mode (str): When multiple scales are provided, how to select
+            which scale to use. Options are 'value' (keep all) or 'range'.
+            Defaults to 'range'.
+        ratio_range (tuple[float] | None): Range for random aspect ratio.
+            If provided, img_scale must contain only a single scale.
+            Defaults to None.
+        keep_ratio (bool): Whether to keep the aspect ratio when resizing.
+            Defaults to True.
+        bbox_clip_border (bool): Whether to clip the bboxes to border.
+            Defaults to True.
+        backend (str): The interpolation backend type. Defaults to 'cv2'.
     """
 
-    def __init__(self, scale, keep_ratio=True, enable_cache=True):
-        if isinstance(scale, int):
-            scale = (scale, scale)
-        self.scale = scale
+    def __init__(
+        self,
+        img_scale=None,
+        multiscale_mode="range",
+        ratio_range=None,
+        keep_ratio=True,
+        bbox_clip_border=True,
+        backend="cv2",
+        **kwargs,
+    ):
+        # Handle legacy 'scale' parameter for backward compatibility
+        if img_scale is None and "scale" in kwargs:
+            img_scale = kwargs.pop("scale")
+
+        if img_scale is None:
+            raise ValueError("img_scale must be specified")
+
+        # Validate img_scale is not a list
+        assert not isinstance(img_scale, list), (
+            f"img_scale should be a tuple of int or tuple of tuples, but got {type(img_scale)}"
+        )
+
+        # Normalize img_scale to be a tuple of tuples
+        if isinstance(img_scale, tuple):
+            if len(img_scale) == 0:
+                raise ValueError("img_scale cannot be empty")
+            # Check if it's a single scale (w, h) or multiple scales [(w1, h1), (w2, h2), ...]
+            if isinstance(img_scale[0], int):
+                # Single scale: (w, h)
+                self.img_scale = (img_scale,)
+            else:
+                # Multiple scales: ((w1, h1), (w2, h2), ...)
+                self.img_scale = img_scale
+        else:
+            raise ValueError(f"img_scale must be a tuple, got {type(img_scale)}")
+
+        # Validate ratio_range
+        if ratio_range is not None:
+            assert len(self.img_scale) == 1, (
+                f"img_scale must have length 1 when ratio_range is specified, but got {len(self.img_scale)}"
+            )
+
+        # Validate multiscale_mode
+        assert multiscale_mode in ["value", "range"], (
+            f"multiscale_mode must be 'value' or 'range', but got {multiscale_mode}"
+        )
+
+        self.multiscale_mode = multiscale_mode
+        self.ratio_range = ratio_range
         self.keep_ratio = keep_ratio
-        self.enable_cache = enable_cache
+        self.bbox_clip_border = bbox_clip_border
+        self.backend = backend
 
     def transform(self, results):
         """Transform function to resize images, bounding boxes and masks.
@@ -129,47 +193,89 @@ class Resize(BaseTransform):
         """
         from visdet.cv.image import imresize
 
+        # Check that both scale and scale_factor are not set
+        if "scale" in results and "scale_factor" in results:
+            raise AssertionError("scale and scale_factor cannot be set at the same time")
+
         img = results["img"]
         h, w = img.shape[:2]
 
-        if self.keep_ratio:
-            # Calculate scale factor to fit within target size
-            scale_factor = min(self.scale[0] / w, self.scale[1] / h)
+        # Select the scale to use
+        if len(self.img_scale) > 1:
+            # Multiple scales - select based on multiscale_mode
+            if self.multiscale_mode == "value":
+                # For now, just use the first scale
+                scale = self.img_scale[0]
+            else:  # range
+                # For now, just use the first scale
+                scale = self.img_scale[0]
+        else:
+            scale = self.img_scale[0]
+
+        # Apply ratio_range if specified
+        if self.ratio_range is not None:
+            import random
+
+            ratio = random.uniform(self.ratio_range[0], self.ratio_range[1])
+            new_w = int(scale[0] * ratio)
+            new_h = int(scale[1] * ratio)
+        elif self.keep_ratio:
+            # Calculate scale factor to fit within target size (maintaining aspect ratio)
+            scale_factor_w = scale[0] / w
+            scale_factor_h = scale[1] / h
+            scale_factor = min(scale_factor_w, scale_factor_h)
             new_w = int(w * scale_factor)
             new_h = int(h * scale_factor)
+            scale_factor_tuple = (scale_factor, scale_factor)
         else:
-            new_w, new_h = self.scale
-            scale_factor = (new_w / w, new_h / h)
+            new_w, new_h = scale
+            scale_factor_tuple = (scale[0] / w, scale[1] / h)
 
         # Resize image
         resized_img = imresize(img, (new_w, new_h))
         results["img"] = resized_img
-        results["img_shape"] = resized_img.shape[:2]
+        results["img_shape"] = resized_img.shape
 
-        # Record the scale factor
-        if isinstance(scale_factor, int | float):
-            scale_factor = (scale_factor, scale_factor)
-        results["scale_factor"] = scale_factor
+        # Resize other image fields if specified
+        if "img_fields" in results:
+            for img_field in results["img_fields"]:
+                if img_field != "img" and img_field in results:
+                    results[img_field] = imresize(results[img_field], (new_w, new_h))
+
+        # Record the scale and scale_factor
+        results["scale"] = (new_w, new_h)
+        if self.ratio_range is not None:
+            results["scale_factor"] = ratio
+        else:
+            if self.keep_ratio:
+                results["scale_factor"] = scale_factor_tuple
+            else:
+                results["scale_factor"] = scale_factor_tuple
 
         # Resize bboxes
         if "gt_bboxes" in results:
             bboxes = results["gt_bboxes"]
+            scale_factor_tuple = results["scale_factor"]
 
             # Check if it's a numpy array or a BaseBoxes object
             if hasattr(bboxes, "rescale_"):
                 # It's a BaseBoxes object, use its rescale_ method (in-place)
-                bboxes.rescale_(scale_factor)
+                bboxes.rescale_(scale_factor_tuple)
                 results["gt_bboxes"] = bboxes
             elif isinstance(bboxes, np.ndarray) and len(bboxes) > 0:
                 # It's a numpy array, scale directly
                 bboxes = bboxes.copy()
-                bboxes[:, 0::2] *= scale_factor[0]  # x coordinates
-                bboxes[:, 1::2] *= scale_factor[1]  # y coordinates
+                bboxes[:, 0::2] *= scale_factor_tuple[0]  # x coordinates
+                bboxes[:, 1::2] *= scale_factor_tuple[1]  # y coordinates
+                if self.bbox_clip_border:
+                    bboxes[:, 0::2] = np.clip(bboxes[:, 0::2], 0, new_w)
+                    bboxes[:, 1::2] = np.clip(bboxes[:, 1::2], 0, new_h)
                 results["gt_bboxes"] = bboxes
 
         # Resize masks
         if "gt_masks" in results:
             gt_masks = results["gt_masks"]
+            scale_factor_tuple = results["scale_factor"]
             # Handle different mask formats
             if hasattr(gt_masks, "resize"):
                 results["gt_masks"] = gt_masks.resize((new_h, new_w))
@@ -181,30 +287,33 @@ class Resize(BaseTransform):
                     for poly in mask:
                         # Scale polygon coordinates
                         poly = np.array(poly).reshape(-1, 2)
-                        poly[:, 0] *= scale_factor[0]
-                        poly[:, 1] *= scale_factor[1]
+                        poly[:, 0] *= scale_factor_tuple[0]
+                        poly[:, 1] *= scale_factor_tuple[1]
                         resized_mask.append(poly.reshape(-1).tolist())
                     resized_masks.append(resized_mask)
                 results["gt_masks"] = resized_masks
 
-        # Save to cache if enabled and not already cached
-        if self.enable_cache and not results.get("_cache_hit", False):
-            img_path = results.get("img_path")
-            cache = results.get("_image_cache")
-
-            if img_path is not None and cache is not None:
-                # Store target size so LoadImageFromFile can check cache on next load
-                target_size = (new_w, new_h)
-                results["_cache_target_size"] = target_size
-
-                # Save resized image to cache
-                cache.put(img_path, target_size, resized_img)
+        # Resize other segmentation fields if specified
+        if "seg_fields" in results:
+            for seg_field in results["seg_fields"]:
+                if seg_field in results:
+                    gt_seg = results[seg_field]
+                    # Use imresize for arrays
+                    if isinstance(gt_seg, np.ndarray):
+                        results[seg_field] = imresize(gt_seg, (new_w, new_h))
+                    elif hasattr(gt_seg, "resize"):
+                        results[seg_field] = gt_seg.resize((new_h, new_w))
+                    else:
+                        # Assume it's a PIL image or similar
+                        results[seg_field] = imresize(gt_seg, (new_w, new_h))
 
         return results
 
     def __repr__(self):
         repr_str = self.__class__.__name__
-        repr_str += f"(scale={self.scale}, keep_ratio={self.keep_ratio})"
+        repr_str += f"(img_scale={self.img_scale}, "
+        repr_str += f"multiscale_mode={self.multiscale_mode}, "
+        repr_str += f"keep_ratio={self.keep_ratio})"
         return repr_str
 
 
@@ -278,13 +387,18 @@ class Pad(BaseTransform):
         self.size = size
         self.size_divisor = size_divisor
         if isinstance(pad_val, int):
+            import warnings
+
+            warnings.warn("pad_val as int is deprecated, use dict instead", DeprecationWarning, stacklevel=2)
             pad_val = dict(img=pad_val, seg=255)
         assert isinstance(pad_val, dict), "pad_val "
         self.pad_val = pad_val
         self.pad_to_square = pad_to_square
 
         if pad_to_square:
-            assert size is None, "The size and size_divisor must be None when pad2square is True"
+            assert size is None and size_divisor is None, (
+                "The size and size_divisor must be None when pad2square is True"
+            )
         else:
             assert size is not None or size_divisor is not None, "only one of size and size_divisor should be valid"
             assert size is None or size_divisor is None
@@ -317,6 +431,14 @@ class Pad(BaseTransform):
         results["pad_size_divisor"] = self.size_divisor
         results["img_shape"] = padded_img.shape[:2]
 
+        # Pad other image fields if specified
+        if "img_fields" in results:
+            for img_field in results["img_fields"]:
+                if img_field != "img" and img_field in results:
+                    results[img_field] = impad(
+                        results[img_field], shape=size, pad_val=pad_val, padding_mode=self.padding_mode
+                    )
+
     def _pad_seg(self, results: dict) -> None:
         """Pad semantic segmentation map according to
         ``results['pad_shape']``."""
@@ -330,6 +452,22 @@ class Pad(BaseTransform):
                 pad_val=pad_val,
                 padding_mode=self.padding_mode,
             )
+
+        # Pad other segmentation fields if specified
+        if "seg_fields" in results:
+            pad_val = self.pad_val.get("seg", 255)
+            for seg_field in results["seg_fields"]:
+                if seg_field in results:
+                    if isinstance(pad_val, int) and results[seg_field].ndim == 3:
+                        pad_val_seg = tuple(pad_val for _ in range(results[seg_field].shape[2]))
+                    else:
+                        pad_val_seg = pad_val
+                    results[seg_field] = impad(
+                        results[seg_field],
+                        shape=results["pad_shape"][:2],
+                        pad_val=pad_val_seg,
+                        padding_mode=self.padding_mode,
+                    )
 
     def transform(self, results: dict) -> dict:
         """Call function to pad images, masks, semantic segmentation maps.
@@ -1261,6 +1399,12 @@ class RandomFlip(BaseTransform):
         # flip image
         results["img"] = imflip(results["img"], direction=results["flip_direction"])
 
+        # flip other image fields if specified
+        if "img_fields" in results:
+            for img_field in results["img_fields"]:
+                if img_field != "img" and img_field in results:
+                    results[img_field] = imflip(results[img_field], direction=results["flip_direction"])
+
         img_shape = results["img"].shape[:2]
 
         # flip bboxes
@@ -1277,6 +1421,12 @@ class RandomFlip(BaseTransform):
         if results.get("gt_seg_map", None) is not None:
             results["gt_seg_map"] = self._flip_seg_map(results["gt_seg_map"], direction=results["flip_direction"])
             results["swap_seg_labels"] = self.swap_seg_labels
+
+        # flip other segmentation fields if specified
+        if "seg_fields" in results:
+            for seg_field in results["seg_fields"]:
+                if seg_field in results:
+                    results[seg_field] = self._flip_seg_map(results[seg_field], direction=results["flip_direction"])
 
     def _flip_on_direction(self, results: dict) -> None:
         """Function to flip images, bounding boxes, semantic segmentation map

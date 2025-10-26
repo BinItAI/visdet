@@ -1,10 +1,10 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import pytest
 import torch
-from visdet.engine.config import ConfigDict
-from visdet.models.plugins import DropBlock
 
 from visdet.cv.cnn import build_plugin_layer
+from visdet.engine.config import ConfigDict
+from visdet.models.plugins import DropBlock
 
 
 def test_dropblock():

@@ -4,9 +4,8 @@ import os
 
 import mmcv
 import torch
-from ts.torch_handler.base_handler import BaseHandler
-
 from mmdet.apis import inference_detector, init_detector
+from ts.torch_handler.base_handler import BaseHandler
 
 
 class MMdetHandler(BaseHandler):

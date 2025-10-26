@@ -545,13 +545,15 @@ class Registry:
             Registry or None: Return the corresponding registry if ``scope``
             exists, otherwise return None.
         """
-        if self._scope == scope:
-            return self
-
+        # Search children first before checking self, so that child registries
+        # with the same scope as the parent are found before the parent itself
         for child in self._children.values():
             registry = child._search_child(scope)
             if registry is not None:
                 return registry
+
+        if self._scope == scope:
+            return self
 
         return None
 

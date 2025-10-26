@@ -2,7 +2,6 @@
 import os.path as osp
 import warnings
 from collections.abc import Sequence
-from typing import Optional
 
 import numpy as np
 

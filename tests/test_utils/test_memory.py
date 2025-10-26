@@ -1,6 +1,7 @@
 import numpy as np
 import pytest
 import torch
+
 from visdet.utils import AvoidOOM
 from visdet.utils.memory import cast_tensor_type
 

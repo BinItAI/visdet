@@ -1,5 +1,6 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import pytest
+
 from visdet.utils import get_caller_name, log_img_scale
 
 

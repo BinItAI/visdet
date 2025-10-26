@@ -1,4 +1,5 @@
 import pytest
+
 from visdet.engine.config import ConfigDict
 from visdet.utils.compat_config import (
     compat_imgs_per_gpu,

@@ -1,6 +1,7 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import pytest
 import torch
+
 from visdet.models.backbones import ResNeSt
 from visdet.models.backbones.resnest import Bottleneck as BottleneckS
 

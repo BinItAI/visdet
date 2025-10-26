@@ -3,6 +3,7 @@ import numpy as np
 import pytest
 import torch
 import torch.nn as nn
+
 from visdet.cv.runner import auto_fp16, force_fp32
 from visdet.cv.runner.fp16_utils import cast_tensor_type
 

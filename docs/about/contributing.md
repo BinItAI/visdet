@@ -22,7 +22,7 @@ To set up the development environment:
 
 ```bash
 # Clone the repository
-git clone https://github.com/BinItAI/visdet.git
+git clone <your-repository-url>
 cd visdet
 
 # Install all dependencies (including dev dependencies)

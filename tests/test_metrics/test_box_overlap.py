@@ -2,6 +2,7 @@
 import numpy as np
 import pytest
 import torch
+
 from visdet.core import BboxOverlaps2D, bbox_overlaps
 from visdet.core.evaluation.bbox_overlaps import bbox_overlaps as recall_overlaps
 

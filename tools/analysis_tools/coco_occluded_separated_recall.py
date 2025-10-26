@@ -3,7 +3,6 @@ from argparse import ArgumentParser
 
 import mmcv
 from mmcv.utils import print_log
-
 from mmdet.datasets import OccludedSeparatedCocoDataset
 
 

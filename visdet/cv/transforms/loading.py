@@ -3,7 +3,6 @@ import warnings
 
 import numpy as np
 
-import visdet.cv
 import visdet.cv.fileio as fileio
 from visdet.cv.image import imfrombytes
 from visdet.engine import fileio as engine_fileio
@@ -114,7 +113,17 @@ class LoadImageFromFile(BaseTransform):
             dict: The dict contains loaded image and meta information.
         """
 
-        filename = results["img_path"]
+        # Handle legacy API with img_prefix and img_info
+        if "img_path" not in results:
+            if "img_prefix" in results and "img_info" in results:
+                import os.path as osp
+
+                filename = osp.join(results["img_prefix"], results["img_info"]["filename"])
+                results["img_path"] = filename
+            else:
+                raise KeyError("img_path must be in results or img_prefix and img_info must be provided")
+        else:
+            filename = results["img_path"]
 
         # Check cache if resize target is known
         target_size = results.get("_cache_target_size")

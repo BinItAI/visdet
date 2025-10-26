@@ -2,7 +2,6 @@
 import copy
 from abc import ABCMeta, abstractmethod
 from inspect import signature
-from typing import List, Optional, Tuple
 
 import torch
 from torch import Tensor

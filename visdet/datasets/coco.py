@@ -1,7 +1,6 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import copy
 import os.path as osp
-from typing import List, Union
 
 from visdet.engine.fileio import get_local_path
 from visdet.registry import DATASETS
@@ -233,8 +232,7 @@ class CocoDataset(BaseDetDataset):
 
         data_info = {}
 
-        # TODO: need to change data_prefix['img'] to data_prefix['img_path']
-        img_path = osp.join(self.data_prefix["img"], img_info["file_name"])
+        img_path = osp.join(self.data_prefix["img_path"], img_info["file_name"])
         if self.data_prefix.get("seg", None):
             seg_map_path = osp.join(
                 self.data_prefix["seg"],

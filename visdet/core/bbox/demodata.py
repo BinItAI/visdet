@@ -11,6 +11,8 @@ def ensure_rng(rng=None):
 
     if rng is None:
         return np.random.RandomState()
+    elif isinstance(rng, int):
+        return np.random.RandomState(rng)
     return rng
 
 

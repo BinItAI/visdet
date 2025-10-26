@@ -3,6 +3,7 @@ import pytest
 import torch
 from torch.nn.modules import AvgPool2d, GroupNorm
 from torch.nn.modules.batchnorm import _BatchNorm
+
 from visdet.cv import assert_params_all_zeros
 from visdet.cv.ops import DeformConv2dPack
 from visdet.models.backbones import ResNet, ResNetV1d

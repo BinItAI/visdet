@@ -1,7 +1,6 @@
 import os.path as osp
 from tempfile import TemporaryDirectory
 
-import numpy as np
 import pytest
 
 import visdet.cv as mmcv

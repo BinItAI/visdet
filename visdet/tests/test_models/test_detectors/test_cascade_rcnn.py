@@ -1,4 +1,5 @@
 import torch
+
 from visdet.engine.config import Config
 from visdet.structures import DetDataSample
 

@@ -35,7 +35,7 @@ The master branch works with **PyTorch 1.5+**.
 
 ## What's New
 
-For the latest updates and improvements to VisDet, please refer to the [changelog](about/changelog.md) and [GitHub releases](https://github.com/BinItAI/visdet/releases).
+For the latest updates and improvements to VisDet, please refer to the [changelog](about/changelog.md).
 
 ## Installation
 
@@ -261,7 +261,7 @@ Please refer to the documentation for frequently asked questions.
 
 ## Contributing
 
-We appreciate all contributions to improve VisDet. Ongoing projects can be found in our [GitHub Projects](https://github.com/BinItAI/visdet/projects). Welcome community users to participate in these projects. Please refer to the [contributing guide](development/contributing.md) for the contributing guideline.
+We appreciate all contributions to improve VisDet. Welcome community users to participate in development. Please refer to the [contributing guide](development/contributing.md) for the contributing guideline.
 
 ## Acknowledgement
 

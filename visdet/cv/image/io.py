@@ -2,7 +2,6 @@
 import io
 import os.path as osp
 import warnings
-from typing import Optional
 
 import cv2
 import numpy as np
