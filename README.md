@@ -210,7 +210,7 @@ A specialized research platform built on top of Detectron2, focused specifically
 ### visdet (this project)
 A streamlined fork of MMDetection with integrated dependencies, no CUDA compilation requirements, and modern training techniques from fast.ai and LLM fine-tuning.
 
-**Choose visdet if:** You want simplified installation (no CUDA compilation), pure Python/PyTorch implementation, and modern training techniques like progressive resizing, 1cycle schedules, and learning rate finders.
+**Choose visdet if:** You want simplified installation (no CUDA compilation), pure Python/PyTorch implementation, and modern training techniques like progressive resizing, 1cycle schedules, and learning rate finders. Maybe even auto augmentations? We'll see.
 
 ---
 
