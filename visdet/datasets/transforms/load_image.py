@@ -130,3 +130,109 @@ class LoadImageFromFile(BaseTransform):
             repr_str += f"backend_args={self.backend_args})"
 
         return repr_str
+
+
+@TRANSFORMS.register_module()
+class LoadImageFromWebcam(LoadImageFromFile):
+    """Load an image from webcam.
+
+    Similar with :obj:`LoadImageFromFile`, but the image read from webcam is in
+    ``results['img']``.
+    """
+
+    def transform(self, results: dict) -> dict | None:
+        """Call functions to add image meta information.
+
+        Args:
+            results (dict): Result dict with Webcam read image in
+                ``results['img']``.
+
+        Returns:
+            dict: The dict contains loaded image and meta information.
+        """
+
+        img = results["img"]
+        if self.to_float32:
+            img = img.astype(np.float32)
+
+        results["img"] = img
+        results["img_shape"] = img.shape[:2]
+        results["ori_shape"] = img.shape[:2]
+        return results
+
+
+@TRANSFORMS.register_module()
+class LoadMultiChannelImageFromFiles(BaseTransform):
+    """Load multi-channel images from a list of separate channel files.
+
+    Required keys are "img_prefix" and "img_info" (a dict that must contain the
+    key "filename", which is expected to be a list of filenames).
+    Added or updated keys are "filename", "img", "img_shape",
+    "ori_shape" (same as `img_shape`).
+
+    Args:
+        to_float32 (bool): Whether to convert the loaded image to a float32
+            numpy array. If set to False, the loaded image is an uint8 array.
+            Defaults to False.
+        color_type (str): The flag argument for :func:`visdet.cv.imfrombytes`.
+            Defaults to 'unchanged'.
+        file_client_args (dict, optional): Arguments to instantiate a
+            FileClient. See :class:`mmengine.fileio.FileClient` for details.
+            Defaults to None.
+    """
+
+    def __init__(
+        self,
+        to_float32: bool = False,
+        color_type: str = "unchanged",
+        file_client_args: dict | None = None,
+    ) -> None:
+        self.to_float32 = to_float32
+        self.color_type = color_type
+        self.file_client_args = file_client_args.copy() if file_client_args is not None else None
+
+    def transform(self, results: dict) -> dict | None:
+        """Load multiple images and get images meta information.
+
+        Args:
+            results (dict): Result dict from dataset.
+
+        Returns:
+            dict: The dict contains loaded images and meta information.
+        """
+
+        img_paths = results.get("img_path", [])
+        if isinstance(img_paths, str):
+            img_paths = [img_paths]
+
+        img_list = []
+        for img_path in img_paths:
+            try:
+                if self.file_client_args is not None:
+                    file_client = fileio.FileClient.infer_client(self.file_client_args, img_path)
+                    img_bytes = file_client.get(img_path)
+                else:
+                    img_bytes = fileio.get(img_path)
+
+                img = imfrombytes(img_bytes, flag=self.color_type)
+                img_list.append(img)
+            except Exception as e:
+                raise e
+
+        img = np.stack(img_list, axis=-1)
+        if self.to_float32:
+            img = img.astype(np.float32)
+
+        results["img"] = img
+        results["img_shape"] = img.shape[:2]
+        results["ori_shape"] = img.shape[:2]
+        return results
+
+    def __repr__(self):
+        repr_str = (
+            f"{self.__class__.__name__}("
+            f"to_float32={self.to_float32}, "
+            f"color_type='{self.color_type}', "
+            f"file_client_args={self.file_client_args})"
+        )
+        return repr_str

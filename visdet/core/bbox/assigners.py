@@ -1,16 +1,7 @@
 # Copyright (c) OpenMMLab. All rights reserved.
-"""Backward compatibility for visdet.core.bbox.assigners."""
+"""Bbox assigners - backward compatibility wrapper."""
 
-from visdet.models.task_modules.assigners import (
-    AssignResult,
-    BaseAssigner,
-    MaxIoUAssigner,
-)
-from visdet.models.task_modules.builder import build_assigner
+from visdet.models.task_modules.assigners import BaseAssigner, MaxIoUAssigner
+from visdet.models.task_modules.assigners.assign_result import AssignResult
 
-__all__ = [
-    "AssignResult",
-    "BaseAssigner",
-    "MaxIoUAssigner",
-    "build_assigner",
-]
+__all__ = ["MaxIoUAssigner", "BaseAssigner", "AssignResult"]

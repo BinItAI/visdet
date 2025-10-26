@@ -1,5 +1,5 @@
 # Copyright (c) OpenMMLab. All rights reserved.
-"""Backward compatibility for visdet.core.mask submodule."""
+"""Mask structures - backward compatibility for visdet.core.mask namespace."""
 
 from visdet.structures.mask import BitmapMasks, PolygonMasks
 
