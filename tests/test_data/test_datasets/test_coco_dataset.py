@@ -3,6 +3,7 @@ import os.path as osp
 import tempfile
 
 import pytest
+
 import visdet.cv as mmcv
 from visdet.datasets import CocoDataset
 

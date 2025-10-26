@@ -5,10 +5,11 @@ import shutil
 import urllib
 
 import torch
-import visdet.cv as mmcv
-from visdet.apis import async_inference_detector, inference_detector, init_detector
 from visdet.utils.contextmanagers import concurrent
 from visdet.utils.profiling import profile_time
+
+import visdet.cv as mmcv
+from visdet.apis import async_inference_detector, inference_detector, init_detector
 
 
 async def main():

@@ -2,6 +2,7 @@
 import pytest
 import torch
 from torch.nn.modules import GroupNorm
+
 from visdet.cv.cnn import is_norm
 from visdet.models.utils import InvertedResidual, SELayer
 

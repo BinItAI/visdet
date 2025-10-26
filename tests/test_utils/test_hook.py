@@ -11,10 +11,11 @@ import torch
 import torch.nn as nn
 from torch.nn.init import constant_
 from torch.utils.data import DataLoader, Dataset
+from visdet.cv.runner import CheckpointHook, IterTimerHook, PaviLoggerHook, build_runner
+
 from visdet.core.hook import ExpMomentumEMAHook, YOLOXLrUpdaterHook
 from visdet.core.hook.sync_norm_hook import SyncNormHook
 from visdet.core.hook.sync_random_size_hook import SyncRandomSizeHook
-from visdet.cv.runner import CheckpointHook, IterTimerHook, PaviLoggerHook, build_runner
 
 
 def _build_demo_runner_without_hook(

@@ -2,6 +2,7 @@
 import numpy as np
 import pytest
 import torch
+
 import visdet.cv as mmcv
 from visdet.core import bbox2roi
 from visdet.models.roi_heads.bbox_heads import BBoxHead
@@ -134,6 +135,7 @@ def _demodata_refine_boxes(n_roi, n_img, rng=0):
     """Create random test data for the
     ``mmdet.models.bbox_heads.bbox_head.BBoxHead.refine_boxes`` method."""
     import numpy as np
+
     from visdet.core.bbox.demodata import ensure_rng, random_boxes
 
     try:

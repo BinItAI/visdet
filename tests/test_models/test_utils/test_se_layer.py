@@ -2,6 +2,7 @@
 import pytest
 import torch
 import torch.nn.functional as F
+
 from visdet.cv.cnn import constant_init
 from visdet.models.utils import DyReLU, SELayer
 

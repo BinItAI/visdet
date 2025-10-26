@@ -1,8 +1,9 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import pytest
 import torch
-from visdet.models.backbones import ResNeXt
 from visdet.models.backbones.resnext import Bottleneck as BottleneckX
+
+from visdet.models.backbones import ResNeXt
 
 from .utils import is_block
 
