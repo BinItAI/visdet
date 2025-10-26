@@ -64,7 +64,15 @@ class Normalize(BaseTransform):
             result dict.
         """
 
+        # Normalize main image
         results["img"] = imnormalize(results["img"], self.mean, self.std, self.to_rgb)
+
+        # Normalize additional image fields if specified
+        if "img_fields" in results:
+            for field in results["img_fields"]:
+                if field != "img" and field in results:
+                    results[field] = imnormalize(results[field], self.mean, self.std, self.to_rgb)
+
         results["img_norm_cfg"] = {
             "mean": self.mean,
             "std": self.std,
@@ -391,7 +399,9 @@ class Pad(BaseTransform):
         self.pad_to_square = pad_to_square
 
         if pad_to_square:
-            assert size is None, "The size and size_divisor must be None when pad2square is True"
+            assert size is None and size_divisor is None, (
+                "The size and size_divisor must be None when pad2square is True"
+            )
         else:
             assert size is not None or size_divisor is not None, "only one of size and size_divisor should be valid"
             assert size is None or size_divisor is None
@@ -419,6 +429,19 @@ class Pad(BaseTransform):
         padded_img = impad(results["img"], shape=size, pad_val=pad_val, padding_mode=self.padding_mode)
 
         results["img"] = padded_img
+
+        # Pad additional image fields if specified
+        if "img_fields" in results:
+            for field in results["img_fields"]:
+                if field != "img" and field in results:
+                    padded_field = impad(
+                        results[field],
+                        shape=size,
+                        pad_val=pad_val,
+                        padding_mode=self.padding_mode,
+                    )
+                    results[field] = padded_field
+
         results["pad_shape"] = padded_img.shape
         results["pad_fixed_size"] = self.size
         results["pad_size_divisor"] = self.size_divisor
