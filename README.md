@@ -98,8 +98,8 @@ Microsoft's deep learning optimization library featuring ZeRO (Zero Redundancy O
 # Using uv (recommended)
 uv pip install visdet
 
-# Or using pip
-pip install visdet
+# Or using pip (don't do this though you massochist) 
+pip install visdet 
 ```
 
 For detailed installation instructions, see the [Installation Guide](https://binitai.github.io/visdet/getting-started/installation/).
