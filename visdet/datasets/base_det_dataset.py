@@ -35,6 +35,7 @@ class BaseDetDataset(BaseDataset):
         backend_args: dict | None = None,
         return_classes: bool = False,
         caption_prompt: dict | None = None,
+        classes: tuple | None = None,
         **kwargs,
     ) -> None:
         self.seg_map_suffix = seg_map_suffix
@@ -50,6 +51,12 @@ class BaseDetDataset(BaseDataset):
                 "please use `backend_args` instead, please refer to"
                 "https://github.com/open-mmlab/mmdetection/blob/main/configs/_base_/datasets/coco_detection.py"
             )
+        # Handle legacy classes parameter
+        if classes is not None:
+            if "metainfo" not in kwargs or kwargs["metainfo"] is None:
+                kwargs["metainfo"] = {}
+            if isinstance(kwargs["metainfo"], dict):
+                kwargs["metainfo"]["classes"] = classes
         super().__init__(*args, **kwargs)
 
     def full_init(self) -> None:
