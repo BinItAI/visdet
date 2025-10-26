@@ -6,8 +6,6 @@ The visdet project focuses exclusively on Swin Transformer + Mask R-CNN
 for object detection and instance segmentation on COCO format.
 """
 
-import pytest
-
 
 def pytest_ignore_collect(collection_path, config):
     """Skip collection of test files for non-core functionality."""
