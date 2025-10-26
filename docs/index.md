@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="assets/visia-logo-white.svg" width="600"/>
+  <img src="assets/visia-logo-black.svg" width="600"/>
   <div>&nbsp;</div>
 
 [![PyPI](https://img.shields.io/pypi/v/visdet)](https://pypi.org/project/visdet)
