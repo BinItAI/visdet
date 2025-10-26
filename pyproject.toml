@@ -30,6 +30,7 @@ dependencies = [
     "numpy",
     "opencv-python",
     "pycocotools",
+    "pydantic>=2.0.0",
     "pyyaml",
     "rich",
     "scipy",
