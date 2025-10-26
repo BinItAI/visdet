@@ -5,9 +5,9 @@ Python classes, with support for manual overrides via decorators.
 """
 
 import inspect
-from typing import Any, Callable, Dict, Optional, Type, Union, get_args, get_origin
+from typing import Any, Callable, Dict, Optional, Type
 
-from pydantic import BaseModel, Field, create_model
+from pydantic import BaseModel, create_model
 
 
 class SchemaRegistry:

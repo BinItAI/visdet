@@ -1,7 +1,6 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import copy
 import os.path as osp
-from typing import List, Union
 
 from visdet.engine.fileio import get_local_path
 from visdet.registry import DATASETS

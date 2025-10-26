@@ -3,7 +3,6 @@ import warnings
 
 import numpy as np
 
-import visdet.cv
 import visdet.cv.fileio as fileio
 from visdet.cv.image import imfrombytes
 from visdet.engine import fileio as engine_fileio

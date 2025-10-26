@@ -6,7 +6,7 @@ with support for YAML configuration files.
 
 import warnings
 from pathlib import Path
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Union
 
 from visdet.engine.config import Config as BaseConfig
 
