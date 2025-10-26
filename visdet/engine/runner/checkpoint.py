@@ -38,14 +38,6 @@ ENV_XDG_CACHE_HOME = "XDG_CACHE_HOME"
 DEFAULT_CACHE_DIR = "~/.cache"
 
 
-# Create a fake mmengine module that redirects to visengine
-
-# tmp fix for loading old checkpoints
-sys.modules["mmengine"] = visengine
-sys.modules["mmengine.logging"] = visengine.logging
-sys.modules["mmengine.logging.history_buffer"] = visengine.logging.history_buffer
-
-
 class _IncompatibleKeys(namedtuple("IncompatibleKeys", ["missing_keys", "unexpected_keys"])):
     def __repr__(self):
         if not self.missing_keys and not self.unexpected_keys:
@@ -171,8 +163,8 @@ def get_torchvision_models():
         # torchvision version>=0.13.0, new URLs will be added. Users can get
         # the resnet50 checkpoint by setting 'resnet50.imagent1k_v1',
         # 'resnet50' or 'ResNet50_Weights.IMAGENET1K_V1' in the config.
-        json_path = osp.join(mmengine.__path__[0], "hub/torchvision_0.12.json")
-        model_urls = mmengine.load(json_path)
+        json_path = osp.join(visdet.engine.__path__[0], "hub/torchvision_0.12.json")
+        model_urls = load_file(json_path)
         if digit_version(torchvision.__version__) < digit_version("0.14.0a0"):
             weights_list = [
                 cls for cls_name, cls in torchvision.models.__dict__.items() if cls_name.endswith("_Weights")
@@ -206,7 +198,7 @@ def get_torchvision_models():
 
 def get_external_models():
     mmengine_home = _get_mmengine_home()
-    default_json_path = osp.join(mmengine.__path__[0], "hub/openmmlab.json")
+    default_json_path = osp.join(visdet.engine.__path__[0], "hub/openmmlab.json")
     default_urls = load_file(default_json_path)
     assert isinstance(default_urls, dict)
     external_json_path = osp.join(mmengine_home, "open_mmlab.json")
@@ -219,14 +211,14 @@ def get_external_models():
 
 
 def get_mmcls_models():
-    mmcls_json_path = osp.join(mmengine.__path__[0], "hub/mmcls.json")
+    mmcls_json_path = osp.join(visdet.engine.__path__[0], "hub/mmcls.json")
     mmcls_urls = load_file(mmcls_json_path)
 
     return mmcls_urls
 
 
 def get_deprecated_model_names():
-    deprecate_json_path = osp.join(mmengine.__path__[0], "hub/deprecated.json")
+    deprecate_json_path = osp.join(visdet.engine.__path__[0], "hub/deprecated.json")
     deprecate_urls = load_file(deprecate_json_path)
     assert isinstance(deprecate_urls, dict)
 

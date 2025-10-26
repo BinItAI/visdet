@@ -11,6 +11,7 @@ the reference mmdetection repo we have locally.
 2. **COCO Format**: Only support COCO-style datasets
 3. **Essential Components**: Keep only what's needed for this specific model
 4. **Absolute Imports**: Always use absolute imports (e.g., `from visdet.engine import X`) instead of relative imports (e.g., `from .engine import X`) to avoid circular import issues
+5. **No sys.modules Manipulation**: Never use `sys.modules` hacks to create module aliases (e.g., `sys.modules["old_name"] = new_module`). This pollutes global state and makes debugging difficult. Instead, update imports directly at their source or use proper re-exports in `__init__.py` files for backward compatibility
 
 ## What to Keep
 

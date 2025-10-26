@@ -129,14 +129,19 @@ def register_bitsandbytes_optimizers() -> list[str]:
         lambda _optim: (inspect.isclass(_optim) and issubclass(_optim, torch.optim.Optimizer)),
     )
     for name, optim_cls in optim_classes:
-        if name in OPTIMIZERS:
+        # Use _module_dict.get() instead of 'in' to avoid triggering import_from_location
+        if OPTIMIZERS._module_dict.get(name) is not None:
             name = f"bnb_{name}"
         OPTIMIZERS.register_module(module=optim_cls, name=name)
         dadaptation_optimizers.append(name)
     return dadaptation_optimizers
 
 
-BITSANDBYTES_OPTIMIZERS = register_bitsandbytes_optimizers()
+try:
+    BITSANDBYTES_OPTIMIZERS = register_bitsandbytes_optimizers()
+except Exception:
+    # Defer registration to avoid circular imports during module initialization
+    BITSANDBYTES_OPTIMIZERS = []
 
 
 def register_transformers_optimizers():
