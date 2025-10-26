@@ -13,3 +13,6 @@ from visdet.engine.registry import DefaultScope
 # Re-export version info explicitly at module level
 globals()["__version__"] = __version__
 globals()["version_info"] = version_info
+
+# Re-export config utilities
+from .config import Config
