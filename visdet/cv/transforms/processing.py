@@ -114,6 +114,8 @@ class Resize(BaseTransform):
         backend (str): Image resize backend. Defaults to 'cv2'.
         interpolation (str): Interpolation method. Defaults to 'bilinear'.
         override (bool, optional): Whether to override scale. Defaults to False.
+        scale (tuple or list[tuple], optional): Alias for img_scale, kept for
+            backward compatibility. Use img_scale instead. Defaults to None.
     """
 
     def __init__(
@@ -126,21 +128,55 @@ class Resize(BaseTransform):
         backend="cv2",
         interpolation="bilinear",
         override=False,
+        scale=None,
     ):
         from visdet.engine.utils import is_list_of
+
+        # Handle backward compatibility: accept 'scale' as alias for 'img_scale'
+        if scale is not None and img_scale is not None:
+            raise ValueError("Cannot specify both 'scale' and 'img_scale'. Use 'img_scale' instead.")
+        if scale is not None:
+            img_scale = scale
 
         if img_scale is None:
             self.img_scale = None
         else:
-            if isinstance(img_scale, list):
-                self.img_scale = img_scale
-            else:
+            # Handle different input formats
+            if isinstance(img_scale, (int, float)):
+                # Placeholder value (like 0) used internally by RandomChoiceResize/RandomResize
                 self.img_scale = [img_scale]
-            assert is_list_of(self.img_scale, tuple), f"img_scale must be a list of tuples, got {self.img_scale}"
+            elif isinstance(img_scale, tuple):
+                # Single scale as tuple, wrap in list
+                self.img_scale = [img_scale]
+            elif isinstance(img_scale, list):
+                # Already a list, validate it
+                if img_scale:
+                    first_elem = img_scale[0]
+                    # If first element is a tuple, all must be tuples (valid multi-scale)
+                    if isinstance(first_elem, tuple):
+                        assert is_list_of(img_scale, tuple), f"img_scale must be a list of tuples, got {img_scale}"
+                        self.img_scale = img_scale
+                    elif isinstance(first_elem, (int, float)):
+                        # List of integers like [1333, 800] is invalid
+                        raise AssertionError(
+                            f"img_scale must be a tuple or list of tuples, not a list of integers. "
+                            f"Got {img_scale}. Did you mean ({img_scale[0]}, {img_scale[1]})?"
+                        )
+                    else:
+                        raise AssertionError(f"img_scale must be a tuple or list of tuples, got {img_scale}")
+                else:
+                    self.img_scale = img_scale
+            else:
+                # Wrap any other type in a list (will be validated next)
+                self.img_scale = [img_scale]
+                assert isinstance(img_scale, tuple), (
+                    f"img_scale must be a tuple or list of tuples, got {type(img_scale)}"
+                )
 
         if ratio_range is not None:
             # mode 1: given a scale and a range of image ratio
-            assert len(self.img_scale) == 1, "ratio_range requires single img_scale"
+            if self.img_scale is not None and self.img_scale and isinstance(self.img_scale[0], tuple):
+                assert len(self.img_scale) == 1, "ratio_range requires single img_scale"
         else:
             # mode 2: given multiple scales or a range of scales
             assert multiscale_mode in ["value", "range"], (
@@ -154,6 +190,23 @@ class Resize(BaseTransform):
         self.backend = backend
         self.interpolation = interpolation
         self.override = override
+
+    @property
+    def scale(self):
+        """Property to access img_scale for backward compatibility."""
+        return self.img_scale
+
+    @scale.setter
+    def scale(self, value):
+        """Property setter to set img_scale for backward compatibility."""
+        if value is None:
+            self.img_scale = None
+        elif isinstance(value, (int, float)):
+            self.img_scale = [value]
+        elif isinstance(value, list):
+            self.img_scale = value
+        else:
+            self.img_scale = [value]
 
     @staticmethod
     def random_select(img_scales):
