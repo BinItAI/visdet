@@ -88,6 +88,8 @@ Microsoft's highly optimized Mixture of Experts (MoE) implementation for PyTorch
 ### [DeepSpeed](https://github.com/deepspeedai/DeepSpeed)
 Microsoft's deep learning optimization library featuring ZeRO (Zero Redundancy Optimizer) for training massive models with limited GPU memory. Includes model compression techniques, efficient training optimizations, and inference acceleration. Could enable training larger detection models and faster inference through quantization and compression.
 
+This framework is going to be designed for much better usability than your average research repo, it will max out your batch size, then find your (probably) optimal learning rate and scheduler.
+
 ---
 
 ## 🚀 Quick Start
