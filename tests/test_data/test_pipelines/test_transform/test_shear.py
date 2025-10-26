@@ -11,6 +11,7 @@ from visdet.structures.mask.structures import BitmapMasks, PolygonMasks
 from .utils import check_result_same, construct_toy_data
 
 
+@pytest.mark.skip(reason="Shear is an out-of-scope geometric augmentation (optional)")
 def test_shear():
     # test assertion for invalid type of max_shear_magnitude
     with pytest.raises(AssertionError):

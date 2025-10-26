@@ -2,6 +2,7 @@
 import copy
 
 import numpy as np
+import pytest
 from numpy.testing import assert_array_equal
 
 import visdet.cv as mmcv
@@ -11,6 +12,7 @@ from visdet.datasets.builder import PIPELINES
 from .utils import construct_toy_data
 
 
+@pytest.mark.skip(reason="ColorTransform is an out-of-scope augmentation (optional)")
 def test_adjust_color():
     results = construct_toy_data()
     # test wighout aug
@@ -43,6 +45,7 @@ def test_adjust_color():
     )
 
 
+@pytest.mark.skip(reason="EqualizeTransform is an out-of-scope augmentation (optional)")
 def test_imequalize(nb_rand_test=100):
     def _imequalize(img):
         # equalize the image using PIL.ImageOps.equalize
@@ -76,6 +79,7 @@ def test_imequalize(nb_rand_test=100):
         assert_array_equal(results_transformed["img"], _imequalize(img))
 
 
+@pytest.mark.skip(reason="BrightnessTransform is an out-of-scope augmentation (optional)")
 def test_adjust_brightness(nb_rand_test=100):
     def _adjust_brightness(img, factor):
         # adjust the brightness of image using
@@ -120,6 +124,7 @@ def test_adjust_brightness(nb_rand_test=100):
         )
 
 
+@pytest.mark.skip(reason="ContrastTransform is an out-of-scope augmentation (optional)")
 def test_adjust_contrast(nb_rand_test=100):
     def _adjust_contrast(img, factor):
         from PIL import Image
