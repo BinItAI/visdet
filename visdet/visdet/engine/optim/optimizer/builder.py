@@ -122,7 +122,11 @@ def register_bitsandbytes_optimizers() -> list[str]:
         List[str]: A list of registered optimizers' name.
     """
     dadaptation_optimizers = []
-    import bitsandbytes as bnb
+    try:
+        import bitsandbytes as bnb
+    except ImportError:
+        # bitsandbytes is an optional dependency
+        return dadaptation_optimizers
 
     optim_classes = inspect.getmembers(
         bnb.optim,

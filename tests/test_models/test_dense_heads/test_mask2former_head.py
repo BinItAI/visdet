@@ -2,7 +2,8 @@ import numpy as np
 import pytest
 import torch
 from visdet.core.mask import BitmapMasks
-from visdet.cv import ConfigDict
+from visdet.engine.config import ConfigDict
+
 from visdet.models.dense_heads import Mask2FormerHead
 
 

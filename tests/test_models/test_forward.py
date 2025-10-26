@@ -27,7 +27,7 @@ def _get_config_directory():
 
 def _get_config_module(fname):
     """Load a configuration as a python module."""
-    from visdet.cv import Config
+    from visdet.engine.config import Config
 
     config_dpath = _get_config_directory()
     config_fpath = join(config_dpath, fname)
@@ -579,8 +579,9 @@ def test_detr_forward():
 
 
 def test_inference_detector():
+    from visdet.engine.config import ConfigDict
+
     from visdet.apis import inference_detector
-    from visdet.cv import ConfigDict
     from visdet.models import build_detector
 
     # small RetinaNet
@@ -683,6 +684,7 @@ def test_maskformer_forward():
     model_cfg.panoptic_head.transformer_decoder.transformerlayers.feedforward_channels = base_channels * 8
 
     from visdet.core import BitmapMasks
+
     from visdet.models import build_detector
 
     detector = build_detector(model_cfg)
@@ -793,6 +795,7 @@ def test_mask2former_forward(cfg_file):
     num_stuff_classes = model_cfg.panoptic_head.num_stuff_classes
 
     from visdet.core import BitmapMasks
+
     from visdet.models import build_detector
 
     detector = build_detector(model_cfg)

@@ -8,7 +8,7 @@ import torch
 
 from visdet.engine.registry import HOOKS
 from visdet.engine.utils import get_git_hash
-from visdet.engine.version import __version__
+from visdet.version import __version__
 
 from .hook import Hook
 

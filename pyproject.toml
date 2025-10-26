@@ -25,13 +25,21 @@ classifiers = [
 ]
 
 dependencies = [
+    "addict",
     "matplotlib",
     "numpy",
+    "opencv-python",
     "pycocotools",
+    "pyyaml",
+    "rich",
     "scipy",
     "six",
+    "termcolor",
     "terminaltables",
+    "torch>=1.9.0",
+    "torchvision>=0.10.0",
     "tqdm>=4.67.1",
+    "yapf",
 ]
 
 [project.optional-dependencies]
@@ -60,16 +68,17 @@ mkdocs = [
 ]
 
 tests = [
-    "asynctest",
+    "asynctest>=0.13.0",
     "codecov",
     "flake8",
     "interrogate",
     "isort==4.3.21",
     "kwarray",
-    "onnx==1.7.0",
-    "onnxruntime>=1.8.0",
-    "protobuf<=3.20.1",
+    "onnx>=1.14.0",
+    "onnxruntime>=1.16.0",
+    "protobuf>=3.20.0,<4.25.0",
     "pytest",
+    "pytest-asyncio",
     "pytest-cov",
     "ubelt",
     "xdoctest>=0.10.0",

@@ -1,6 +1,7 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import torch
-from visdet.cv import ConfigDict
+from visdet.engine.config import ConfigDict
+
 from visdet.models.dense_heads import DETRHead
 
 
