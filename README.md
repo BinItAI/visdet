@@ -98,8 +98,8 @@ Microsoft's deep learning optimization library featuring ZeRO (Zero Redundancy O
 # Using uv (recommended)
 uv pip install visdet
 
-# Or using pip (don't do this though you massochist) 
-pip install visdet 
+# Or using pip (don't do this though you massochist)
+pip install visdet
 ```
 
 For detailed installation instructions, see the [Installation Guide](https://binitai.github.io/visdet/getting-started/installation/).
@@ -177,6 +177,18 @@ We welcome contributions! Please see the [Contributing Guide](https://binitai.gi
 - 🐛 [Report Issues](https://github.com/BinItAI/visdet/issues/new)
 - 💡 [Request Features](https://github.com/BinItAI/visdet/issues/new)
 - 🔧 [Submit Pull Requests](https://github.com/BinItAI/visdet/pulls)
+
+---
+
+## 👥 Contributors
+
+We appreciate all contributions to visdet! Special thanks to our contributors:
+
+| Contributor | Contributions |
+|---|---|
+| [GeorgePearse](https://github.com/GeorgePearse) | 118 |
+
+[View all contributors →](https://github.com/BinItAI/visdet/graphs/contributors)
 
 ---
 
