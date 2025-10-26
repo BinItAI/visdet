@@ -2,16 +2,22 @@
   <img src="assets/visia-logo.svg" width="600"/>
   <div>&nbsp;</div>
 
+[![PyPI](https://img.shields.io/pypi/v/visdet)](https://pypi.org/project/visdet)
+[![docs](https://img.shields.io/badge/docs-latest-blue)](https://binitai.github.io/visdet/)
+[![license](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/BinItAI/visdet/blob/master/LICENSE)
+
 [📘Documentation](https://binitai.github.io/visdet/) |
 [🛠️Installation](https://binitai.github.io/visdet/getting-started/installation/) |
 [👀Model Zoo](https://binitai.github.io/visdet/model-zoo/) |
 [🆕Update News](https://binitai.github.io/visdet/about/changelog/) |
-[🤔Reporting Issues](https://github.com/BinItAI/visdet/issues)
+[🚀Ongoing Projects](https://github.com/BinItAI/visdet/projects) |
+[🤔Reporting Issues](https://github.com/BinItAI/visdet/issues/new/choose)
 
 </div>
+
 ## Introduction
 
-MMDetection is an open source object detection toolbox based on PyTorch.
+VisDet is an open source object detection toolbox based on PyTorch. This project is a fork of the original MMDetection project, providing an enhanced and modernized detection framework for research and production use.
 
 The master branch works with **PyTorch 1.5+**.
 
@@ -34,51 +40,13 @@ The master branch works with **PyTorch 1.5+**.
 
 - **State of the art**
 
-  The toolbox stems from the codebase developed by the *MMDet* team, who won [COCO Detection Challenge](http://cocodataset.org/#detection-leaderboard) in 2018, and we keep pushing it forward.
+  Built on a codebase originally developed by the MMDet team (COCO Detection Challenge winners in 2018), this fork continues pushing the boundaries forward with modern improvements and enhancements.
 
 </details>
 
-
 ## What's New
 
-### 💎 Stable version
-
-**2.28.2** was released in 27/2/2023:
-
-- Fixed some known documentation, configuration and linking error issues
-
-Please refer to the [changelog](about/changelog.md) for details and release history.
-
-### 🌟 Preview of 3.x version
-
-#### Highlight
-
-We are excited to announce our latest work on real-time object recognition tasks, **RTMDet**, a family of fully convolutional single-stage detectors. RTMDet not only achieves the best parameter-accuracy trade-off on object detection from tiny to extra-large model sizes but also obtains new state-of-the-art performance on instance segmentation and rotated object detection tasks. Details can be found in the [technical report](https://arxiv.org/abs/2212.07784). Pre-trained models are [here](https://github.com/open-mmlab/mmdetection/tree/3.x/configs/rtmdet).
-
-[![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/rtmdet-an-empirical-study-of-designing-real/real-time-instance-segmentation-on-mscoco)](https://paperswithcode.com/sota/real-time-instance-segmentation-on-mscoco?p=rtmdet-an-empirical-study-of-designing-real)
-[![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/rtmdet-an-empirical-study-of-designing-real/object-detection-in-aerial-images-on-dota-1)](https://paperswithcode.com/sota/object-detection-in-aerial-images-on-dota-1?p=rtmdet-an-empirical-study-of-designing-real)
-[![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/rtmdet-an-empirical-study-of-designing-real/object-detection-in-aerial-images-on-hrsc2016)](https://paperswithcode.com/sota/object-detection-in-aerial-images-on-hrsc2016?p=rtmdet-an-empirical-study-of-designing-real)
-
-| Task                     | Dataset | AP                                   | FPS(TRT FP16 BS1 3090) |
-| ------------------------ | ------- | ------------------------------------ | ---------------------- |
-| Object Detection         | COCO    | 52.8                                 | 322                    |
-| Instance Segmentation    | COCO    | 44.6                                 | 188                    |
-| Rotated Object Detection | DOTA    | 78.9(single-scale)/81.3(multi-scale) | 121                    |
-
-<div align=center>
-<img src="https://user-images.githubusercontent.com/12907710/208044554-1e8de6b5-48d8-44e4-a7b5-75076c7ebb71.png"/>
-</div>
-
-A brand new version of **MMDetection v3.0.0rc6** was released in 27/2/2023:
-
-- Support [Boxinst](https://github.com/open-mmlab/mmdetection/tree/3.x/configs/boxinst), [Objects365 Dataset](https://github.com/open-mmlab/mmdetection/tree/3.x/configs/objects365), and [Separated and Occluded COCO metric](https://github.com/open-mmlab/mmdetection/tree/3.x/docs/en/user_guides/useful_tools.md#coco-separated--occluded-mask-metric)
-- Support [ConvNeXt-V2](https://github.com/open-mmlab/mmdetection/tree/3.x/projects/ConvNeXt-V2), [DiffusionDet](https://github.com/open-mmlab/mmdetection/tree/3.x/projects/DiffusionDet), and inference of [EfficientDet](https://github.com/open-mmlab/mmdetection/tree/3.x/projects/EfficientDet) and [Detic](https://github.com/open-mmlab/mmdetection/tree/3.x/projects/Detic) in `Projects`
-- Refactor [DETR](https://github.com/open-mmlab/mmdetection/tree/3.x/configs/detr) series and support [Conditional-DETR](https://github.com/open-mmlab/mmdetection/tree/3.x/configs/conditional_detr), [DAB-DETR](https://github.com/open-mmlab/mmdetection/tree/3.x/configs/dab_detr), and [DINO](https://github.com/open-mmlab/mmdetection/tree/3.x/configs/dino)
-- Support DetInferencer, Test Time Augmentation, and auto import modules from registry
-- Support RTMDet-Ins ONNXRuntime and TensorRT [deployment](https://github.com/open-mmlab/mmdetection/tree/3.x/configs/rtmdet/README.md#deployment-tutorial)
-- Support [calculating FLOPs of detectors](https://github.com/open-mmlab/mmdetection/tree/3.x/docs/en/user_guides/useful_tools.md#Model-Complexity)
-
-Find more new features in [3.x branch](https://github.com/open-mmlab/mmdetection/tree/3.x). Issues and PRs are welcome!
+For the latest updates and improvements to VisDet, please refer to the [changelog](about/changelog.md) and [GitHub releases](https://github.com/BinItAI/visdet/releases).
 
 ## Installation
 
@@ -86,7 +54,7 @@ Please refer to [Installation](getting-started/installation.md) for installation
 
 ## Getting Started
 
-Please see the [Getting Started](getting-started/quick-start.md) guide for the basic usage of MMDetection. Tutorials available:
+Please see the [Getting Started](getting-started/quick-start.md) guide for the basic usage of VisDet. Available tutorials:
 
 - [learn about configs](tutorials/config.md)
 - [customize datasets](tutorials/customize_dataset.md)
@@ -304,11 +272,12 @@ Please refer to the documentation for frequently asked questions.
 
 ## Contributing
 
-We appreciate all contributions to improve MMDetection. Ongoing projects can be found in our [GitHub Projects](https://github.com/open-mmlab/mmdetection/projects). Welcome community users to participate in these projects. Please refer to the [contributing guide](development/contributing.md) for the contributing guideline.
+We appreciate all contributions to improve VisDet. Ongoing projects can be found in our [GitHub Projects](https://github.com/BinItAI/visdet/projects). Welcome community users to participate in these projects. Please refer to the [contributing guide](development/contributing.md) for the contributing guideline.
 
 ## Acknowledgement
 
-MMDetection is an open source project that is contributed by researchers and engineers from various colleges and companies. We appreciate all the contributors who implement their methods or add new features, as well as users who give valuable feedbacks.
+VisDet is a fork of the original MMDetection project. We acknowledge the original MMDetection team and the broader open source community for their contributions to the detection research field. We appreciate all the contributors who implement their methods or add new features, as well as users who give valuable feedbacks.
+
 We wish that the toolbox and benchmark could serve the growing research community by providing a flexible toolkit to reimplement existing methods and develop their own new detectors.
 
 ## Citation

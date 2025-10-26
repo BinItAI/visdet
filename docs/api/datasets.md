@@ -1,20 +1,16 @@
 # Datasets API
 
-This page documents the dataset APIs in MMDetection.
+This page documents the dataset APIs in VisDet.
 
 ## Base Dataset Classes
 
-::: mmdet.datasets.CustomDataset
-    options:
-      show_source: true
-
-::: mmdet.datasets.CocoDataset
+::: visdet.datasets.CocoDataset
     options:
       show_source: true
 
 ## Dataset Pipelines
 
-::: mmdet.datasets.pipelines
+::: visdet.datasets.transforms
     options:
       show_source: false
       members: false

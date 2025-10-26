@@ -2,7 +2,7 @@
 
 ## Support new data format
 
-To support a new data format, you can either convert them to existing formats (COCO format or PASCAL format) or directly convert them to the middle format. You could also choose to convert them offline (before training by a script) or online (implement a new dataset and do the conversion at training). In MMDetection, we recommend to convert the data into COCO formats and do the conversion offline, thus you only need to modify the config's data annotation paths and classes after the conversion of your data.
+To support a new data format, you can either convert them to existing formats (COCO format or PASCAL format) or directly convert them to the middle format. You could also choose to convert them offline (before training by a script) or online (implement a new dataset and do the conversion at training). In this framework, we recommend to convert the data into COCO formats and do the conversion offline, thus you only need to modify the config's data annotation paths and classes after the conversion of your data.
 
 ### Reorganize new data formats to existing format
 
@@ -122,7 +122,7 @@ model = dict(
 Assuming your customized dataset is COCO format, make sure you have the correct annotations in the customized dataset:
 
 1. The length for `categories` field in annotations should exactly equal the tuple length of `classes` fields in your config, meaning the number of classes (e.g. 5 in this example).
-2. The `classes` fields in your config file should have exactly the same elements and the same order with the `name` in `categories` of annotations. MMDetection automatically maps the uncontinuous `id` in `categories` to the continuous label indices, so the string order of `name` in `categories` field affects the order of label indices. Meanwhile, the string order of `classes` in config affects the label text during visualization of predicted bounding boxes.
+2. The `classes` fields in your config file should have exactly the same elements and the same order with the `name` in `categories` of annotations. This framework automatically maps the uncontinuous `id` in `categories` to the continuous label indices, so the string order of `name` in `categories` field affects the order of label indices. Meanwhile, the string order of `classes` in config affects the label text during visualization of predicted bounding boxes.
 3. The `category_id` in `annotations` field should be valid, i.e., all values in `category_id` should belong to `id` in `categories`.
 
 Here is a valid example of annotations:
@@ -146,17 +146,17 @@ Here is a valid example of annotations:
     ...
 ],
 
-# MMDetection automatically maps the uncontinuous `id` to the continuous label indices.
+# The framework automatically maps the uncontinuous `id` to the continuous label indices.
 'categories': [
     {'id': 1, 'name': 'a'}, {'id': 3, 'name': 'b'}, {'id': 4, 'name': 'c'}, {'id': 16, 'name': 'd'}, {'id': 17, 'name': 'e'},
  ]
 ```
 
-We use this way to support CityScapes dataset. The script is in [cityscapes.py](https://github.com/open-mmlab/mmdetection/blob/master/tools/dataset_converters/cityscapes.py) and we also provide the finetuning [configs](https://github.com/open-mmlab/mmdetection/blob/master/configs/cityscapes).
+We use this way to support CityScapes dataset. The script is in [cityscapes.py]() and we also provide the finetuning [configs]().
 
 **Note**
 
-1. For instance segmentation datasets, **MMDetection only supports evaluating mask AP of dataset in COCO format for now**.
+1. For instance segmentation datasets, **only supports evaluating mask AP of dataset in COCO format for now**.
 2. It is recommended to convert the data offline before training, thus you can still use `CocoDataset` and only need to modify the path of annotations and the training classes.
 
 ### Reorganize new data format to middle format
@@ -198,12 +198,12 @@ There are two ways to work with custom datasets.
 
   You can write a new Dataset class inherited from `CustomDataset`, and overwrite two methods
   `load_annotations(self, ann_file)` and `get_ann_info(self, idx)`,
-  like [CocoDataset](https://github.com/open-mmlab/mmdetection/blob/master/mmdet/datasets/coco.py) and [VOCDataset](https://github.com/open-mmlab/mmdetection/blob/master/mmdet/datasets/voc.py).
+  like [CocoDataset]() and [VOCDataset]().
 
 - offline conversion
 
   You can convert the annotation format to the expected format above and save it to
-  a pickle or json file, like [pascal_voc.py](https://github.com/open-mmlab/mmdetection/blob/master/tools/dataset_converters/pascal_voc.py).
+  a pickle or json file, like [pascal_voc.py]().
   Then you can simply use `CustomDataset`.
 
 ### An example of customized dataset
@@ -291,7 +291,7 @@ dataset_A_train = dict(
 
 ## Customize datasets by dataset wrappers
 
-MMDetection also supports many dataset wrappers to mix the dataset or modify the dataset distribution for training.
+This framework also supports many dataset wrappers to mix the dataset or modify the dataset distribution for training.
 Currently it supports to three dataset wrappers as below:
 
 - `RepeatDataset`: simply repeat the whole dataset.
@@ -333,7 +333,7 @@ dataset_A_train = dict(
     )
 ```
 
-You may refer to [source code](https://github.com/open-mmlab/mmdetection/blob/master/mmdet/datasets/dataset_wrappers.py#L211) for details.
+You may refer to [source code]() for details.
 
 ### Concatenate dataset
 
@@ -460,7 +460,7 @@ data = dict(
     test=dict(classes=classes))
 ```
 
-MMDetection V2.0 also supports to read the classes from a file, which is common in real applications.
+this framework also supports to read the classes from a file, which is common in real applications.
 For example, assume the `classes.txt` contains the name of classes as the following.
 
 ```
@@ -481,9 +481,9 @@ data = dict(
 
 **Note**:
 
-- Before MMDetection v2.5.0, the dataset will filter out the empty GT images automatically if the classes are set and there is no way to disable that through config. This is an undesirable behavior and introduces confusion because if the classes are not set, the dataset only filter the empty GT images when `filter_empty_gt=True` and `test_mode=False`. After MMDetection v2.5.0, we decouple the image filtering process and the classes modification, i.e., the dataset will only filter empty GT images when `filter_empty_gt=True` and `test_mode=False`, no matter whether the classes are set. Thus, setting the classes only influences the annotations of classes used for training and users could decide whether to filter empty GT images by themselves.
+- Before This version.5.0, the dataset will filter out the empty GT images automatically if the classes are set and there is no way to disable that through config. This is an undesirable behavior and introduces confusion because if the classes are not set, the dataset only filter the empty GT images when `filter_empty_gt=True` and `test_mode=False`. After This version.5.0, we decouple the image filtering process and the classes modification, i.e., the dataset will only filter empty GT images when `filter_empty_gt=True` and `test_mode=False`, no matter whether the classes are set. Thus, setting the classes only influences the annotations of classes used for training and users could decide whether to filter empty GT images by themselves.
 - Since the middle format only has box labels and does not contain the class names, when using `CustomDataset`, users cannot filter out the empty GT images through configs but only do this offline.
-- Please remember to modify the `num_classes` in the head when specifying `classes` in dataset. We implemented [NumClassCheckHook](https://github.com/open-mmlab/mmdetection/blob/master/mmdet/datasets/utils.py) to check whether the numbers are consistent since v2.9.0(after PR#4508).
+- Please remember to modify the `num_classes` in the head when specifying `classes` in dataset. We implemented [NumClassCheckHook]() to check whether the numbers are consistent since v2.9.0(after PR#4508).
 - The features for setting dataset classes and dataset filtering will be refactored to be more user-friendly in the future (depends on the progress).
 
 ## COCO Panoptic Dataset

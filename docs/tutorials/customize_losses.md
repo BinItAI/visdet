@@ -1,6 +1,6 @@
 # Tutorial 6: Customize Losses
 
-MMDetection provides users with different loss functions. But the default configuration may be not applicable for different datasets or models, so users may want to modify a specific loss to adapt the new situation.
+This framework provides users with different loss functions. But the default configuration may be not applicable for different datasets or models, so users may want to modify a specific loss to adapt the new situation.
 
 This tutorial first elaborate the computation pipeline of losses, then give some instructions about how to modify each step. The modification can be categorized as tweaking and weighting.
 
@@ -40,7 +40,7 @@ For some other losses which have positive and negative sample balance mechanism 
 ## Tweaking loss
 
 Tweaking a loss is more related with step 2, 4, 5, and most modifications can be specified in the config.
-Here we take [Focal Loss (FL)](https://github.com/open-mmlab/mmdetection/blob/master/mmdet/models/losses/focal_loss.py) as an example.
+Here we take [Focal Loss (FL)]() as an example.
 The following code sniper are the construction method and config of FL respectively, they are actually one to one correspondence.
 
 ```python
@@ -107,7 +107,7 @@ loss_cls=dict(
 ## Weighting loss (step 3)
 
 Weighting loss means we re-weight the loss element-wisely. To be more specific, we multiply the loss tensor with a weight tensor which has the same shape. As a result, different entries of the loss can be scaled differently, and so called element-wisely.
-The loss weight varies across different models and highly context related, but overall there are two kinds of loss weights, `label_weights` for classification loss and `bbox_weights` for bbox regression loss. You can find them in the `get_target` method of the corresponding head. Here we take [ATSSHead](https://github.com/open-mmlab/mmdetection/blob/master/mmdet/models/dense_heads/atss_head.py#L530) as an example, which inherit [AnchorHead](https://github.com/open-mmlab/mmdetection/blob/master/mmdet/models/dense_heads/anchor_head.py) but overwrite its `get_targets` method which yields different `label_weights` and `bbox_weights`.
+The loss weight varies across different models and highly context related, but overall there are two kinds of loss weights, `label_weights` for classification loss and `bbox_weights` for bbox regression loss. You can find them in the `get_target` method of the corresponding head. Here we take [ATSSHead]() as an example, which inherit [AnchorHead]() but overwrite its `get_targets` method which yields different `label_weights` and `bbox_weights`.
 
 ```
 class ATSSHead(AnchorHead):

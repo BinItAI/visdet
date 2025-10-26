@@ -4,7 +4,7 @@ This document describes the architecture and design principles of visdet.
 
 ## Overview
 
-visdet is built on MMDetection, a comprehensive object detection framework. The architecture follows a modular design that separates concerns and promotes code reusability.
+VisDet is a comprehensive object detection framework. The architecture follows a modular design that separates concerns and promotes code reusability.
 
 ## Core Components
 

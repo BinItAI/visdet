@@ -1,6 +1,6 @@
 # Contributing
 
-We appreciate all contributions to improve MMDetection. Please follow the guidelines below.
+We appreciate all contributions to improve this project. Please follow the guidelines below.
 
 ## Workflow
 

@@ -1,10 +1,10 @@
 # Training
 
-This page covers training workflows in MMDetection.
+This page covers training workflows.
 
 ## Training Configuration
 
-Training in MMDetection is controlled through configuration files. See the [Configuration](config.md) guide for details.
+Training in this framework is controlled through configuration files. See the [Configuration](config.md) guide for details.
 
 ## Single GPU Training
 
@@ -22,7 +22,7 @@ python tools/train.py ${CONFIG_FILE} [optional arguments]
 
 ## Multi-GPU Training
 
-MMDetection supports distributed training with multiple GPUs using `torch.distributed.launch` or `slurm`.
+This framework supports distributed training with multiple GPUs using `torch.distributed.launch` or `slurm`.
 
 ### Using torch.distributed.launch
 
@@ -38,7 +38,7 @@ bash ./tools/dist_train.sh configs/faster_rcnn/faster_rcnn_r50_fpn_1x_coco.py 8
 
 ### Using Slurm
 
-If you run MMDetection on a cluster managed with slurm:
+If you run on a cluster managed with slurm:
 
 ```bash
 bash ./tools/slurm_train.sh ${PARTITION} ${JOB_NAME} ${CONFIG_FILE} ${WORK_DIR}
@@ -66,7 +66,7 @@ python tools/train.py ${CONFIG_FILE} --fp16
 
 ### TensorBoard
 
-MMDetection supports TensorBoard for monitoring training progress. To use it, add the following to your config file:
+This framework supports TensorBoard for monitoring training progress. To use it, add the following to your config file:
 
 ```python
 log_config = dict(
