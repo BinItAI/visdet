@@ -203,9 +203,9 @@ git commit -m "Refactor Group X imports to visdet.cv/visdet.engine"
 
 ## Phase 2: CI Enforcement (AFTER REFACTORING)
 
-### Pre-commit Hook
+### prek Hook
 
-Add to `.pre-commit-config.yaml`:
+Add to `.pre-commit-config.yaml` (prek uses the same config format):
 
 ```yaml
   - repo: local
@@ -269,7 +269,7 @@ This can be deferred to reduce immediate scope.
 
 ## Testing Strategy
 
-### Pre-commit Checks (for each group)
+### prek Checks (for each group)
 1. ✅ Import smoke test (`scripts/test_import_smoke.py`)
 2. ✅ Pytest suite (740 test files available)
 3. ✅ MyPy type checking (per CLAUDE.md requirement)
@@ -298,10 +298,10 @@ This can be deferred to reduce immediate scope.
 
 - [x] All 445 imports use new `visdet.cv`/`visdet.engine` style
 - [x] Import smoke tests validate dotted imports work (16/17 passed, 1 shapely dependency unrelated)
-- [x] CI prevents future old-style imports (pre-commit hook + import-linter)
+- [x] CI prevents future old-style imports (prek hook + import-linter)
 - [x] Circular imports fixed in facade __init__ files
 - [x] Package-style wrapper trees created for nested imports
-- [x] All pre-commit hooks passing
+- [x] All prek hooks passing
 
 ---
 

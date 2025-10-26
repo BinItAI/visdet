@@ -150,7 +150,7 @@ Based on this analysis, the recommended approach is:
 
 **Language**: Python 3.10+
 **Dependencies**: None (uses only Python stdlib - ast, hashlib, json)
-**Code Quality**: Passes ruff, pre-commit checks
+**Code Quality**: Passes ruff, prek checks
 **Type Hints**: Full PEP 484 compliance (verified with zuban)
 
 ## Git Status
