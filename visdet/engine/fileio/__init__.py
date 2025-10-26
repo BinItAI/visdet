@@ -65,4 +65,25 @@ def load(filepath: str, backend_args: Optional[dict] = None) -> any:
             return f.read()
 
 
-__all__ = ["get", "get_local_path", "load"]
+def dump(obj: any, file: str, backend_args: Optional[dict] = None) -> None:
+    """Save data to a file.
+
+    Args:
+        obj: Object to save
+        file: Path to save to
+        backend_args: Backend arguments (unused in this stub)
+    """
+    import json
+
+    try:
+        with open(file, "w") as f:
+            json.dump(obj, f)
+    except (TypeError, ValueError):
+        # Fall back to pickle for non-JSON-serializable objects
+        import pickle
+
+        with open(file, "wb") as f:
+            pickle.dump(obj, f)
+
+
+__all__ = ["get", "get_local_path", "load", "dump"]
