@@ -1,4 +1,4 @@
-name: Pre-commit
+name: Prek Hooks
 
 on:
   pull_request:
@@ -11,7 +11,7 @@ on:
       - main
 
 jobs:
-  pre-commit:
+  prek:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -29,7 +29,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install dependencies
-        run: uv sync --extra dev
+        run: uv sync --group dev
 
-      - name: Run pre-commit
-        uses: pre-commit/action@v3.0.1
+      - name: Run prek hooks
+        run: uv run prek run --all-files

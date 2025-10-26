@@ -67,7 +67,7 @@ def _map_legacy_transform_args(cfg, transform_type):
     # Mapping of old parameter names to new ones
     legacy_mappings = {
         "RandomFlip": {"flip_ratio": "prob"},
-        "Resize": {"img_scale": "scale"},
+        # "Resize": Removed - now supports full img_scale API like original
         "Pad": {"pad_val": "pad_val"},  # Keep as-is but might need updates
     }
 

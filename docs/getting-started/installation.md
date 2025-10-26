@@ -202,8 +202,8 @@ uv run python your_script.py
 # Running installed CLI tools
 uv run pytest tests/
 
-# Running pre-commit hooks
-uv run pre-commit run --all-files
+# Running prek hooks
+uv run prek run --all-files
 
 # Building documentation
 uv run mkdocs build
