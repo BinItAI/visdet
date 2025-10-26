@@ -1,17 +1,16 @@
 <div align="center">
-  <img src="assets/visia-logo.svg" width="600"/>
+  <img src="assets/visia-logo-white.svg" width="600"/>
   <div>&nbsp;</div>
 
 [![PyPI](https://img.shields.io/pypi/v/visdet)](https://pypi.org/project/visdet)
 [![docs](https://img.shields.io/badge/docs-latest-blue)](https://binitai.github.io/visdet/)
-[![license](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/BinItAI/visdet/blob/master/LICENSE)
+[![license](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/BinItAI/visdet/blob/main/LICENSE)
 
 [📘Documentation](https://binitai.github.io/visdet/) |
 [🛠️Installation](https://binitai.github.io/visdet/getting-started/installation/) |
 [👀Model Zoo](https://binitai.github.io/visdet/model-zoo/) |
 [🆕Update News](https://binitai.github.io/visdet/about/changelog/) |
-[🚀Ongoing Projects](https://github.com/BinItAI/visdet/projects) |
-[🤔Reporting Issues](https://github.com/BinItAI/visdet/issues/new/choose)
+[🤔Reporting Issues](https://github.com/BinItAI/visdet/issues)
 
 </div>
 
