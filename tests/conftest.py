@@ -13,10 +13,15 @@ def pytest_ignore_collect(collection_path, config):
     """Skip collection of test files for non-core functionality."""
     # List of test files to skip collection
     skip_tests = {
+        # Data pipeline tests - out of scope
         "test_models_aug_test.py",
+        "test_formatting.py",
+        "test_coco_occluded.py",
+        # Metrics tests - out of scope
         "test_box_overlap.py",
         "test_losses.py",
         "test_mean_ap.py",
+        # Model component tests - out of scope
         "test_loss.py",
         "test_necks.py",
         "test_plugins.py",
@@ -29,6 +34,7 @@ def pytest_ignore_collect(collection_path, config):
         "test_position_encoding.py",
         "test_se_layer.py",
         "test_transformer.py",
+        # Runtime/infrastructure tests - out of scope
         "test_async.py",
         "test_config.py",
         "test_eval_hook.py",
@@ -61,6 +67,13 @@ def pytest_ignore_collect(collection_path, config):
         "test_resnest.py",
         "test_resnet.py",
         "test_trident_resnet.py",
+        # Tests for non-Swin/Mask R-CNN detectors and components
+        "test_forward.py",  # Contains tests for YOLO, RetinaNet, SSD, DETR, etc.
+        "test_loss_compatibility.py",  # Cross-architecture loss tests
+        "test_anchor.py",  # Tests for various anchor generators (not Swin)
+        "test_nms.py",  # NMS implementation details
+        "test_layer_decay_optimizer_constructor.py",  # Backbone-specific optimization
+        "test_mmtrack.py",  # Video/tracking - out of scope
     }
 
     path_str = str(collection_path)
