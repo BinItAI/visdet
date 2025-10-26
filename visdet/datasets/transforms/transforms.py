@@ -223,7 +223,7 @@ class RandomCrop(BaseTransform):
 
     Args:
         crop_size (tuple): The relative ratio or absolute pixels of
-            (width, height).
+            (height, width).
         crop_type (str, optional): One of "relative_range", "relative",
             "absolute", "absolute_range". "relative" randomly crops
             (h * crop_size[0], w * crop_size[1]) part from an input of size
@@ -287,7 +287,7 @@ class RandomCrop(BaseTransform):
         Args:
             results (dict): Result dict from loading pipeline.
             crop_size (Tuple[int, int]): Expected absolute size after
-                cropping, (w, h).
+                cropping, (h, w).
             allow_negative_crop (bool): Whether to allow a crop that does not
                 contain any bbox area.
 
@@ -298,11 +298,11 @@ class RandomCrop(BaseTransform):
         """
         assert crop_size[0] > 0 and crop_size[1] > 0
         img = results["img"]
-        margin_h = max(img.shape[0] - crop_size[1], 0)
-        margin_w = max(img.shape[1] - crop_size[0], 0)
+        margin_h = max(img.shape[0] - crop_size[0], 0)
+        margin_w = max(img.shape[1] - crop_size[1], 0)
         offset_h, offset_w = self._rand_offset((margin_h, margin_w))
-        crop_y1, crop_y2 = offset_h, offset_h + crop_size[1]
-        crop_x1, crop_x2 = offset_w, offset_w + crop_size[0]
+        crop_y1, crop_y2 = offset_h, offset_h + crop_size[0]
+        crop_x1, crop_x2 = offset_w, offset_w + crop_size[1]
 
         # Record the homography matrix for the RandomCrop
         homography_matrix = np.array([[1, 0, -offset_w], [0, 1, -offset_h], [0, 0, 1]], dtype=np.float32)
@@ -379,23 +379,24 @@ class RandomCrop(BaseTransform):
             image_size (Tuple[int, int]): (h, w).
 
         Returns:
-            crop_size (Tuple[int, int]): (crop_w, crop_h) in absolute pixels.
+            crop_size (Tuple[int, int]): (crop_h, crop_w) in absolute pixels.
         """
         h, w = image_size
         if self.crop_type == "absolute":
-            return min(self.crop_size[0], w), min(self.crop_size[1], h)
+            return min(self.crop_size[0], h), min(self.crop_size[1], w)
         elif self.crop_type == "absolute_range":
-            crop_w = np.random.randint(min(self.crop_size[0], w), min(self.crop_size[1], w) + 1)
-            crop_h = np.random.randint(min(self.crop_size[0], h), min(self.crop_size[1], h) + 1)
-            return crop_w, crop_h
+            assert self.crop_size[0] <= self.crop_size[1]
+            crop_h = np.random.randint(min(h, self.crop_size[0]), min(h, self.crop_size[1]) + 1)
+            crop_w = np.random.randint(min(w, self.crop_size[0]), min(w, self.crop_size[1]) + 1)
+            return crop_h, crop_w
         elif self.crop_type == "relative":
-            crop_w, crop_h = self.crop_size
-            return int(w * crop_w), int(h * crop_h)
+            crop_h, crop_w = self.crop_size
+            return int(h * crop_h + 0.5), int(w * crop_w + 0.5)
         else:
             # 'relative_range'
             crop_size = np.asarray(self.crop_size, dtype=np.float32)
             crop_h, crop_w = crop_size + np.random.rand(2) * (1 - crop_size)
-            return int(w * crop_w), int(h * crop_h)
+            return int(h * crop_h + 0.5), int(w * crop_w + 0.5)
 
     @staticmethod
     def _rand_offset(margin: tuple[int, int]) -> tuple[int, int]:
