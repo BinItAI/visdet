@@ -98,8 +98,8 @@ Microsoft's deep learning optimization library featuring ZeRO (Zero Redundancy O
 # Using uv (recommended)
 uv pip install visdet
 
-# Or using pip (don't do this though you massochist) 
-pip install visdet 
+# Or using pip (don't do this though you massochist)
+pip install visdet
 ```
 
 For detailed installation instructions, see the [Installation Guide](https://binitai.github.io/visdet/getting-started/installation/).
@@ -177,6 +177,28 @@ We welcome contributions! Please see the [Contributing Guide](https://binitai.gi
 - 🐛 [Report Issues](https://github.com/BinItAI/visdet/issues/new)
 - 💡 [Request Features](https://github.com/BinItAI/visdet/issues/new)
 - 🔧 [Submit Pull Requests](https://github.com/BinItAI/visdet/pulls)
+
+---
+
+## 👥 Contributors
+
+We appreciate all contributions to visdet! Special thanks to our contributors:
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<table>
+  <tbody>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/GeorgePearse"><img src="https://avatars.githubusercontent.com/u/26849868?v=4?s=100" width="100px;" alt="George Pearse"/><br /><sub><b>George Pearse</b></sub></a><br /><a href="https://github.com/BinItAI/visdet/commits?author=GeorgePearse" title="Code">💻</a> <a href="https://github.com/BinItAI/visdet/commits?author=GeorgePearse" title="Documentation">📖</a> <a href="#maintenance-GeorgePearse" title="Maintenance">🚧</a></td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
 
 ---
 

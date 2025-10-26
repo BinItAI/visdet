@@ -11,7 +11,7 @@ from .geometric import (
     imtranslate,
     rescale_size,
 )
-from .io import imfrombytes, imwrite
+from .io import imfrombytes, imread, imwrite
 from .photometric import hsv2bgr, imdenormalize, imnormalize
 
 __all__ = [
@@ -21,6 +21,7 @@ __all__ = [
     "imdenormalize",
     "imflip",
     "imfrombytes",
+    "imread",
     "imnormalize",
     "impad",
     "imrescale",

@@ -5,9 +5,10 @@ import os.path as osp
 import numpy as np
 import pytest
 import torch
-import visdet.cv as mmcv
 from visdet.core.evaluation.bbox_overlaps import bbox_overlaps
-from visdet.cv.utils import build_from_cfg
+
+import visdet.cv as mmcv
+from visdet.cv import build_from_cfg
 from visdet.datasets.builder import PIPELINES
 
 from .utils import create_full_masks, create_random_bboxes

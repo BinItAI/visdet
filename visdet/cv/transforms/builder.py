@@ -57,6 +57,27 @@ class Registry:
 TRANSFORMS = Registry("transforms")
 
 
+def _map_legacy_transform_args(cfg, transform_type):
+    """Map legacy transform argument names to new names for backward compatibility.
+
+    Args:
+        cfg (dict): Transform config dict.
+        transform_type (str): Name of the transform class.
+    """
+    # Mapping of old parameter names to new ones
+    legacy_mappings = {
+        "RandomFlip": {"flip_ratio": "prob"},
+        "Resize": {"img_scale": "scale"},
+        "Pad": {"pad_val": "pad_val"},  # Keep as-is but might need updates
+    }
+
+    if transform_type in legacy_mappings:
+        mappings = legacy_mappings[transform_type]
+        for old_name, new_name in mappings.items():
+            if old_name in cfg and new_name not in cfg:
+                cfg[new_name] = cfg.pop(old_name)
+
+
 def build_from_cfg(cfg, registry, default_args=None):
     """Build a module from config dict.
 
@@ -87,8 +108,13 @@ def build_from_cfg(cfg, registry, default_args=None):
         obj_cls = registry.get(obj_type)
         if obj_cls is None:
             raise KeyError(f"{obj_type} is not in the {registry._name} registry")
+        # Apply legacy argument mapping for backward compatibility
+        _map_legacy_transform_args(cfg, obj_type)
     else:
         obj_cls = obj_type
+        # Apply legacy argument mapping if obj_type has __name__
+        if hasattr(obj_type, "__name__"):
+            _map_legacy_transform_args(cfg, obj_type.__name__)
 
     return obj_cls(**cfg)
 

@@ -10,6 +10,9 @@ import numpy as np
 import torch
 import torch.nn as nn
 
+# Import models to ensure they are registered before any API function is called
+from visdet import models as _  # noqa: F401
+
 # from visdet.cv.ops import RoIPool  # Removed - eliminating C++ ops
 from visdet.cv.transforms import Compose
 from visdet.engine.config import Config

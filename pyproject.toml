@@ -33,6 +33,7 @@ dependencies = [
     "pyyaml",
     "rich",
     "scipy",
+    "shapely",
     "six",
     "termcolor",
     "terminaltables",

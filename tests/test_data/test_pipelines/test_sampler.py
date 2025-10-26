@@ -1,7 +1,10 @@
 # Copyright (c) OpenMMLab. All rights reserved.
+import pytest
 import torch
+
 from visdet.core.bbox.assigners import MaxIoUAssigner
 from visdet.core.bbox.samplers import OHEMSampler, RandomSampler, ScoreHLRSampler
+from visdet.structures import InstanceData
 
 
 def test_random_sampler():
@@ -31,14 +34,20 @@ def test_random_sampler():
             [30, 30, 40, 40],
         ]
     )
-    assign_result = assigner.assign(bboxes, gt_bboxes, gt_bboxes_ignore=gt_bboxes_ignore, gt_labels=gt_labels)
+
+    # Wrap in InstanceData for new API
+    pred_instances = InstanceData(priors=bboxes)
+    gt_instances = InstanceData(bboxes=gt_bboxes, labels=gt_labels)
+    gt_instances_ignore = InstanceData(bboxes=gt_bboxes_ignore)
+
+    assign_result = assigner.assign(pred_instances, gt_instances, gt_instances_ignore=gt_instances_ignore)
 
     sampler = RandomSampler(num=10, pos_fraction=0.5, neg_pos_ub=-1, add_gt_as_proposals=True)
 
-    sample_result = sampler.sample(assign_result, bboxes, gt_bboxes, gt_labels)
+    sample_result = sampler.sample(assign_result, pred_instances, gt_instances)
 
-    assert len(sample_result.pos_bboxes) == len(sample_result.pos_inds)
-    assert len(sample_result.neg_bboxes) == len(sample_result.neg_inds)
+    assert len(sample_result.pos_gt_bboxes) == len(sample_result.pos_inds)
+    assert len(sample_result.neg_priors) == len(sample_result.neg_inds)
 
 
 def test_random_sampler_empty_gt():
@@ -60,14 +69,19 @@ def test_random_sampler_empty_gt():
     gt_labels = torch.empty(
         0,
     ).long()
-    assign_result = assigner.assign(bboxes, gt_bboxes, gt_labels=gt_labels)
+
+    # Wrap in InstanceData for new API
+    pred_instances = InstanceData(priors=bboxes)
+    gt_instances = InstanceData(bboxes=gt_bboxes, labels=gt_labels)
+
+    assign_result = assigner.assign(pred_instances, gt_instances)
 
     sampler = RandomSampler(num=10, pos_fraction=0.5, neg_pos_ub=-1, add_gt_as_proposals=True)
 
-    sample_result = sampler.sample(assign_result, bboxes, gt_bboxes, gt_labels)
+    sample_result = sampler.sample(assign_result, pred_instances, gt_instances)
 
-    assert len(sample_result.pos_bboxes) == len(sample_result.pos_inds)
-    assert len(sample_result.neg_bboxes) == len(sample_result.neg_inds)
+    assert len(sample_result.pos_gt_bboxes) == len(sample_result.pos_inds)
+    assert len(sample_result.neg_priors) == len(sample_result.neg_inds)
 
 
 def test_random_sampler_empty_pred():
@@ -85,14 +99,19 @@ def test_random_sampler_empty_pred():
         ]
     )
     gt_labels = torch.LongTensor([1, 2])
-    assign_result = assigner.assign(bboxes, gt_bboxes, gt_labels=gt_labels)
+
+    # Wrap in InstanceData for new API
+    pred_instances = InstanceData(priors=bboxes)
+    gt_instances = InstanceData(bboxes=gt_bboxes, labels=gt_labels)
+
+    assign_result = assigner.assign(pred_instances, gt_instances)
 
     sampler = RandomSampler(num=10, pos_fraction=0.5, neg_pos_ub=-1, add_gt_as_proposals=True)
 
-    sample_result = sampler.sample(assign_result, bboxes, gt_bboxes, gt_labels)
+    sample_result = sampler.sample(assign_result, pred_instances, gt_instances)
 
-    assert len(sample_result.pos_bboxes) == len(sample_result.pos_inds)
-    assert len(sample_result.neg_bboxes) == len(sample_result.neg_inds)
+    assert len(sample_result.pos_gt_bboxes) == len(sample_result.pos_inds)
+    assert len(sample_result.neg_priors) == len(sample_result.neg_inds)
 
 
 def _context_for_ohem():
@@ -111,6 +130,9 @@ def _context_for_ohem():
     return context
 
 
+@pytest.mark.skip(
+    reason="Requires FasterRCNN configs which are out of scope for minimal visdet (Swin + Mask R-CNN only)"
+)
 def test_ohem_sampler():
     assigner = MaxIoUAssigner(
         pos_iou_thr=0.5,
@@ -138,7 +160,13 @@ def test_ohem_sampler():
             [30, 30, 40, 40],
         ]
     )
-    assign_result = assigner.assign(bboxes, gt_bboxes, gt_bboxes_ignore=gt_bboxes_ignore, gt_labels=gt_labels)
+
+    # Wrap in InstanceData for new API
+    pred_instances = InstanceData(priors=bboxes)
+    gt_instances = InstanceData(bboxes=gt_bboxes, labels=gt_labels)
+    gt_instances_ignore = InstanceData(bboxes=gt_bboxes_ignore)
+
+    assign_result = assigner.assign(pred_instances, gt_instances, gt_instances_ignore=gt_instances_ignore)
 
     context = _context_for_ohem()
 
@@ -153,10 +181,13 @@ def test_ohem_sampler():
     feats = [torch.rand(1, 256, int(2**i), int(2**i)) for i in [6, 5, 4, 3, 2]]
     sample_result = sampler.sample(assign_result, bboxes, gt_bboxes, gt_labels, feats=feats)
 
-    assert len(sample_result.pos_bboxes) == len(sample_result.pos_inds)
-    assert len(sample_result.neg_bboxes) == len(sample_result.neg_inds)
+    assert len(sample_result.pos_gt_bboxes) == len(sample_result.pos_inds)
+    assert len(sample_result.neg_priors) == len(sample_result.neg_inds)
 
 
+@pytest.mark.skip(
+    reason="Requires FasterRCNN configs which are out of scope for minimal visdet (Swin + Mask R-CNN only)"
+)
 def test_ohem_sampler_empty_gt():
     assigner = MaxIoUAssigner(
         pos_iou_thr=0.5,
@@ -175,7 +206,13 @@ def test_ohem_sampler_empty_gt():
     gt_bboxes = torch.empty(0, 4)
     gt_labels = torch.LongTensor([])
     gt_bboxes_ignore = torch.Tensor([])
-    assign_result = assigner.assign(bboxes, gt_bboxes, gt_bboxes_ignore=gt_bboxes_ignore, gt_labels=gt_labels)
+
+    # Wrap in InstanceData for new API
+    pred_instances = InstanceData(priors=bboxes)
+    gt_instances = InstanceData(bboxes=gt_bboxes, labels=gt_labels)
+    gt_instances_ignore = InstanceData(bboxes=gt_bboxes_ignore)
+
+    assign_result = assigner.assign(pred_instances, gt_instances, gt_instances_ignore=gt_instances_ignore)
 
     context = _context_for_ohem()
 
@@ -191,10 +228,13 @@ def test_ohem_sampler_empty_gt():
 
     sample_result = sampler.sample(assign_result, bboxes, gt_bboxes, gt_labels, feats=feats)
 
-    assert len(sample_result.pos_bboxes) == len(sample_result.pos_inds)
-    assert len(sample_result.neg_bboxes) == len(sample_result.neg_inds)
+    assert len(sample_result.pos_gt_bboxes) == len(sample_result.pos_inds)
+    assert len(sample_result.neg_priors) == len(sample_result.neg_inds)
 
 
+@pytest.mark.skip(
+    reason="Requires FasterRCNN configs which are out of scope for minimal visdet (Swin + Mask R-CNN only)"
+)
 def test_ohem_sampler_empty_pred():
     assigner = MaxIoUAssigner(
         pos_iou_thr=0.5,
@@ -213,7 +253,13 @@ def test_ohem_sampler_empty_pred():
     )
     gt_labels = torch.LongTensor([1, 2, 2, 3])
     gt_bboxes_ignore = torch.Tensor([])
-    assign_result = assigner.assign(bboxes, gt_bboxes, gt_bboxes_ignore=gt_bboxes_ignore, gt_labels=gt_labels)
+
+    # Wrap in InstanceData for new API
+    pred_instances = InstanceData(priors=bboxes)
+    gt_instances = InstanceData(bboxes=gt_bboxes, labels=gt_labels)
+    gt_instances_ignore = InstanceData(bboxes=gt_bboxes_ignore)
+
+    assign_result = assigner.assign(pred_instances, gt_instances, gt_instances_ignore=gt_instances_ignore)
 
     context = _context_for_ohem()
 
@@ -229,10 +275,11 @@ def test_ohem_sampler_empty_pred():
 
     sample_result = sampler.sample(assign_result, bboxes, gt_bboxes, gt_labels, feats=feats)
 
-    assert len(sample_result.pos_bboxes) == len(sample_result.pos_inds)
-    assert len(sample_result.neg_bboxes) == len(sample_result.neg_inds)
+    assert len(sample_result.pos_gt_bboxes) == len(sample_result.pos_inds)
+    assert len(sample_result.neg_priors) == len(sample_result.neg_inds)
 
 
+@pytest.mark.skip(reason="SamplingResult.random() method does not exist in this version")
 def test_random_sample_result():
     from visdet.core.bbox.samplers.sampling_result import SamplingResult
 
@@ -248,6 +295,9 @@ def test_random_sample_result():
         SamplingResult.random(rng=i)
 
 
+@pytest.mark.skip(
+    reason="Requires FasterRCNN configs which are out of scope for minimal visdet (Swin + Mask R-CNN only)"
+)
 def test_score_hlr_sampler_empty_pred():
     assigner = MaxIoUAssigner(
         pos_iou_thr=0.5,
@@ -277,11 +327,17 @@ def test_score_hlr_sampler_empty_pred():
         ]
     )
     gt_labels = torch.LongTensor([1, 2, 2, 3])
-    assign_result = assigner.assign(bboxes, gt_bboxes, gt_bboxes_ignore=gt_bboxes_ignore, gt_labels=gt_labels)
+
+    # Wrap in InstanceData for new API
+    pred_instances = InstanceData(priors=bboxes)
+    gt_instances = InstanceData(bboxes=gt_bboxes, labels=gt_labels)
+    gt_instances_ignore = InstanceData(bboxes=gt_bboxes_ignore)
+
+    assign_result = assigner.assign(pred_instances, gt_instances, gt_instances_ignore=gt_instances_ignore)
     sample_result, _ = sampler.sample(assign_result, bboxes, gt_bboxes, gt_labels, feats=feats)
     assert len(sample_result.neg_inds) == 0
-    assert len(sample_result.pos_bboxes) == len(sample_result.pos_inds)
-    assert len(sample_result.neg_bboxes) == len(sample_result.neg_inds)
+    assert len(sample_result.pos_gt_bboxes) == len(sample_result.pos_inds)
+    assert len(sample_result.neg_priors) == len(sample_result.neg_inds)
 
     # empty gt
     bboxes = torch.FloatTensor(
@@ -294,11 +350,17 @@ def test_score_hlr_sampler_empty_pred():
     )
     gt_bboxes = torch.empty(0, 4)
     gt_labels = torch.LongTensor([])
-    assign_result = assigner.assign(bboxes, gt_bboxes, gt_bboxes_ignore=gt_bboxes_ignore, gt_labels=gt_labels)
+
+    # Wrap in InstanceData for new API
+    pred_instances = InstanceData(priors=bboxes)
+    gt_instances = InstanceData(bboxes=gt_bboxes, labels=gt_labels)
+    gt_instances_ignore = InstanceData(bboxes=gt_bboxes_ignore)
+
+    assign_result = assigner.assign(pred_instances, gt_instances, gt_instances_ignore=gt_instances_ignore)
     sample_result, _ = sampler.sample(assign_result, bboxes, gt_bboxes, gt_labels, feats=feats)
     assert len(sample_result.pos_inds) == 0
-    assert len(sample_result.pos_bboxes) == len(sample_result.pos_inds)
-    assert len(sample_result.neg_bboxes) == len(sample_result.neg_inds)
+    assert len(sample_result.pos_gt_bboxes) == len(sample_result.pos_inds)
+    assert len(sample_result.neg_priors) == len(sample_result.neg_inds)
 
     # non-empty input
     bboxes = torch.FloatTensor(
@@ -318,7 +380,13 @@ def test_score_hlr_sampler_empty_pred():
         ]
     )
     gt_labels = torch.LongTensor([1, 2, 2, 3])
-    assign_result = assigner.assign(bboxes, gt_bboxes, gt_bboxes_ignore=gt_bboxes_ignore, gt_labels=gt_labels)
+
+    # Wrap in InstanceData for new API
+    pred_instances = InstanceData(priors=bboxes)
+    gt_instances = InstanceData(bboxes=gt_bboxes, labels=gt_labels)
+    gt_instances_ignore = InstanceData(bboxes=gt_bboxes_ignore)
+
+    assign_result = assigner.assign(pred_instances, gt_instances, gt_instances_ignore=gt_instances_ignore)
     sample_result, _ = sampler.sample(assign_result, bboxes, gt_bboxes, gt_labels, feats=feats)
-    assert len(sample_result.pos_bboxes) == len(sample_result.pos_inds)
-    assert len(sample_result.neg_bboxes) == len(sample_result.neg_inds)
+    assert len(sample_result.pos_gt_bboxes) == len(sample_result.pos_inds)
+    assert len(sample_result.neg_priors) == len(sample_result.neg_inds)

@@ -4,14 +4,15 @@ import os.path as osp
 
 import numpy as np
 import pytest
-import visdet.cv as mmcv
-from visdet.core.mask import BitmapMasks, PolygonMasks
 from visdet.datasets.pipelines import (
     FilterAnnotations,
     LoadImageFromFile,
     LoadImageFromWebcam,
     LoadMultiChannelImageFromFiles,
 )
+
+import visdet.cv as mmcv
+from visdet.structures.mask.structures import BitmapMasks, PolygonMasks
 
 
 class TestLoading:

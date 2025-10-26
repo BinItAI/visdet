@@ -1,4 +1,9 @@
 # Copyright (c) OpenMMLab. All rights reserved.
-from .utils import check_norm_state, is_block, is_norm
+"""Test utilities for backbones - only Swin is in scope.
 
-__all__ = ["is_block", "is_norm", "check_norm_state"]
+The utilities in utils.py are only needed for backbone tests that are
+being skipped (ResNet, RegNet, etc.). Since those tests don't get
+collected, we don't import these utilities to avoid import errors.
+"""
+
+__all__ = []

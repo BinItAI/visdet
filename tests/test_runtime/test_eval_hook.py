@@ -11,7 +11,8 @@ import torch.nn as nn
 from torch.utils.data import DataLoader, Dataset
 from visdet.core import DistEvalHook, EvalHook
 from visdet.cv.runner import EpochBasedRunner, build_optimizer
-from visdet.cv.utils import get_logger
+
+from visdet.engine.logging import get_logger
 
 
 class ExampleDataset(Dataset):
