@@ -193,12 +193,12 @@ visdet is part of a rich ecosystem of object detection frameworks. Here's how vi
 ### [MMDetection](https://github.com/open-mmlab/mmdetection)
 The original framework that visdet is based on. A comprehensive object detection toolbox with modular design, supporting 40+ architectures including detection, instance segmentation, and panoptic segmentation. Part of the OpenMMLab project with extensive model zoo and state-of-the-art implementations.
 
-**Choose MMDetection if:** You need the original framework with all dependencies or prefer the traditional MMDetection workflow with MMCV and MMEngine as separate packages.
+**Choose MMDetection if:** Don't do it, it's great, but visdet has all of the benefits with less of the pain
 
 ### [Detectron2](https://github.com/facebookresearch/detectron2)
 Facebook AI Research's production-grade detection library. Supports object detection, instance segmentation, panoptic segmentation, DensePose, and more. Known for excellent performance and deployment flexibility with TorchScript/Caffe2 export. The foundation for many research projects.
 
-**Choose Detectron2 if:** You need production deployment, Facebook ecosystem integration, or prefer Facebook's design philosophy and tooling.
+**Choose Detectron2 if:** Don't do it.
 
 ### [detrex](https://github.com/IDEA-Research/detrex)
 A specialized research platform built on top of Detectron2, focused specifically on Transformer-based detection algorithms (DETR variants). Provides unified modular design for 20+ Transformer models including DETR, Deformable-DETR, DINO, and MaskDINO. Uses LazyConfig for flexible configuration.
