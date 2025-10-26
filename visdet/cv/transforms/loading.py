@@ -114,7 +114,18 @@ class LoadImageFromFile(BaseTransform):
             dict: The dict contains loaded image and meta information.
         """
 
-        filename = results["img_path"]
+        # Support both new img_path API and legacy img_prefix + img_info API
+        if "img_path" in results:
+            filename = results["img_path"]
+        elif "img_prefix" in results and "img_info" in results:
+            # Legacy API: img_prefix + img_info
+            import os.path as osp
+
+            img_prefix = results["img_prefix"]
+            img_info = results["img_info"]
+            filename = osp.join(img_prefix, img_info["filename"])
+        else:
+            raise KeyError("Either 'img_path' or ('img_prefix' + 'img_info') must be provided")
 
         # Check cache if resize target is known
         target_size = results.get("_cache_target_size")
