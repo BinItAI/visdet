@@ -96,10 +96,8 @@ exclude = [
 ]
 
 [tool.hatch.build.targets.wheel]
-# The package code is in visdet/visdet/ - tell hatchling where to find it
-packages = ["visdet/visdet"]
-# Also include the configs directory
-include = ["/configs"]
+# The package code is in visdet/ - tell hatchling where to find it
+packages = ["visdet"]
 
 [tool.ruff]
 line-length = 120
