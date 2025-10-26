@@ -36,6 +36,45 @@ class Registry(dict):
             return _register
         return _register(cls_or_func)
 
+    def register_module(
+        self,
+        name: str = None,
+        module: Any = None,
+        force: bool = False,
+    ) -> Any:
+        """Register a module with a given name.
+
+        Can be used as:
+        - @registry.register_module() - uses class __name__
+        - @registry.register_module(name="custom_name") - uses provided name
+        - registry.register_module(name="name", module=obj) - direct registration
+        """
+
+        # Case 1: Direct registration with module argument
+        if module is not None:
+            key = name if name is not None else module.__name__
+            self[key] = module
+            return module
+
+        # Case 2: Decorator usage - could be:
+        # @registry.register_module() - name will be None
+        # @registry.register_module(name="custom") - name will be string
+        # or even @registry.register_module("CustomName") - name could be string (class passed as name arg)
+
+        def _register(obj: Any) -> Any:
+            # If name was provided as a string, use it; otherwise use obj's name
+            key = name if isinstance(name, str) else obj.__name__
+            self[key] = obj
+            return obj
+
+        # If name is None or a string, return decorator
+        # If name is actually a class (used as @registry.register_module without parens), register it directly
+        if name is not None and not isinstance(name, str):
+            # name is actually a class being decorated
+            return _register(name)
+
+        return _register
+
     def build(self, cfg: Dict) -> Any:
         """Build object from config."""
         if isinstance(cfg, dict):

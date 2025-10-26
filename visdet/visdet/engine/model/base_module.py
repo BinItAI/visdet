@@ -28,4 +28,19 @@ class BaseModule(nn.Module):
         pass
 
 
-__all__ = ["BaseModule"]
+class BaseModel(BaseModule):
+    """Base model class for visdet.
+
+    Extends BaseModule for model-specific functionality.
+    """
+
+    def __init__(self, init_cfg: Optional[Dict] = None) -> None:
+        """Initialize base model.
+
+        Args:
+            init_cfg: Config dict for weight initialization
+        """
+        super().__init__(init_cfg=init_cfg)
+
+
+__all__ = ["BaseModule", "BaseModel"]

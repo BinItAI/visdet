@@ -13,5 +13,6 @@ Usage:
 # Import submodules to make them accessible under the `visdet.cv` namespace
 # (e.g., `visdet.cv.image`)
 from . import cnn, fileio, image, ops, transforms  # noqa: F401
+from .image import imfrombytes, imwrite  # noqa: F401
 
-__all__ = ["cnn", "fileio", "image", "ops", "transforms"]
+__all__ = ["cnn", "fileio", "image", "ops", "transforms", "imfrombytes", "imwrite"]
