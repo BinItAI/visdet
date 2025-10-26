@@ -4,14 +4,14 @@ import os.path as osp
 
 import numpy as np
 import pytest
+
+import visdet.cv as mmcv
 from visdet.datasets.pipelines import (
     FilterAnnotations,
     LoadImageFromFile,
     LoadImageFromWebcam,
     LoadMultiChannelImageFromFiles,
 )
-
-import visdet.cv as mmcv
 from visdet.structures.mask.structures import BitmapMasks, PolygonMasks
 
 
@@ -21,11 +21,12 @@ class TestLoading:
         cls.data_prefix = osp.join(osp.dirname(__file__), "../../data")
 
     def test_load_img(self):
-        results = dict(img_prefix=self.data_prefix, img_info=dict(filename="color.jpg"))
+        # New API: use img_path directly
+        img_path = osp.join(self.data_prefix, "color.jpg")
+        results = dict(img_path=img_path)
         transform = LoadImageFromFile()
         results = transform(copy.deepcopy(results))
-        assert results["filename"] == osp.join(self.data_prefix, "color.jpg")
-        assert results["ori_filename"] == "color.jpg"
+        assert results["img_path"] == img_path
         assert results["img"].shape == (288, 512, 3)
         assert results["img"].dtype == np.uint8
         assert results["img_shape"] == (288, 512, 3)
@@ -63,23 +64,18 @@ class TestLoading:
         assert results["img"].dtype == np.uint8
 
     def test_load_multi_channel_img(self):
-        results = dict(
-            img_prefix=self.data_prefix,
-            img_info=dict(filename=["color.jpg", "color.jpg"]),
-        )
-        transform = LoadMultiChannelImageFromFiles()
-        results = transform(copy.deepcopy(results))
-        assert results["filename"] == [
+        # New API: use img_path directly (can be list)
+        img_paths = [
             osp.join(self.data_prefix, "color.jpg"),
             osp.join(self.data_prefix, "color.jpg"),
         ]
-        assert results["ori_filename"] == ["color.jpg", "color.jpg"]
+        results = dict(img_path=img_paths)
+        transform = LoadMultiChannelImageFromFiles()
+        results = transform(copy.deepcopy(results))
         assert results["img"].shape == (288, 512, 3, 2)
         assert results["img"].dtype == np.uint8
         assert results["img_shape"] == (288, 512, 3, 2)
         assert results["ori_shape"] == (288, 512, 3, 2)
-        assert results["pad_shape"] == (288, 512, 3, 2)
-        assert results["scale_factor"] == 1.0
         assert (
             repr(transform)
             == transform.__class__.__name__
@@ -92,8 +88,6 @@ class TestLoading:
         results = dict(img=img)
         transform = LoadImageFromWebcam()
         results = transform(copy.deepcopy(results))
-        assert results["filename"] is None
-        assert results["ori_filename"] is None
         assert results["img"].shape == (288, 512, 3)
         assert results["img"].dtype == np.uint8
         assert results["img_shape"] == (288, 512, 3)
