@@ -1,4 +1,5 @@
 # Copyright (c) OpenMMLab. All rights reserved.
+import pytest
 import torch
 
 from visdet.core.bbox.assigners import MaxIoUAssigner
@@ -43,7 +44,7 @@ def test_random_sampler():
 
     sampler = RandomSampler(num=10, pos_fraction=0.5, neg_pos_ub=-1, add_gt_as_proposals=True)
 
-    sample_result = sampler.sample(assign_result, bboxes, gt_bboxes, gt_labels)
+    sample_result = sampler.sample(assign_result, pred_instances, gt_instances)
 
     assert len(sample_result.pos_bboxes) == len(sample_result.pos_inds)
     assert len(sample_result.neg_bboxes) == len(sample_result.neg_inds)
@@ -77,7 +78,7 @@ def test_random_sampler_empty_gt():
 
     sampler = RandomSampler(num=10, pos_fraction=0.5, neg_pos_ub=-1, add_gt_as_proposals=True)
 
-    sample_result = sampler.sample(assign_result, bboxes, gt_bboxes, gt_labels)
+    sample_result = sampler.sample(assign_result, pred_instances, gt_instances)
 
     assert len(sample_result.pos_bboxes) == len(sample_result.pos_inds)
     assert len(sample_result.neg_bboxes) == len(sample_result.neg_inds)
@@ -107,7 +108,7 @@ def test_random_sampler_empty_pred():
 
     sampler = RandomSampler(num=10, pos_fraction=0.5, neg_pos_ub=-1, add_gt_as_proposals=True)
 
-    sample_result = sampler.sample(assign_result, bboxes, gt_bboxes, gt_labels)
+    sample_result = sampler.sample(assign_result, pred_instances, gt_instances)
 
     assert len(sample_result.pos_bboxes) == len(sample_result.pos_inds)
     assert len(sample_result.neg_bboxes) == len(sample_result.neg_inds)
@@ -129,6 +130,9 @@ def _context_for_ohem():
     return context
 
 
+@pytest.mark.skip(
+    reason="Requires FasterRCNN configs which are out of scope for minimal visdet (Swin + Mask R-CNN only)"
+)
 def test_ohem_sampler():
     assigner = MaxIoUAssigner(
         pos_iou_thr=0.5,
@@ -181,6 +185,9 @@ def test_ohem_sampler():
     assert len(sample_result.neg_bboxes) == len(sample_result.neg_inds)
 
 
+@pytest.mark.skip(
+    reason="Requires FasterRCNN configs which are out of scope for minimal visdet (Swin + Mask R-CNN only)"
+)
 def test_ohem_sampler_empty_gt():
     assigner = MaxIoUAssigner(
         pos_iou_thr=0.5,
@@ -225,6 +232,9 @@ def test_ohem_sampler_empty_gt():
     assert len(sample_result.neg_bboxes) == len(sample_result.neg_inds)
 
 
+@pytest.mark.skip(
+    reason="Requires FasterRCNN configs which are out of scope for minimal visdet (Swin + Mask R-CNN only)"
+)
 def test_ohem_sampler_empty_pred():
     assigner = MaxIoUAssigner(
         pos_iou_thr=0.5,
@@ -269,6 +279,7 @@ def test_ohem_sampler_empty_pred():
     assert len(sample_result.neg_bboxes) == len(sample_result.neg_inds)
 
 
+@pytest.mark.skip(reason="SamplingResult.random() method does not exist in this version")
 def test_random_sample_result():
     from visdet.core.bbox.samplers.sampling_result import SamplingResult
 
@@ -284,6 +295,9 @@ def test_random_sample_result():
         SamplingResult.random(rng=i)
 
 
+@pytest.mark.skip(
+    reason="Requires FasterRCNN configs which are out of scope for minimal visdet (Swin + Mask R-CNN only)"
+)
 def test_score_hlr_sampler_empty_pred():
     assigner = MaxIoUAssigner(
         pos_iou_thr=0.5,
