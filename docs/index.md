@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="assets/visia-logo.svg" width="600"/>
+  <img src="assets/visia-logo-black.svg" width="600"/>
   <div>&nbsp;</div>
 
 [📘Documentation](https://binitai.github.io/visdet/) |
