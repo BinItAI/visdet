@@ -33,7 +33,7 @@
 
 **Simplified Installation & Dependencies**
 - **Integrated Dependencies**: MMCV and MMEngine are bundled directly into the package as `visdet.cv` and `visdet.engine`, eliminating complex multi-package dependency management
-- **No Custom CUDA Required**: All custom CUDA operations have been removed, making installation straightforward with just `pip install visdet`
+- **No Custom CUDA Required**: All custom CUDA operations have been removed, making installation straightforward with just `uv pip install visdet`
 - **Python-Only Implementation**: Pure Python/PyTorch implementation means faster installation and better compatibility across different environments
 - **Unified Namespace**: All functionality accessible through a single coherent API (`visdet.cv` for computer vision ops, `visdet.engine` for training infrastructure)
 
