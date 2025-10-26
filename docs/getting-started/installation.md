@@ -2,7 +2,7 @@
 
 In this section we demonstrate how to prepare an environment with PyTorch.
 
-MMDetection works on Linux, Windows and macOS. It requires Python 3.7+, CUDA 9.2+ and PyTorch 1.5+.
+This framework works on Linux, Windows and macOS. It requires Python 3.7+, CUDA 9.2+ and PyTorch 1.5+.
 
 ```{note}
 If you are experienced with PyTorch and have already installed it, just skip this part and jump to the [next section](#installation). Otherwise, you can follow these steps for the preparation.
@@ -22,7 +22,7 @@ powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
 
 # Installation
 
-We recommend that users follow our best practices to install MMDetection using uv. However, the whole process is highly customizable. See [Customize Installation](#customize-installation) section for more information.
+We recommend that users follow our best practices to install VisDet using uv. However, the whole process is highly customizable. See [Customize Installation](#customize-installation) section for more information.
 
 ## Best Practices
 
@@ -55,7 +55,7 @@ uv sync --extra mkdocs
 
 ## Verify the installation
 
-To verify whether MMDetection is installed correctly, we provide some sample codes to run an inference demo.
+To verify whether This framework installed correctly, we provide some sample codes to run an inference demo.
 
 **Step 1.** We need to download config and checkpoint files.
 
@@ -119,7 +119,7 @@ uv add --optional group-name package-name
 
 ### Install on CPU-only platforms
 
-MMDetection can be built for CPU only environment. In CPU mode you can train (requires MMCV version >= 1.4.4), test or inference a model.
+This framework can be built for CPU only environment. In CPU mode you can train, test or inference a model.
 
 However some functionalities are gone in this mode:
 
@@ -175,20 +175,20 @@ Here's how to install visdet with uv on Colab:
 Within Jupyter, the exclamation mark `!` is used to call external executables and `%cd` is a [magic command](https://ipython.readthedocs.io/en/stable/interactive/magics.html#magic-cd) to change the current working directory of Python.
 ```
 
-### Using MMDetection with Docker
+### Using VisDet with Docker
 
 We provide a [Dockerfile](https://github.com/BinItAI/visdet/blob/master/docker/Dockerfile) to build an image. Ensure that your [docker version](https://docs.docker.com/engine/install/) >=19.03.
 
 ```shell
 # build an image with PyTorch 1.6, CUDA 10.1
 # If you prefer other versions, just modified the Dockerfile
-docker build -t mmdetection docker/
+docker build -t visdet docker/
 ```
 
 Run it with
 
 ```shell
-docker run --gpus all --shm-size=8g -it -v {DATA_DIR}:/mmdetection/data mmdetection
+docker run --gpus all --shm-size=8g -it -v {DATA_DIR}:/visdet/data visdet
 ```
 
 ### Running commands with uv

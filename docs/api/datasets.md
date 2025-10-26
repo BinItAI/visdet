@@ -1,6 +1,6 @@
 # Datasets API
 
-This page documents the dataset APIs in MMDetection.
+This page documents the dataset APIs in VisDet.
 
 ## Base Dataset Classes
 

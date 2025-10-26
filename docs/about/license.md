@@ -1,6 +1,6 @@
 # License
 
-MMDetection is released under the Apache License 2.0.
+This project is released under the Apache License 2.0, following the same license as the original MMDetection project from which it is forked.
 
 ```
 Copyright (c) OpenMMLab. All rights reserved.

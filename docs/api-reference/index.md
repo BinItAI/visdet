@@ -4,7 +4,7 @@ Welcome to the visdet API reference documentation.
 
 ## Overview
 
-visdet provides a comprehensive API for object detection tasks, built on top of MMDetection. The API is organized into several key modules:
+VisDet provides a comprehensive API for object detection tasks. The API is organized into several key modules:
 
 ## Core Modules
 

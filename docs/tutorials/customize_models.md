@@ -294,7 +294,7 @@ model = dict(
 
 ```
 
-Since MMDetection 2.0, the config system supports to inherit configs such that the users can focus on the modification.
+In this fork, we support.0, the config system supports to inherit configs such that the users can focus on the modification.
 The Double Head R-CNN mainly uses a new DoubleHeadRoIHead and a new
 `DoubleConvFCBBoxHead`, the arguments are set according to the `__init__` function of each module.
 

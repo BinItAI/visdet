@@ -1,6 +1,6 @@
 # Core API
 
-This page documents the core APIs in MMDetection.
+This page documents the core APIs in VisDet.
 
 ## Detection APIs
 

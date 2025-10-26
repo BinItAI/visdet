@@ -1,6 +1,6 @@
 # Quick Start
 
-This guide provides quick examples to get you started with MMDetection.
+This guide provides quick examples to get you started with VisDet.
 
 ## Inference with Pre-trained Models
 

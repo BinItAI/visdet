@@ -1,6 +1,6 @@
 # Models API
 
-This page documents the model APIs in MMDetection.
+This page documents the model APIs in VisDet.
 
 ## Detectors
 

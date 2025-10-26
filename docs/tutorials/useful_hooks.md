@@ -1,6 +1,6 @@
 # Tutorial 13: Useful Hooks
 
-MMDetection and MMCV provide users with various useful hooks including log hooks, evaluation hooks, NumClassCheckHook, etc. This tutorial introduces the functionalities and usages of hooks implemented in MMDetection. For using hooks in MMCV, please read the [API documentation in MMCV](https://github.com/open-mmlab/mmcv/blob/master/docs/en/understand_mmcv/runner.md).
+This framework provides various useful hooks including log hooks, evaluation hooks, NumClassCheckHook, etc. See hook documentation for implementation details. For using hooks in MMCV, please read the [API documentation in MMCV](https://github.com/open-mmlab/mmcv/blob/master/docs/en/understand_mmcv/runner.md).
 
 ## CheckInvalidLossHook
 
@@ -10,7 +10,7 @@ MMDetection and MMCV provide users with various useful hooks including log hooks
 
 ## NumClassCheckHook
 
-## [MemoryProfilerHook](https://github.com/open-mmlab/mmdetection/blob/master/mmdet/core/hook/memory_profiler_hook.py)
+## [MemoryProfilerHook]()
 
 Memory profiler hook records memory information including virtual memory, swap memory, and the memory of the current process. This hook helps grasp the memory usage of the system and discover potential memory leak bugs. To use this hook, users should install `memory_profiler` and `psutil` by running `uv add memory_profiler psutil` first.
 
@@ -80,4 +80,4 @@ class CheckInvalidLossHook(Hook):
                 runner.logger.info('loss become infinite or NaN!')
 ```
 
-Please read [customize_runtime](https://mmdetection.readthedocs.io/en/latest/tutorials/customize_runtime.html#customize-self-implemented-hooks) for more about implementing a custom hook.
+Please read [customize_runtime]() for more about implementing a custom hook.

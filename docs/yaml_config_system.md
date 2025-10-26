@@ -337,7 +337,7 @@ Planned features:
 ## Credits
 
 The YAML configuration system was designed based on:
-- **MMEngine/MMDetection** - `_base_` inheritance pattern
+- **Config inheritance patterns** - `_base_` inheritance pattern for modular configs
 - **Hydra** - Composition and override mechanisms
 - **Pydantic** - Type-safe validation
 - **Expert consensus** (Gemini 2.5 Pro) - Architecture recommendations

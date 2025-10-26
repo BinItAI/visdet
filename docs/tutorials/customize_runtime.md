@@ -188,7 +188,7 @@ so that 1 epoch for training and 1 epoch for validation will be run iteratively.
 
 #### 1. Implement a new hook
 
-There are some occasions when the users might need to implement a new hook. MMDetection supports customized hooks in training (#3395) since v2.3.0. Thus the users could implement a hook directly in mmdet or their mmdet-based codebases and use the hook by only modifying the config in training.
+There are some occasions when the users might need to implement a new hook. This framework supports customized hooks in training (#3395) since v2.3.0. Thus the users could implement a hook directly in mmdet or their mmdet-based codebases and use the hook by only modifying the config in training.
 Before v2.3.0, the users need to modify the code to get the hook registered before training starts.
 Here we give an example of creating a new hook in mmdet and using it in training.
 
@@ -266,9 +266,9 @@ If the hook is already implemented in MMCV, you can directly modify the config t
 
 #### 4. Example: `NumClassCheckHook`
 
-We implement a customized hook named  [NumClassCheckHook](https://github.com/open-mmlab/mmdetection/blob/master/mmdet/datasets/utils.py) to check whether the `num_classes` in head matches the length of `CLASSES` in `dataset`.
+We implement a customized hook named  [NumClassCheckHook]() to check whether the `num_classes` in head matches the length of `CLASSES` in `dataset`.
 
-We set it in [default_runtime.py](https://github.com/open-mmlab/mmdetection/blob/master/configs/_base_/default_runtime.py).
+We set it in [default_runtime.py]().
 
 ```python
 custom_hooks = [dict(type='NumClassCheckHook')]
@@ -315,7 +315,7 @@ log_config = dict(
 
 #### Evaluation config
 
-The config of `evaluation` will be used to initialize the [`EvalHook`](https://github.com/open-mmlab/mmdetection/blob/7a404a2c000620d52156774a5025070d9e00d918/mmdet/core/evaluation/eval_hooks.py#L8).
+The config of `evaluation` will be used to initialize the [`EvalHook`]().
 Except the key `interval`, other arguments such as `metric` will be passed to the `dataset.evaluate()`
 
 ```python
