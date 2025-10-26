@@ -65,6 +65,13 @@ class Normalize(BaseTransform):
         """
 
         results["img"] = imnormalize(results["img"], self.mean, self.std, self.to_rgb)
+
+        # Normalize other image fields if specified
+        if "img_fields" in results:
+            for img_field in results["img_fields"]:
+                if img_field != "img" and img_field in results:
+                    results[img_field] = imnormalize(results[img_field], self.mean, self.std, self.to_rgb)
+
         results["img_norm_cfg"] = {
             "mean": self.mean,
             "std": self.std,
