@@ -4,7 +4,7 @@ from visdet.engine.config import Config
 from visdet.engine.fileio import dump, load
 
 from . import image, transforms
-from .image import imfrombytes, imread, imwrite
+from .image import imflip, imfrombytes, imread, imwrite
 from .transforms.builder import build_from_cfg
 
 __all__ = [
@@ -13,6 +13,7 @@ __all__ = [
     "dump",
     "image",
     "imread",
+    "imflip",
     "imfrombytes",
     "imwrite",
     "load",

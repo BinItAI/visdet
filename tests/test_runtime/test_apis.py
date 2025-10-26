@@ -2,7 +2,12 @@ import os
 from pathlib import Path
 
 import pytest
+
 from visdet.apis import init_detector
+
+pytestmark = pytest.mark.skip(
+    reason="Test requires ResNet backbone configs which are out of scope for minimal visdet (Swin + Mask R-CNN only)"
+)
 
 
 def test_init_detector():
