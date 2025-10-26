@@ -42,6 +42,47 @@ imread_flags = {
 imread_backend = "cv2"
 
 
+def imread(
+    img_or_path: str | bytes | np.ndarray,
+    flag: str = "color",
+    channel_order: str = "bgr",
+    file_client_args: dict | None = None,
+    backend: str | None = None,
+) -> np.ndarray | None:
+    """Read an image.
+
+    Args:
+        img_or_path (ndarray or str or Path): A image or image path.
+        flag (str): Same as :func:`imread`.
+        channel_order (str): The channel order of the output, candidates
+            are 'bgr' and 'rgb'. Default to 'bgr'.
+        file_client_args (dict): Arguments to instantiate a FileClient.
+            See :class:`mmengine.FileClient` for details. Default: None.
+        backend (str | None): The image decoding backend type. Options are
+            `cv2`, `pillow`, `turbojpeg`, `tifffile`, `None`. If backend is
+            None, the global imread_backend specified by ``use_backend()`` will
+            be used. Default: None.
+
+    Returns:
+        ndarray: Loaded image array.
+    """
+    if isinstance(img_or_path, bytes):
+        return imfrombytes(img_or_path, flag, channel_order, backend)
+    elif isinstance(img_or_path, str):
+        # Read from file path
+        if backend is None:
+            backend = imread_backend
+
+        with open(img_or_path, "rb") as f:
+            img_bytes = f.read()
+
+        return imfrombytes(img_bytes, flag, channel_order, backend)
+    elif isinstance(img_or_path, np.ndarray):
+        return img_or_path
+    else:
+        raise TypeError(f"Unsupported input type: {type(img_or_path)}")
+
+
 def imfrombytes(
     content: bytes,
     flag: str = "color",
