@@ -390,9 +390,16 @@ class Pad(BaseTransform):
         pad_val: Number | dict = dict(img=0, seg=255),
         padding_mode: str = "constant",
     ) -> None:
+        import warnings
+
         self.size = size
         self.size_divisor = size_divisor
         if isinstance(pad_val, int):
+            warnings.warn(
+                "Passing pad_val as int is deprecated. Please use a dict with 'img' and 'seg' keys.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
             pad_val = dict(img=pad_val, seg=255)
         assert isinstance(pad_val, dict), "pad_val "
         self.pad_val = pad_val
