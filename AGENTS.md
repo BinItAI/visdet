@@ -33,6 +33,32 @@ Current files in `scratch_pads/`:
 
 ---
 
+## Task Completion Guidelines
+
+### Never Leave a Task with Known Remaining Work
+
+**Core Principle**: Always complete or document all known remaining work before ending a session or marking a task as done.
+
+**Why This Matters**:
+- Prevents context loss and cognitive overhead for future work
+- Ensures continuity and reduces rework
+- Maintains code quality and project momentum
+- Makes it clear what still needs to be done
+
+**Best Practices**:
+
+1. **Identify remaining work early** - As you work on a task, note any TODOs or incomplete sections
+2. **Complete before committing** - Finish implementation before creating PRs
+3. **Document if incomplete** - If you must leave work unfinished, explicitly document:
+   - What's remaining
+   - Why it wasn't completed
+   - Where to pick up (specific files/lines)
+   - Any blockers or dependencies
+4. **Update task descriptions** - Keep LinearManager task descriptions updated with progress and next steps
+5. **Test thoroughly** - Don't mark as done until tests pass
+
+---
+
 ## Code Comparison Tool: Using Import Normalization
 
 The repository includes **codediff**, a semantic code comparison tool that helps identify implementation differences while accounting for library migration. This is particularly useful when comparing code that uses different import paths but equivalent functionality.
