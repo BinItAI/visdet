@@ -1,14 +1,8 @@
 # ruff: noqa
 """
-Re-export of viscv.transforms for dotted import support.
+Computer Vision transforms module.
 
-This module allows `from visdet.cv.transforms import X` to work properly.
+This module provides image transformation utilities for data processing.
 """
 
-from viscv.transforms import *  # noqa: F401, F403
-
-# Preserve the __all__ from upstream if it exists
-try:
-    from visdet.cv.transforms import __all__  # noqa: F401
-except ImportError:
-    pass
+from visdet.cv.transforms import *  # noqa: F401, F403

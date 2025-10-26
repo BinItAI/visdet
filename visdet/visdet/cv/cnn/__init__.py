@@ -1,14 +1,8 @@
 # ruff: noqa
 """
-Re-export of viscv.cnn for dotted import support.
+CNN building blocks and utilities module.
 
-This module allows `from visdet.cv.cnn import X` to work properly.
+This module provides neural network components and layers.
 """
 
-from viscv.cnn import *  # noqa: F401, F403
-
-# Preserve the __all__ from upstream if it exists
-try:
-    from visdet.cv.cnn import __all__  # noqa: F401
-except ImportError:
-    pass
+from visdet.cv.cnn import *  # noqa: F401, F403

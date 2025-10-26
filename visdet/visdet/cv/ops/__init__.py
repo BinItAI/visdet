@@ -1,14 +1,8 @@
 # ruff: noqa
 """
-Re-export of viscv.ops for dotted import support.
+Computer Vision operations module.
 
-This module allows `from visdet.cv.ops import X` to work properly.
+This module provides various CV operations like NMS and ROI operations.
 """
 
-from viscv.ops import *  # noqa: F401, F403
-
-# Preserve the __all__ from upstream if it exists
-try:
-    from visdet.cv.ops import __all__  # noqa: F401
-except ImportError:
-    pass
+from visdet.cv.ops import *  # noqa: F401, F403

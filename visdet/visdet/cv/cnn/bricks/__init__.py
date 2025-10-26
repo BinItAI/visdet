@@ -1,14 +1,9 @@
 # ruff: noqa
 """
-Re-export of viscv.cnn.bricks for dotted import support.
+CNN building blocks module.
 
-This module allows `from visdet.cv.cnn.bricks import X` to work properly.
+This module provides basic neural network components like convolutions,
+normalizations, activations, and attention mechanisms.
 """
 
-from viscv.cnn.bricks import *  # noqa: F401, F403
-
-# Preserve the __all__ from upstream if it exists
-try:
-    from viscv.cnn.bricks import __all__  # noqa: F401
-except ImportError:
-    pass
+from visdet.cv.cnn.bricks import *  # noqa: F401, F403

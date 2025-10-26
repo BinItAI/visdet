@@ -1,14 +1,8 @@
 # ruff: noqa
 """
-Re-export of viscv.image for dotted import support.
+Image processing utilities module.
 
-This module allows `from visdet.cv.image import X` to work properly.
+This module provides image I/O and processing functions.
 """
 
-from viscv.image import *  # noqa: F401, F403
-
-# Preserve the __all__ from upstream if it exists
-try:
-    from visdet.cv.image import __all__  # noqa: F401
-except ImportError:
-    pass
+from visdet.cv.image import *  # noqa: F401, F403

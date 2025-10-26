@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/home/georgepearse/visdet-worktrees/main/scripts/train_cmr.py", line 15, in <module>
+    from visdet import SimpleRunner
+ModuleNotFoundError: No module named 'visdet'

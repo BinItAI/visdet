@@ -1,14 +1,8 @@
 # ruff: noqa
 """
-Re-export of viscv.fileio for dotted import support.
+File I/O utilities module.
 
-This module allows `from visdet.cv.fileio import X` or `import visdet.cv.fileio` to work properly.
+This module provides file I/O and path handling utilities.
 """
 
-from viscv.fileio import *  # noqa: F401, F403
-
-# Preserve the __all__ from upstream if it exists
-try:
-    from viscv.fileio import __all__  # noqa: F401
-except ImportError:
-    pass
+from visdet.cv.fileio import *  # noqa: F401, F403

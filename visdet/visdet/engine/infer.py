@@ -1,14 +1,8 @@
 # ruff: noqa
 """
-Re-export of visengine.infer for dotted import support.
+Infer module.
 
-This module allows `from visdet.engine.infer import X` to work properly.
+This module provides access to infer functionality for visdet.
 """
 
-from visengine.infer import *  # noqa: F401, F403
-
-# Preserve the __all__ from upstream if it exists
-try:
-    from visdet.engine.infer import __all__  # noqa: F401
-except ImportError:
-    pass
+from visdet.engine.infer import *  # noqa: F401, F403

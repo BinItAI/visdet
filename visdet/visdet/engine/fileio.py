@@ -1,14 +1,8 @@
 # ruff: noqa
 """
-Re-export of visengine.fileio for dotted import support.
+Fileio module.
 
-This module allows `from visdet.engine.fileio import X` to work properly.
+This module provides access to fileio functionality for visdet.
 """
 
-from visengine.fileio import *  # noqa: F401, F403
-
-# Preserve the __all__ from upstream if it exists
-try:
-    from visdet.engine.fileio import __all__  # noqa: F401
-except ImportError:
-    pass
+from visdet.engine.fileio import *  # noqa: F401, F403

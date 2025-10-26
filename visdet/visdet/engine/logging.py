@@ -1,14 +1,8 @@
 # ruff: noqa
 """
-Re-export of visengine.logging for dotted import support.
+Logging module.
 
-This module allows `from visdet.engine.logging import X` to work properly.
+This module provides access to logging functionality for visdet.
 """
 
-from visengine.logging import *  # noqa: F401, F403
-
-# Preserve the __all__ from upstream if it exists
-try:
-    from visdet.engine.logging import __all__  # noqa: F401
-except ImportError:
-    pass
+from visdet.engine.logging import *  # noqa: F401, F403

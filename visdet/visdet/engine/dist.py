@@ -1,14 +1,8 @@
 # ruff: noqa
 """
-Re-export of visengine.dist for dotted import support.
+Dist module.
 
-This module allows `from visdet.engine.dist import X` to work properly.
+This module provides access to dist functionality for visdet.
 """
 
-from visengine.dist import *  # noqa: F401, F403
-
-# Preserve the __all__ from upstream if it exists
-try:
-    from visdet.engine.dist import __all__  # noqa: F401
-except ImportError:
-    pass
+from visdet.engine.dist import *  # noqa: F401, F403
