@@ -2,6 +2,7 @@
 
 import pytest
 import torch
+
 from visdet.engine.config import Config
 from visdet.models.task_modules.samplers import SamplingResult
 

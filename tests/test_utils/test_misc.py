@@ -5,6 +5,7 @@ import tempfile
 import numpy as np
 import pytest
 import torch
+
 from visdet.core.bbox import distance2bbox
 from visdet.core.mask.structures import BitmapMasks, PolygonMasks
 from visdet.core.utils import (

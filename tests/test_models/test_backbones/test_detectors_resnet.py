@@ -1,5 +1,6 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import pytest
+
 from visdet.models.backbones import DetectoRS_ResNet
 
 

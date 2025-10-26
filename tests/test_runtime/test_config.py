@@ -3,6 +3,7 @@ from os.path import dirname, exists, join
 from unittest.mock import Mock
 
 import pytest
+
 from visdet.core import BitmapMasks, PolygonMasks
 from visdet.datasets.builder import DATASETS
 from visdet.datasets.utils import NumClassCheckHook
@@ -246,6 +247,7 @@ def test_config_data_pipeline(config_rpath):
             test_config.py test_config_build_data_pipeline
     """
     import numpy as np
+
     from visdet.datasets.pipelines import Compose
     from visdet.engine.config import Config
 

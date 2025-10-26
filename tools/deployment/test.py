@@ -5,7 +5,6 @@ import warnings
 import mmcv
 from mmcv import Config, DictAction
 from mmcv.parallel import MMDataParallel
-
 from mmdet.apis import single_gpu_test
 from mmdet.datasets import build_dataloader, build_dataset, replace_ImageToTensor
 from mmdet.utils import compat_cfg

@@ -2,7 +2,6 @@ from argparse import ArgumentParser
 
 import numpy as np
 import requests
-
 from mmdet.apis import inference_detector, init_detector, show_result_pyplot
 from mmdet.core import bbox2result
 

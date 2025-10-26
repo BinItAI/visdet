@@ -4,8 +4,8 @@ import os
 import platform
 
 import cv2
-from visdet.engine.config import Config
 
+from visdet.engine.config import Config
 from visdet.utils import setup_multi_processes
 
 
