@@ -19,6 +19,12 @@ from visdet.registry import MODELS
 
 from ..layers import PatchEmbed, PatchMerging
 
+# Optional flash attention function (available if flash_attn is installed)
+try:
+    from flash_attn import flash_attn_func as flash_swin_attn_func  # type: ignore
+except ImportError:
+    flash_swin_attn_func = None  # type: ignore
+
 
 class WindowMSA(BaseModule):
     """Window based multi-head self-attention (W-MSA) module with relative
