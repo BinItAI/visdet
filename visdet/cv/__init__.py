@@ -14,6 +14,7 @@ __all__ = [
     "image",
     "imflip",
     "imread",
+    "imflip",
     "imfrombytes",
     "imwrite",
     "load",

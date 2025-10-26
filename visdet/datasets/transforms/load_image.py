@@ -90,7 +90,18 @@ class LoadImageFromFile(BaseTransform):
             dict: The dict contains loaded image and meta information.
         """
 
-        filename = results["img_path"]
+        # Support both new img_path API and legacy img_prefix + img_info API
+        if "img_path" in results:
+            filename = results["img_path"]
+        elif "img_prefix" in results and "img_info" in results:
+            # Legacy API: img_prefix + img_info
+            import os.path as osp
+
+            img_prefix = results["img_prefix"]
+            img_info = results["img_info"]
+            filename = osp.join(img_prefix, img_info["filename"])
+        else:
+            raise KeyError("Either 'img_path' or ('img_prefix' + 'img_info') must be provided")
         try:
             if self.file_client_args is not None:
                 file_client = fileio.FileClient.infer_client(self.file_client_args, filename)

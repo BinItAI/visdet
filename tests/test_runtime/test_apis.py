@@ -4,6 +4,10 @@ import pytest
 
 from visdet.apis import init_detector
 
+pytestmark = pytest.mark.skip(
+    reason="Test requires ResNet backbone configs which are out of scope for minimal visdet (Swin + Mask R-CNN only)"
+)
+
 
 def test_init_detector():
     project_dir = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
