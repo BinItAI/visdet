@@ -75,12 +75,12 @@ class PresetRegistry:
         if yaml_path is None:
             return self._cache[name].copy()
 
-        # Load YAML (uses _base_ and $ref resolution from config system)
-        from visdet.engine.config import load_yaml_config
+        # Load YAML using Config.fromfile (supports _base_ and config resolution)
+        from visdet.engine.config import Config
 
-        config = load_yaml_config(yaml_path)
+        config = Config.fromfile(str(yaml_path))
 
-        # Convert ConfigDict to plain dict and cache
+        # Convert Config/ConfigDict to plain dict and cache
         self._cache[name] = dict(config)
         return self._cache[name].copy()
 
