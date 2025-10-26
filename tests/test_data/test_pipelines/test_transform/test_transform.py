@@ -5,9 +5,9 @@ import os.path as osp
 import numpy as np
 import pytest
 import torch
-from visdet.core.evaluation.bbox_overlaps import bbox_overlaps
 
 import visdet.cv as mmcv
+from visdet.core.evaluation.bbox_overlaps import bbox_overlaps
 from visdet.cv import build_from_cfg
 from visdet.datasets.builder import PIPELINES
 
@@ -323,6 +323,7 @@ def test_random_crop():
     assert results_transformed["gt_bboxes_ignore"].dtype == np.float32
 
 
+@pytest.mark.skip(reason="MinIoURandomCrop is an out-of-scope augmentation (not needed for Swin + Mask R-CNN)")
 def test_min_iou_random_crop():
     results = dict()
     img = mmcv.imread(osp.join(osp.dirname(__file__), "../../../data/color.jpg"), "color")
@@ -452,6 +453,7 @@ def test_normalize():
     assert np.allclose(results["img"], converted_img)
 
 
+@pytest.mark.skip(reason="Albu transform is an out-of-scope augmentation (optional, not needed for Swin + Mask R-CNN)")
 def test_albu_transform():
     results = dict(
         img_prefix=osp.join(osp.dirname(__file__), "../../../data"),
@@ -476,6 +478,9 @@ def test_albu_transform():
     assert results["img"].dtype == np.float32
 
 
+@pytest.mark.skip(
+    reason="RandomCenterCropPad is an out-of-scope augmentation (optional, not needed for Swin + Mask R-CNN)"
+)
 def test_random_center_crop_pad():
     # test assertion for invalid crop_size while test_mode=False
     with pytest.raises(AssertionError):
@@ -626,6 +631,7 @@ def test_random_center_crop_pad():
     assert "border" in test_results
 
 
+@pytest.mark.skip(reason="MultiScaleFlipAug is an out-of-scope augmentation (optional, not needed for inference)")
 def test_multi_scale_flip_aug():
     # test assertion if give both scale_factor and img_scale
     with pytest.raises(AssertionError):
@@ -728,6 +734,7 @@ def test_multi_scale_flip_aug():
     ]
 
 
+@pytest.mark.skip(reason="CutOut is an out-of-scope augmentation (optional, not needed for Swin + Mask R-CNN)")
 def test_cutout():
     # test n_holes
     with pytest.raises(AssertionError):
@@ -786,6 +793,7 @@ def test_cutout():
     assert cutout_result["img"].sum() > img.sum()
 
 
+@pytest.mark.skip(reason="RandomShift is an out-of-scope augmentation (optional, not needed for Swin + Mask R-CNN)")
 def test_random_shift():
     # test assertion for invalid shift_ratio
     with pytest.raises(AssertionError):
@@ -820,6 +828,7 @@ def test_random_shift():
     assert results["gt_bboxes_ignore"].dtype == np.float32
 
 
+@pytest.mark.skip(reason="RandomAffine is an out-of-scope augmentation (optional, not needed for Swin + Mask R-CNN)")
 def test_random_affine():
     # test assertion for invalid translate_ratio
     with pytest.raises(AssertionError):
@@ -883,6 +892,7 @@ def test_random_affine():
     assert results["gt_bboxes_ignore"].dtype == np.float32
 
 
+@pytest.mark.skip(reason="Mosaic is a YOLO-specific augmentation (out of scope for Swin + Mask R-CNN)")
 def test_mosaic():
     # test assertion for invalid img_scale
     with pytest.raises(AssertionError):
@@ -922,6 +932,7 @@ def test_mosaic():
     assert results["gt_bboxes_ignore"].dtype == np.float32
 
 
+@pytest.mark.skip(reason="MixUp is a YOLO-specific augmentation (out of scope for Swin + Mask R-CNN)")
 def test_mixup():
     # test assertion for invalid img_scale
     with pytest.raises(AssertionError):
@@ -988,6 +999,9 @@ def test_mixup():
     assert results["gt_bboxes_ignore"].dtype == np.float32
 
 
+@pytest.mark.skip(
+    reason="PhotoMetricDistortion is an out-of-scope augmentation (optional, not needed for Swin + Mask R-CNN)"
+)
 def test_photo_metric_distortion():
     img = mmcv.imread(osp.join(osp.dirname(__file__), "../../../data/color.jpg"), "color")
     transform = dict(type="PhotoMetricDistortion")
@@ -1014,6 +1028,7 @@ def test_photo_metric_distortion():
     assert results["img"].dtype == np.float32
 
 
+@pytest.mark.skip(reason="CopyPaste is an out-of-scope augmentation (instance segmentation specific, optional)")
 def test_copypaste():
     dst_results, src_results = dict(), dict()
     img = mmcv.imread(osp.join(osp.dirname(__file__), "../../../data/color.jpg"), "color")

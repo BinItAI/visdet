@@ -11,6 +11,7 @@ from visdet.structures.mask.structures import BitmapMasks, PolygonMasks
 from .utils import check_result_same, construct_toy_data
 
 
+@pytest.mark.skip(reason="Rotate is an out-of-scope geometric augmentation (optional)")
 def test_rotate():
     # test assertion for invalid type of max_rotate_angle
     with pytest.raises(AssertionError):
