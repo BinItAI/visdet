@@ -2,6 +2,7 @@
 import pytest
 import torch
 from torch.nn.modules.batchnorm import _BatchNorm
+
 from visdet.models.necks import (
     FPG,
     FPN,

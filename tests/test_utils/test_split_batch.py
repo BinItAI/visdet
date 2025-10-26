@@ -4,6 +4,7 @@ from copy import deepcopy
 
 import numpy as np
 import torch
+
 import visdet.cv as mmcv
 from visdet.utils import split_batch
 

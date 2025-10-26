@@ -5,12 +5,12 @@ from functools import partial
 import numpy as np
 import pytest
 import torch
+
 import visdet.cv as mmcv
+from visdet import digit_version
 from visdet.cv.cnn import Scale
 from visdet.models import build_detector
 from visdet.models.dense_heads import FCOSHead, FSAFHead, RetinaHead, SSDHead, YOLOV3Head
-
-from visdet import digit_version
 
 from .utils import ort_validate
 

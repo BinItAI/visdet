@@ -2,6 +2,7 @@
 
 import pytest
 import torch
+
 from visdet.engine.config import ConfigDict
 from visdet.engine.structures import InstanceData
 
