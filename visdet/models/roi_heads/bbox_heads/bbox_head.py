@@ -141,6 +141,68 @@ class BBoxHead(BaseModule):
         bbox_pred = self.fc_reg(x) if self.with_reg else None
         return cls_score, bbox_pred
 
+    def get_bboxes(
+        self,
+        rois: Tensor,
+        cls_score: Tensor,
+        bbox_pred: Tensor,
+        img_shape: tuple | None = None,
+        scale_factor: Tensor | None = None,
+        rescale: bool = False,
+        cfg: ConfigDict | None = None,
+    ) -> tuple:
+        """Transform network output for a batch into bbox predictions.
+
+        Args:
+            rois (Tensor): Boxes to be transformed. Has shape (num_boxes, 5).
+                last dimension 5 arrange as (batch_index, x1, y1, x2, y2).
+            cls_score (Tensor): Box scores, has shape
+                (num_boxes, num_classes + 1).
+            bbox_pred (Tensor, optional): Box energies / deltas.
+                has shape (num_boxes, num_classes * 4).
+            img_shape (Sequence[int], optional): Maximum bounds for boxes,
+                specifies (H, W, C) or (H, W). Defaults to None.
+            scale_factor (Tensor, optional): Scale factor of the
+               image arrange as (w_scale, h_scale, w_scale, h_scale).
+               Defaults to None.
+            rescale (bool): If True, return boxes in original image space.
+                Default: False.
+            cfg (obj:`ConfigDict`): `test_cfg` of Bbox Head. Default: None
+
+        Returns:
+            tuple[Tensor, Tensor]:
+                First tensor is `det_bboxes`, has the shape
+                (num_boxes, 5) and last
+                dimension 5 represent (tl_x, tl_y, br_x, br_y, score).
+                Second tensor is the labels with shape (num_boxes, ).
+        """
+        # some loss (Seesaw loss..) may have custom activation
+        if self.custom_cls_channels:
+            scores = self.loss_cls.get_activation(cls_score)
+        else:
+            scores = F.softmax(cls_score, dim=-1) if cls_score is not None else None
+        # bbox_pred would be None in some detector when with_reg is False,
+        # e.g. Grid R-CNN.
+        if bbox_pred is not None:
+            bboxes = self.bbox_coder.decode(rois[..., 1:], bbox_pred, max_shape=img_shape)
+        else:
+            bboxes = rois[:, 1:].clone()
+            if img_shape is not None:
+                bboxes[:, [0, 2]].clamp_(min=0, max=img_shape[1])
+                bboxes[:, [1, 3]].clamp_(min=0, max=img_shape[0])
+
+        if rescale and bboxes.size(0) > 0:
+            if scale_factor is not None:
+                scale_factor = bboxes.new_tensor(scale_factor)
+                bboxes = (bboxes.view(bboxes.size(0), -1, 4) / scale_factor).view(bboxes.size(0), -1)
+
+        if cfg is None:
+            return bboxes, scores
+        else:
+            det_bboxes, det_labels = multiclass_nms(bboxes, scores, cfg.score_thr, cfg.nms, cfg.max_per_img)
+
+            return det_bboxes, det_labels
+
     def _get_targets_single(
         self,
         pos_priors: Tensor,
@@ -574,109 +636,86 @@ class BBoxHead(BaseModule):
 
     def refine_bboxes(
         self,
-        sampling_results: list[SamplingResult] | InstanceList,
-        bbox_results: dict,
-        batch_img_metas: list[dict],
-    ) -> InstanceList:
+        rois: Tensor,
+        labels: Tensor,
+        bbox_preds: Tensor,
+        pos_is_gts: list[Tensor],
+        img_metas: list[dict],
+    ) -> list[Tensor]:
         """Refine bboxes during training.
 
         Args:
-            sampling_results (List[:obj:`SamplingResult`] or
-                List[:obj:`InstanceData`]): Sampling results.
-                :obj:`SamplingResult` is the real sampling results
-                calculate from bbox_head, while :obj:`InstanceData` is
-                fake sampling results, e.g., in Sparse R-CNN or QueryInst, etc.
-            bbox_results (dict): Usually is a dictionary with keys:
-
-                - `cls_score` (Tensor): Classification scores.
-                - `bbox_pred` (Tensor): Box energies / deltas.
-                - `rois` (Tensor): RoIs with the shape (n, 5) where the first
-                  column indicates batch id of each RoI.
-                - `bbox_targets` (tuple):  Ground truth for proposals in a
-                  single image. Containing the following list of Tensors:
-                  (labels, label_weights, bbox_targets, bbox_weights)
-            batch_img_metas (List[dict]): List of image information.
+            rois (Tensor): Shape (n*bs, 5), where n is image number per GPU,
+                and bs is the sampled RoIs per image. The first column is
+                the image id and the next 4 columns are x1, y1, x2, y2.
+            labels (Tensor): Shape (n*bs, ).
+            bbox_preds (Tensor): Shape (n*bs, 4) or (n*bs, 4*#class).
+            pos_is_gts (list[Tensor]): Flags indicating if each positive bbox
+                is a gt bbox.
+            img_metas (list[dict]): Meta info of each image.
 
         Returns:
-            list[:obj:`InstanceData`]: Refined bboxes of each image.
+            list[Tensor]: Refined bboxes of each image in a mini-batch.
 
         Example:
             >>> # xdoctest: +REQUIRES(module:kwarray)
+            >>> import kwarray
             >>> import numpy as np
-            >>> from mmdet.models.task_modules.samplers.
-            ... sampling_result import random_boxes
-            >>> from mmdet.models.task_modules.samplers import SamplingResult
+            >>> from visdet.core.bbox.demodata import random_boxes
             >>> self = BBoxHead(reg_class_agnostic=True)
             >>> n_roi = 2
             >>> n_img = 4
             >>> scale = 512
             >>> rng = np.random.RandomState(0)
-            ... batch_img_metas = [{'img_shape': (scale, scale)}
-            >>>                     for _ in range(n_img)]
-            >>> sampling_results = [SamplingResult.random(rng=10)
-            ...                     for _ in range(n_img)]
+            >>> img_metas = [{'img_shape': (scale, scale)}
+            ...              for _ in range(n_img)]
             >>> # Create rois in the expected format
             >>> roi_boxes = random_boxes(n_roi, scale=scale, rng=rng)
             >>> img_ids = torch.randint(0, n_img, (n_roi,))
             >>> img_ids = img_ids.float()
             >>> rois = torch.cat([img_ids[:, None], roi_boxes], dim=1)
             >>> # Create other args
-            >>> labels = torch.randint(0, 81, (scale,)).long()
+            >>> labels = torch.randint(0, 2, (n_roi,)).long()
             >>> bbox_preds = random_boxes(n_roi, scale=scale, rng=rng)
-            >>> cls_score = torch.randn((scale, 81))
-            ... # For each image, pretend random positive boxes are gts
-            >>> bbox_targets = (labels, None, None, None)
-            ... bbox_results = dict(rois=rois, bbox_pred=bbox_preds,
-            ...                     cls_score=cls_score,
-            ...                     bbox_targets=bbox_targets)
-            >>> bboxes_list = self.refine_bboxes(sampling_results,
-            ...                                  bbox_results,
-            ...                                  batch_img_metas)
+            >>> # For each image, pretend random positive boxes are gts
+            >>> is_label_pos = (labels.numpy() > 0).astype(np.int32)
+            >>> lbl_per_img = kwarray.group_items(is_label_pos,
+            ...                                   img_ids.numpy())
+            >>> pos_per_img = [sum(lbl_per_img.get(gid, []))
+            ...                for gid in range(n_img)]
+            >>> pos_is_gts = [
+            ...     torch.randint(0, 2, (npos,)).byte().sort(
+            ...         descending=True)[0]
+            ...     for npos in pos_per_img
+            ... ]
+            >>> bboxes_list = self.refine_bboxes(rois, labels, bbox_preds,
+            ...                    pos_is_gts, img_metas)
             >>> print(bboxes_list)
         """
-        pos_is_gts = [res.pos_is_gt for res in sampling_results]
-        # bbox_targets is a tuple
-        labels = bbox_results["bbox_targets"][0]
-        cls_scores = bbox_results["cls_score"]
-        rois = bbox_results["rois"]
-        bbox_preds = bbox_results["bbox_pred"]
-        if self.custom_activation:
-            # TODO: Create a SeasawBBoxHead to simplified logic in BBoxHead
-            cls_scores = self.loss_cls.get_activation(cls_scores)
-        if cls_scores.numel() == 0:
-            return None
-        if cls_scores.shape[-1] == self.num_classes + 1:
-            # remove background class
-            cls_scores = cls_scores[:, :-1]
-        elif cls_scores.shape[-1] != self.num_classes:
-            raise ValueError(
-                f"The last dim of `cls_scores` should equal to `num_classes` or `num_classes + 1`,but got {cls_scores.shape[-1]}."
-            )
-        labels = torch.where(labels == self.num_classes, cls_scores.argmax(1), labels)
-
         img_ids = rois[:, 0].long().unique(sorted=True)
-        assert img_ids.numel() <= len(batch_img_metas)
+        assert img_ids.numel() <= len(img_metas)
 
-        results_list = []
-        for i in range(len(batch_img_metas)):
+        bboxes_list = []
+        for i in range(len(img_metas)):
             inds = torch.nonzero(rois[:, 0] == i, as_tuple=False).squeeze(dim=1)
             num_rois = inds.numel()
 
             bboxes_ = rois[inds, 1:]
             label_ = labels[inds]
             bbox_pred_ = bbox_preds[inds]
-            img_meta_ = batch_img_metas[i]
+            img_meta_ = img_metas[i]
             pos_is_gts_ = pos_is_gts[i]
 
             bboxes = self.regress_by_class(bboxes_, label_, bbox_pred_, img_meta_)
+
             # filter gt bboxes
             pos_keep = 1 - pos_is_gts_
             keep_inds = pos_is_gts_.new_ones(num_rois)
             keep_inds[: len(pos_is_gts_)] = pos_keep
-            results = InstanceData(bboxes=bboxes[keep_inds.type(torch.bool)])
-            results_list.append(results)
 
-        return results_list
+            bboxes_list.append(bboxes[keep_inds.type(torch.bool)])
+
+        return bboxes_list
 
     def regress_by_class(self, priors: Tensor, label: Tensor, bbox_pred: Tensor, img_meta: dict) -> Tensor:
         """Regress the bbox for the predicted class. Used in Cascade R-CNN.

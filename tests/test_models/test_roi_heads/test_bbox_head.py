@@ -27,12 +27,12 @@ def test_bbox_head_loss():
 
     sampling_results = _dummy_bbox_sampling(proposal_list, gt_bboxes, gt_labels)
 
-    bbox_targets = self.get_targets(sampling_results, gt_bboxes, gt_labels, target_cfg)
+    bbox_targets = self.get_targets(sampling_results, target_cfg)
     labels, label_weights, bbox_targets, bbox_weights = bbox_targets
 
     # Create dummy features "extracted" for each sampled bbox
-    num_sampled = sum(len(res.bboxes) for res in sampling_results)
-    rois = bbox2roi([res.bboxes for res in sampling_results])
+    num_sampled = sum(len(res.priors) for res in sampling_results)
+    rois = bbox2roi([res.priors for res in sampling_results])
     dummy_feats = torch.rand(num_sampled, 8 * 3 * 3)
     cls_scores, bbox_preds = self.forward(dummy_feats)
 
@@ -47,13 +47,13 @@ def test_bbox_head_loss():
     gt_labels = [torch.LongTensor([2])]
 
     sampling_results = _dummy_bbox_sampling(proposal_list, gt_bboxes, gt_labels)
-    rois = bbox2roi([res.bboxes for res in sampling_results])
+    rois = bbox2roi([res.priors for res in sampling_results])
 
-    bbox_targets = self.get_targets(sampling_results, gt_bboxes, gt_labels, target_cfg)
+    bbox_targets = self.get_targets(sampling_results, target_cfg)
     labels, label_weights, bbox_targets, bbox_weights = bbox_targets
 
     # Create dummy features "extracted" for each sampled bbox
-    num_sampled = sum(len(res.bboxes) for res in sampling_results)
+    num_sampled = sum(len(res.priors) for res in sampling_results)
     dummy_feats = torch.rand(num_sampled, 8 * 3 * 3)
     cls_scores, bbox_preds = self.forward(dummy_feats)
 
@@ -162,7 +162,7 @@ def _demodata_refine_boxes(n_roi, n_img, rng=0):
     labels = torch.from_numpy(labels).long()
     bbox_preds = random_boxes(n_roi, scale=scale, rng=rng)
     # For each image, pretend random positive boxes are gts
-    is_label_pos = (labels.numpy() > 0).astype(np.int)
+    is_label_pos = (labels.numpy() > 0).astype(np.int32)
     lbl_per_img = kwarray.group_items(is_label_pos, img_ids.numpy())
     pos_per_img = [sum(lbl_per_img.get(gid, [])) for gid in range(n_img)]
     # randomly generate with numpy then sort with torch
