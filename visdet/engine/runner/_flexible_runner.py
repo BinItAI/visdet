@@ -40,12 +40,12 @@ from visdet.engine.utils import digit_version
 from visdet.engine.utils.dl_utils import TORCH_VERSION
 from visdet.engine.visualization import Visualizer
 
-from .base_loop import BaseLoop
-from .checkpoint import find_latest_checkpoint
-from .log_processor import LogProcessor
-from .loops import EpochBasedTrainLoop, IterBasedTrainLoop, TestLoop, ValLoop
-from .priority import Priority, get_priority
-from .utils import _get_batch_size
+from visdet.engine.runner.base_loop import BaseLoop
+from visdet.engine.runner.checkpoint import find_latest_checkpoint
+from visdet.engine.runner.log_processor import LogProcessor
+from visdet.engine.runner.loops import EpochBasedTrainLoop, IterBasedTrainLoop, TestLoop, ValLoop
+from visdet.engine.runner.priority import Priority, get_priority
+from visdet.engine.runner.utils import _get_batch_size
 
 ConfigType = Union[dict, Config, ConfigDict]
 ParamSchedulerType = Union[list[_ParamScheduler], dict[str, list[_ParamScheduler]]]

@@ -13,7 +13,7 @@ from torch.nn.parallel.distributed import DistributedDataParallel
 from visdet.engine.device import get_device
 from visdet.engine.registry import MODEL_WRAPPERS
 
-from .distributed import MMDistributedDataParallel
+from visdet.engine.model.wrappers.distributed import MMDistributedDataParallel
 
 if TYPE_CHECKING:
     from visdet.engine.optim import OptimWrapperDict

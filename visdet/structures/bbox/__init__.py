@@ -1,17 +1,17 @@
 # ruff: noqa
 # Copyright (c) OpenMMLab. All rights reserved.
-from .base_boxes import BaseBoxes
-from .bbox_overlaps import bbox_overlaps
-from .box_type import (
+from visdet.structures.bbox.base_boxes import BaseBoxes
+from visdet.structures.bbox.bbox_overlaps import bbox_overlaps
+from visdet.structures.bbox.box_type import (
     autocast_box_type,
     convert_box_type,
     get_box_type,
     register_box,
     register_box_converter,
 )
-from .horizontal_boxes import HorizontalBoxes
-from .transforms import bbox_cxcyah_to_xyxy
-from .transforms import (
+from visdet.structures.bbox.horizontal_boxes import HorizontalBoxes
+from visdet.structures.bbox.transforms import bbox_cxcyah_to_xyxy
+from visdet.structures.bbox.transforms import (
     bbox2corner,
     bbox2distance,
     bbox2result,

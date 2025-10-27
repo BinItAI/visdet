@@ -8,7 +8,7 @@ from visdet.engine.dataset import pseudo_collate
 from visdet.engine.registry import EVALUATOR, METRICS
 from visdet.engine.structures import BaseDataElement
 
-from .metric import BaseMetric
+from visdet.engine.evaluator.metric import BaseMetric
 
 
 @EVALUATOR.register_module(force=True)

@@ -1,11 +1,11 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 
-from .base import BaseTransform
-from .builder import TRANSFORMS, build_from_cfg, build_transforms
-from .formatting import to_tensor
-from .loading import LoadAnnotations, LoadImageFromFile
-from .processing import Normalize, Pad, RandomFlip, RandomResize, Resize
-from .wrappers import (
+from visdet.cv.transforms.base import BaseTransform
+from visdet.cv.transforms.builder import TRANSFORMS, build_from_cfg, build_transforms
+from visdet.cv.transforms.formatting import to_tensor
+from visdet.cv.transforms.loading import LoadAnnotations, LoadImageFromFile
+from visdet.cv.transforms.processing import Normalize, Pad, RandomFlip, RandomResize, Resize
+from visdet.cv.transforms.wrappers import (
     Compose,
     KeyMapper,
     RandomApply,

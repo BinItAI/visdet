@@ -17,7 +17,7 @@ from visdet.engine.logging import print_log
 from visdet.engine.registry import HOOKS
 from visdet.engine.utils import is_list_of, is_seq_of
 
-from .hook import Hook
+from visdet.engine.hooks.hook import Hook
 
 DATA_BATCH = Optional[dict | tuple | list]
 

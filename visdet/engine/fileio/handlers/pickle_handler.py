@@ -3,7 +3,7 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import pickle
 
-from .base import BaseFileHandler
+from visdet.engine.fileio.handlers.base import BaseFileHandler
 
 
 class PickleHandler(BaseFileHandler):

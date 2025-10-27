@@ -7,9 +7,9 @@ import numpy as np
 
 from visdet.engine.utils import is_seq_of
 
-from .base import BaseTransform
-from .builder import TRANSFORMS
-from .utils import cache_random_params, cache_randomness
+from visdet.cv.transforms.base import BaseTransform
+from visdet.cv.transforms.builder import TRANSFORMS
+from visdet.cv.transforms.utils import cache_random_params, cache_randomness
 
 # Define type of transform or transform config
 Transform = Union[dict, Callable[[dict], dict]]

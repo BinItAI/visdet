@@ -15,9 +15,9 @@ from visdet.engine.registry import LOOPS
 from visdet.engine.structures import BaseDataElement
 from visdet.engine.utils import is_list_of
 
-from .amp import autocast
-from .base_loop import BaseLoop
-from .utils import calc_dynamic_intervals
+from visdet.engine.runner.amp import autocast
+from visdet.engine.runner.base_loop import BaseLoop
+from visdet.engine.runner.utils import calc_dynamic_intervals
 
 
 @LOOPS.register_module(force=True)

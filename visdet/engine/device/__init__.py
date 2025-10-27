@@ -1,7 +1,7 @@
 # ruff: noqa
 # type: ignore
 # Copyright (c) OpenMMLab. All rights reserved.
-from .utils import (
+from visdet.engine.device.utils import (
     get_device,
     get_max_cuda_memory,
     is_cuda_available,

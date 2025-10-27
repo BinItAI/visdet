@@ -10,8 +10,8 @@ import numpy as np
 
 from visdet.engine.utils import ManagerMixin
 
-from .history_buffer import HistoryBuffer
-from .logger import print_log
+from visdet.engine.logging.history_buffer import HistoryBuffer
+from visdet.engine.logging.logger import print_log
 
 if TYPE_CHECKING:
     import torch

@@ -1,15 +1,15 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 from . import wrappers as wrappers  # Registers ConvTranspose2d as 'deconv'
-from .activation import HSigmoid, HSwish, Swish, build_activation_layer
-from .conv import build_conv_layer
-from .conv_module import ConvModule
-from .drop import build_dropout
-from .norm import build_norm_layer
-from .padding import build_padding_layer
-from .scale import LayerScale, Scale
-from .transformer import FFN, MultiheadAttention
-from .upsample import build_upsample_layer
-from .wrappers import (
+from visdet.cv.cnn.bricks.activation import HSigmoid, HSwish, Swish, build_activation_layer
+from visdet.cv.cnn.bricks.conv import build_conv_layer
+from visdet.cv.cnn.bricks.conv_module import ConvModule
+from visdet.cv.cnn.bricks.drop import build_dropout
+from visdet.cv.cnn.bricks.norm import build_norm_layer
+from visdet.cv.cnn.bricks.padding import build_padding_layer
+from visdet.cv.cnn.bricks.scale import LayerScale, Scale
+from visdet.cv.cnn.bricks.transformer import FFN, MultiheadAttention
+from visdet.cv.cnn.bricks.upsample import build_upsample_layer
+from visdet.cv.cnn.bricks.wrappers import (
     Conv2d,
     Conv3d,
     ConvTranspose2d,

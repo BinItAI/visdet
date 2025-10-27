@@ -7,8 +7,8 @@ import torch.nn.functional as F
 
 from visdet.registry import MODELS
 
-from .accuracy import accuracy
-from .utils import weight_reduce_loss
+from visdet.models.losses.accuracy import accuracy
+from visdet.models.losses.utils import weight_reduce_loss
 
 
 def cross_entropy(

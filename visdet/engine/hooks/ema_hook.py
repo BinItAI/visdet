@@ -9,7 +9,7 @@ from visdet.engine.logging import print_log
 from visdet.engine.model import is_model_wrapper
 from visdet.engine.registry import HOOKS, MODELS
 
-from .hook import DATA_BATCH, Hook
+from visdet.engine.hooks.hook import DATA_BATCH, Hook
 
 
 @HOOKS.register_module(force=True)

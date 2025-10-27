@@ -8,7 +8,7 @@ import numpy as np
 import torch
 from torch import Tensor
 
-from .base_boxes import BaseBoxes
+from visdet.structures.bbox.base_boxes import BaseBoxes
 
 BoxType = Union[np.ndarray, Tensor, BaseBoxes]
 

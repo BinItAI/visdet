@@ -4,7 +4,7 @@
 from visdet.engine.registry import PARAM_SCHEDULERS
 
 # yapf: disable
-from .param_scheduler import (
+from visdet.engine.optim.scheduler.param_scheduler import (
     ConstantParamScheduler,
     CosineAnnealingParamScheduler,
     CosineRestartParamScheduler,

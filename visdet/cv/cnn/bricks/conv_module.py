@@ -10,10 +10,10 @@ from torch.nn.modules.instancenorm import _InstanceNorm
 from visdet.engine.model import constant_init, kaiming_init
 from visdet.engine.registry import MODELS
 
-from .activation import build_activation_layer
-from .conv import build_conv_layer
-from .norm import build_norm_layer
-from .padding import build_padding_layer
+from visdet.cv.cnn.bricks.activation import build_activation_layer
+from visdet.cv.cnn.bricks.conv import build_conv_layer
+from visdet.cv.cnn.bricks.norm import build_norm_layer
+from visdet.cv.cnn.bricks.padding import build_padding_layer
 
 
 def efficient_conv_bn_eval_forward(bn: _BatchNorm, conv: nn.modules.conv._ConvNd, x: torch.Tensor):

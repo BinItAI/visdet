@@ -16,7 +16,7 @@ from visdet.engine.device import (
 )
 from visdet.engine.registry import LOG_PROCESSORS
 
-from .utils import _get_batch_size
+from visdet.engine.runner.utils import _get_batch_size
 
 
 @LOG_PROCESSORS.register_module(force=True)

@@ -11,7 +11,7 @@ from visdet.utils import InstanceList, OptConfigType, OptMultiConfig
 from visdet.structures import DetDataSample, SampleList
 from typing import List, Optional, Tuple
 from torch import Tensor
-from .base_roi_head import BaseRoIHead
+from visdet.models.roi_heads.base_roi_head import BaseRoIHead
 from visdet.models.task_modules.samplers import SamplingResult
 
 

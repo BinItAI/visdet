@@ -102,7 +102,7 @@ class BaseBoxes(metaclass=ABCMeta):
         Returns:
             :obj:`BaseBoxes`: destination box type object .
         """
-        from .box_type import convert_box_type
+        from visdet.structures.bbox.box_type import convert_box_type
 
         return convert_box_type(self, dst_type=dst_type)
 

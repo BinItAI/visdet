@@ -55,8 +55,8 @@ from visdet.engine.registry import (
 )
 from visdet.engine.utils import get_git_hash, mkdir_or_exist
 
-from .distributed import DDPStrategy
-from .utils import MetaTensorContext
+from visdet.engine._strategy.distributed import DDPStrategy
+from visdet.engine._strategy.utils import MetaTensorContext
 
 FSDP = FullyShardedDataParallel
 FSDP_CONFIGS = Registry("fsdp configs")

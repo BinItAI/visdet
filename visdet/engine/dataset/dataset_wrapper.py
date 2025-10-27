@@ -14,7 +14,7 @@ from torch.utils.data.dataset import ConcatDataset as _ConcatDataset
 from visdet.engine.logging import print_log
 from visdet.engine.registry import DATASETS
 
-from .base_dataset import BaseDataset, force_full_init
+from visdet.engine.dataset.base_dataset import BaseDataset, force_full_init
 
 
 @DATASETS.register_module(force=True)

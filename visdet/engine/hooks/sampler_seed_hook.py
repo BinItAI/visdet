@@ -3,7 +3,7 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 from visdet.engine.registry import HOOKS
 
-from .hook import Hook
+from visdet.engine.hooks.hook import Hook
 
 
 @HOOKS.register_module(force=True)

@@ -1,15 +1,15 @@
 # ruff: noqa
 # type: ignore
 # Copyright (c) OpenMMLab. All rights reserved.
-from .build_functions import (
+from visdet.engine.registry.build_functions import (
     build_from_cfg,
     build_model_from_cfg,
     build_runner_from_cfg,
     build_scheduler_from_cfg,
 )
-from .default_scope import DefaultScope
-from .registry import Registry
-from .root import (
+from visdet.engine.registry.default_scope import DefaultScope
+from visdet.engine.registry.registry import Registry
+from visdet.engine.registry.root import (
     DATA_SAMPLERS,
     DATASETS,
     EVALUATOR,
@@ -34,7 +34,7 @@ from .root import (
     VISUALIZERS,
     WEIGHT_INITIALIZERS,
 )
-from .utils import count_registered_modules, init_default_scope, traverse_registry_tree
+from visdet.engine.registry.utils import count_registered_modules, init_default_scope, traverse_registry_tree
 
 __all__ = [
     "DATASETS",

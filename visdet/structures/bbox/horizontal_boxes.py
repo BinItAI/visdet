@@ -10,9 +10,9 @@ from torch import BoolTensor, Tensor
 
 from visdet.structures.mask.structures import BitmapMasks, PolygonMasks
 
-from .base_boxes import BaseBoxes
-from .bbox_overlaps import bbox_overlaps
-from .box_type import register_box
+from visdet.structures.bbox.base_boxes import BaseBoxes
+from visdet.structures.bbox.bbox_overlaps import bbox_overlaps
+from visdet.structures.bbox.box_type import register_box
 
 T = TypeVar("T")
 DeviceType = Union[str, torch.device]

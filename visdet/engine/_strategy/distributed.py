@@ -11,7 +11,7 @@ from visdet.engine.device import get_device
 from visdet.engine.dist import init_dist, is_distributed, master_only
 from visdet.engine.registry import MODEL_WRAPPERS, STRATEGIES
 from visdet.engine.model import convert_sync_batchnorm, is_model_wrapper
-from .single_device import SingleDeviceStrategy
+from visdet.engine._strategy.single_device import SingleDeviceStrategy
 
 
 @STRATEGIES.register_module(force=True)

@@ -6,8 +6,8 @@ import torch
 
 from visdet.engine.utils import is_str
 
-from .base import BaseTransform
-from .builder import TRANSFORMS
+from visdet.cv.transforms.base import BaseTransform
+from visdet.cv.transforms.builder import TRANSFORMS
 
 
 def to_tensor(data: torch.Tensor | np.ndarray | Sequence | int | float) -> torch.Tensor:

@@ -7,7 +7,7 @@ import numpy as np
 from visdet.engine.logging import print_log
 from terminaltables import AsciiTable
 
-from .bbox_overlaps import bbox_overlaps
+from visdet.evaluation.functional.bbox_overlaps import bbox_overlaps
 
 
 def _recalls(all_ious, proposal_nums, thrs):

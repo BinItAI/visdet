@@ -10,10 +10,10 @@ import numpy as np
 from visdet.cv.image import hsv2bgr, imcrop, imflip, imnormalize, impad
 from visdet.engine.utils import is_list_of, is_seq_of, is_tuple_of
 
-from .base import BaseTransform
-from .builder import TRANSFORMS
-from .utils import cache_randomness
-from .wrappers import Compose
+from visdet.cv.transforms.base import BaseTransform
+from visdet.cv.transforms.builder import TRANSFORMS
+from visdet.cv.transforms.utils import cache_randomness
+from visdet.cv.transforms.wrappers import Compose
 
 Number = int | float
 

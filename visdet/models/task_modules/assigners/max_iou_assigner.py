@@ -9,8 +9,8 @@ from visdet.engine.logging import print_log
 from visdet.engine.structures import InstanceData
 from visdet.registry import TASK_UTILS
 
-from .assign_result import AssignResult
-from .base_assigner import BaseAssigner
+from visdet.models.task_modules.assigners.assign_result import AssignResult
+from visdet.models.task_modules.assigners.base_assigner import BaseAssigner
 
 
 def _perm_box(bboxes, iou_calculator, iou_thr=0.97, perm_range=0.01, counter=0, max_iter=5):

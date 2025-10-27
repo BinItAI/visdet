@@ -36,8 +36,8 @@ from visdet.engine.utils import (
     is_installed,
 )
 
-from .lazy import LazyAttr, LazyObject
-from .utils import (
+from visdet.engine.config.lazy import LazyAttr, LazyObject
+from visdet.engine.config.utils import (
     ConfigParsingError,
     ImportTransformer,
     RemoveAssignFromAST,

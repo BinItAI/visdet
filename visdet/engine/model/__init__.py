@@ -3,16 +3,16 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 from visdet.engine.utils.dl_utils import TORCH_VERSION
 from visdet.engine.utils.version_utils import digit_version
-from .base_model import BaseDataPreprocessor, BaseModel, ImgDataPreprocessor
-from .base_module import BaseModule, ModuleDict, ModuleList, Sequential
-from .utils import (
+from visdet.engine.model.base_model import BaseDataPreprocessor, BaseModel, ImgDataPreprocessor
+from visdet.engine.model.base_module import BaseModule, ModuleDict, ModuleList, Sequential
+from visdet.engine.model.utils import (
     convert_sync_batchnorm,
     detect_anomalous_params,
     merge_dict,
     revert_sync_batchnorm,
     stack_batch,
 )
-from .weight_init import (
+from visdet.engine.model.weight_init import (
     BaseInit,
     Caffe2XavierInit,
     ConstantInit,
@@ -33,7 +33,7 @@ from .weight_init import (
     update_init_info,
     xavier_init,
 )
-from .wrappers import (
+from visdet.engine.model.wrappers import (
     MMDistributedDataParallel,
     MMSeparateDistributedDataParallel,
     is_model_wrapper,
@@ -78,6 +78,6 @@ __all__ = [
     "xavier_init",
 ]
 
-from .wrappers import MMFullyShardedDataParallel
+from visdet.engine.model.wrappers import MMFullyShardedDataParallel
 
 __all__.append("MMFullyShardedDataParallel")

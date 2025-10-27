@@ -5,15 +5,15 @@ from pathlib import Path
 # ConfigType is used for typing config objects
 ConfigType = Union[str, Path, Dict[str, Any]]
 
-from .misc import get_test_pipeline_cfg
-from .typing_utils import (
+from visdet.utils.misc import get_test_pipeline_cfg
+from visdet.utils.typing_utils import (
     InstanceList,
     MultiConfig,
     OptConfigType,
     OptInstanceList,
     OptMultiConfig,
 )
-from .setup_env import register_all_modules
+from visdet.utils.setup_env import register_all_modules
 
 __all__ = [
     "ConfigType",

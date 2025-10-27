@@ -13,7 +13,7 @@ from shutil import SameFileError
 import visdet.engine
 from visdet.engine.utils import has_method
 
-from .base import BaseStorageBackend
+from visdet.engine.fileio.backends.base import BaseStorageBackend
 
 
 class PetrelBackend(BaseStorageBackend):

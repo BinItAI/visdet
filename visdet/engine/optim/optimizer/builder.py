@@ -7,7 +7,7 @@ import torch.nn as nn
 from visdet.engine.config import Config, ConfigDict
 from visdet.engine.registry import OPTIM_WRAPPER_CONSTRUCTORS, OPTIMIZERS
 
-from .optimizer_wrapper import OptimWrapper
+from visdet.engine.optim.optimizer.optimizer_wrapper import OptimWrapper
 
 
 def register_torch_optimizers() -> list[str]:

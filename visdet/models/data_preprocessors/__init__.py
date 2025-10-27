@@ -1,6 +1,6 @@
 # ruff: noqa
 # Copyright (c) OpenMMLab. All rights reserved.
-from .data_preprocessor import (
+from visdet.models.data_preprocessors.data_preprocessor import (
     BatchFixedSizePad,
     BatchResize,
     BatchSyncRandomResize,

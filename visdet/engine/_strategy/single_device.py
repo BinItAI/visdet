@@ -13,7 +13,7 @@ from visdet.engine.optim import BaseOptimWrapper, _ParamScheduler
 from visdet.engine.registry import STRATEGIES
 from visdet.engine.utils import get_git_hash
 
-from .base import BaseStrategy
+from visdet.engine._strategy.base import BaseStrategy
 
 
 @STRATEGIES.register_module(force=True)

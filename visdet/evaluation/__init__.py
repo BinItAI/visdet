@@ -1,5 +1,5 @@
 # ruff: noqa
 # Copyright (c) OpenMMLab. All rights reserved.
-from .evaluator import *  # noqa: F403
-from .functional import *  # noqa: F403
-from .metrics import *  # noqa: F403
+from visdet.evaluation.evaluator import *  # noqa: F403
+from visdet.evaluation.functional import *  # noqa: F403
+from visdet.evaluation.metrics import *  # noqa: F403

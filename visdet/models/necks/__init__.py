@@ -1,4 +1,4 @@
 # ruff: noqa
-from .fpn import FPN
+from visdet.models.necks.fpn import FPN
 
 __all__ = ["FPN"]

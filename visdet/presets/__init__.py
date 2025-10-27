@@ -15,7 +15,7 @@ Example:
 
 import yaml
 
-from .registry import (
+from visdet.presets.registry import (
     DATASET_PRESETS,
     MODEL_PRESETS,
     OPTIMIZER_PRESETS,

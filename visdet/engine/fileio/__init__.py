@@ -1,7 +1,7 @@
 # ruff: noqa
 # type: ignore
 # Copyright (c) OpenMMLab. All rights reserved.
-from .backends import (
+from visdet.engine.fileio.backends import (
     BaseStorageBackend,
     HTTPBackend,
     LmdbBackend,
@@ -10,15 +10,15 @@ from .backends import (
     PetrelBackend,
     register_backend,
 )
-from .file_client import FileClient, HardDiskBackend
-from .handlers import (
+from visdet.engine.fileio.file_client import FileClient, HardDiskBackend
+from visdet.engine.fileio.handlers import (
     BaseFileHandler,
     JsonHandler,
     PickleHandler,
     YamlHandler,
     register_handler,
 )
-from .io import (
+from visdet.engine.fileio.io import (
     copy_if_symlink_fails,
     copyfile,
     copyfile_from_local,
@@ -43,7 +43,7 @@ from .io import (
     remove,
     rmtree,
 )
-from .parse import dict_from_file, list_from_file
+from visdet.engine.fileio.parse import dict_from_file, list_from_file
 
 __all__ = [
     "BaseFileHandler",

@@ -72,19 +72,19 @@ from visdet.engine.utils import apply_to, get_git_hash, is_seq_of
 from visdet.engine.utils.dl_utils import collect_env, set_multi_processing
 from visdet.engine.visualization import Visualizer
 
-from .activation_checkpointing import turn_on_activation_checkpointing
-from .base_loop import BaseLoop
-from .checkpoint import (
+from visdet.engine.runner.activation_checkpointing import turn_on_activation_checkpointing
+from visdet.engine.runner.base_loop import BaseLoop
+from visdet.engine.runner.checkpoint import (
     _load_checkpoint,
     _load_checkpoint_to_model,
     find_latest_checkpoint,
     save_checkpoint,
     weights_to_cpu,
 )
-from .log_processor import LogProcessor
-from .loops import EpochBasedTrainLoop, IterBasedTrainLoop, TestLoop, ValLoop
-from .priority import Priority, get_priority
-from .utils import _get_batch_size, set_random_seed
+from visdet.engine.runner.log_processor import LogProcessor
+from visdet.engine.runner.loops import EpochBasedTrainLoop, IterBasedTrainLoop, TestLoop, ValLoop
+from visdet.engine.runner.priority import Priority, get_priority
+from visdet.engine.runner.utils import _get_batch_size, set_random_seed
 
 ConfigType = Union[dict, Config, ConfigDict]
 ParamSchedulerType = Union[list[_ParamScheduler], dict[str, list[_ParamScheduler]]]

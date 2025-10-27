@@ -8,7 +8,7 @@ import torch
 
 from visdet.engine.device import is_cuda_available
 from visdet.engine.registry import HOOKS
-from .hook import Hook
+from visdet.engine.hooks.hook import Hook
 
 DATA_BATCH = Optional[dict | tuple | list]
 

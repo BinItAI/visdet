@@ -15,7 +15,7 @@ from rich.table import Table
 from visdet.engine.config.utils import MODULE2PACKAGE
 from visdet.engine.utils import get_object_from_string, is_seq_of
 
-from .default_scope import DefaultScope
+from visdet.engine.registry.default_scope import DefaultScope
 
 
 class Registry:
@@ -85,7 +85,7 @@ class Registry:
         scope: str | None = None,
         locations: list | None = None,
     ):
-        from .build_functions import build_from_cfg
+        from visdet.engine.registry.build_functions import build_from_cfg
 
         if locations is None:
             locations = []

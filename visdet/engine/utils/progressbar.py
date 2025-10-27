@@ -6,7 +6,7 @@ from collections.abc import Callable, Iterable, Sequence
 from multiprocessing import Pool
 from shutil import get_terminal_size
 
-from .timer import Timer
+from visdet.engine.utils.timer import Timer
 
 
 class ProgressBar:

@@ -15,7 +15,7 @@ from visdet.registry import MODELS
 from visdet.structures import DetDataSample
 from visdet.utils.typing_utils import ConfigType, OptConfigType, OptMultiConfig
 
-from .base import BaseDetector, SampleList
+from visdet.models.detectors.base import BaseDetector, SampleList
 
 
 @MODELS.register_module()

@@ -7,7 +7,7 @@ from contextlib import contextmanager
 import torch
 import torch.nn as nn
 
-from .optimizer_wrapper import OptimWrapper
+from visdet.engine.optim.optimizer.optimizer_wrapper import OptimWrapper
 
 
 class OptimWrapperDict(OptimWrapper):

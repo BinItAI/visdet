@@ -9,8 +9,8 @@ from visdet.engine.fileio import dump
 from visdet.engine.logging import print_log
 
 from . import root
-from .default_scope import DefaultScope
-from .registry import Registry
+from visdet.engine.registry.default_scope import DefaultScope
+from visdet.engine.registry.registry import Registry
 
 
 def traverse_registry_tree(registry: Registry, verbose: bool = True) -> list:

@@ -1,14 +1,14 @@
 # ruff: noqa
 # Copyright (c) OpenMMLab. All rights reserved.
 
-from .backbones import *  # noqa: F401,F403
-from .builder import build_detector
-from .data_preprocessors import *  # noqa: F401,F403
-from .dense_heads import *  # noqa: F401,F403
-from .detectors import *  # noqa: F401,F403
-from .losses import *  # noqa: F401,F403
-from .necks import *  # noqa: F401,F403
-from .roi_heads import *  # noqa: F401,F403
-from .task_modules import *  # noqa: F401,F403
+from visdet.models.backbones import *  # noqa: F401,F403
+from visdet.models.builder import build_detector
+from visdet.models.data_preprocessors import *  # noqa: F401,F403
+from visdet.models.dense_heads import *  # noqa: F401,F403
+from visdet.models.detectors import *  # noqa: F401,F403
+from visdet.models.losses import *  # noqa: F401,F403
+from visdet.models.necks import *  # noqa: F401,F403
+from visdet.models.roi_heads import *  # noqa: F401,F403
+from visdet.models.task_modules import *  # noqa: F401,F403
 
 __all__ = ["build_detector"]
