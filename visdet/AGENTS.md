@@ -18,7 +18,7 @@ the reference mmdetection repo we have locally.
 
 ### Models
 
-- **Backbones**: SwinTransformer, ResNet (18, 34, 50, 101, 152)
+- **Backbones**: SwinTransformer, ResNet (18, 34, 50, 101, 152), ResNeXt (50, 101, 152)
 - **Neck**: FPN
 - **Heads**: RPNHead, StandardRoIHead (with bbox and mask branches)
 - **Detectors**: MaskRCNN, Faster R-CNN (two-stage detectors)
