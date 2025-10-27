@@ -3,10 +3,9 @@
 import torch
 from torch import Tensor
 
+from visdet.models.roi_heads.roi_extractors.base_roi_extractor import BaseRoIExtractor
 from visdet.registry import MODELS
 from visdet.utils import ConfigType, OptMultiConfig
-
-from visdet.models.roi_heads.roi_extractors.base_roi_extractor import BaseRoIExtractor
 
 
 @MODELS.register_module()

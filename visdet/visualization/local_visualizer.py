@@ -13,7 +13,6 @@ from visdet.evaluation import INSTANCE_OFFSET
 from visdet.registry import VISUALIZERS
 from visdet.structures import DetDataSample
 from visdet.structures.mask import BitmapMasks, PolygonMasks, bitmap_to_polygon
-
 from visdet.visualization.palette import _get_adaptive_scales, get_palette, jitter_color
 
 

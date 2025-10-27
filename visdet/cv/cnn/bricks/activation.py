@@ -4,12 +4,11 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from visdet.engine.registry import MODELS
-
 # Import activation classes from their modules
 from visdet.cv.cnn.bricks.hsigmoid import HSigmoid
 from visdet.cv.cnn.bricks.hswish import HSwish
 from visdet.cv.cnn.bricks.swish import Swish
+from visdet.engine.registry import MODELS
 
 for module in [
     nn.ReLU,

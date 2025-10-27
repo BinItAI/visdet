@@ -1,5 +1,4 @@
 # Copyright (c) OpenMMLab. All rights reserved.
-from . import wrappers as wrappers  # Registers ConvTranspose2d as 'deconv'
 from visdet.cv.cnn.bricks.activation import HSigmoid, HSwish, Swish, build_activation_layer
 from visdet.cv.cnn.bricks.conv import build_conv_layer
 from visdet.cv.cnn.bricks.conv_module import ConvModule
@@ -18,6 +17,8 @@ from visdet.cv.cnn.bricks.wrappers import (
     MaxPool2d,
     MaxPool3d,
 )
+
+from . import wrappers as wrappers  # Registers ConvTranspose2d as 'deconv'
 
 __all__ = [
     "FFN",

@@ -5,10 +5,9 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from visdet.registry import MODELS
-
 from visdet.models.losses.accuracy import accuracy
 from visdet.models.losses.utils import weight_reduce_loss
+from visdet.registry import MODELS
 
 
 def cross_entropy(
