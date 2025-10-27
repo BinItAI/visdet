@@ -9,10 +9,9 @@ import torch
 from visdet.engine.config import Config
 from visdet.engine.dataset import pseudo_collate
 from visdet.engine.structures import InstanceData, PixelData
-
-from ..registry import TASK_UTILS
-from ..structures import DetDataSample
-from ..structures.bbox import HorizontalBoxes
+from visdet.registry import TASK_UTILS
+from visdet.structures import DetDataSample
+from visdet.structures.bbox import HorizontalBoxes
 
 
 def _get_config_directory():

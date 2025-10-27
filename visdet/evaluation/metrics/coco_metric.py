@@ -14,10 +14,9 @@ from visdet.datasets.api_wrappers import COCO, COCOeval, COCOevalMP
 from visdet.engine.evaluator import BaseMetric
 from visdet.engine.fileio import dump, get_local_path, load
 from visdet.engine.logging import MMLogger
+from visdet.evaluation.functional import eval_recalls
 from visdet.registry import METRICS
 from visdet.structures.mask import encode_mask_results
-
-from ..functional import eval_recalls
 
 
 @METRICS.register_module()

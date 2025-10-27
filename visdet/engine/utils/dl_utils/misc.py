@@ -6,9 +6,9 @@ import pkgutil
 import numpy as np
 import torch
 import torch.nn as nn
-
-from ..misc import is_tuple_of
 from torch.nn.modules.batchnorm import _BatchNorm
+
+from visdet.engine.utils.misc import is_tuple_of
 
 
 def is_norm(layer: nn.Module, exclude: type | tuple[type] | None = None) -> bool:

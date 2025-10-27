@@ -10,12 +10,11 @@ from visdet.cv.ops import batched_nms
 from visdet.engine.config import ConfigDict
 from visdet.engine.model import BaseModule, constant_init
 from visdet.engine.structures import InstanceData
+from visdet.models.test_time_augs import merge_aug_results
+from visdet.models.utils import filter_scores_and_topk, select_single_mlvl, unpack_gt_instances
 from visdet.structures import SampleList
 from visdet.structures.bbox import cat_boxes, get_box_tensor, get_box_wh, scale_boxes
 from visdet.utils import InstanceList, OptMultiConfig
-
-from ..test_time_augs import merge_aug_results
-from ..utils import filter_scores_and_topk, select_single_mlvl, unpack_gt_instances
 
 
 class BaseDenseHead(BaseModule, metaclass=ABCMeta):

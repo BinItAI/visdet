@@ -8,10 +8,9 @@ import torch
 import torch.nn as nn
 
 from visdet.engine.logging import MMLogger
+from visdet.engine.model.base_module import BaseModule
 from visdet.engine.registry import MODELS
 from visdet.engine.utils import is_list_of
-
-from ..base_module import BaseModule
 from .data_preprocessor import BaseDataPreprocessor
 
 

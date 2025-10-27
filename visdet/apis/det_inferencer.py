@@ -22,13 +22,11 @@ from visdet.engine.runner.checkpoint import _load_checkpoint_to_model
 from visdet.engine.visualization import Visualizer
 from rich.progress import track
 
-from visdet.evaluation import INSTANCE_OFFSET
+from visdet.evaluation import INSTANCE_OFFSET, get_classes
 from visdet.registry import DATASETS
 from visdet.structures import DetDataSample
 from visdet.structures.mask import encode_mask_results, mask2bbox
 from visdet.utils import ConfigType
-
-from ..evaluation import get_classes
 
 try:
     from panopticapi.evaluation import VOID
