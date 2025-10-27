@@ -10,6 +10,7 @@ from visdet.models.utils.gaussian_target import (
 )
 from visdet.models.utils.image import imrenormalize
 from visdet.models.utils.make_divisible import make_divisible
+from visdet.models.utils.res_layer import ResLayer, SimplifiedBasicBlock
 
 # Disable yapf because it conflicts with isort.
 # yapf: disable
@@ -30,6 +31,8 @@ from visdet.models.utils.wbf import weighted_boxes_fusion
 
 __all__ = [
     'BertEncoderLayer',
+    'ResLayer',
+    'SimplifiedBasicBlock',
     'VLFuse',
     'align_tensor',
     'aligned_bilinear',

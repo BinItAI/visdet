@@ -1,4 +1,5 @@
 # ruff: noqa
+from visdet.models.backbones.resnet import ResNet
 from visdet.models.backbones.swin import SwinTransformer
 
-__all__ = ["SwinTransformer"]
+__all__ = ["ResNet", "SwinTransformer"]
