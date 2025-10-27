@@ -1,7 +1,7 @@
 # ruff: noqa
 # type: ignore
 # Copyright (c) OpenMMLab. All rights reserved.
-from .optimizer import (
+from visdet.engine.optim.optimizer import (
     OPTIM_WRAPPER_CONSTRUCTORS,
     OPTIMIZERS,
     AmpOptimWrapper,
@@ -13,7 +13,7 @@ from .optimizer import (
 )
 
 # yapf: disable
-from .scheduler import (ConstantLR, ConstantMomentum, ConstantParamScheduler,
+from visdet.engine.optim.scheduler import (ConstantLR, ConstantMomentum, ConstantParamScheduler,
                         CosineAnnealingLR, CosineAnnealingMomentum,
                         CosineAnnealingParamScheduler, ExponentialLR,
                         ExponentialMomentum, ExponentialParamScheduler,

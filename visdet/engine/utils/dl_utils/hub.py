@@ -4,8 +4,8 @@
 
 from typing import Any
 
-from ..path import mkdir_or_exist
 from torch.hub import load_state_dict_from_url as _load_state_dict_from_url
+from visdet.engine.utils.path import mkdir_or_exist
 
 __all__ = ["mkdir_or_exist", "load_url"]
 

@@ -27,7 +27,7 @@ from visdet.utils import (
     OptMultiConfig,
 )
 
-from .base_roi_head import BaseRoIHead
+from visdet.models.roi_heads.base_roi_head import BaseRoIHead
 
 
 @MODELS.register_module()

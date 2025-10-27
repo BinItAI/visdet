@@ -9,12 +9,11 @@ from visdet.cv import imwrite
 from visdet.engine.dist import master_only
 from visdet.engine.structures import InstanceData, PixelData
 from visdet.engine.visualization import Visualizer
-
-from ..evaluation import INSTANCE_OFFSET
-from ..registry import VISUALIZERS
-from ..structures import DetDataSample
-from ..structures.mask import BitmapMasks, PolygonMasks, bitmap_to_polygon
-from .palette import _get_adaptive_scales, get_palette, jitter_color
+from visdet.evaluation import INSTANCE_OFFSET
+from visdet.registry import VISUALIZERS
+from visdet.structures import DetDataSample
+from visdet.structures.mask import BitmapMasks, PolygonMasks, bitmap_to_polygon
+from visdet.visualization.palette import _get_adaptive_scales, get_palette, jitter_color
 
 
 @VISUALIZERS.register_module()

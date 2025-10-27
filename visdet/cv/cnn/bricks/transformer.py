@@ -10,15 +10,14 @@ import torch.nn.functional as F
 
 from visdet.cv.cnn.bricks.activation import build_activation_layer
 from visdet.cv.cnn.bricks.conv import build_conv_layer
+from visdet.cv.cnn.bricks.drop import build_dropout
 from visdet.cv.cnn.bricks.norm import build_norm_layer
+from visdet.cv.cnn.bricks.scale import LayerScale
 from visdet.cv.cnn.bricks.wrappers import Linear
 from visdet.engine.config import ConfigDict
 from visdet.engine.model import BaseModule, ModuleList, Sequential
 from visdet.engine.registry import MODELS
 from visdet.engine.utils import deprecated_api_warning, to_2tuple
-
-from .drop import build_dropout
-from .scale import LayerScale
 
 
 def build_positional_encoding(cfg, default_args=None):

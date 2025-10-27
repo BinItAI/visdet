@@ -11,7 +11,7 @@ from typing import Any
 from visdet.engine.logging import print_log
 from visdet.engine.utils import is_filepath
 
-from .backends import (
+from visdet.engine.fileio.backends import (
     BaseStorageBackend,
     HTTPBackend,
     LmdbBackend,

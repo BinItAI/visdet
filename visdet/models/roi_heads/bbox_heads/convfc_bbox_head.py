@@ -5,9 +5,8 @@ from torch import Tensor
 
 from visdet.cv.cnn import ConvModule
 from visdet.engine.config import ConfigDict
+from visdet.models.roi_heads.bbox_heads.bbox_head import BBoxHead
 from visdet.registry import MODELS
-
-from .bbox_head import BBoxHead
 
 
 @MODELS.register_module()

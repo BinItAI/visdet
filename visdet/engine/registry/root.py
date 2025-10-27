@@ -8,13 +8,13 @@ More datails can be found at
 https://mmengine.readthedocs.io/en/latest/advanced_tutorials/registry.html.
 """
 
-from .build_functions import (
+from visdet.engine.registry.build_functions import (
     build_model_from_cfg,
     build_optimizer_from_cfg,
     build_runner_from_cfg,
     build_scheduler_from_cfg,
 )
-from .registry import Registry
+from visdet.engine.registry.registry import Registry
 
 # manage all kinds of runners like `EpochBasedRunner` and `IterBasedRunner`
 RUNNERS = Registry("runner", build_func=build_runner_from_cfg)

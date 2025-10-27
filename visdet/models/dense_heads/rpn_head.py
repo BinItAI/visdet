@@ -51,7 +51,7 @@ def batched_nms(boxes, scores, idxs, nms_cfg):
     else:
         raise NotImplementedError(f"NMS type {nms_type} is not implemented")
 
-from .anchor_head import AnchorHead
+from visdet.models.dense_heads.anchor_head import AnchorHead
 
 
 @MODELS.register_module()

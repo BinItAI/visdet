@@ -8,8 +8,8 @@ from visdet.engine.logging import print_log
 from visdet.engine.utils import is_str
 from terminaltables import AsciiTable
 
-from .bbox_overlaps import bbox_overlaps
-from .class_names import get_classes
+from visdet.evaluation.functional.bbox_overlaps import bbox_overlaps
+from visdet.evaluation.functional.class_names import get_classes
 
 
 def average_precision(recalls, precisions, mode="area"):

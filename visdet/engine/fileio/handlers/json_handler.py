@@ -5,7 +5,7 @@ import json
 
 import numpy as np
 
-from .base import BaseFileHandler
+from visdet.engine.fileio.handlers.base import BaseFileHandler
 
 
 def set_default(obj):

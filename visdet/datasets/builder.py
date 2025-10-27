@@ -25,7 +25,7 @@ except ImportError:
         return batch
 
 
-from .samplers import (
+from visdet.datasets.samplers import (
     ClassAwareSampler,
     DistributedGroupSampler,
     DistributedSampler,
@@ -49,7 +49,7 @@ PIPELINES = Registry("pipeline")
 
 
 def _concat_dataset(cfg, default_args=None):
-    from .dataset_wrappers import ConcatDataset
+    from visdet.datasets.dataset_wrappers import ConcatDataset
 
     ann_files = cfg["ann_file"]
     img_prefixes = cfg.get("img_prefix", None)
@@ -77,7 +77,7 @@ def _concat_dataset(cfg, default_args=None):
 
 
 def build_dataset(cfg, default_args=None):
-    from .dataset_wrappers import (
+    from visdet.datasets.dataset_wrappers import (
         ClassBalancedDataset,
         ConcatDataset,
         MultiImageMixDataset,

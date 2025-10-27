@@ -1,7 +1,7 @@
 # ruff: noqa
 # type: ignore
 # Copyright (c) OpenMMLab. All rights reserved.
-from .vis_backend import (
+from visdet.engine.visualization.vis_backend import (
     AimVisBackend,
     BaseVisBackend,
     ClearMLVisBackend,
@@ -12,7 +12,7 @@ from .vis_backend import (
     TensorboardVisBackend,
     WandbVisBackend,
 )
-from .visualizer import Visualizer
+from visdet.engine.visualization.visualizer import Visualizer
 
 __all__ = [
     "AimVisBackend",

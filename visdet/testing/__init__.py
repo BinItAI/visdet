@@ -1,6 +1,6 @@
 # ruff: noqa
 # Copyright (c) OpenMMLab. All rights reserved.
-from ._utils import (
+from visdet.testing._utils import (
     demo_mm_inputs,
     demo_mm_proposals,
     demo_mm_sampling_results,

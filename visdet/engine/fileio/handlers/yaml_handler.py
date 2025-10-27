@@ -9,7 +9,7 @@ try:
 except ImportError:
     from yaml import Dumper, Loader  # type: ignore
 
-from .base import BaseFileHandler  # isort:skip
+from visdet.engine.fileio.handlers.base import BaseFileHandler  # isort:skip
 
 
 class YamlHandler(BaseFileHandler):

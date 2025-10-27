@@ -2,15 +2,15 @@
 # type: ignore
 # Copyright (c) OpenMMLab. All rights reserved.
 # yapf: disable
-from .lr_scheduler import (ConstantLR, CosineAnnealingLR, CosineRestartLR,
+from visdet.engine.optim.scheduler.lr_scheduler import (ConstantLR, CosineAnnealingLR, CosineRestartLR,
                            ExponentialLR, LinearLR, MultiStepLR, OneCycleLR,
                            PolyLR, ReduceOnPlateauLR, StepLR)
-from .momentum_scheduler import (ConstantMomentum, CosineAnnealingMomentum,
+from visdet.engine.optim.scheduler.momentum_scheduler import (ConstantMomentum, CosineAnnealingMomentum,
                                  CosineRestartMomentum, ExponentialMomentum,
                                  LinearMomentum, MultiStepMomentum,
                                  PolyMomentum, ReduceOnPlateauMomentum,
                                  StepMomentum)
-from .param_scheduler import (ConstantParamScheduler,
+from visdet.engine.optim.scheduler.param_scheduler import (ConstantParamScheduler,
                               CosineAnnealingParamScheduler,
                               CosineRestartParamScheduler,
                               ExponentialParamScheduler, LinearParamScheduler,

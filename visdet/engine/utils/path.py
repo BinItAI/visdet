@@ -5,7 +5,7 @@ import os
 import os.path as osp
 from pathlib import Path
 
-from .misc import is_str
+from visdet.engine.utils.misc import is_str
 
 
 def is_filepath(x):

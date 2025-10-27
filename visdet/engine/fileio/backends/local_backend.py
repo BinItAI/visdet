@@ -12,7 +12,7 @@ from PIL import Image, ImageOps
 
 from visdet.engine.utils.path import mkdir_or_exist
 
-from .base import BaseStorageBackend
+from visdet.engine.fileio.backends.base import BaseStorageBackend
 
 
 class LocalBackend(BaseStorageBackend):

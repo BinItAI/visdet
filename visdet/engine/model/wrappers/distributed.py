@@ -8,9 +8,8 @@ from typing import TYPE_CHECKING, Any
 import torch
 from torch.nn.parallel import DataParallel, DistributedDataParallel
 
+from visdet.engine.model.utils import detect_anomalous_params
 from visdet.engine.registry import MODEL_WRAPPERS
-
-from ..utils import detect_anomalous_params
 
 if TYPE_CHECKING:
     from visdet.engine.optim import OptimWrapper

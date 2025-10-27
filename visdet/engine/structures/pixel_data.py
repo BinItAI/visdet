@@ -7,7 +7,7 @@ from collections.abc import Sequence
 import numpy as np
 import torch
 
-from .base_data_element import BaseDataElement
+from visdet.engine.structures.base_data_element import BaseDataElement
 
 
 class PixelData(BaseDataElement):

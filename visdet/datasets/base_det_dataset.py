@@ -6,8 +6,7 @@ import os.path as osp
 from visdet.engine.dataset import BaseDataset
 from visdet.engine.fileio import load
 from visdet.engine.utils import is_abs
-
-from ..registry import DATASETS
+from visdet.registry import DATASETS
 
 
 @DATASETS.register_module()

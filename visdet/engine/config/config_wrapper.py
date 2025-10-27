@@ -9,9 +9,8 @@ from pathlib import Path
 from typing import Any, Dict, Union
 
 from visdet.engine.config import Config as BaseConfig
-
-from .schema_generator import validate_config_with_schema
-from .yaml_loader import load_yaml_config
+from visdet.engine.config.schema_generator import validate_config_with_schema
+from visdet.engine.config.yaml_loader import load_yaml_config
 
 
 class Config(BaseConfig):

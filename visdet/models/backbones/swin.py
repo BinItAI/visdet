@@ -15,9 +15,8 @@ from visdet.engine.model import BaseModule, ModuleList
 from visdet.engine.model.weight_init import constant_init, trunc_normal_, trunc_normal_init
 from visdet.engine.runner.checkpoint import CheckpointLoader
 from visdet.engine.utils import to_2tuple
+from visdet.models.layers import PatchEmbed, PatchMerging
 from visdet.registry import MODELS
-
-from ..layers import PatchEmbed, PatchMerging
 
 # Flash attention function - None when not available
 flash_swin_attn_func = None

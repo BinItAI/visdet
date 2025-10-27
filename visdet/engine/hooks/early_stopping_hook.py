@@ -7,7 +7,7 @@ from typing import Optional
 
 from visdet.engine.registry import HOOKS
 
-from .hook import Hook
+from visdet.engine.hooks.hook import Hook
 
 DATA_BATCH = Optional[dict | tuple | list]
 

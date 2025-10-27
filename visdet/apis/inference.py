@@ -21,13 +21,10 @@ from visdet.engine.model.utils import revert_sync_batchnorm
 from visdet.engine.registry import init_default_scope
 from visdet.engine.runner import load_checkpoint
 
-from visdet.registry import DATASETS
-from visdet.utils import ConfigType
-
-from ..evaluation import get_classes
-from ..registry import MODELS
-from ..structures import DetDataSample, SampleList
-from ..utils import get_test_pipeline_cfg
+from visdet.evaluation import get_classes
+from visdet.registry import DATASETS, MODELS
+from visdet.structures import DetDataSample, SampleList
+from visdet.utils import ConfigType, get_test_pipeline_cfg
 
 
 def init_detector(

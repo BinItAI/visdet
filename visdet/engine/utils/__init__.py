@@ -1,9 +1,9 @@
 # ruff: noqa
 # type: ignore
 # Copyright (c) OpenMMLab. All rights reserved.
-from .dl_utils import TORCH_VERSION
-from .manager import ManagerMeta, ManagerMixin
-from .misc import (
+from visdet.engine.utils.dl_utils import TORCH_VERSION
+from visdet.engine.utils.manager import ManagerMeta, ManagerMixin
+from visdet.engine.utils.misc import (
     apply_to,
     check_prerequisites,
     concat_list,
@@ -29,13 +29,13 @@ from .misc import (
     to_ntuple,
     tuple_cast,
 )
-from .package_utils import (
+from visdet.engine.utils.package_utils import (
     call_command,
     get_installed_path,
     install_package,
     is_installed,
 )
-from .path import (
+from visdet.engine.utils.path import (
     check_file_exist,
     fopen,
     is_abs,
@@ -44,15 +44,15 @@ from .path import (
     scandir,
     symlink,
 )
-from .progressbar import (
+from visdet.engine.utils.progressbar import (
     ProgressBar,
     track_iter_progress,
     track_parallel_progress,
     track_progress,
 )
-from .progressbar_rich import track_progress_rich
-from .timer import Timer, TimerError, check_time
-from .version_utils import digit_version, get_git_hash
+from visdet.engine.utils.progressbar_rich import track_progress_rich
+from visdet.engine.utils.timer import Timer, TimerError, check_time
+from visdet.engine.utils.version_utils import digit_version, get_git_hash
 
 __all__ = [
     "ManagerMeta",

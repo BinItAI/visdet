@@ -10,7 +10,7 @@ from visdet.engine.registry import HOOKS
 from visdet.engine.utils import get_git_hash
 from visdet.version import __version__
 
-from .hook import Hook
+from visdet.engine.hooks.hook import Hook
 
 DATA_BATCH = Optional[dict | tuple | list]
 

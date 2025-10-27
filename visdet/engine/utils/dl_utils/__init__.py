@@ -1,11 +1,11 @@
 import torch
 
-from .collect_env import collect_env
-from .hub import load_url
-from .misc import has_batch_norm, is_norm, tensor2imgs
-from .setup_env import set_multi_processing
-from .torch_ops import torch_meshgrid
-from .trace import is_jit_tracing
+from visdet.engine.utils.dl_utils.collect_env import collect_env
+from visdet.engine.utils.dl_utils.hub import load_url
+from visdet.engine.utils.dl_utils.misc import has_batch_norm, is_norm, tensor2imgs
+from visdet.engine.utils.dl_utils.setup_env import set_multi_processing
+from visdet.engine.utils.dl_utils.torch_ops import torch_meshgrid
+from visdet.engine.utils.dl_utils.trace import is_jit_tracing
 
 TORCH_VERSION = tuple(int(x) for x in torch.__version__.split(".")[:2])
 

@@ -13,8 +13,8 @@ import torch.nn as nn
 from visdet.engine.dist import master_only
 from visdet.engine.logging import MMLogger, print_log
 
-from .weight_init import PretrainedInit, initialize, update_init_info
-from .wrappers.utils import is_model_wrapper
+from visdet.engine.model.weight_init import PretrainedInit, initialize, update_init_info
+from visdet.engine.model.wrappers.utils import is_model_wrapper
 
 
 class BaseModule(nn.Module, metaclass=ABCMeta):

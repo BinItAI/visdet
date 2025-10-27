@@ -1,4 +1,4 @@
 # ruff: noqa
-from .swin import SwinTransformer
+from visdet.models.backbones.swin import SwinTransformer
 
 __all__ = ["SwinTransformer"]

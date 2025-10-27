@@ -9,11 +9,10 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+from visdet.engine.model.utils import stack_batch
 from visdet.engine.registry import MODELS
 from visdet.engine.structures import BaseDataElement
 from visdet.engine.utils import is_seq_of
-
-from ..utils import stack_batch
 
 CastData = Union[tuple, dict, BaseDataElement, torch.Tensor, list, bytes, str, None]
 

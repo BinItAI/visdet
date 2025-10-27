@@ -4,7 +4,7 @@
 
 import torch
 
-from .base_data_element import BaseDataElement
+from visdet.engine.structures.base_data_element import BaseDataElement
 
 
 class LabelData(BaseDataElement):

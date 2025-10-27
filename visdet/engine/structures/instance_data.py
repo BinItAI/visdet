@@ -10,7 +10,7 @@ import torch
 
 from visdet.engine.device import get_device
 
-from .base_data_element import BaseDataElement
+from visdet.engine.structures.base_data_element import BaseDataElement
 
 BoolTypeTensor: Any
 LongTypeTensor: Any

@@ -3,12 +3,12 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import inspect
 
-from .base import BaseStorageBackend
-from .http_backend import HTTPBackend
-from .lmdb_backend import LmdbBackend
-from .local_backend import LocalBackend
-from .memcached_backend import MemcachedBackend
-from .petrel_backend import PetrelBackend
+from visdet.engine.fileio.backends.base import BaseStorageBackend
+from visdet.engine.fileio.backends.http_backend import HTTPBackend
+from visdet.engine.fileio.backends.lmdb_backend import LmdbBackend
+from visdet.engine.fileio.backends.local_backend import LocalBackend
+from visdet.engine.fileio.backends.memcached_backend import MemcachedBackend
+from visdet.engine.fileio.backends.petrel_backend import PetrelBackend
 
 backends: dict = {}
 prefix_to_backends: dict = {}

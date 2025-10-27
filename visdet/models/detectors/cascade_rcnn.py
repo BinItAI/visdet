@@ -6,7 +6,7 @@
 from visdet.registry import MODELS
 from visdet.utils.typing_utils import ConfigType, OptConfigType, OptMultiConfig
 
-from .two_stage import TwoStageDetector
+from visdet.models.detectors.two_stage import TwoStageDetector
 
 
 @MODELS.register_module()

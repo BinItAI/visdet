@@ -27,7 +27,7 @@ from visdet.engine.registry import MODEL_WRAPPERS, OPTIM_WRAPPERS, OPTIMIZERS, S
 from visdet.engine.runner.checkpoint import save_checkpoint, weights_to_cpu
 from visdet.engine.utils import apply_to, digit_version, get_git_hash
 
-from .base import BaseStrategy
+from visdet.engine._strategy.base import BaseStrategy
 
 
 def register_deepspeed_optimizers() -> list[str]:

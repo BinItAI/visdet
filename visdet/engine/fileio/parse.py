@@ -4,8 +4,8 @@
 import warnings
 from io import StringIO
 
-from .file_client import FileClient
-from .io import get_text
+from visdet.engine.fileio.file_client import FileClient
+from visdet.engine.fileio.io import get_text
 
 
 def list_from_file(

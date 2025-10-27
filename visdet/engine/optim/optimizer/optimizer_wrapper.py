@@ -12,7 +12,7 @@ from visdet.engine.logging import MessageHub, print_log, MMLogger
 from visdet.engine.registry import OPTIM_WRAPPERS
 from visdet.engine.utils.dl_utils import has_batch_norm
 
-from .base import BaseOptimWrapper
+from visdet.engine.optim.optimizer.base import BaseOptimWrapper
 
 
 @OPTIM_WRAPPERS.register_module(force=True)

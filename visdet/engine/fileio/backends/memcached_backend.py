@@ -3,7 +3,7 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 from pathlib import Path
 
-from .base import BaseStorageBackend
+from visdet.engine.fileio.backends.base import BaseStorageBackend
 
 
 class MemcachedBackend(BaseStorageBackend):

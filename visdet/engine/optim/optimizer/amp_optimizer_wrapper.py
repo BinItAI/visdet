@@ -8,7 +8,7 @@ import torch.nn as nn
 
 from visdet.engine.registry import OPTIM_WRAPPERS
 
-from .optimizer_wrapper import OptimWrapper
+from visdet.engine.optim.optimizer.optimizer_wrapper import OptimWrapper
 
 # updated from torch.cuda.amp -> torch.amp
 # due to a deprecation warning

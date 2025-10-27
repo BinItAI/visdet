@@ -1,6 +1,6 @@
 # Copyright (c) OpenMMLab. All rights reserved.
-from .cache import ImageCache
-from .geometric import (
+from visdet.cv.image.cache import ImageCache
+from visdet.cv.image.geometric import (
     imcrop,
     imflip,
     impad,
@@ -11,8 +11,8 @@ from .geometric import (
     imtranslate,
     rescale_size,
 )
-from .io import imfrombytes, imread, imwrite
-from .photometric import hsv2bgr, imdenormalize, imnormalize
+from visdet.cv.image.io import imfrombytes, imread, imwrite
+from visdet.cv.image.photometric import hsv2bgr, imdenormalize, imnormalize
 
 __all__ = [
     "hsv2bgr",

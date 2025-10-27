@@ -8,7 +8,7 @@ from typing import Any, Union
 from visdet.engine.config import Config, ConfigDict
 from visdet.engine.utils import ManagerMixin, digit_version
 
-from .registry import Registry
+from visdet.engine.registry.registry import Registry
 
 from typing import TYPE_CHECKING, Any, Union
 

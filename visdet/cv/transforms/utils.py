@@ -8,7 +8,7 @@ from collections import defaultdict
 from collections.abc import Callable, Iterable
 from contextlib import contextmanager
 
-from .base import BaseTransform
+from visdet.cv.transforms.base import BaseTransform
 
 
 class cache_randomness:

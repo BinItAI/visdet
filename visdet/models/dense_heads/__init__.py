@@ -1,6 +1,6 @@
 # ruff: noqa
-from .base_dense_head import BaseDenseHead
-from .anchor_head import AnchorHead
-from .rpn_head import RPNHead
+from visdet.models.dense_heads.base_dense_head import BaseDenseHead
+from visdet.models.dense_heads.anchor_head import AnchorHead
+from visdet.models.dense_heads.rpn_head import RPNHead
 
 __all__ = ["BaseDenseHead", "AnchorHead", "RPNHead"]

@@ -4,7 +4,7 @@
 from visdet.engine.dist import all_reduce_params, is_distributed
 from visdet.engine.registry import HOOKS
 
-from .hook import Hook
+from visdet.engine.hooks.hook import Hook
 
 
 @HOOKS.register_module(force=True)

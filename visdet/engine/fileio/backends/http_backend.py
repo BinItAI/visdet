@@ -8,7 +8,7 @@ from contextlib import contextmanager
 from pathlib import Path
 from urllib.request import urlopen
 
-from .base import BaseStorageBackend
+from visdet.engine.fileio.backends.base import BaseStorageBackend
 
 
 class HTTPBackend(BaseStorageBackend):

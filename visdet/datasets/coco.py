@@ -2,11 +2,10 @@
 import copy
 import os.path as osp
 
+from visdet.datasets.api_wrappers import COCO
+from visdet.datasets.base_det_dataset import BaseDetDataset
 from visdet.engine.fileio import get_local_path
 from visdet.registry import DATASETS
-
-from .api_wrappers import COCO
-from .base_det_dataset import BaseDetDataset
 
 
 @DATASETS.register_module()

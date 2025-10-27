@@ -42,13 +42,13 @@ from pathlib import Path
 
 from visdet.engine.utils import is_filepath, is_str
 
-from .backends import backends, prefix_to_backends
-from .file_client import FileClient
+from visdet.engine.fileio.backends import backends, prefix_to_backends
+from visdet.engine.fileio.file_client import FileClient
 
 # file_handlers and register_handler had been moved to
 # mmengine/fileio/handlers/registry_utis. Import them
 # in this file to keep backward compatibility.
-from .handlers import file_handlers, register_handler  # noqa: F401
+from visdet.engine.fileio.handlers import file_handlers, register_handler  # noqa: F401
 
 backend_instances: dict = {}
 
