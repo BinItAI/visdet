@@ -14,6 +14,8 @@ Example:
 """
 
 import copy
+import logging
+import os
 from pathlib import Path
 from typing import Optional, Union
 
@@ -24,6 +26,8 @@ from visdet.presets import (
     PIPELINE_PRESETS,
     SCHEDULER_PRESETS,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class SimpleRunner:
@@ -61,6 +65,8 @@ class SimpleRunner:
         val_interval: int = 1,
         batch_size: int = 2,
         num_workers: int = 2,
+        train_ann_file: Optional[str] = None,
+        val_ann_file: Optional[str] = None,
         **kwargs,
     ):
         """Initialize the SimpleRunner.
@@ -75,7 +81,27 @@ class SimpleRunner:
             val_interval: Validation interval in epochs.
             batch_size: Batch size for the dataloader.
             num_workers: Number of worker processes for the dataloader.
+            train_ann_file: Path to training annotation file (COCO format).
+                Overrides 'ann_file' in dataset config. Useful for dynamic
+                annotation generation in ML pipelines where annotation files
+                are generated on-the-fly from upstream data sources (e.g.,
+                MLflow artifacts, data processing jobs, cross-validation splits).
+            val_ann_file: Path to validation annotation file (COCO format).
+                Overrides 'val_ann_file' in dataset config. Enables validation
+                even if dataset preset doesn't define a validation annotation file.
+                Useful for generating validation splits dynamically.
             **kwargs: Additional config overrides to be set at the top level.
+
+        Example:
+            >>> # Using preset with dynamic annotation files from upstream pipeline
+            >>> runner = SimpleRunner(
+            ...     model='mask_rcnn_swin_s',
+            ...     dataset='cmr_instance_segmentation',  # Use preset for pipeline/classes
+            ...     train_ann_file='/mlflow/artifacts/run_123/train.json',  # Generated upstream
+            ...     val_ann_file='/mlflow/artifacts/run_123/val.json',      # Generated upstream
+            ...     epochs=12
+            ... )
+            >>> runner.train()
         """
         # Resolve all presets to configs
         self.model_cfg = self._resolve_preset(model, MODEL_PRESETS, "model")
@@ -92,6 +118,13 @@ class SimpleRunner:
         self.batch_size = batch_size
         self.num_workers = num_workers
         self.kwargs = kwargs
+
+        # Store annotation file parameters for dynamic specification
+        self.train_ann_file = train_ann_file
+        self.val_ann_file = val_ann_file
+
+        # Validate annotation files exist before building config
+        self._validate_annotation_files()
 
         # Build the full config
         self._build_config()
@@ -126,12 +159,56 @@ class SimpleRunner:
                 result[key] = value
         return result
 
+    def _validate_annotation_files(self) -> None:
+        """Validate that annotation files exist if provided.
+
+        Checks whether train_ann_file and val_ann_file (if provided) exist
+        before training starts. This catches configuration errors early.
+
+        Raises:
+            FileNotFoundError: If annotation file doesn't exist.
+        """
+        if self.train_ann_file is not None:
+            train_path = Path(self.train_ann_file)
+            if not train_path.is_absolute():
+                # Make relative to data_root if defined in dataset config
+                data_root = self.dataset_cfg.get("data_root", "")
+                if data_root:
+                    train_path = Path(data_root) / train_path
+            if not train_path.exists():
+                raise FileNotFoundError(
+                    f"Training annotation file not found: {train_path}\n"
+                    f"Provided path: {self.train_ann_file}\n"
+                    f"Ensure the file exists and the path is correct before training."
+                )
+            logger.info(f"Validated training annotation file: {train_path}")
+
+        if self.val_ann_file is not None:
+            val_path = Path(self.val_ann_file)
+            if not val_path.is_absolute():
+                # Make relative to data_root if defined in dataset config
+                data_root = self.dataset_cfg.get("data_root", "")
+                if data_root:
+                    val_path = Path(data_root) / val_path
+            if not val_path.exists():
+                raise FileNotFoundError(
+                    f"Validation annotation file not found: {val_path}\n"
+                    f"Provided path: {self.val_ann_file}\n"
+                    f"Ensure the file exists and the path is correct before training."
+                )
+            logger.info(f"Validated validation annotation file: {val_path}")
+
     def _build_config(self) -> None:
         """Build a full MMEngine-compatible configuration from resolved presets."""
         from visdet.engine import Config
 
         # Automatically sync num_classes from dataset to model
         self._sync_num_classes()
+
+        # Override train annotation file if provided dynamically
+        if self.train_ann_file is not None:
+            logger.info(f"Overriding training annotation file with: {self.train_ann_file}")
+            self.dataset_cfg["ann_file"] = self.train_ann_file
 
         # --- Train Dataloader ---
         train_dataloader = {
@@ -147,11 +224,25 @@ class SimpleRunner:
         val_evaluator = None
         val_dataset_cfg = copy.deepcopy(self.dataset_cfg)
 
-        # MMDetection convention: look for a validation-specific annotation file
-        # To enable validation, add `val_ann_file` to your dataset preset YAML.
-        if "val_ann_file" in val_dataset_cfg:
-            val_dataset_cfg["ann_file"] = val_dataset_cfg.pop("val_ann_file")
+        # Priority hierarchy for validation annotation file:
+        # 1. Explicit val_ann_file parameter (highest priority)
+        # 2. Dataset preset's val_ann_file field (medium priority)
+        # 3. No validation (lowest priority)
+        has_validation = False
 
+        if self.val_ann_file is not None:
+            # User provided explicit validation annotation file
+            logger.info(f"Overriding validation annotation file with: {self.val_ann_file}")
+            val_dataset_cfg["ann_file"] = self.val_ann_file
+            has_validation = True
+        elif "val_ann_file" in val_dataset_cfg:
+            # MMDetection convention: look for a validation-specific annotation file
+            # To enable validation, add `val_ann_file` to your dataset preset YAML.
+            logger.info(f"Using validation annotation file from preset: {val_dataset_cfg['val_ann_file']}")
+            val_dataset_cfg["ann_file"] = val_dataset_cfg.pop("val_ann_file")
+            has_validation = True
+
+        if has_validation:
             # Use a different pipeline for validation if provided
             if "val_pipeline" in val_dataset_cfg:
                 val_dataset_cfg["pipeline"] = val_dataset_cfg.pop("val_pipeline")

@@ -140,6 +140,28 @@ runner = SimpleRunner(
 )
 ```
 
+**Dynamic annotation files for ML pipelines:**
+```python
+# Specify annotation files dynamically from upstream sources
+# Perfect for MLflow, Airflow, cross-validation, or CI/CD workflows
+runner = SimpleRunner(
+    model='mask_rcnn_swin_s',
+    dataset='coco_instance_segmentation',
+    train_ann_file='/mlflow/artifacts/experiment_123/train.json',  # Generated upstream
+    val_ann_file='/mlflow/artifacts/experiment_123/val.json',      # Generated upstream
+)
+runner.train()
+```
+
+This enables seamless integration with ML pipelines where annotation files are generated on-the-fly:
+- **MLflow**: Download versioned annotations from experiment artifacts
+- **Airflow/Prefect**: Pull latest annotations from data processing jobs
+- **Cross-Validation**: Iterate over fold-specific annotation files
+- **A/B Testing**: Compare models across different data distributions
+- **CI/CD**: Use synthetic minimal datasets for fast integration tests
+
+See [Dynamic Annotations Guide](docs/DYNAMIC_ANNOTATIONS.md) for detailed documentation and examples.
+
 For more examples and tutorials, visit the [Documentation](https://binitai.github.io/visdet/).
 
 ---
