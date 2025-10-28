@@ -1,16 +1,16 @@
 # visdet
 
-This is a minimal version of MMDetection, supporting only Swin Mask R-CNN for object detection and instance segmentation.
+This is a port of MMDetection with a focus on essential object detection and instance segmentation models. It supports multiple modern backbones (Swin Transformer, ResNet) with standard detection heads (Faster R-CNN, Mask R-CNN).
 
-Be very very careful with any edits to the underlying model code, always check against
+Be very careful with any edits to the underlying model code, always check against
 the reference mmdetection repo we have locally.
 
 ## Key Principles
 
-1. **Single Model Focus**: Only support Swin Transformer + Mask R-CNN
+1. **Essential Model Support**: Focus on widely-used architectures and configurations that have strong proven track records
 2. **COCO Format**: Only support COCO-style datasets
-3. **Essential Components**: Keep only what's needed for this specific model
-4. **Absolute Imports**: Always use absolute imports (e.g., `from visdet.engine import X`) instead of relative imports (e.g., `from .engine import X`) to avoid circular import issues
+3. **Absolute Imports**: Always use absolute imports (e.g., `from visdet.engine import X`) instead of relative imports (e.g., `from .engine import X`) to avoid circular import issues
+4. **Pure PyTorch**: Avoid custom CUDA operations when possible. Use pure PyTorch implementations or standard operations with graceful fallbacks
 5. **No sys.modules Manipulation**: Never use `sys.modules` hacks to create module aliases (e.g., `sys.modules["old_name"] = new_module`). This pollutes global state and makes debugging difficult. Instead, update imports directly at their source or use proper re-exports in `__init__.py` files for backward compatibility
 6. **No Try/Except Around Imports**: Do not wrap imports in try/except blocks unless explicitly required for a specific use case. This masks missing dependencies and makes debugging difficult. If an import fails, it should fail loudly so that dependency issues are caught immediately
 
@@ -18,10 +18,10 @@ the reference mmdetection repo we have locally.
 
 ### Models
 
-- **Backbone**: SwinTransformer only
-- **Neck**: FPN only
-- **Head**: RPNHead, StandardRoIHead (with bbox and mask branches)
-- **Detector**: MaskRCNN (two-stage detector)
+- **Backbones**: SwinTransformer, ResNet (18, 34, 50, 101, 152), ResNeXt (50, 101, 152)
+- **Neck**: FPN
+- **Heads**: RPNHead, StandardRoIHead (with bbox and mask branches)
+- **Detectors**: MaskRCNN, Faster R-CNN (two-stage detectors)
 
 ### Data
 
@@ -35,9 +35,9 @@ the reference mmdetection repo we have locally.
 
 ## What to Remove
 
-- All other backbones (ResNet, RegNet, etc.)
-- All other detectors (YOLO, RetinaNet, DETR, etc.)
-- All other necks (PAFPN, NAS-FPN, etc.)
+- Experimental/complex backbones (RegNet, EfficientNet, etc.) - focus on proven architectures
+- Specialized detectors (YOLO, RetinaNet, DETR, etc.) - focus on two-stage detectors
+- Experimental necks (PAFPN, NAS-FPN, etc.) - keep core necks (FPN)
 - Video/tracking components
 - 3D detection components
 - Panoptic segmentation
