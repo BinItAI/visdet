@@ -8,6 +8,7 @@ on-the-fly annotation generation from upstream sources.
 import json
 import tempfile
 import unittest
+import warnings
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -262,6 +263,244 @@ class TestAnnotationFileValidation(unittest.TestCase):
 
             # Check that validation success was logged
             mock_logger.info.assert_called()
+
+
+class TestAnnotationClassDetection(unittest.TestCase):
+    """Test automatic class detection from annotation files."""
+
+    def setUp(self) -> None:
+        """Set up test fixtures with temporary annotation files."""
+        self.temp_dir = tempfile.mkdtemp()
+        self.temp_path = Path(self.temp_dir)
+
+    def tearDown(self) -> None:
+        """Clean up temporary files."""
+        import shutil
+
+        shutil.rmtree(self.temp_dir)
+
+    def create_coco_annotation(self, output_path: Path, category_ids: list[int], category_names: list[str]) -> None:
+        """Helper to create COCO annotation with specified categories."""
+        categories = [{"id": cid, "name": cname} for cid, cname in zip(category_ids, category_names)]
+        annotation = {
+            "images": [{"id": i, "file_name": f"image_{i}.jpg"} for i in range(3)],
+            "annotations": [
+                {"id": i, "image_id": i, "category_id": category_ids[i % len(category_ids)]} for i in range(3)
+            ],
+            "categories": categories,
+        }
+        output_path.write_text(json.dumps(annotation))
+
+    def test_extract_classes_from_annotation(self) -> None:
+        """Test extracting classes from COCO annotation file."""
+        train_ann = self.temp_path / "train.json"
+        self.create_coco_annotation(train_ann, [1, 2, 3], ["cat", "dog", "bird"])
+
+        # Create minimal runner without full initialization
+        with patch("visdet.runner.SimpleRunner._resolve_preset"):
+            with patch("visdet.runner.SimpleRunner._validate_annotation_files"):
+                with patch("visdet.runner.SimpleRunner._build_config"):
+                    runner = SimpleRunner(
+                        model="mask_rcnn_swin_s",
+                        dataset="test_dataset",
+                        train_ann_file=str(train_ann),
+                    )
+
+        # Test extraction
+        cat_ids, cat_dict = runner._extract_classes_from_annotation(str(train_ann))
+        assert cat_ids == [1, 2, 3]
+        assert cat_dict == {1: "cat", 2: "dog", 3: "bird"}
+
+    def test_identical_classes_no_warnings(self) -> None:
+        """Test that identical classes in train/val produce no warnings."""
+        # Create minimal runner
+        with patch("visdet.runner.SimpleRunner._resolve_preset"):
+            with patch("visdet.runner.SimpleRunner._validate_annotation_files"):
+                with patch("visdet.runner.SimpleRunner._build_config"):
+                    runner = SimpleRunner(
+                        model="mask_rcnn_swin_s",
+                        dataset="test_dataset",
+                    )
+
+        train_ids = [1, 2, 3]
+        train_dict = {1: "cat", 2: "dog", 3: "bird"}
+        val_ids = [1, 2, 3]
+        val_dict = {1: "cat", 2: "dog", 3: "bird"}
+
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            num_classes, class_names = runner._merge_and_validate_classes(train_ids, train_dict, val_ids, val_dict)
+            # No warnings should be raised
+            assert len(w) == 0
+
+        assert num_classes == 3
+        assert class_names == ["cat", "dog", "bird"]
+
+    def test_val_only_classes_warning(self) -> None:
+        """Test HIGH severity warning for validation-only classes."""
+        # Create minimal runner
+        with patch("visdet.runner.SimpleRunner._resolve_preset"):
+            with patch("visdet.runner.SimpleRunner._validate_annotation_files"):
+                with patch("visdet.runner.SimpleRunner._build_config"):
+                    runner = SimpleRunner(
+                        model="mask_rcnn_swin_s",
+                        dataset="test_dataset",
+                    )
+
+        train_ids = [1, 2]
+        train_dict = {1: "cat", 2: "dog"}
+        val_ids = [1, 2, 3, 4]
+        val_dict = {1: "cat", 2: "dog", 3: "bird", 4: "fish"}
+
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            num_classes, class_names = runner._merge_and_validate_classes(train_ids, train_dict, val_ids, val_dict)
+            # Should have ONE warning about val-only classes
+            assert len(w) == 1
+            assert "HIGH" in str(w[0].message)
+            assert "bird" in str(w[0].message)
+            assert "fish" in str(w[0].message)
+
+        # UNION should have 4 classes
+        assert num_classes == 4
+        assert class_names == ["cat", "dog", "bird", "fish"]
+
+    def test_train_only_classes_info(self) -> None:
+        """Test MEDIUM severity warning for training-only classes."""
+        # Create minimal runner
+        with patch("visdet.runner.SimpleRunner._resolve_preset"):
+            with patch("visdet.runner.SimpleRunner._validate_annotation_files"):
+                with patch("visdet.runner.SimpleRunner._build_config"):
+                    runner = SimpleRunner(
+                        model="mask_rcnn_swin_s",
+                        dataset="test_dataset",
+                    )
+
+        train_ids = [1, 2, 3, 4]
+        train_dict = {1: "cat", 2: "dog", 3: "bird", 4: "fish"}
+        val_ids = [1, 2]
+        val_dict = {1: "cat", 2: "dog"}
+
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            num_classes, class_names = runner._merge_and_validate_classes(train_ids, train_dict, val_ids, val_dict)
+            # Should have ONE warning about train-only classes
+            assert len(w) == 1
+            assert "MEDIUM" in str(w[0].message)
+            assert "bird" in str(w[0].message)
+            assert "fish" in str(w[0].message)
+
+        # UNION should have 4 classes
+        assert num_classes == 4
+        assert class_names == ["cat", "dog", "bird", "fish"]
+
+    def test_duplicate_id_different_name_error(self) -> None:
+        """Test that category ID conflicts raise ValueError."""
+        # Create minimal runner
+        with patch("visdet.runner.SimpleRunner._resolve_preset"):
+            with patch("visdet.runner.SimpleRunner._validate_annotation_files"):
+                with patch("visdet.runner.SimpleRunner._build_config"):
+                    runner = SimpleRunner(
+                        model="mask_rcnn_swin_s",
+                        dataset="test_dataset",
+                    )
+
+        train_ids = [1, 2, 3]
+        train_dict = {1: "cat", 2: "dog", 3: "bird"}
+        val_ids = [1, 2, 3]
+        val_dict = {1: "cat", 2: "canine", 3: "bird"}  # ID 2 has different name
+
+        with self.assertRaises(ValueError) as context:
+            runner._merge_and_validate_classes(train_ids, train_dict, val_ids, val_dict)
+
+        error_msg = str(context.exception)
+        assert "conflicting names" in error_msg
+        assert "dog" in error_msg
+        assert "canine" in error_msg
+
+    def test_non_contiguous_ids_error(self) -> None:
+        """Test that non-contiguous category IDs raise ValueError."""
+        # Create minimal runner
+        with patch("visdet.runner.SimpleRunner._resolve_preset"):
+            with patch("visdet.runner.SimpleRunner._validate_annotation_files"):
+                with patch("visdet.runner.SimpleRunner._build_config"):
+                    runner = SimpleRunner(
+                        model="mask_rcnn_swin_s",
+                        dataset="test_dataset",
+                    )
+
+        train_ids = [1, 2, 5]  # Missing 3 and 4
+        train_dict = {1: "cat", 2: "dog", 5: "bird"}
+
+        with self.assertRaises(ValueError) as context:
+            runner._merge_and_validate_classes(train_ids, train_dict)
+
+        error_msg = str(context.exception)
+        assert "not contiguous" in error_msg
+
+    def test_cascade_roi_head_all_stages_updated(self) -> None:
+        """Test that CascadeRoIHead updates num_classes in all stages."""
+        # Create minimal runner for testing _sync_num_classes
+        with patch("visdet.runner.SimpleRunner._resolve_preset"):
+            with patch("visdet.runner.SimpleRunner._validate_annotation_files"):
+                with patch("visdet.runner.SimpleRunner._build_config"):
+                    runner = SimpleRunner(
+                        model="cascade_mask_rcnn_swin_s",
+                        dataset="test_dataset",
+                    )
+
+        # Set up cascade head with 3 stages
+        runner.model_cfg = {
+            "roi_head": {
+                "type": "CascadeRoIHead",
+                "bbox_head": [
+                    {"type": "BBoxHead", "num_classes": 80},
+                    {"type": "BBoxHead", "num_classes": 80},
+                    {"type": "BBoxHead", "num_classes": 80},
+                ],
+            }
+        }
+
+        # Set up dataset config with train annotation file
+        train_ann = self.temp_path / "train.json"
+        self.create_coco_annotation(train_ann, [1, 2, 3], ["cat", "dog", "bird"])
+        runner.train_ann_file = str(train_ann)
+        runner.val_ann_file = None
+        runner.dataset_cfg = {"data_root": self.temp_dir, "metainfo": {"classes": []}}
+
+        # Call _sync_num_classes which should update all stages
+        runner._sync_num_classes()
+
+        # Verify all stages updated
+        bbox_head = runner.model_cfg["roi_head"]["bbox_head"]
+        assert isinstance(bbox_head, list)
+        assert len(bbox_head) == 3
+        for stage in bbox_head:
+            assert stage["num_classes"] == 3  # Updated to 3 classes from annotation
+
+    def test_union_class_ordering(self) -> None:
+        """Test that merged classes maintain proper ordering."""
+        # Create minimal runner
+        with patch("visdet.runner.SimpleRunner._resolve_preset"):
+            with patch("visdet.runner.SimpleRunner._validate_annotation_files"):
+                with patch("visdet.runner.SimpleRunner._build_config"):
+                    runner = SimpleRunner(
+                        model="mask_rcnn_swin_s",
+                        dataset="test_dataset",
+                    )
+
+        # Train has classes 1, 3, 5; Val has 2, 4
+        train_ids = [1, 3, 5]
+        train_dict = {1: "cat", 3: "dog", 5: "bird"}
+        val_ids = [2, 4]
+        val_dict = {2: "fish", 4: "zebra"}
+
+        num_classes, class_names = runner._merge_and_validate_classes(train_ids, train_dict, val_ids, val_dict)
+
+        # Should have 5 classes total (UNION)
+        assert num_classes == 5
+        # Classes should be in order: [cat, fish, dog, zebra, bird]
+        assert class_names == ["cat", "fish", "dog", "zebra", "bird"]
 
 
 if __name__ == "__main__":

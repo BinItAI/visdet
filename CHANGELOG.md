@@ -21,6 +21,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Full test coverage with 13+ unit tests in `tests/test_simple_runner_annotation_files.py`
   - Integration examples demonstrating MLflow, cross-validation, and A/B testing workflows
 
+- **Automatic Class Detection and Configuration** - SimpleRunner now automatically detects and configures model classes from annotation files
+  - Parses COCO annotation files at runtime to detect actual classes in data
+  - Eliminates manual `num_classes` configuration
+  - Uses UNION of classes when both train and val annotation files provided
+  - Prevents mismatches between model architecture and training data
+  - Supports both StandardRoIHead (single dict) and CascadeRoIHead (multi-stage list)
+  - Clear priority hierarchy: annotation files > dataset metainfo > skip
+  - HIGH severity warning for validation-only classes (model won't learn them)
+  - MEDIUM severity warning for training-only classes (no validation metrics)
+  - Error detection for category ID conflicts and non-contiguous IDs
+  - Comprehensive logging for debugging class configuration issues
+  - Zero performance impact - detection is one-time during initialization
+  - Full test coverage with 8+ new test cases in `TestAnnotationClassDetection`
+
 ### Changed
 
 - SimpleRunner `__init__` now validates annotation files before building config

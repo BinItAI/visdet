@@ -482,6 +482,168 @@ runner = SimpleRunner(
 - **Multi-GPU (DDP)**: Parameters are stored for worker recreation, no extra cost
 - **Large files**: No performance difference between dynamic and preset files
 
+## Automatic Class Detection and Configuration
+
+### Overview
+
+When using `train_ann_file` and `val_ann_file` parameters, SimpleRunner **automatically detects the number of classes** from your annotation files and configures the model's `bbox_head` and `mask_head` accordingly. This eliminates the need to manually specify `num_classes` and prevents mismatches between your data and model architecture.
+
+### How It Works
+
+**Priority Hierarchy:**
+1. **Annotation files** (if provided via `train_ann_file`/`val_ann_file`)
+   - Parses the COCO `categories` field at runtime
+   - Detects actual classes in your data
+   - Highest priority - takes precedence over everything else
+
+2. **Dataset metainfo** (from preset configuration)
+   - Falls back to classes defined in the dataset preset
+   - Only used if no annotation files are provided
+
+3. **Skip if no classes found**
+   - Preserves existing model config if no class information is available
+
+### Supported Model Architectures
+
+- **StandardRoIHead**: Single `bbox_head` dict (e.g., Mask R-CNN, Faster R-CNN)
+- **CascadeRoIHead**: Multiple `bbox_head` stages as list (e.g., Cascade Mask R-CNN)
+
+### Union of Classes (When Using Both Train and Val)
+
+When you provide **both** `train_ann_file` and `val_ann_file`, SimpleRunner uses the **UNION** of classes from both files. This ensures the model can predict any class that appears in either split.
+
+**Example:**
+- Training annotations: classes [1, 2, 3] (cat, dog, bird)
+- Validation annotations: classes [1, 2, 4] (cat, dog, fish)
+- Model configured for: [1, 2, 3, 4] (UNION - all 4 classes)
+
+This approach ensures that:
+- The model learns all training classes
+- The model can evaluate on all validation classes
+- No mismatch between train and validation class sets
+
+### Warnings and Validation
+
+SimpleRunner provides clear warnings when class mismatches are detected:
+
+#### Validation-Only Classes (HIGH Severity)
+Classes that appear in validation but not in training. **High priority** because the model won't learn to predict these classes.
+
+```python
+# WARNING: HIGH: Validation has 2 classes not in training:
+# ['fish', 'zebra']. The model will not learn to predict these
+# classes during training. Consider adding training samples
+# for these classes.
+```
+
+#### Training-Only Classes (MEDIUM Severity)
+Classes that appear in training but not in validation. **Medium priority** because the model learns them but can't be evaluated on them.
+
+```python
+# WARNING: MEDIUM: Training has 2 classes not in validation:
+# ['fish', 'zebra']. No validation metrics will be computed
+# for these classes.
+```
+
+#### Category ID Conflicts (ERROR)
+Same category ID with different names in train and val files. This is an error because it creates ambiguity.
+
+```python
+# ValueError: Category ID 2 has conflicting names: 'dog' (train)
+# vs 'canine' (val). Category IDs must have consistent names
+# across datasets.
+```
+
+#### Non-Contiguous Category IDs (ERROR)
+Category IDs must be consecutive (e.g., [1, 2, 3, 4] is valid, but [1, 2, 5] is invalid).
+
+```python
+# ValueError: Category IDs are not contiguous: [1, 2, 5].
+# Category IDs must be consecutive integers.
+```
+
+### Example: Automatic Configuration
+
+```python
+from visdet import SimpleRunner
+
+# Train and val have different class distributions
+# Train: 70 classes
+# Val: 69 classes (missing one rare class, has one new class)
+
+runner = SimpleRunner(
+    model='mask_rcnn_swin_s',
+    dataset='cmr_instance_segmentation',  # Preset has 69 classes (ignored!)
+    train_ann_file='/data/fold_0_train.json',  # Has 70 classes
+    val_ann_file='/data/fold_0_val.json',      # Has 69 classes
+    epochs=12
+)
+
+# Automatic behavior:
+# 1. Parses train_ann_file -> detects 70 classes
+# 2. Parses val_ann_file -> detects 69 classes
+# 3. Merges using UNION -> model configured for 70 classes
+# 4. Warns about 1 validation-only class
+# 5. ConfigS model.roi_head.bbox_head.num_classes = 70
+```
+
+### Performance Notes
+
+- **One-time overhead**: Class detection happens once during initialization
+- **Minimal cost**: Only parses the `categories` field of JSON files
+- **No impact on training speed**: Detection is done before training starts
+- **Multi-GPU safe**: Works correctly with DDP (parameters stored for worker recreation)
+
+### Troubleshooting Class Detection Issues
+
+**Issue: Model num_classes doesn't match annotation file classes**
+
+Check the logs for automatic class detection messages:
+```python
+runner = SimpleRunner(...)  # Creates runner
+
+# Look for logs like:
+# "Auto-detected 70 classes from training annotation file: ['cat', 'dog', ...]"
+# "Automatically set model num_classes to 70 (from training annotation file)"
+```
+
+**Issue: Getting "Category ID conflicts" error**
+
+Ensure your train and val annotation files use consistent naming for the same category IDs:
+
+```python
+# WRONG: Same ID, different names
+# train.json: {id: 1, name: "dog"}
+# val.json:   {id: 1, name: "canine"}
+
+# RIGHT: Same ID, same name
+# train.json: {id: 1, name: "dog"}
+# val.json:   {id: 1, name: "dog"}
+```
+
+**Issue: Getting "Category IDs are not contiguous" error**
+
+Your annotation file has non-consecutive category IDs. Either:
+1. Regenerate annotation files with consecutive IDs, or
+2. Preprocess annotation files before passing to SimpleRunner:
+
+```python
+def fix_category_ids(annotation_data):
+    """Remap category IDs to be consecutive."""
+    # Map old IDs to new consecutive IDs
+    old_to_new = {}
+    for new_id, cat in enumerate(annotation_data['categories'], 1):
+        old_id = cat['id']
+        old_to_new[old_id] = new_id
+        cat['id'] = new_id
+
+    # Update annotations
+    for ann in annotation_data['annotations']:
+        ann['category_id'] = old_to_new[ann['category_id']]
+
+    return annotation_data
+```
+
 ## Backward Compatibility
 
 ✅ **Fully backward compatible**:
