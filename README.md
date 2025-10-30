@@ -236,7 +236,7 @@ Facebook AI Research's production-grade detection library. Supports object detec
 ### [detrex](https://github.com/IDEA-Research/detrex)
 A specialized research platform built on top of Detectron2, focused specifically on Transformer-based detection algorithms (DETR variants). Provides unified modular design for 20+ Transformer models including DETR, Deformable-DETR, DINO, and MaskDINO. Uses LazyConfig for flexible configuration.
 
-**Choose detrex if:** You're doing cutting-edge Transformer-based detection research or want to experiment with DETR variants.
+**Choose detrex if:** You're doing cutting-edge Transformer-based detection research or want to experiment with DETR variants. But I'm aiming to integrate all of the models that have operations supported by ONNX.
 
 ### visdet (this project)
 A streamlined fork of MMDetection with integrated dependencies, no CUDA compilation requirements, and modern training techniques from fast.ai and LLM fine-tuning.
