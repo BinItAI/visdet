@@ -1,0 +1,164 @@
+name: Modal GPU Tests
+
+on:
+  pull_request:
+    types: [labeled, opened, synchronize]
+    branches:
+      - master
+      - main
+  workflow_dispatch:
+    inputs:
+      test_type:
+        description: 'Type of tests to run'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - 'all'
+          - 'gpu-unit'
+          - 'integration'
+          - 'benchmarks'
+          - 'multi-gpu'
+      skip_multi_gpu:
+        description: 'Skip multi-GPU tests'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  check-label:
+    name: Check if GPU tests should run
+    runs-on: ubuntu-latest
+    outputs:
+      should-run: ${{ steps.check.outputs.should-run }}
+    steps:
+      - name: Check for gpu-tests label
+        id: check
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "should-run=true" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.event.action }}" == "labeled" ]]; then
+            if [[ "${{ github.event.label.name }}" == "gpu-tests" ]] || [[ "${{ github.event.label.name }}" == "modal-tests" ]]; then
+              echo "should-run=true" >> $GITHUB_OUTPUT
+            else
+              echo "should-run=false" >> $GITHUB_OUTPUT
+            fi
+          elif [[ "${{ contains(github.event.pull_request.labels.*.name, 'gpu-tests') }}" == "true" ]] || [[ "${{ contains(github.event.pull_request.labels.*.name, 'modal-tests') }}" == "true" ]]; then
+            echo "should-run=true" >> $GITHUB_OUTPUT
+          else
+            echo "should-run=false" >> $GITHUB_OUTPUT
+          fi
+
+  modal-tests:
+    name: Modal GPU Tests
+    runs-on: ubuntu-latest
+    needs: check-label
+    if: needs.check-label.outputs.should-run == 'true'
+    strategy:
+      matrix:
+        python-version: ['3.10', '3.11', '3.12']
+      fail-fast: false
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          uv sync --extra tests
+          pip install -r requirements-modal.txt
+
+      - name: Configure Modal credentials
+        env:
+          MODAL_TOKEN_ID: ${{ secrets.MODAL_TOKEN_ID }}
+          MODAL_TOKEN_SECRET: ${{ secrets.MODAL_TOKEN_SECRET }}
+        run: |
+          if [[ -z "$MODAL_TOKEN_ID" ]] || [[ -z "$MODAL_TOKEN_SECRET" ]]; then
+            echo "ERROR: Modal credentials not configured. Please set MODAL_TOKEN_ID and MODAL_TOKEN_SECRET in GitHub secrets."
+            exit 1
+          fi
+
+      - name: Run GPU Unit Tests
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.test_type != 'integration' && github.event.inputs.test_type != 'benchmarks' && github.event.inputs.test_type != 'multi-gpu' || github.event_name != 'workflow_dispatch'
+        run: |
+          python -m tests.modal_runner --test-type gpu-unit
+        env:
+          MODAL_TOKEN_ID: ${{ secrets.MODAL_TOKEN_ID }}
+          MODAL_TOKEN_SECRET: ${{ secrets.MODAL_TOKEN_SECRET }}
+
+      - name: Run Integration Tests
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.test_type != 'gpu-unit' && github.event.inputs.test_type != 'benchmarks' && github.event.inputs.test_type != 'multi-gpu' || github.event_name != 'workflow_dispatch'
+        run: |
+          python -m tests.modal_runner --test-type integration
+        env:
+          MODAL_TOKEN_ID: ${{ secrets.MODAL_TOKEN_ID }}
+          MODAL_TOKEN_SECRET: ${{ secrets.MODAL_TOKEN_SECRET }}
+
+      - name: Run Performance Benchmarks
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.test_type != 'gpu-unit' && github.event.inputs.test_type != 'integration' && github.event.inputs.test_type != 'multi-gpu' || github.event_name != 'workflow_dispatch'
+        run: |
+          python -m tests.modal_runner --test-type benchmarks
+        env:
+          MODAL_TOKEN_ID: ${{ secrets.MODAL_TOKEN_ID }}
+          MODAL_TOKEN_SECRET: ${{ secrets.MODAL_TOKEN_SECRET }}
+
+      - name: Run Multi-GPU Tests
+        if: (github.event_name == 'workflow_dispatch' && github.event.inputs.test_type != 'gpu-unit' && github.event.inputs.test_type != 'integration' && github.event.inputs.test_type != 'benchmarks' && !github.event.inputs.skip_multi_gpu || github.event_name != 'workflow_dispatch') && matrix.python-version == '3.12'
+        run: |
+          python -m tests.modal_runner --test-type multi-gpu
+        env:
+          MODAL_TOKEN_ID: ${{ secrets.MODAL_TOKEN_ID }}
+          MODAL_TOKEN_SECRET: ${{ secrets.MODAL_TOKEN_SECRET }}
+
+      - name: Upload test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: modal-test-artifacts-py${{ matrix.python-version }}
+          path: |
+            /artifacts/
+            test-results/
+          retention-days: 30
+
+      - name: Comment on PR with test results
+        if: always() && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const testResults = {
+              timestamp: new Date().toISOString(),
+              pythonVersion: '${{ matrix.python-version }}',
+              passed: ${{ job.status == 'success' }},
+              status: '${{ job.status }}'
+            };
+
+            let comment = `## 🚀 Modal GPU Tests Results\n\n`;
+            comment += `**Python Version**: ${{ matrix.python-version }}\n`;
+            comment += `**Status**: ${testResults.passed ? '✅ PASSED' : '❌ FAILED'}\n`;
+            comment += `**Time**: ${testResults.timestamp}\n\n`;
+
+            if (!testResults.passed) {
+              comment += `⚠️ Some GPU tests failed. Check the artifacts for details.`;
+            } else {
+              comment += `✅ All GPU tests passed successfully!`;
+            }
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
