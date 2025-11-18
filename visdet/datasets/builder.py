@@ -190,7 +190,7 @@ def build_dataloader(
             if shuffle:
                 sampler = DistributedGroupSampler(dataset, samples_per_gpu, world_size, rank, seed=seed)
             else:
-                sampler = DistributedSampler(dataset, world_size, rank, shuffle=False, seed=seed)
+                sampler = DistributedSampler(dataset, world_size, rank, shuffle=False, seed=seed)  # type: ignore[call-arg]
         else:
             sampler = GroupSampler(dataset, samples_per_gpu) if shuffle else None
         batch_sampler = None

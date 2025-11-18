@@ -4,27 +4,26 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
-from typing import Any
+from typing import Any, cast
 
 import numpy as np
-from visdet.engine.utils import is_str
 
 ColorTuple = tuple[int, int, int]
 
 
 def _as_color_tuple(color: Any) -> ColorTuple | None:
     if isinstance(color, np.ndarray):
-        color = color.tolist()
-    if isinstance(color, Sequence):
-        ints = [int(c) for c in color[:3]]
-        if not ints:
-            return None
-        while len(ints) < 3:
-            ints.append(0)
-        return tuple(ints)
-    if isinstance(color, tuple):
-        return tuple(int(c) for c in color[:3])
-    return None
+        values = color.tolist()
+        ints = [int(c) for c in values[:3]]
+    elif isinstance(color, (list, tuple)):
+        ints = [int(c) for c in list(color)[:3]]
+    else:
+        return None
+    if not ints:
+        return None
+    while len(ints) < 3:
+        ints.append(0)
+    return cast(ColorTuple, tuple(ints[:3]))
 
 
 def palette_val(palette: Sequence[Sequence[int]] | Sequence[int]) -> list[ColorTuple]:
@@ -93,7 +92,7 @@ def get_palette(
         np.random.seed(42)
         palette = np.random.randint(0, 256, size=(num_classes, 3))
         np.random.set_state(state)
-        dataset_palette = [tuple(c) for c in palette]
+        dataset_palette = [cast(ColorTuple, tuple(int(x) for x in c[:3])) for c in palette]
     elif dataset_palette is None and palette == "coco":
         # For now, we'll use a predefined COCO palette
         # This avoids circular imports from datasets
@@ -184,7 +183,7 @@ def get_palette(
             # Generate additional colors if needed
             np.random.seed(42)
             extra_colors = np.random.randint(0, 256, size=(num_classes - len(dataset_palette), 3))
-            dataset_palette.extend([tuple(c) for c in extra_colors])
+            dataset_palette.extend([cast(ColorTuple, tuple(int(x) for x in c[:3])) for c in extra_colors])
     elif dataset_palette is None and palette == "citys":
         # Cityscapes palette - simplified version
         citys_palette = [
@@ -212,7 +211,7 @@ def get_palette(
         if len(dataset_palette) < num_classes:
             np.random.seed(42)
             extra_colors = np.random.randint(0, 256, size=(num_classes - len(dataset_palette), 3))
-            dataset_palette.extend([tuple(c) for c in extra_colors])
+            dataset_palette.extend([cast(ColorTuple, tuple(int(x) for x in c[:3])) for c in extra_colors])
     elif dataset_palette is None and palette == "voc":
         # VOC palette
         voc_palette = [
@@ -242,8 +241,8 @@ def get_palette(
         if len(dataset_palette) < num_classes:
             np.random.seed(42)
             extra_colors = np.random.randint(0, 256, size=(num_classes - len(dataset_palette), 3))
-            dataset_palette.extend([tuple(c) for c in extra_colors])
-    elif dataset_palette is None and is_str(palette):
+            dataset_palette.extend([cast(ColorTuple, tuple(int(x) for x in c[:3])) for c in extra_colors])
+    elif dataset_palette is None and isinstance(palette, str):
         # Convert color string to RGB tuple
         # Simple color name to RGB mapping
         color_map = {
@@ -308,5 +307,5 @@ def jitter_color(color: tuple) -> tuple:
     """
     jitter = np.random.rand(3)
     jitter = (jitter / np.linalg.norm(jitter) - 0.5) * 0.5 * 255
-    color = np.clip(jitter + color, 0, 255).astype(np.uint8)
-    return tuple(color)
+    clipped = np.clip(jitter + color, 0, 255).astype(np.uint8)
+    return cast(ColorTuple, tuple(int(c) for c in clipped.tolist()[:3]))

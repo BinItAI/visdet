@@ -312,3 +312,5 @@ class InstanceData(BaseDataElement):
         scores: torch.Tensor
         masks: torch.Tensor | "BitmapMasks" | "PolygonMasks"
         label_names: list[str]
+        priors: torch.Tensor  # Used in dense heads for anchor-based detection
+        level_ids: torch.Tensor  # Used to track which FPN level each instance belongs to
