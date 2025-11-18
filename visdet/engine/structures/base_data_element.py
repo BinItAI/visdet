@@ -1,12 +1,12 @@
-# ruff: noqa
-# type: ignore
 # Copyright (c) OpenMMLab. All rights reserved.
 import copy
 from collections.abc import Iterator
-from typing import Any
+from typing import Any, TypeVar
 
 import numpy as np
 import torch
+
+T = TypeVar("T", bound="BaseDataElement")
 
 
 class BaseDataElement:
@@ -210,16 +210,16 @@ class BaseDataElement:
         ...     det_sample.proposals = torch.rand((5, 4))
     """
 
-    def __init__(self, *, metainfo: dict | None = None, **kwargs) -> None:
-        self._metainfo_fields: set = set()
-        self._data_fields: set = set()
+    def __init__(self, *, metainfo: dict[str, Any] | None = None, **kwargs: Any) -> None:
+        self._metainfo_fields: set[str] = set()
+        self._data_fields: set[str] = set()
 
         if metainfo is not None:
             self.set_metainfo(metainfo=metainfo)
         if kwargs:
             self.set_data(kwargs)
 
-    def set_metainfo(self, metainfo: dict) -> None:
+    def set_metainfo(self, metainfo: dict[str, Any]) -> None:
         """Set or change key-value pairs in ``metainfo_field`` by parameter
         ``metainfo``.
 
@@ -232,7 +232,7 @@ class BaseDataElement:
         for k, v in meta.items():
             self.set_field(name=k, value=v, field_type="metainfo", dtype=None)
 
-    def set_data(self, data: dict) -> None:
+    def set_data(self, data: dict[str, Any]) -> None:
         """Set or change key-value pairs in ``data_field`` by parameter
         ``data``.
 
@@ -258,7 +258,7 @@ class BaseDataElement:
         self.set_metainfo(dict(instance.metainfo_items()))
         self.set_data(dict(instance.items()))
 
-    def new(self, *, metainfo: dict | None = None, **kwargs) -> "BaseDataElement":
+    def new(self: T, *, metainfo: dict[str, Any] | None = None, **kwargs: Any) -> T:
         """Return a new data element with same type. If ``metainfo`` and
         ``data`` are None, the new data element will have same metainfo and
         data. If metainfo or data is not None, the new result will overwrite it
@@ -284,9 +284,9 @@ class BaseDataElement:
             new_data.set_data(kwargs)
         else:
             new_data.set_data(dict(self.items()))
-        return new_data
+        return new_data  # type: ignore[return-value]
 
-    def clone(self):
+    def clone(self: T) -> T:
         """Deep copy the current data element.
 
         Returns:
@@ -295,9 +295,9 @@ class BaseDataElement:
         clone_data = self.__class__()
         clone_data.set_metainfo(dict(self.metainfo_items()))
         clone_data.set_data(dict(self.items()))
-        return clone_data
+        return clone_data  # type: ignore[return-value]
 
-    def keys(self) -> list:
+    def keys(self) -> list[str]:
         """
         Returns:
             list: Contains all keys in data_fields.
@@ -309,35 +309,35 @@ class BaseDataElement:
         private_keys = {"_" + key for key in self._data_fields if isinstance(getattr(type(self), key, None), property)}
         return list(self._data_fields - private_keys)
 
-    def metainfo_keys(self) -> list:
+    def metainfo_keys(self) -> list[str]:
         """
         Returns:
             list: Contains all keys in metainfo_fields.
         """
         return list(self._metainfo_fields)
 
-    def values(self) -> list:
+    def values(self) -> list[Any]:
         """
         Returns:
             list: Contains all values in data.
         """
         return [getattr(self, k) for k in self.keys()]
 
-    def metainfo_values(self) -> list:
+    def metainfo_values(self) -> list[Any]:
         """
         Returns:
             list: Contains all values in metainfo.
         """
         return [getattr(self, k) for k in self.metainfo_keys()]
 
-    def all_keys(self) -> list:
+    def all_keys(self) -> list[str]:
         """
         Returns:
             list: Contains all keys in metainfo and data.
         """
         return self.metainfo_keys() + self.keys()
 
-    def all_values(self) -> list:
+    def all_values(self) -> list[Any]:
         """
         Returns:
             list: Contains all values in metainfo and data.
@@ -372,7 +372,7 @@ class BaseDataElement:
             yield (k, getattr(self, k))
 
     @property
-    def metainfo(self) -> dict:
+    def metainfo(self) -> dict[str, Any]:
         """dict: A dict contains metainfo of current data element."""
         return dict(self.metainfo_items())
 
@@ -403,31 +403,35 @@ class BaseDataElement:
     # dict-like methods
     __delitem__ = __delattr__
 
-    def get(self, key, default=None) -> Any:
+    def get(self, key: str, default: Any = None) -> Any:
         """Get property in data and metainfo as the same as python."""
         # Use `getattr()` rather than `self.__dict__.get()` to allow getting
         # properties.
         return getattr(self, key, default)
 
-    def pop(self, *args) -> Any:
+    def pop(self, key: str, default: Any = ...) -> Any:
         """Pop property in data and metainfo as the same as python."""
-        assert len(args) < 3, "``pop`` get more than 2 arguments"
-        name = args[0]
-        if name in self._metainfo_fields:
-            self._metainfo_fields.remove(args[0])
-            return self.__dict__.pop(*args)
+        if key in self._metainfo_fields:
+            self._metainfo_fields.remove(key)
+            if default is ...:
+                return self.__dict__.pop(key)
+            else:
+                return self.__dict__.pop(key, default)
 
-        elif name in self._data_fields:
-            self._data_fields.remove(args[0])
-            return self.__dict__.pop(*args)
+        elif key in self._data_fields:
+            self._data_fields.remove(key)
+            if default is ...:
+                return self.__dict__.pop(key)
+            else:
+                return self.__dict__.pop(key, default)
 
         # with default value
-        elif len(args) == 2:
-            return args[1]
+        elif default is not ...:
+            return default
         else:
             # don't just use 'self.__dict__.pop(*args)' for only popping key in
             # metainfo or data
-            raise KeyError(f"{args[0]} is not contained in metainfo or data")
+            raise KeyError(f"{key} is not contained in metainfo or data")
 
     def __contains__(self, item: str) -> bool:
         """Whether the item is in dataelement.
@@ -465,7 +469,7 @@ class BaseDataElement:
         super().__setattr__(name, value)
 
     # Tensor-like methods
-    def to(self, *args, **kwargs) -> "BaseDataElement":
+    def to(self: T, *args: Any, **kwargs: Any) -> T:
         """Apply same name function to all tensors in data_fields."""
         new_data = self.new()
         for k, v in self.items():
@@ -476,7 +480,7 @@ class BaseDataElement:
         return new_data
 
     # Tensor-like methods
-    def cpu(self) -> "BaseDataElement":
+    def cpu(self: T) -> T:
         """Convert all tensors to CPU in data."""
         new_data = self.new()
         for k, v in self.items():
@@ -487,7 +491,7 @@ class BaseDataElement:
         return new_data
 
     # Tensor-like methods
-    def cuda(self) -> "BaseDataElement":
+    def cuda(self: T) -> T:
         """Convert all tensors to GPU in data."""
         new_data = self.new()
         for k, v in self.items():
@@ -498,60 +502,83 @@ class BaseDataElement:
         return new_data
 
     # Tensor-like methods
-    def musa(self) -> "BaseDataElement":
+    def musa(self: T) -> T:
         """Convert all tensors to musa in data."""
         new_data = self.new()
         for k, v in self.items():
-            if isinstance(v, torch.Tensor | BaseDataElement):
+            if isinstance(v, BaseDataElement):
                 v = v.musa()
                 data = {k: v}
                 new_data.set_data(data)
+            elif isinstance(v, torch.Tensor):
+                if hasattr(v, "musa"):
+                    v = v.musa()  # type: ignore[attr-defined]
+                    data = {k: v}
+                    new_data.set_data(data)
         return new_data
 
     # Tensor-like methods
-    def npu(self) -> "BaseDataElement":
+    def npu(self: T) -> T:
         """Convert all tensors to NPU in data."""
         new_data = self.new()
         for k, v in self.items():
-            if isinstance(v, torch.Tensor | BaseDataElement):
+            if isinstance(v, BaseDataElement):
                 v = v.npu()
                 data = {k: v}
                 new_data.set_data(data)
+            elif isinstance(v, torch.Tensor):
+                if hasattr(v, "npu"):
+                    v = v.npu()  # type: ignore[attr-defined]
+                    data = {k: v}
+                    new_data.set_data(data)
         return new_data
 
-    def mlu(self) -> "BaseDataElement":
+    def mlu(self: T) -> T:
         """Convert all tensors to MLU in data."""
         new_data = self.new()
         for k, v in self.items():
-            if isinstance(v, torch.Tensor | BaseDataElement):
+            if isinstance(v, BaseDataElement):
                 v = v.mlu()
                 data = {k: v}
                 new_data.set_data(data)
+            elif isinstance(v, torch.Tensor):
+                if hasattr(v, "mlu"):
+                    v = v.mlu()  # type: ignore[attr-defined]
+                    data = {k: v}
+                    new_data.set_data(data)
         return new_data
 
     # Tensor-like methods
-    def detach(self) -> "BaseDataElement":
+    def detach(self: T) -> T:
         """Detach all tensors in data."""
         new_data = self.new()
         for k, v in self.items():
-            if isinstance(v, torch.Tensor | BaseDataElement):
+            if isinstance(v, BaseDataElement):
                 v = v.detach()
+                data = {k: v}
+                new_data.set_data(data)
+            elif isinstance(v, torch.Tensor):
+                v = v.detach()  # type: ignore[misc]
                 data = {k: v}
                 new_data.set_data(data)
         return new_data
 
     # Tensor-like methods
-    def numpy(self) -> "BaseDataElement":
+    def numpy(self: T) -> T:
         """Convert all tensors to np.ndarray in data."""
         new_data = self.new()
         for k, v in self.items():
-            if isinstance(v, torch.Tensor | BaseDataElement):
+            if isinstance(v, BaseDataElement):
                 v = v.detach().cpu().numpy()
+                data = {k: v}
+                new_data.set_data(data)
+            elif isinstance(v, torch.Tensor):
+                v = v.detach().cpu().numpy()  # type: ignore[misc]
                 data = {k: v}
                 new_data.set_data(data)
         return new_data
 
-    def to_tensor(self) -> "BaseDataElement":
+    def to_tensor(self: T) -> T:
         """Convert all np.ndarray to tensor in data."""
         new_data = self.new()
         for k, v in self.items():
@@ -565,7 +592,7 @@ class BaseDataElement:
             new_data.set_data(data)
         return new_data
 
-    def to_dict(self) -> dict:
+    def to_dict(self) -> dict[str, Any]:
         """Convert BaseDataElement to dict."""
         return {k: v.to_dict() if isinstance(v, BaseDataElement) else v for k, v in self.all_items()}
 

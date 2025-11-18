@@ -1,7 +1,4 @@
-# ruff: noqa
-# type: ignore
 # Copyright (c) OpenMMLab. All rights reserved.
-from typing import Optional
 
 from visdet.engine.structures import BaseDataElement, InstanceData, PixelData
 
@@ -118,101 +115,101 @@ class DetDataSample(BaseDataElement):
     """
 
     @property
-    def proposals(self) -> InstanceData:
+    def proposals(self) -> InstanceData | None:
         return getattr(self, "_proposals", None)
 
     @proposals.setter
-    def proposals(self, value: InstanceData):
+    def proposals(self, value: InstanceData) -> None:
         self.set_field(value, "_proposals", dtype=InstanceData)
 
     @proposals.deleter
-    def proposals(self):
-        del self._proposals
+    def proposals(self) -> None:
+        del self._proposals  # type: ignore[has-type]
 
     @property
-    def gt_instances(self) -> InstanceData:
+    def gt_instances(self) -> InstanceData | None:
         return getattr(self, "_gt_instances", None)
 
     @gt_instances.setter
-    def gt_instances(self, value: InstanceData):
+    def gt_instances(self, value: InstanceData) -> None:
         self.set_field(value, "_gt_instances", dtype=InstanceData)
 
     @gt_instances.deleter
-    def gt_instances(self):
-        del self._gt_instances
+    def gt_instances(self) -> None:
+        del self._gt_instances  # type: ignore[has-type]
 
     @property
-    def pred_instances(self) -> InstanceData:
+    def pred_instances(self) -> InstanceData | None:
         return getattr(self, "_pred_instances", None)
 
     @pred_instances.setter
-    def pred_instances(self, value: InstanceData):
+    def pred_instances(self, value: InstanceData) -> None:
         self.set_field(value, "_pred_instances", dtype=InstanceData)
 
     @pred_instances.deleter
-    def pred_instances(self):
-        del self._pred_instances
+    def pred_instances(self) -> None:
+        del self._pred_instances  # type: ignore[has-type]
 
     @property
-    def ignored_instances(self) -> InstanceData:
+    def ignored_instances(self) -> InstanceData | None:
         return getattr(self, "_ignored_instances", None)
 
     @ignored_instances.setter
-    def ignored_instances(self, value: InstanceData):
+    def ignored_instances(self, value: InstanceData) -> None:
         self.set_field(value, "_ignored_instances", dtype=InstanceData)
 
     @ignored_instances.deleter
-    def ignored_instances(self):
-        del self._ignored_instances
+    def ignored_instances(self) -> None:
+        del self._ignored_instances  # type: ignore[has-type]
 
     @property
-    def gt_panoptic_seg(self) -> PixelData:
+    def gt_panoptic_seg(self) -> PixelData | None:
         return getattr(self, "_gt_panoptic_seg", None)
 
     @gt_panoptic_seg.setter
-    def gt_panoptic_seg(self, value: PixelData):
+    def gt_panoptic_seg(self, value: PixelData) -> None:
         self.set_field(value, "_gt_panoptic_seg", dtype=PixelData)
 
     @gt_panoptic_seg.deleter
-    def gt_panoptic_seg(self):
-        del self._gt_panoptic_seg
+    def gt_panoptic_seg(self) -> None:
+        del self._gt_panoptic_seg  # type: ignore[has-type]
 
     @property
-    def pred_panoptic_seg(self) -> PixelData:
+    def pred_panoptic_seg(self) -> PixelData | None:
         return getattr(self, "_pred_panoptic_seg", None)
 
     @pred_panoptic_seg.setter
-    def pred_panoptic_seg(self, value: PixelData):
+    def pred_panoptic_seg(self, value: PixelData) -> None:
         self.set_field(value, "_pred_panoptic_seg", dtype=PixelData)
 
     @pred_panoptic_seg.deleter
-    def pred_panoptic_seg(self):
-        del self._pred_panoptic_seg
+    def pred_panoptic_seg(self) -> None:
+        del self._pred_panoptic_seg  # type: ignore[has-type]
 
     @property
-    def gt_sem_seg(self) -> PixelData:
+    def gt_sem_seg(self) -> PixelData | None:
         return getattr(self, "_gt_sem_seg", None)
 
     @gt_sem_seg.setter
-    def gt_sem_seg(self, value: PixelData):
+    def gt_sem_seg(self, value: PixelData) -> None:
         self.set_field(value, "_gt_sem_seg", dtype=PixelData)
 
     @gt_sem_seg.deleter
-    def gt_sem_seg(self):
-        del self._gt_sem_seg
+    def gt_sem_seg(self) -> None:
+        del self._gt_sem_seg  # type: ignore[has-type]
 
     @property
-    def pred_sem_seg(self) -> PixelData:
+    def pred_sem_seg(self) -> PixelData | None:
         return getattr(self, "_pred_sem_seg", None)
 
     @pred_sem_seg.setter
-    def pred_sem_seg(self, value: PixelData):
+    def pred_sem_seg(self, value: PixelData) -> None:
         self.set_field(value, "_pred_sem_seg", dtype=PixelData)
 
     @pred_sem_seg.deleter
-    def pred_sem_seg(self):
-        del self._pred_sem_seg
+    def pred_sem_seg(self) -> None:
+        del self._pred_sem_seg  # type: ignore[has-type]
 
 
 SampleList = list[DetDataSample]
-OptSampleList = Optional[SampleList]
+OptSampleList = SampleList | None

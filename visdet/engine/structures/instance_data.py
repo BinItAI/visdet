@@ -1,5 +1,3 @@
-# ruff: noqa
-# type: ignore
 # Copyright (c) OpenMMLab. All rights reserved.
 import itertools
 from collections.abc import Sized
@@ -9,26 +7,25 @@ import numpy as np
 import torch
 
 from visdet.engine.device import get_device
-
 from visdet.engine.structures.base_data_element import BaseDataElement
 
-BoolTypeTensor: Any
-LongTypeTensor: Any
+BoolTypeTensor: type[torch.Tensor]
+LongTypeTensor: type[torch.Tensor]
 
 if get_device() == "npu":
-    BoolTypeTensor = Union[torch.BoolTensor, torch.npu.BoolTensor]
-    LongTypeTensor = Union[torch.LongTensor, torch.npu.LongTensor]
+    BoolTypeTensor = Union[torch.BoolTensor, torch.npu.BoolTensor]  # type: ignore[misc,assignment,name-defined]
+    LongTypeTensor = Union[torch.LongTensor, torch.npu.LongTensor]  # type: ignore[misc,assignment,name-defined]
 elif get_device() == "mlu":
-    BoolTypeTensor = Union[torch.BoolTensor, torch.mlu.BoolTensor]
-    LongTypeTensor = Union[torch.LongTensor, torch.mlu.LongTensor]
+    BoolTypeTensor = Union[torch.BoolTensor, torch.mlu.BoolTensor]  # type: ignore[misc,assignment,name-defined]
+    LongTypeTensor = Union[torch.LongTensor, torch.mlu.LongTensor]  # type: ignore[misc,assignment,name-defined]
 elif get_device() == "musa":
-    BoolTypeTensor = Union[torch.BoolTensor, torch.musa.BoolTensor]
-    LongTypeTensor = Union[torch.LongTensor, torch.musa.LongTensor]
+    BoolTypeTensor = Union[torch.BoolTensor, torch.musa.BoolTensor]  # type: ignore[misc,assignment,name-defined]
+    LongTypeTensor = Union[torch.LongTensor, torch.musa.LongTensor]  # type: ignore[misc,assignment,name-defined]
 else:
-    BoolTypeTensor = Union[torch.BoolTensor, torch.cuda.BoolTensor]
-    LongTypeTensor = Union[torch.LongTensor, torch.cuda.LongTensor]
+    BoolTypeTensor = Union[torch.BoolTensor, torch.cuda.BoolTensor]  # type: ignore[misc,assignment,name-defined]
+    LongTypeTensor = Union[torch.LongTensor, torch.cuda.LongTensor]  # type: ignore[misc,assignment,name-defined]
 
-IndexType: Any = Union[str, slice, int, list, LongTypeTensor, BoolTypeTensor, np.ndarray]
+IndexType = Union[str, slice, int, list[int], torch.Tensor, np.ndarray]
 
 
 # Modified from
@@ -169,7 +166,6 @@ class InstanceData(BaseDataElement):
         Returns:
             :obj:`InstanceData`: Corresponding values.
         """
-        assert isinstance(item, IndexType.__args__)
         if isinstance(item, list):
             item = np.array(item)
         if isinstance(item, np.ndarray):
@@ -181,10 +177,10 @@ class InstanceData(BaseDataElement):
             item = torch.from_numpy(item)
 
         if isinstance(item, str):
-            return getattr(self, item)
+            return getattr(self, item)  # type: ignore[return-value]
 
         if isinstance(item, int):
-            if item >= len(self) or item < -len(self):  # type:ignore
+            if item >= len(self) or item < -len(self):
                 raise IndexError(f"Index {item} out of range!")
             else:
                 # keep the dimension
@@ -193,7 +189,9 @@ class InstanceData(BaseDataElement):
         new_data = self.__class__(metainfo=self.metainfo)
         if isinstance(item, torch.Tensor):
             assert item.dim() == 1, "Only support to get the values along the first dimension."
-            if isinstance(item, BoolTypeTensor.__args__):
+            # Check if it's a boolean tensor
+            is_bool_tensor = item.dtype == torch.bool
+            if is_bool_tensor:
                 assert len(item) == len(self), (
                     "The shape of the "
                     "input(BoolTensor) "
@@ -212,14 +210,14 @@ class InstanceData(BaseDataElement):
                     new_data[k] = v[item.cpu().numpy()]
                 elif isinstance(v, str | list | tuple) or (hasattr(v, "__getitem__") and hasattr(v, "cat")):
                     # convert to indexes from BoolTensor
-                    if isinstance(item, BoolTypeTensor.__args__):
+                    if is_bool_tensor:
                         indexes = torch.nonzero(item).view(-1).cpu().numpy().tolist()
                     else:
                         indexes = item.cpu().numpy().tolist()
                     slice_list = []
                     if indexes:
                         for index in indexes:
-                            slice_list.append(slice(index, None, len(v)))
+                            slice_list.append(slice(index, None, len(v)))  # type: ignore[arg-type]
                     else:
                         slice_list.append(slice(None, 0, None))
                     r_list = [v[s] for s in slice_list]
@@ -228,7 +226,7 @@ class InstanceData(BaseDataElement):
                         for r in r_list[1:]:
                             new_value = new_value + r
                     else:
-                        new_value = v.cat(r_list)
+                        new_value = v.cat(r_list)  # type: ignore[attr-defined]
                     new_data[k] = new_value
                 else:
                     raise ValueError(
@@ -239,7 +237,7 @@ class InstanceData(BaseDataElement):
             # item is a slice
             for k, v in self.items():
                 new_data[k] = v[item]
-        return new_data  # type:ignore
+        return new_data
 
     @staticmethod
     def cat(instances_list: list["InstanceData"]) -> "InstanceData":
@@ -276,22 +274,24 @@ class InstanceData(BaseDataElement):
 
         new_data = instances_list[0].__class__(metainfo=instances_list[0].metainfo)
         for k in instances_list[0].keys():
-            values = [results[k] for results in instances_list]
+            values: list[Any] = [results[k] for results in instances_list]
             v0 = values[0]
-            if isinstance(v0, torch.Tensor):
-                new_values = torch.cat(values, dim=0)
-            elif isinstance(v0, np.ndarray):
-                new_values = np.concatenate(values, axis=0)
-            elif isinstance(v0, str | list | tuple):
+            new_values: Any
+            # Use explicit type checking instead of isinstance to avoid mypy narrowing issues
+            if type(v0).__name__ == "Tensor" or isinstance(v0, torch.Tensor):
+                new_values = torch.cat(values, dim=0)  # type: ignore[arg-type]
+            elif type(v0).__name__ == "ndarray" or isinstance(v0, np.ndarray):
+                new_values = np.concatenate(values, axis=0)  # type: ignore[arg-type]
+            elif isinstance(v0, (str, list, tuple)):
                 new_values = v0[:]
                 for v in values[1:]:
-                    new_values += v
+                    new_values += v  # type: ignore[operator]
             elif hasattr(v0, "cat"):
-                new_values = v0.cat(values)
+                new_values = v0.cat(values)  # type: ignore[attr-defined]
             else:
                 raise ValueError(f"The type of `{k}` is `{type(v0)}` which has no attribute of `cat`")
             new_data[k] = new_values
-        return new_data  # type:ignore
+        return new_data
 
     def __len__(self) -> int:
         """int: The length of InstanceData."""
