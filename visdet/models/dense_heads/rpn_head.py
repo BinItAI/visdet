@@ -1,7 +1,6 @@
 # ruff: noqa
 # fmt: off
 # isort: skip
-# type: ignore
 # Copyright (c) OpenMMLab. All rights reserved.
 import copy
 
@@ -68,6 +67,12 @@ class RPNHead(AnchorHead):
             Defaults to 1.
     """
 
+    # Type annotations
+    num_convs: int
+    rpn_conv: nn.Module
+    rpn_cls: nn.Module
+    rpn_reg: nn.Module
+
     def __init__(
         self,
         in_channels: int,
@@ -78,7 +83,7 @@ class RPNHead(AnchorHead):
     ) -> None:
         if init_cfg is None:
             init_cfg = {"type": "Normal", "layer": "Conv2d", "std": 0.01}
-        self.num_convs = num_convs
+        self.num_convs = num_convs  # type: ignore[assignment]
         assert num_classes == 1
         super().__init__(
             num_classes=num_classes, in_channels=in_channels, init_cfg=init_cfg, **kwargs
@@ -102,11 +107,12 @@ class RPNHead(AnchorHead):
             self.rpn_conv = nn.Sequential(*rpn_convs)
         else:
             self.rpn_conv = nn.Conv2d(self.in_channels, self.feat_channels, 3, padding=1)
-        self.rpn_cls = nn.Conv2d(
+        self.rpn_cls = nn.Conv2d(  # type: ignore[assignment]
             self.feat_channels, self.num_base_priors * self.cls_out_channels, 1
         )
-        reg_dim = self.bbox_coder.encode_size
-        self.rpn_reg = nn.Conv2d(self.feat_channels, self.num_base_priors * reg_dim, 1)
+        reg_dim = self.bbox_coder.encode_size  # type: ignore[attr-defined]
+        assert isinstance(reg_dim, int), "reg_dim must be an integer"
+        self.rpn_reg = nn.Conv2d(self.feat_channels, self.num_base_priors * reg_dim, 1)  # type: ignore[assignment]
 
     def forward_single(self, x: Tensor) -> tuple[Tensor, Tensor]:
         """Forward feature of a single scale level.
@@ -253,7 +259,7 @@ class RPNHead(AnchorHead):
 
         bbox_pred = torch.cat(mlvl_bbox_preds)
         priors = cat_boxes(mlvl_valid_priors)
-        bboxes = self.bbox_coder.decode(priors, bbox_pred, max_shape=img_shape)
+        bboxes = self.bbox_coder.decode(priors, bbox_pred, max_shape=img_shape)  # type: ignore[attr-defined,call-arg]
 
         results = InstanceData()
         results.bboxes = bboxes
@@ -299,8 +305,11 @@ class RPNHead(AnchorHead):
         """
         assert with_nms, "`with_nms` must be True in RPNHead"
         if rescale:
+            assert img_meta is not None
             assert img_meta.get("scale_factor") is not None
-            scale_factor = [1 / s for s in img_meta["scale_factor"]]
+            raw_scale_factor = img_meta["scale_factor"]
+            assert isinstance(raw_scale_factor, (tuple, list)) and len(raw_scale_factor) >= 2
+            scale_factor = (1.0 / float(raw_scale_factor[0]), 1.0 / float(raw_scale_factor[1]))
             results.bboxes = scale_boxes(results.bboxes, scale_factor)
 
         # filter small size bboxes
