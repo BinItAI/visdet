@@ -83,13 +83,13 @@ class AnchorHead(BaseDenseHead):
         init_cfg: OptMultiConfig = dict(type="Normal", layer="Conv2d", std=0.01),
     ) -> None:
         super().__init__(init_cfg=init_cfg)
-        self.in_channels = in_channels
-        self.num_classes = num_classes
-        self.feat_channels = feat_channels
+        self.in_channels: int = in_channels  # type: ignore[misc]
+        self.num_classes: int = num_classes  # type: ignore[misc]
+        self.feat_channels: int = feat_channels  # type: ignore[misc]
         if not isinstance(loss_cls, Mapping):
             raise TypeError("loss_cls config must be a mapping")
         loss_cls_cfg = dict(loss_cls)
-        self.use_sigmoid_cls = bool(loss_cls_cfg.get("use_sigmoid", False))
+        self.use_sigmoid_cls: bool = bool(loss_cls_cfg.get("use_sigmoid", False))  # type: ignore[misc]
         if self.use_sigmoid_cls:
             self.cls_out_channels = num_classes  # type: ignore[assignment]
         else:
@@ -108,7 +108,7 @@ class AnchorHead(BaseDenseHead):
         self.bbox_coder = TASK_UTILS.build(dict(bbox_coder))
         self.loss_cls = MODELS.build(dict(loss_cls))
         self.loss_bbox = MODELS.build(dict(loss_bbox))
-        self.train_cfg = dict(train_cfg) if isinstance(train_cfg, Mapping) else train_cfg
+        self.train_cfg: ConfigType | None = dict(train_cfg) if isinstance(train_cfg, Mapping) else train_cfg  # type: ignore[misc]
         self.test_cfg = dict(test_cfg) if isinstance(test_cfg, Mapping) else test_cfg  # type: ignore[assignment]
         if isinstance(self.train_cfg, Mapping):
             assigner_cfg = self.train_cfg["assigner"]
@@ -121,14 +121,14 @@ class AnchorHead(BaseDenseHead):
             else:
                 self.sampler = PseudoSampler(context=self)  # type: ignore[assignment]
 
-        self.fp16_enabled = False
+        self.fp16_enabled: bool = False  # type: ignore[misc]
 
         self.prior_generator: AnchorGenerator = cast(AnchorGenerator, TASK_UTILS.build(dict(anchor_generator)))
 
         # Usually the numbers of anchors for each level are the same
         # except SSD detectors. So it is an int in the most dense
         # heads but a list of int in SSDHead
-        self.num_base_priors = int(self.prior_generator.num_base_priors[0])
+        self.num_base_priors: int = int(self.prior_generator.num_base_priors[0])  # type: ignore[misc]
         self._init_layers()
 
     @property
@@ -216,13 +216,15 @@ class AnchorHead(BaseDenseHead):
 
         # since feature map sizes of all images are the same, we only compute
         # anchors for one time
-        multi_level_anchors = self.prior_generator.grid_priors(normalized_sizes, device=device)
+        # PyTorch stubs incorrectly type AnchorGenerator methods as Tensor (not callable)
+        multi_level_anchors = self.prior_generator.grid_priors(normalized_sizes, device=device)  # type: ignore[call-non-callable]
         anchor_list = [multi_level_anchors for _ in range(num_imgs)]
 
         # for each image, we compute valid flags of multi level anchors
         valid_flag_list = []
         for img_id, img_meta in enumerate(batch_img_metas):
-            multi_level_flags = self.prior_generator.valid_flags(normalized_sizes, img_meta["pad_shape"], device)
+            # PyTorch stubs incorrectly type AnchorGenerator.valid_flags as Tensor (not callable)
+            multi_level_flags = self.prior_generator.valid_flags(normalized_sizes, img_meta["pad_shape"], device)  # type: ignore[call-non-callable]
             valid_flag_list.append(multi_level_flags)
 
         return anchor_list, valid_flag_list

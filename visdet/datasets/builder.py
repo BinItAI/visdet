@@ -44,7 +44,7 @@ def collate(batch, samples_per_gpu: int = 1):  # noqa: ARG001 - kept for backwar
     return default_collate(batch)
 
 
-def _concat_dataset(cfg: Mapping[str, Any], default_args: Mapping[str, Any] | None = None):
+def _concat_dataset(cfg: dict[str, Any], default_args: dict[str, Any] | None = None):
     ann_files = cfg["ann_file"]
     img_prefixes = cfg.get("img_prefix", None)
     seg_prefixes = cfg.get("seg_prefix", None)
@@ -70,7 +70,9 @@ def _concat_dataset(cfg: Mapping[str, Any], default_args: Mapping[str, Any] | No
     return ConcatDataset(datasets, separate_eval)
 
 
-def build_dataset(cfg: Mapping[str, Any], default_args: Mapping[str, Any] | None = None):
+def build_dataset(
+    cfg: dict[str, Any] | list[dict[str, Any]] | tuple[dict[str, Any], ...], default_args: dict[str, Any] | None = None
+):
     if isinstance(cfg, (list, tuple)):
         dataset = ConcatDataset([build_dataset(c, default_args) for c in cfg])
     elif cfg["type"] == "ConcatDataset":
@@ -102,7 +104,7 @@ def build_dataloader(
     seed: int | None = None,
     runner_type: str = "EpochBasedRunner",
     persistent_workers: bool = False,
-    class_aware_sampler: Mapping[str, Any] | None = None,
+    class_aware_sampler: dict[str, Any] | None = None,
     **kwargs: Any,
 ) -> DataLoader:
     """Build PyTorch DataLoader.
@@ -181,7 +183,8 @@ def build_dataloader(
             if shuffle:
                 sampler = DistributedGroupSampler(dataset, samples_per_gpu_int, world_size, rank, seed=seed_int)
             else:
-                sampler = DistributedSampler(dataset, world_size, rank, shuffle=False, seed=seed_int)
+                # DistributedSampler signature differs between PyTorch versions
+                sampler = DistributedSampler(dataset, world_size, rank, shuffle=False, seed=seed_int)  # type: ignore[call-arg]
         else:
             sampler = GroupSampler(dataset, samples_per_gpu_int) if shuffle else None
         batch_sampler = None
