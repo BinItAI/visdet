@@ -39,17 +39,17 @@ class StandardRoIHead(BaseRoIHead):
             mask_head (dict or ConfigDict): Config of mask in mask head.
         """
         if mask_roi_extractor is not None:
-            self.mask_roi_extractor = MODELS.build(mask_roi_extractor)
-            self.share_roi_extractor = False
+            self.mask_roi_extractor = MODELS.build(mask_roi_extractor)  # type: ignore[misc]
+            self.share_roi_extractor = False  # type: ignore[misc]
         else:
-            self.share_roi_extractor = True
-            self.mask_roi_extractor = self.bbox_roi_extractor
-        self.mask_head = MODELS.build(mask_head)
+            self.share_roi_extractor = True  # type: ignore[misc]
+            self.mask_roi_extractor = self.bbox_roi_extractor  # type: ignore[misc]
+        self.mask_head = MODELS.build(mask_head)  # type: ignore[misc]
 
     def init_assigner_sampler(self) -> None:
         """Initialize assigner and sampler."""
-        self.bbox_assigner = None
-        self.bbox_sampler = None
+        self.bbox_assigner = None  # type: ignore[misc]
+        self.bbox_sampler = None  # type: ignore[misc]
         if self.train_cfg:
             # Support both direct train_cfg and nested under 'rcnn' key
             if "rcnn" in self.train_cfg:
@@ -63,7 +63,7 @@ class StandardRoIHead(BaseRoIHead):
         self,
         x: Tuple[Tensor],
         rpn_results_list: InstanceList,
-        batch_data_samples: SampleList = None,
+        batch_data_samples: SampleList | None = None,
     ) -> tuple:
         """Network forward process. Usually includes backbone, neck and head
         forward without any post-processing.
@@ -127,8 +127,8 @@ class StandardRoIHead(BaseRoIHead):
             rpn_results = rpn_results_list[i]
             rpn_results.priors = rpn_results.pop("bboxes")
 
-            assign_result = self.bbox_assigner.assign(rpn_results, batch_gt_instances[i], batch_gt_instances_ignore[i])
-            sampling_result = self.bbox_sampler.sample(
+            assign_result = self.bbox_assigner.assign(rpn_results, batch_gt_instances[i], batch_gt_instances_ignore[i])  # type: ignore[union-attr]
+            sampling_result = self.bbox_sampler.sample(  # type: ignore[union-attr]
                 assign_result,
                 rpn_results,
                 batch_gt_instances[i],
@@ -256,7 +256,7 @@ class StandardRoIHead(BaseRoIHead):
     def _mask_forward(
         self,
         x: Tuple[Tensor],
-        rois: Tensor = None,
+        rois: Tensor | None = None,
         pos_inds: Optional[Tensor] = None,
         bbox_feats: Optional[Tensor] = None,
     ) -> dict:

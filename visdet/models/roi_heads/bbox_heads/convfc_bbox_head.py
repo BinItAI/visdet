@@ -60,7 +60,7 @@ class ConvFCBBoxHead(BBoxHead):
         *args,
         **kwargs,
     ) -> None:
-        super().__init__(*args, init_cfg=init_cfg, **kwargs)
+        super().__init__(*args, init_cfg=init_cfg, **kwargs)  # type: ignore[misc]
         assert num_shared_convs + num_shared_fcs + num_cls_convs + num_cls_fcs + num_reg_convs + num_reg_fcs > 0
         if num_cls_convs > 0 or num_reg_convs > 0:
             assert num_shared_fcs == 0
@@ -173,7 +173,7 @@ class ConvFCBBoxHead(BBoxHead):
             last_layer_dim = self.fc_out_channels
         return branch_convs, branch_fcs, last_layer_dim
 
-    def forward(self, x: tuple[Tensor]) -> tuple:
+    def forward(self, x: Tensor) -> tuple:
         """Forward features from the upstream network.
 
         Args:
@@ -234,7 +234,7 @@ class ConvFCBBoxHead(BBoxHead):
 # reduce the dumb classifications errors
 @MODELS.register_module()
 class Shared2FCBBoxHead(ConvFCBBoxHead):
-    def __init__(self, fc_out_channels: int = 1024, *args, **kwargs) -> None:
+    def __init__(self, fc_out_channels: int = 1024, **kwargs) -> None:
         super().__init__(
             num_shared_convs=0,
             num_shared_fcs=2,
@@ -243,14 +243,13 @@ class Shared2FCBBoxHead(ConvFCBBoxHead):
             num_reg_convs=0,
             num_reg_fcs=0,
             fc_out_channels=fc_out_channels,
-            *args,
             **kwargs,
         )
 
 
 @MODELS.register_module()
 class Shared4Conv1FCBBoxHead(ConvFCBBoxHead):
-    def __init__(self, fc_out_channels: int = 1024, *args, **kwargs) -> None:
+    def __init__(self, fc_out_channels: int = 1024, **kwargs) -> None:
         super().__init__(
             num_shared_convs=4,
             num_shared_fcs=1,
@@ -259,6 +258,5 @@ class Shared4Conv1FCBBoxHead(ConvFCBBoxHead):
             num_reg_convs=0,
             num_reg_fcs=0,
             fc_out_channels=fc_out_channels,
-            *args,
             **kwargs,
         )

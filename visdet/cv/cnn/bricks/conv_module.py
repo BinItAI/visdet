@@ -228,7 +228,7 @@ class ConvModule(nn.Module):
             assert norm_cfg is not None
             norm_name, norm = build_norm_layer(norm_cfg, norm_channels)
             object.__setattr__(self, "norm_name", norm_name)
-            self.add_module(self.norm_name, norm)
+            self.add_module(norm_name, norm)
             if self.with_bias:
                 if isinstance(norm, (_BatchNorm, _InstanceNorm)):
                     warnings.warn("Unnecessary conv bias before batch/instance norm")

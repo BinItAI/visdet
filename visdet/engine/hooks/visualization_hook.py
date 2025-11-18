@@ -4,6 +4,7 @@ import warnings
 from collections.abc import Sequence
 
 import numpy as np
+import torch
 
 from visdet.cv import imfrombytes, imwrite
 from visdet.engine.fileio import get
@@ -236,20 +237,32 @@ class GroundingVisualizationHook(DetVisualizationHook):
             text = data_sample.text
             if isinstance(text, str):  # VG
                 gt_instances = data_sample.gt_instances
+                if gt_instances is None:
+                    continue
                 tokens_positive = data_sample.tokens_positive
                 if "phrase_ids" in data_sample:
                     # flickr30k
                     gt_labels = data_sample.phrase_ids
                 else:
                     gt_labels = gt_instances.labels
-                gt_bboxes = gt_instances.get("bboxes", None)
-                if gt_bboxes is not None and isinstance(gt_bboxes, BaseBoxes):
-                    gt_instances.bboxes = gt_bboxes.tensor
+                gt_bboxes_raw = gt_instances.get("bboxes", None)
+                if gt_bboxes_raw is not None and isinstance(gt_bboxes_raw, BaseBoxes):
+                    gt_instances.bboxes = gt_bboxes_raw.tensor
+                    gt_bboxes = gt_bboxes_raw.tensor
+                else:
+                    gt_bboxes = gt_bboxes_raw
                 print(gt_labels, tokens_positive, gt_bboxes, img_path)
                 pred_instances = data_sample.pred_instances
+                if pred_instances is None:
+                    continue
                 pred_instances = pred_instances[pred_instances.scores > self.score_thr]
                 pred_labels = pred_instances.labels
-                pred_bboxes = pred_instances.bboxes
+                pred_bboxes_raw = pred_instances.bboxes
+                # Convert BaseBoxes to tensor
+                if isinstance(pred_bboxes_raw, BaseBoxes):
+                    pred_bboxes = pred_bboxes_raw.tensor
+                else:
+                    pred_bboxes = pred_bboxes_raw
                 pred_scores = pred_instances.scores
 
                 max_label = 0
@@ -311,6 +324,9 @@ class GroundingVisualizationHook(DetVisualizationHook):
                     self._visualizer.draw_bboxes(bbox, edge_colors=color, alpha=1)
                 print(pred_labels, pred_bboxes, pred_scores, colors)
                 areas = (pred_bboxes[:, 3] - pred_bboxes[:, 1]) * (pred_bboxes[:, 2] - pred_bboxes[:, 0])
+                # Convert to numpy if it's a tensor
+                if isinstance(areas, torch.Tensor):
+                    areas = areas.cpu().numpy()
                 scales = _get_adaptive_scales(areas)
                 score = [str(round(s.item(), 2)) for s in pred_scores]
                 font_sizes = [int(13 * scales[i]) for i in range(len(scales))]
@@ -347,7 +363,7 @@ class GroundingVisualizationHook(DetVisualizationHook):
                 if out_file is not None:
                     imwrite(drawn_img[..., ::-1], out_file)
                 else:
-                    self.add_image("test_img", drawn_img, self._test_index)
+                    self._visualizer.add_image("test_img", drawn_img, self._test_index)
             else:  # OD
                 self._visualizer.add_datasample(
                     osp.basename(img_path) if self.show else "test_img",

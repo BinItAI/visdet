@@ -7,6 +7,7 @@ heads are trained on only positive RoIs.
 """
 
 import math
+from typing import cast
 
 import torch
 import torch.nn as nn
@@ -65,7 +66,7 @@ class Conv2d(nn.Conv2d):
             ):
                 o = (i + 2 * p - (d * (k - 1) + 1)) // s + 1
                 out_shape.append(o)
-            empty = NewEmptyTensorOp.apply(x, out_shape)
+            empty = cast(torch.Tensor, NewEmptyTensorOp.apply(x, out_shape))
             if self.training:
                 # produce dummy gradient to avoid DDP warning.
                 dummy = _zero_dummy_grad(self, x)
@@ -95,7 +96,7 @@ class Conv3d(nn.Conv3d):
             ):
                 o = (i + 2 * p - (d * (k - 1) + 1)) // s + 1
                 out_shape.append(o)
-            empty = NewEmptyTensorOp.apply(x, out_shape)
+            empty = cast(torch.Tensor, NewEmptyTensorOp.apply(x, out_shape))
             if self.training:
                 # produce dummy gradient to avoid DDP warning.
                 dummy = _zero_dummy_grad(self, x)
@@ -127,7 +128,7 @@ class ConvTranspose2d(nn.ConvTranspose2d):
                 strict=False,
             ):
                 out_shape.append((i - 1) * s - 2 * p + (d * (k - 1) + 1) + op)
-            empty = NewEmptyTensorOp.apply(x, out_shape)
+            empty = cast(torch.Tensor, NewEmptyTensorOp.apply(x, out_shape))
             if self.training:
                 # produce dummy gradient to avoid DDP warning.
                 dummy = _zero_dummy_grad(self, x)
@@ -159,7 +160,7 @@ class ConvTranspose3d(nn.ConvTranspose3d):
                 strict=False,
             ):
                 out_shape.append((i - 1) * s - 2 * p + (d * (k - 1) + 1) + op)
-            empty = NewEmptyTensorOp.apply(x, out_shape)
+            empty = cast(torch.Tensor, NewEmptyTensorOp.apply(x, out_shape))
             if self.training:
                 # produce dummy gradient to avoid DDP warning.
                 dummy = _zero_dummy_grad(self, x)
@@ -190,7 +191,7 @@ class MaxPool2d(nn.MaxPool2d):
                 o = (i + 2 * p - (d * (k - 1) + 1)) / s + 1
                 o = math.ceil(o) if self.ceil_mode else math.floor(o)
                 out_shape.append(o)
-            empty = NewEmptyTensorOp.apply(x, out_shape)
+            empty = cast(torch.Tensor, NewEmptyTensorOp.apply(x, out_shape))
             return empty
 
         return super().forward(x)
@@ -216,7 +217,7 @@ class MaxPool3d(nn.MaxPool3d):
                 o = (i + 2 * p - (d * (k - 1) + 1)) / s + 1
                 o = math.ceil(o) if self.ceil_mode else math.floor(o)
                 out_shape.append(o)
-            empty = NewEmptyTensorOp.apply(x, out_shape)
+            empty = cast(torch.Tensor, NewEmptyTensorOp.apply(x, out_shape))
             return empty
 
         return super().forward(x)
@@ -227,7 +228,7 @@ class Linear(nn.Linear):
         # empty tensor forward of Linear layer is supported in Pytorch 1.6
         if obsolete_torch_version(TORCH_VERSION, (1, 5)) and x.numel() == 0:
             out_shape = [x.shape[0], self.out_features]
-            empty = NewEmptyTensorOp.apply(x, out_shape)
+            empty = cast(torch.Tensor, NewEmptyTensorOp.apply(x, out_shape))
             if self.training:
                 # produce dummy gradient to avoid DDP warning.
                 dummy = _zero_dummy_grad(self, x)

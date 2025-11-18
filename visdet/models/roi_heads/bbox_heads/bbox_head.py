@@ -134,11 +134,11 @@ class BBoxHead(BaseModule):
         """get custom_accuracy from loss_cls."""
         return getattr(self.loss_cls, "custom_accuracy", False)
 
-    def forward(self, x: tuple[Tensor]) -> tuple:
+    def forward(self, x: Tensor) -> tuple:
         """Forward features from the upstream network.
 
         Args:
-            x (tuple[Tensor]): Features from the upstream network, each is
+            x (Tensor): Features from the upstream network, each is
                 a 4D-tensor.
 
         Returns:
@@ -158,7 +158,7 @@ class BBoxHead(BaseModule):
             else:
                 # avg_pool does not support empty tensor,
                 # so use torch.mean instead it
-                x = torch.mean(x, dim=(-1, -2))
+                x = torch.mean(x, dim=(-1, -2), keepdim=False)
         cls_score = self.fc_cls(x) if self.with_cls else None
         bbox_pred = self.fc_reg(x) if self.with_reg else None
         return cls_score, bbox_pred
@@ -221,7 +221,8 @@ class BBoxHead(BaseModule):
         if cfg is None:
             return bboxes, scores
         else:
-            det_bboxes, det_labels = multiclass_nms(bboxes, scores, cfg.score_thr, cfg.nms, cfg.max_per_img)
+            nms_result = multiclass_nms(bboxes, scores, cfg.score_thr, cfg.nms, cfg.max_per_img)
+            det_bboxes, det_labels = nms_result[0], nms_result[1]
 
             return det_bboxes, det_labels
 
@@ -403,7 +404,7 @@ class BBoxHead(BaseModule):
             bbox_pred,
             rois,
             *cls_reg_targets,
-            reduction_override=reduction_override,
+            reduction_override=reduction_override,  # type: ignore[arg-type]
         )
 
         # cls_reg_targets is only for cascade rcnn
@@ -629,8 +630,9 @@ class BBoxHead(BaseModule):
 
         if rescale and bboxes.size(0) > 0:
             assert img_meta.get("scale_factor") is not None
-            scale_factor = [1 / s for s in img_meta["scale_factor"]]
-            bboxes = scale_boxes(bboxes, scale_factor)
+            scale_factor_list = [1 / s for s in img_meta["scale_factor"]]
+            scale_factor_tuple = (scale_factor_list[0], scale_factor_list[1])
+            bboxes = scale_boxes(bboxes, scale_factor_tuple)
 
         # Get the inside tensor when `bboxes` is a box type
         bboxes = get_box_tensor(bboxes)
@@ -643,7 +645,7 @@ class BBoxHead(BaseModule):
             results.bboxes = bboxes
             results.scores = scores
         else:
-            det_bboxes, det_labels = multiclass_nms(
+            nms_result = multiclass_nms(
                 bboxes,
                 scores,
                 rcnn_test_cfg["score_thr"],
@@ -651,6 +653,7 @@ class BBoxHead(BaseModule):
                 rcnn_test_cfg["max_per_img"],
                 box_dim=box_dim,
             )
+            det_bboxes, det_labels = nms_result[0], nms_result[1]
             results.bboxes = det_bboxes[:, :-1]
             results.scores = det_bboxes[:, -1]
             results.labels = det_labels

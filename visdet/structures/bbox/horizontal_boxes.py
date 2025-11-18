@@ -1,6 +1,6 @@
 # ruff: noqa
 # Copyright (c) OpenMMLab. All rights reserved.
-from typing import TypeVar, Union
+from typing import Literal, TypeVar, Union, cast
 
 import cv2
 import numpy as np
@@ -51,8 +51,8 @@ class HorizontalBoxes(BaseBoxes):
     def __init__(
         self,
         data: Tensor | np.ndarray,
-        dtype: torch.dtype = None,
-        device: DeviceType = None,
+        dtype: torch.dtype | None = None,
+        device: DeviceType | None = None,
         clone: bool = True,
         in_mode: str | None = None,
     ) -> None:
@@ -246,8 +246,8 @@ class HorizontalBoxes(BaseBoxes):
         """
         boxes = self.tensor
         assert len(scale_factor) == 2
-        scale_factor = boxes.new_tensor(scale_factor).repeat(2)
-        self.tensor = boxes * scale_factor
+        scale_factor_tensor = boxes.new_tensor(scale_factor).repeat(2)
+        self.tensor = boxes * scale_factor_tensor
 
     def resize_(self, scale_factor: tuple[float, float]) -> None:
         """Resize the box width and height w.r.t scale_factor in-place.
@@ -266,8 +266,8 @@ class HorizontalBoxes(BaseBoxes):
         assert len(scale_factor) == 2
         ctrs = (boxes[..., 2:] + boxes[..., :2]) / 2
         wh = boxes[..., 2:] - boxes[..., :2]
-        scale_factor = boxes.new_tensor(scale_factor)
-        wh = wh * scale_factor
+        scale_factor_tensor = boxes.new_tensor(scale_factor)
+        wh = wh * scale_factor_tensor
         xy1 = ctrs - 0.5 * wh
         xy2 = ctrs + 0.5 * wh
         self.tensor = torch.cat([xy1, xy2], dim=-1)
@@ -295,19 +295,21 @@ class HorizontalBoxes(BaseBoxes):
         img_h, img_w = img_shape
         boxes = self.tensor
         if all_inside:
-            return (
+            result = (
                 (boxes[:, 0] >= -allowed_border)
                 & (boxes[:, 1] >= -allowed_border)
                 & (boxes[:, 2] < img_w + allowed_border)
                 & (boxes[:, 3] < img_h + allowed_border)
             )
+            return cast(BoolTensor, result)
         else:
-            return (
+            result = (
                 (boxes[..., 0] < img_w + allowed_border)
                 & (boxes[..., 1] < img_h + allowed_border)
                 & (boxes[..., 2] > -allowed_border)
                 & (boxes[..., 3] > -allowed_border)
             )
+            return cast(BoolTensor, result)
 
     def find_inside_points(self, points: Tensor, is_aligned: bool = False) -> BoolTensor:
         """Find inside box points. Boxes dimension must be 2.
@@ -334,12 +336,13 @@ class HorizontalBoxes(BaseBoxes):
             assert boxes.size(0) == points.size(0)
 
         x_min, y_min, x_max, y_max = boxes.unbind(dim=-1)
-        return (
+        result = (
             (points[..., 0] >= x_min)
             & (points[..., 0] <= x_max)
             & (points[..., 1] >= y_min)
             & (points[..., 1] <= y_max)
         )
+        return cast(BoolTensor, result)
 
     def create_masks(self, img_shape: tuple[int, int]) -> BitmapMasks:
         """
@@ -387,7 +390,8 @@ class HorizontalBoxes(BaseBoxes):
         """
         boxes1 = boxes1.convert_to("hbox")
         boxes2 = boxes2.convert_to("hbox")
-        return bbox_overlaps(boxes1.tensor, boxes2.tensor, mode=mode, is_aligned=is_aligned, eps=eps)
+        mode_literal = cast(Literal["iou", "iof", "giou"], mode)
+        return bbox_overlaps(boxes1.tensor, boxes2.tensor, mode=mode_literal, is_aligned=is_aligned, eps=eps)
 
     @staticmethod
     def from_instance_masks(masks: MaskType) -> "HorizontalBoxes":

@@ -833,9 +833,11 @@ class Visualizer(ManagerMixin):
             polygons = [polygons]
         if isinstance(polygons, list):
             for polygon in polygons:
-                assert polygon.shape[1] == 2, (
-                    f"The shape of each polygon in `polygons` should be (M, 2), but got {polygon.shape}"
-                )
+                # Type narrowing: polygon is either np.ndarray or torch.Tensor here
+                if isinstance(polygon, (np.ndarray, torch.Tensor)):
+                    assert polygon.shape[1] == 2, (  # type: ignore
+                        f"The shape of each polygon in `polygons` should be (M, 2), but got {polygon.shape}"
+                    )
         polygons = [tensor2ndarray(polygon) for polygon in polygons]
         for polygon in polygons:
             if not self._is_posion_valid(tensor2ndarray(polygon)):
@@ -914,7 +916,7 @@ class Visualizer(ManagerMixin):
             for channel in color:
                 assert 0 <= channel <= 255  # type: ignore
 
-        if isinstance(alphas, float):
+        if isinstance(alphas, (int, float)):
             alphas = [alphas] * binary_mask_len
 
         for binary_mask, color, alpha in zip(binary_masks, colors, alphas, strict=False):

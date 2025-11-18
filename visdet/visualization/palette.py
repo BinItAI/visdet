@@ -21,22 +21,23 @@ def palette_val(palette: list[tuple]) -> list[tuple]:
     return new_palette
 
 
-def get_palette(palette: list[tuple] | str | tuple, num_classes: int) -> list[tuple[int]]:
+def get_palette(palette: list[tuple] | str | tuple | None, num_classes: int) -> list[tuple[int, ...]]:
     """Get palette from various inputs.
 
     Args:
-        palette (list[tuple] | str | tuple): palette inputs.
+        palette (list[tuple] | str | tuple | None): palette inputs.
         num_classes (int): the number of classes.
 
     Returns:
-        list[tuple[int]]: A list of color tuples.
+        list[tuple[int, ...]]: A list of color tuples.
     """
     assert isinstance(num_classes, int)
 
+    dataset_palette: list[tuple[int, ...]]
     if isinstance(palette, list):
-        dataset_palette = palette
+        dataset_palette = palette  # type: ignore
     elif isinstance(palette, tuple):
-        dataset_palette = [palette] * num_classes
+        dataset_palette = [palette] * num_classes  # type: ignore
     elif palette == "random" or palette is None:
         state = np.random.get_state()
         # random color
@@ -215,7 +216,7 @@ def get_palette(palette: list[tuple] | str | tuple, num_classes: int) -> list[tu
     return dataset_palette
 
 
-def _get_adaptive_scales(areas: np.ndarray, min_area: int = 800, max_area: int = 30000) -> np.ndarray:
+def _get_adaptive_scales(areas: np.ndarray | float, min_area: int = 800, max_area: int = 30000) -> np.ndarray:
     """Get adaptive scales according to areas.
 
     The scale range is [0.5, 1.0]. When the area is less than
@@ -223,19 +224,24 @@ def _get_adaptive_scales(areas: np.ndarray, min_area: int = 800, max_area: int =
     ``max_area``, the scale is 1.0.
 
     Args:
-        areas (ndarray): The areas of bboxes or masks with the
-            shape of (n, ).
+        areas (ndarray | float): The areas of bboxes or masks with the
+            shape of (n, ) or a single float value.
         min_area (int): Lower bound areas for adaptive scales.
             Defaults to 800.
         max_area (int): Upper bound areas for adaptive scales.
             Defaults to 30000.
 
     Returns:
-        ndarray: The adaotive scales with the shape of (n, ).
+        ndarray: The adaotive scales with the shape of (n, ) or (1,).
     """
-    scales = 0.5 + (areas - min_area) // (max_area - min_area)
-    scales = np.clip(scales, 0.5, 1.0)
-    return scales
+    if isinstance(areas, np.ndarray):
+        scales = 0.5 + (areas - min_area) // (max_area - min_area)
+        scales = np.clip(scales, 0.5, 1.0)
+        return scales
+    else:
+        # Handle scalar case - convert to array
+        scale = 0.5 + (areas - min_area) / (max_area - min_area)
+        return np.array([np.clip(scale, 0.5, 1.0)])
 
 
 def jitter_color(color: tuple) -> tuple:

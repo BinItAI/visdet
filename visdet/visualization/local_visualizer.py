@@ -12,6 +12,7 @@ from visdet.engine.visualization import Visualizer
 from visdet.evaluation import INSTANCE_OFFSET
 from visdet.registry import VISUALIZERS
 from visdet.structures import DetDataSample
+from visdet.structures.bbox import BaseBoxes
 from visdet.structures.mask import BitmapMasks, PolygonMasks, bitmap_to_polygon
 from visdet.visualization.palette import _get_adaptive_scales, get_palette, jitter_color
 
@@ -95,7 +96,7 @@ class DetLocalVisualizer(Visualizer):
         # Set default value. When calling
         # `DetLocalVisualizer().dataset_meta=xxx`,
         # it will override the default value.
-        self.dataset_meta = {}
+        self.dataset_meta: dict[str, list[str] | list[tuple[int, ...]]] = {}
 
     def _draw_instances(
         self,
@@ -119,51 +120,61 @@ class DetLocalVisualizer(Visualizer):
         """
         self.set_image(image)
 
-        if "bboxes" in instances and instances.bboxes.sum() > 0:
-            bboxes = instances.bboxes
-            labels = instances.labels
+        if "bboxes" in instances:
+            bboxes_raw = instances.bboxes
+            # Convert BaseBoxes to tensor
+            if isinstance(bboxes_raw, BaseBoxes):
+                bboxes = bboxes_raw.tensor
+            else:
+                bboxes = bboxes_raw
 
-            max_label = int(max(labels) if len(labels) > 0 else 0)
-            text_palette = get_palette(self.text_color, max_label + 1)
-            text_colors = [text_palette[label] for label in labels]
+            if bboxes.sum() > 0:
+                labels = instances.labels
 
-            bbox_color = palette if self.bbox_color is None else self.bbox_color
-            bbox_palette = get_palette(bbox_color, max_label + 1)
-            colors = [bbox_palette[label] for label in labels]
-            self.draw_bboxes(
-                bboxes,
-                edge_colors=colors,
-                alpha=self.alpha,
-                line_widths=self.line_width,
-            )
+                max_label = int(max(labels) if len(labels) > 0 else 0)
+                text_palette = get_palette(self.text_color, max_label + 1)
+                text_colors = [text_palette[label] for label in labels]
 
-            positions = bboxes[:, :2] + self.line_width
-            areas = (bboxes[:, 3] - bboxes[:, 1]) * (bboxes[:, 2] - bboxes[:, 0])
-            scales = _get_adaptive_scales(areas)
-
-            for i, (pos, label) in enumerate(zip(positions, labels)):
-                if "label_names" in instances:
-                    label_text = instances.label_names[i]
-                else:
-                    label_text = classes[label] if classes is not None else f"class {label}"
-                if "scores" in instances:
-                    score = round(float(instances.scores[i]) * 100, 1)
-                    label_text += f": {score}"
-
-                self.draw_texts(
-                    label_text,
-                    pos,
-                    colors=text_colors[i],
-                    font_sizes=int(13 * scales[i]),
-                    bboxes=[
-                        {
-                            "facecolor": "black",
-                            "alpha": 0.8,
-                            "pad": 0.7,
-                            "edgecolor": "none",
-                        }
-                    ],
+                bbox_color = palette if self.bbox_color is None else self.bbox_color
+                bbox_palette = get_palette(bbox_color, max_label + 1)
+                colors = [bbox_palette[label] for label in labels]
+                self.draw_bboxes(
+                    bboxes,
+                    edge_colors=colors,
+                    alpha=self.alpha,
+                    line_widths=self.line_width,
                 )
+
+                positions = bboxes[:, :2] + self.line_width
+                areas = (bboxes[:, 3] - bboxes[:, 1]) * (bboxes[:, 2] - bboxes[:, 0])
+                # Convert to numpy if it's a tensor
+                if isinstance(areas, torch.Tensor):
+                    areas = areas.cpu().numpy()
+                scales = _get_adaptive_scales(areas)
+
+                for i, (pos, label) in enumerate(zip(positions, labels)):
+                    if "label_names" in instances:
+                        label_text = instances.label_names[i]
+                    else:
+                        label_text = classes[label] if classes is not None else f"class {label}"
+                    if "scores" in instances:
+                        score = round(float(instances.scores[i]) * 100, 1)
+                        label_text += f": {score}"
+
+                    self.draw_texts(
+                        label_text,
+                        pos,
+                        colors=text_colors[i],
+                        font_sizes=int(13 * scales[i]),
+                        bboxes=[
+                            {
+                                "facecolor": "black",
+                                "alpha": 0.8,
+                                "pad": 0.7,
+                                "edgecolor": "none",
+                            }
+                        ],
+                    )
 
         if "masks" in instances:
             labels = instances.labels
@@ -198,7 +209,16 @@ class DetLocalVisualizer(Visualizer):
             self.draw_polygons(polygons, edge_colors="w", alpha=self.alpha)
             self.draw_binary_masks(masks, colors=colors, alphas=self.alpha)
 
-            if len(labels) > 0 and ("bboxes" not in instances or instances.bboxes.sum() == 0):
+            # Check if we need to draw text labels for masks
+            has_valid_bboxes = False
+            if "bboxes" in instances:
+                bboxes_raw = instances.bboxes
+                if isinstance(bboxes_raw, BaseBoxes):
+                    has_valid_bboxes = bboxes_raw.tensor.sum() > 0
+                else:
+                    has_valid_bboxes = bboxes_raw.sum() > 0
+
+            if len(labels) > 0 and not has_valid_bboxes:
                 # instances.bboxes.sum()==0 represent dummy bboxes.
                 # A typical example of SOLO does not exist bbox branch.
                 areas = []
@@ -460,12 +480,12 @@ class DetLocalVisualizer(Visualizer):
 
         if draw_gt and data_sample is not None:
             gt_img_data = image
-            if "gt_instances" in data_sample:
+            if "gt_instances" in data_sample and data_sample.gt_instances is not None:
                 gt_img_data = self._draw_instances(image, data_sample.gt_instances, classes, palette)
-            if "gt_sem_seg" in data_sample:
+            if "gt_sem_seg" in data_sample and data_sample.gt_sem_seg is not None:
                 gt_img_data = self._draw_sem_seg(gt_img_data, data_sample.gt_sem_seg, classes, palette)
 
-            if "gt_panoptic_seg" in data_sample:
+            if "gt_panoptic_seg" in data_sample and data_sample.gt_panoptic_seg is not None:
                 assert classes is not None, (
                     "class information is not provided when visualizing panoptic segmentation results."
                 )
@@ -473,15 +493,15 @@ class DetLocalVisualizer(Visualizer):
 
         if draw_pred and data_sample is not None:
             pred_img_data = image
-            if "pred_instances" in data_sample:
+            if "pred_instances" in data_sample and data_sample.pred_instances is not None:
                 pred_instances = data_sample.pred_instances
                 pred_instances = pred_instances[pred_instances.scores > pred_score_thr]
                 pred_img_data = self._draw_instances(image, pred_instances, classes, palette)
 
-            if "pred_sem_seg" in data_sample:
+            if "pred_sem_seg" in data_sample and data_sample.pred_sem_seg is not None:
                 pred_img_data = self._draw_sem_seg(pred_img_data, data_sample.pred_sem_seg, classes, palette)
 
-            if "pred_panoptic_seg" in data_sample:
+            if "pred_panoptic_seg" in data_sample and data_sample.pred_panoptic_seg is not None:
                 assert classes is not None, (
                     "class information is not provided when visualizing panoptic segmentation results."
                 )

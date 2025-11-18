@@ -50,8 +50,8 @@ class CascadeRoIHead(BaseRoIHead):
         assert bbox_head is not None
         assert shared_head is None, "Shared head is not supported in Cascade RCNN."
 
-        self.num_stages = num_stages
-        self.stage_loss_weights = stage_loss_weights
+        self.num_stages = num_stages  # type: ignore[misc]
+        self.stage_loss_weights = stage_loss_weights  # type: ignore[misc]
         super().__init__(
             bbox_roi_extractor=bbox_roi_extractor,
             bbox_head=bbox_head,
@@ -89,29 +89,29 @@ class CascadeRoIHead(BaseRoIHead):
             self.mask_head.append(MODELS.build(head_cfg))
 
         if mask_roi_extractor is not None:
-            self.share_roi_extractor = False
-            self.mask_roi_extractor = nn.ModuleList()
+            self.share_roi_extractor = False  # type: ignore[misc]
+            self.mask_roi_extractor = nn.ModuleList()  # type: ignore[misc]
             if not isinstance(mask_roi_extractor, list):
                 mask_roi_extractor = [mask_roi_extractor for _ in range(self.num_stages)]
             assert len(mask_roi_extractor) == self.num_stages
             for roi_extractor_cfg in mask_roi_extractor:
-                self.mask_roi_extractor.append(MODELS.build(roi_extractor_cfg))
+                self.mask_roi_extractor.append(MODELS.build(roi_extractor_cfg))  # type: ignore[union-attr]
         else:
-            self.share_roi_extractor = True
-            self.mask_roi_extractor = self.bbox_roi_extractor
+            self.share_roi_extractor = True  # type: ignore[misc]
+            self.mask_roi_extractor = self.bbox_roi_extractor  # type: ignore[misc]
 
     def init_assigner_sampler(self) -> None:
         """Initialize assigner and sampler for each stage."""
-        self.bbox_assigner: list | None = []
-        self.bbox_sampler: list | None = []
+        self.bbox_assigner: list | None = []  # type: ignore[misc]
+        self.bbox_sampler: list | None = []  # type: ignore[misc]
         if self.train_cfg is not None:
             assert isinstance(self.train_cfg, (list, tuple)), (
                 "Cascade RCNN expects list-style train_cfg for each stage."
             )
             for idx, rcnn_train_cfg in enumerate(self.train_cfg):
-                self.bbox_assigner.append(TASK_UTILS.build(rcnn_train_cfg["assigner"]))
-                self.current_stage = idx
-                self.bbox_sampler.append(
+                self.bbox_assigner.append(TASK_UTILS.build(rcnn_train_cfg["assigner"]))  # type: ignore[union-attr]
+                self.current_stage = idx  # type: ignore[misc]
+                self.bbox_sampler.append(  # type: ignore[union-attr]
                     TASK_UTILS.build(rcnn_train_cfg["sampler"], default_args=dict(context=self)),
                 )
 
@@ -181,13 +181,13 @@ class CascadeRoIHead(BaseRoIHead):
         losses: dict[str, Tensor] = {}
         results_list = rpn_results_list
         for stage in range(self.num_stages):
-            self.current_stage = stage
+            self.current_stage = stage  # type: ignore[misc]
             stage_loss_weight = self.stage_loss_weights[stage]
 
             sampling_results: list[SamplingResult] = []
             if self.with_bbox or self.with_mask:
-                bbox_assigner = self.bbox_assigner[stage]
-                bbox_sampler = self.bbox_sampler[stage]
+                bbox_assigner = self.bbox_assigner[stage]  # type: ignore[index]
+                bbox_sampler = self.bbox_sampler[stage]  # type: ignore[index]
                 for i in range(num_imgs):
                     results = results_list[i]
                     results.priors = results.pop("bboxes")
@@ -342,7 +342,10 @@ class CascadeRoIHead(BaseRoIHead):
                     refined_bboxes = get_box_tensor(refined_bboxes)
                     refined_rois = torch.cat([rois[img_idx][:, [0]], refined_bboxes], dim=1)
                     refine_rois_list.append(refined_rois)
-                rois = torch.cat(refine_rois_list) if refine_rois_list else rois[0].new_zeros((0, 5))
+                if refine_rois_list:
+                    rois = torch.cat(refine_rois_list, dim=0)
+                else:
+                    rois = rois[0].new_zeros((0, 5))
 
         cls_scores = [
             sum(score_set[i] for score_set in ms_scores) / float(len(ms_scores)) for i in range(len(batch_img_metas))
@@ -367,7 +370,7 @@ class CascadeRoIHead(BaseRoIHead):
         if self.with_mask:
             aug_masks = []
             if isinstance(rois, (list, tuple)):
-                rois = torch.cat(rois)
+                rois = torch.cat(list(rois), dim=0)  # type: ignore[arg-type]
             for stage in range(self.num_stages):
                 mask_results = self._mask_forward(stage, x, rois)
                 mask_preds = mask_results["mask_preds"].split(num_proposals_per_img, 0)
