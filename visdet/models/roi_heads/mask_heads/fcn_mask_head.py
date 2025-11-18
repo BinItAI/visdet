@@ -1,5 +1,7 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 
+from typing import Any
+
 import numpy as np
 import torch
 import torch.nn as nn
@@ -14,6 +16,7 @@ from visdet.engine.structures import InstanceData
 from visdet.models.task_modules.samplers import SamplingResult
 from visdet.models.utils import empty_instances
 from visdet.registry import MODELS
+from visdet.structures.bbox import get_box_tensor
 from visdet.structures.mask import mask_target
 from visdet.utils import ConfigType, InstanceList, OptConfigType, OptMultiConfig
 
@@ -25,6 +28,26 @@ GPU_MEM_LIMIT = 1024**3  # 1 GB memory limit
 
 @MODELS.register_module()
 class FCNMaskHead(BaseModule):
+    num_convs: int
+    roi_feat_size: tuple[int, int]
+    in_channels: int
+    conv_kernel_size: int
+    conv_out_channels: int
+    upsample_cfg: Any
+    upsample_method: Any
+    scale_factor: Any
+    num_classes: int
+    class_agnostic: int
+    conv_cfg: Any
+    norm_cfg: Any
+    predictor_cfg: Any
+    loss_mask: Any
+    convs: Any
+    upsample: Any
+    conv_logits: Any
+    relu: nn.ReLU
+    debug_imgs: Any
+
     def __init__(
         self,
         num_convs: int = 4,
@@ -43,27 +66,27 @@ class FCNMaskHead(BaseModule):
     ) -> None:
         assert init_cfg is None, "To prevent abnormal initialization behavior, init_cfg is not allowed to be set"
         super().__init__(init_cfg=init_cfg)
-        self.upsample_cfg = upsample_cfg.copy()
+        self.upsample_cfg = upsample_cfg.copy()  # type: ignore[unresolved-attribute]
         if self.upsample_cfg["type"] not in [None, "deconv", "nearest", "bilinear"]:
             raise ValueError(
                 f'Invalid upsample method {self.upsample_cfg["type"]}, accepted methods are "deconv", "nearest", "bilinear"'
             )
-        self.num_convs = num_convs
+        self.num_convs = num_convs  # type: ignore[unresolved-attribute]
         # WARN: roi_feat_size is reserved and not used
-        self.roi_feat_size = _pair(roi_feat_size)
-        self.in_channels = in_channels
-        self.conv_kernel_size = conv_kernel_size
-        self.conv_out_channels = conv_out_channels
-        self.upsample_method = self.upsample_cfg.get("type")
-        self.scale_factor = self.upsample_cfg.pop("scale_factor", None)
-        self.num_classes = num_classes
-        self.class_agnostic = class_agnostic
-        self.conv_cfg = conv_cfg
-        self.norm_cfg = norm_cfg
-        self.predictor_cfg = predictor_cfg
-        self.loss_mask = MODELS.build(loss_mask)
+        self.roi_feat_size = _pair(roi_feat_size)  # type: ignore[unresolved-attribute]
+        self.in_channels = in_channels  # type: ignore[unresolved-attribute]
+        self.conv_kernel_size = conv_kernel_size  # type: ignore[unresolved-attribute]
+        self.conv_out_channels = conv_out_channels  # type: ignore[unresolved-attribute]
+        self.upsample_method = self.upsample_cfg.get("type")  # type: ignore[unresolved-attribute]
+        self.scale_factor = self.upsample_cfg.pop("scale_factor", None)  # type: ignore[unresolved-attribute]
+        self.num_classes = num_classes  # type: ignore[unresolved-attribute]
+        self.class_agnostic = class_agnostic  # type: ignore[unresolved-attribute]
+        self.conv_cfg = conv_cfg  # type: ignore[unresolved-attribute]
+        self.norm_cfg = norm_cfg  # type: ignore[unresolved-attribute]
+        self.predictor_cfg = predictor_cfg  # type: ignore[unresolved-attribute]
+        self.loss_mask = MODELS.build(loss_mask)  # type: ignore[unresolved-attribute]
 
-        self.convs = ModuleList()
+        self.convs = ModuleList()  # type: ignore[unresolved-attribute]
         for i in range(self.num_convs):
             in_channels = self.in_channels if i == 0 else self.conv_out_channels
             padding = (self.conv_kernel_size - 1) // 2
@@ -80,7 +103,7 @@ class FCNMaskHead(BaseModule):
         upsample_in_channels = self.conv_out_channels if self.num_convs > 0 else in_channels
         upsample_cfg_ = self.upsample_cfg.copy()
         if self.upsample_method is None:
-            self.upsample = None
+            self.upsample = None  # type: ignore[unresolved-attribute]
         elif self.upsample_method == "deconv":
             upsample_cfg_.update(
                 in_channels=upsample_in_channels,
@@ -88,7 +111,7 @@ class FCNMaskHead(BaseModule):
                 kernel_size=self.scale_factor,
                 stride=self.scale_factor,
             )
-            self.upsample = build_upsample_layer(upsample_cfg_)
+            self.upsample = build_upsample_layer(upsample_cfg_)  # type: ignore[unresolved-attribute]
         else:
             # suppress warnings
             align_corners = None if self.upsample_method == "nearest" else False
@@ -97,13 +120,13 @@ class FCNMaskHead(BaseModule):
                 mode=self.upsample_method,
                 align_corners=align_corners,
             )
-            self.upsample = build_upsample_layer(upsample_cfg_)
+            self.upsample = build_upsample_layer(upsample_cfg_)  # type: ignore[unresolved-attribute]
 
         out_channels = 1 if self.class_agnostic else self.num_classes
         logits_in_channel = self.conv_out_channels if self.upsample_method == "deconv" else upsample_in_channels
-        self.conv_logits = build_conv_layer(self.predictor_cfg, logits_in_channel, out_channels, 1)
-        self.relu = nn.ReLU(inplace=True)
-        self.debug_imgs = None
+        self.conv_logits = build_conv_layer(self.predictor_cfg, logits_in_channel, out_channels, 1)  # type: ignore[unresolved-attribute]
+        self.relu = nn.ReLU(inplace=True)  # type: ignore[unresolved-attribute]
+        self.debug_imgs = None  # type: ignore[unresolved-attribute]
 
     def init_weights(self) -> None:
         """Initialize the weights."""
@@ -111,9 +134,11 @@ class FCNMaskHead(BaseModule):
         for m in [self.upsample, self.conv_logits]:
             if m is None:
                 continue
-            elif hasattr(m, "weight") and hasattr(m, "bias"):
-                nn.init.kaiming_normal_(m.weight, mode="fan_out", nonlinearity="relu")
-                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, (nn.Conv2d, nn.ConvTranspose2d, nn.Linear)):
+                if m.weight is not None:
+                    nn.init.kaiming_normal_(m.weight, mode="fan_out", nonlinearity="relu")
+                if m.bias is not None:
+                    nn.init.constant_(m.bias, 0)
 
     def forward(self, x: Tensor) -> Tensor:
         """Forward features from the upstream network.
@@ -253,9 +278,11 @@ class FCNMaskHead(BaseModule):
                     mask_thr_binary=rcnn_test_cfg.mask_thr_binary,
                 )[0]
             else:
+                # Convert bboxes to tensor if needed
+                bboxes_tensor = get_box_tensor(bboxes)
                 im_mask = self._predict_by_feat_single(
                     mask_preds=mask_preds[img_id],
-                    bboxes=bboxes,
+                    bboxes=bboxes_tensor,
                     labels=results.labels,
                     img_meta=img_meta,
                     rcnn_test_cfg=rcnn_test_cfg,

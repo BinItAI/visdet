@@ -80,7 +80,13 @@ class AdaptivePadding(nn.Module):
         >>> assert (out.shape[2], out.shape[3]) == (16, 32)
     """
 
-    def __init__(self, kernel_size=1, stride=1, dilation=1, padding="corner"):
+    def __init__(
+        self,
+        kernel_size: int | tuple[int, int] = 1,
+        stride: int | tuple[int, int] = 1,
+        dilation: int | tuple[int, int] = 1,
+        padding: str = "corner",
+    ):
         super().__init__()
         assert padding in ("same", "corner")
 
@@ -88,10 +94,10 @@ class AdaptivePadding(nn.Module):
         stride = to_2tuple(stride)
         dilation = to_2tuple(dilation)
 
-        self.padding = padding
-        self.kernel_size = kernel_size
-        self.stride = stride
-        self.dilation = dilation
+        object.__setattr__(self, "padding", padding)
+        object.__setattr__(self, "kernel_size", kernel_size)
+        object.__setattr__(self, "stride", stride)
+        object.__setattr__(self, "dilation", dilation)
 
     def get_pad_shape(self, input_shape):
         """Calculate the padding size of input.
@@ -166,21 +172,21 @@ class PatchEmbed(BaseModule):
 
     def __init__(
         self,
-        in_channels=3,
-        embed_dims=768,
-        conv_type="Conv2d",
-        kernel_size=16,
-        stride=16,
-        padding="corner",
-        dilation=1,
-        bias=True,
-        norm_cfg=None,
-        input_size=None,
-        init_cfg=None,
+        in_channels: int = 3,
+        embed_dims: int = 768,
+        conv_type: str = "Conv2d",
+        kernel_size: int | tuple[int, int] = 16,
+        stride: int | tuple[int, int] | None = 16,
+        padding: int | tuple[int, int] | str = "corner",
+        dilation: int | tuple[int, int] = 1,
+        bias: bool = True,
+        norm_cfg: dict | None = None,
+        input_size: int | tuple[int, int] | None = None,
+        init_cfg: dict | None = None,
     ):
         super().__init__(init_cfg=init_cfg)
 
-        self.embed_dims = embed_dims
+        object.__setattr__(self, "embed_dims", embed_dims)
         if stride is None:
             stride = kernel_size
 
@@ -222,7 +228,7 @@ class PatchEmbed(BaseModule):
             # `init_out_size` would be used outside to
             # calculate the num_patches
             # e.g. when `use_abs_pos_embed` outside
-            self.init_input_size = input_size
+            object.__setattr__(self, "init_input_size", input_size)
             if self.adaptive_padding:
                 pad_h, pad_w = self.adaptive_padding.get_pad_shape(input_size)
                 input_h, input_w = input_size
@@ -233,10 +239,10 @@ class PatchEmbed(BaseModule):
             # https://pytorch.org/docs/stable/generated/torch.nn.Conv2d.html
             h_out = (input_size[0] + 2 * padding[0] - dilation[0] * (kernel_size[0] - 1) - 1) // stride[0] + 1
             w_out = (input_size[1] + 2 * padding[1] - dilation[1] * (kernel_size[1] - 1) - 1) // stride[1] + 1
-            self.init_out_size = (h_out, w_out)
+            object.__setattr__(self, "init_out_size", (h_out, w_out))
         else:
-            self.init_input_size = None
-            self.init_out_size = None
+            object.__setattr__(self, "init_input_size", None)
+            object.__setattr__(self, "init_out_size", None)
 
     def forward(self, x):
         """
@@ -296,19 +302,19 @@ class PatchMerging(BaseModule):
 
     def __init__(
         self,
-        in_channels,
-        out_channels,
-        kernel_size=2,
-        stride=None,
-        padding="corner",
-        dilation=1,
-        bias=False,
-        norm_cfg=dict(type="LN"),
-        init_cfg=None,
+        in_channels: int,
+        out_channels: int,
+        kernel_size: int | tuple[int, int] = 2,
+        stride: int | tuple[int, int] | None = None,
+        padding: int | tuple[int, int] | str = "corner",
+        dilation: int | tuple[int, int] = 1,
+        bias: bool = False,
+        norm_cfg: dict | None = dict(type="LN"),
+        init_cfg: dict | None = None,
     ):
         super().__init__(init_cfg=init_cfg)
-        self.in_channels = in_channels
-        self.out_channels = out_channels
+        object.__setattr__(self, "in_channels", in_channels)
+        object.__setattr__(self, "out_channels", out_channels)
         if stride:
             stride = stride
         else:
@@ -412,13 +418,13 @@ class MultiheadAttention(BaseModule):
 
     def __init__(
         self,
-        embed_dims,
-        num_heads,
-        attn_drop=0.0,
-        proj_drop=0.0,
-        dropout_layer=dict(type="Dropout", drop_prob=0.0),
-        init_cfg=None,
-        batch_first=False,
+        embed_dims: int,
+        num_heads: int,
+        attn_drop: float = 0.0,
+        proj_drop: float = 0.0,
+        dropout_layer: dict | None = dict(type="Dropout", drop_prob=0.0),
+        init_cfg: dict | None = None,
+        batch_first: bool = False,
         **kwargs,
     ):
         super().__init__(init_cfg)
@@ -431,11 +437,12 @@ class MultiheadAttention(BaseModule):
                 DeprecationWarning,
             )
             attn_drop = kwargs["dropout"]
-            dropout_layer["drop_prob"] = kwargs.pop("dropout")
+            if dropout_layer is not None:
+                dropout_layer["drop_prob"] = kwargs.pop("dropout")
 
-        self.embed_dims = embed_dims
-        self.num_heads = num_heads
-        self.batch_first = batch_first
+        object.__setattr__(self, "embed_dims", embed_dims)
+        object.__setattr__(self, "num_heads", num_heads)
+        object.__setattr__(self, "batch_first", batch_first)
 
         self.attn = nn.MultiheadAttention(embed_dims, num_heads, attn_drop, **kwargs)
 
@@ -566,21 +573,21 @@ class FFN(BaseModule):
     @deprecated_api_warning({"dropout": "ffn_drop", "add_residual": "add_identity"}, cls_name="FFN")
     def __init__(
         self,
-        embed_dims=256,
-        feedforward_channels=1024,
-        num_fcs=2,
-        act_cfg=dict(type="ReLU", inplace=True),
-        ffn_drop=0.0,
-        dropout_layer=None,
-        add_identity=True,
-        init_cfg=None,
-        layer_scale_init_value=0.0,
+        embed_dims: int = 256,
+        feedforward_channels: int = 1024,
+        num_fcs: int = 2,
+        act_cfg: dict = dict(type="ReLU", inplace=True),
+        ffn_drop: float = 0.0,
+        dropout_layer: dict | None = None,
+        add_identity: bool = True,
+        init_cfg: dict | None = None,
+        layer_scale_init_value: float = 0.0,
     ):
         super().__init__(init_cfg)
         assert num_fcs >= 2, f"num_fcs should be no less than 2. got {num_fcs}."
-        self.embed_dims = embed_dims
-        self.feedforward_channels = feedforward_channels
-        self.num_fcs = num_fcs
+        object.__setattr__(self, "embed_dims", embed_dims)
+        object.__setattr__(self, "feedforward_channels", feedforward_channels)
+        object.__setattr__(self, "num_fcs", num_fcs)
 
         layers = []
         in_channels = embed_dims
@@ -597,7 +604,7 @@ class FFN(BaseModule):
         layers.append(nn.Dropout(ffn_drop))
         self.layers = Sequential(*layers)
         self.dropout_layer = build_dropout(dropout_layer) if dropout_layer else torch.nn.Identity()
-        self.add_identity = add_identity
+        object.__setattr__(self, "add_identity", add_identity)
 
         if layer_scale_init_value > 0:
             self.gamma2 = LayerScale(embed_dims, scale=layer_scale_init_value)
@@ -656,10 +663,17 @@ class BaseTransformerLayer(BaseModule):
             or (n, batch, embed_dim). Default to False.
     """
 
+    num_attn: int
+    operation_order: tuple[str, ...]
+    norm_cfg: dict
+    pre_norm: bool
+    embed_dims: int
+    batch_first: bool
+
     def __init__(
         self,
-        attn_cfgs=None,
-        ffn_cfgs=dict(
+        attn_cfgs: dict | list[dict] | None = None,
+        ffn_cfgs: dict | list[dict] = dict(
             type="FFN",
             embed_dims=256,
             feedforward_channels=1024,
@@ -667,10 +681,10 @@ class BaseTransformerLayer(BaseModule):
             ffn_drop=0.0,
             act_cfg=dict(type="ReLU", inplace=True),
         ),
-        operation_order=None,
-        norm_cfg=dict(type="LN"),
-        init_cfg=None,
-        batch_first=False,
+        operation_order: tuple[str, ...] | None = None,
+        norm_cfg: dict = dict(type="LN"),
+        init_cfg: dict | None = None,
+        batch_first: bool = False,
         **kwargs,
     ):
         deprecated_args = dict(
@@ -691,7 +705,8 @@ class BaseTransformerLayer(BaseModule):
 
         super().__init__(init_cfg)
 
-        self.batch_first = batch_first
+        assert operation_order is not None, "operation_order must be provided"
+        object.__setattr__(self, "batch_first", batch_first)
 
         assert set(operation_order) & {"self_attn", "norm", "ffn", "cross_attn"} == set(operation_order), (
             f"The operation_order of {self.__class__.__name__} should contains all four operation type {['self_attn', 'norm', 'ffn', 'cross_attn']}"
@@ -705,10 +720,10 @@ class BaseTransformerLayer(BaseModule):
                 f"The length of attn_cfg {num_attn} is not consistent with the number of attentionin operation_order {operation_order}."
             )
 
-        self.num_attn = num_attn
-        self.operation_order = operation_order
-        self.norm_cfg = norm_cfg
-        self.pre_norm = operation_order[0] == "norm"
+        object.__setattr__(self, "num_attn", num_attn)
+        object.__setattr__(self, "operation_order", operation_order)
+        object.__setattr__(self, "norm_cfg", norm_cfg)
+        object.__setattr__(self, "pre_norm", operation_order[0] == "norm")
         self.attentions = ModuleList()
 
         index = 0
@@ -725,7 +740,7 @@ class BaseTransformerLayer(BaseModule):
                 self.attentions.append(attention)
                 index += 1
 
-        self.embed_dims = self.attentions[0].embed_dims
+        object.__setattr__(self, "embed_dims", self.attentions[0].embed_dims)
 
         self.ffns = ModuleList()
         num_ffns = operation_order.count("ffn")
@@ -866,18 +881,28 @@ class TransformerLayerSequence(BaseModule):
             Default: None.
     """
 
-    def __init__(self, transformerlayers=None, num_layers=None, init_cfg=None):
+    num_layers: int
+    embed_dims: int
+    pre_norm: bool
+
+    def __init__(
+        self,
+        transformerlayers: dict | list[dict] | None = None,
+        num_layers: int | None = None,
+        init_cfg: dict | None = None,
+    ):
         super().__init__(init_cfg)
+        assert num_layers is not None, "num_layers must be provided"
         if isinstance(transformerlayers, dict):
             transformerlayers = [copy.deepcopy(transformerlayers) for _ in range(num_layers)]
         else:
             assert isinstance(transformerlayers, list) and len(transformerlayers) == num_layers
-        self.num_layers = num_layers
+        object.__setattr__(self, "num_layers", num_layers)
         self.layers = ModuleList()
         for i in range(num_layers):
             self.layers.append(build_transformer_layer(transformerlayers[i]))
-        self.embed_dims = self.layers[0].embed_dims
-        self.pre_norm = self.layers[0].pre_norm
+        object.__setattr__(self, "embed_dims", self.layers[0].embed_dims)
+        object.__setattr__(self, "pre_norm", self.layers[0].pre_norm)
 
     def forward(
         self,

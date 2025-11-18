@@ -96,8 +96,8 @@ class LoadMultiChannelImageFromFiles(BaseTransform):
         to_float32: bool = False,
         color_type: str = "unchanged",
         imdecode_backend: str = "cv2",
-        file_client_args: dict = None,
-        backend_args: dict = None,
+        file_client_args: dict | None = None,
+        backend_args: dict | None = None,
     ) -> None:
         self.to_float32 = to_float32
         self.color_type = color_type
@@ -552,10 +552,10 @@ class LoadPanopticAnnotations(LoadAnnotations):
         with_seg: bool = True,
         box_type: str = "hbox",
         imdecode_backend: str = "cv2",
-        backend_args: dict = None,
+        backend_args: dict | None = None,
     ) -> None:
         try:
-            from panopticapi import utils
+            from panopticapi import utils  # type: ignore[import-untyped]
         except ImportError:
             raise ImportError(
                 "panopticapi is not installed, please install it by: "

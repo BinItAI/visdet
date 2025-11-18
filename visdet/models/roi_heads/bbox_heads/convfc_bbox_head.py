@@ -1,5 +1,7 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 
+from typing import Any
+
 import torch.nn as nn
 from torch import Tensor
 
@@ -20,6 +22,27 @@ class ConvFCBBoxHead(BBoxHead):
         shared convs -> shared fcs
                                     \-> reg convs -> reg fcs -> reg
     """
+
+    num_shared_convs: int
+    num_shared_fcs: int
+    num_cls_convs: int
+    num_cls_fcs: int
+    num_reg_convs: int
+    num_reg_fcs: int
+    conv_out_channels: int
+    fc_out_channels: int
+    conv_cfg: Any
+    norm_cfg: Any
+    shared_convs: Any
+    shared_fcs: Any
+    shared_out_channels: int
+    cls_convs: Any
+    cls_fcs: Any
+    cls_last_dim: int
+    reg_convs: Any
+    reg_fcs: Any
+    reg_last_dim: int
+    relu: nn.ReLU
 
     def __init__(
         self,
@@ -45,30 +68,30 @@ class ConvFCBBoxHead(BBoxHead):
             assert num_cls_convs == 0 and num_cls_fcs == 0
         if not self.with_reg:
             assert num_reg_convs == 0 and num_reg_fcs == 0
-        self.num_shared_convs = num_shared_convs
-        self.num_shared_fcs = num_shared_fcs
-        self.num_cls_convs = num_cls_convs
-        self.num_cls_fcs = num_cls_fcs
-        self.num_reg_convs = num_reg_convs
-        self.num_reg_fcs = num_reg_fcs
-        self.conv_out_channels = conv_out_channels
-        self.fc_out_channels = fc_out_channels
-        self.conv_cfg = conv_cfg
-        self.norm_cfg = norm_cfg
+        self.num_shared_convs = num_shared_convs  # type: ignore[unresolved-attribute]
+        self.num_shared_fcs = num_shared_fcs  # type: ignore[unresolved-attribute]
+        self.num_cls_convs = num_cls_convs  # type: ignore[unresolved-attribute]
+        self.num_cls_fcs = num_cls_fcs  # type: ignore[unresolved-attribute]
+        self.num_reg_convs = num_reg_convs  # type: ignore[unresolved-attribute]
+        self.num_reg_fcs = num_reg_fcs  # type: ignore[unresolved-attribute]
+        self.conv_out_channels = conv_out_channels  # type: ignore[unresolved-attribute]
+        self.fc_out_channels = fc_out_channels  # type: ignore[unresolved-attribute]
+        self.conv_cfg = conv_cfg  # type: ignore[unresolved-attribute]
+        self.norm_cfg = norm_cfg  # type: ignore[unresolved-attribute]
 
         # add shared convs and fcs
-        self.shared_convs, self.shared_fcs, last_layer_dim = self._add_conv_fc_branch(
+        self.shared_convs, self.shared_fcs, last_layer_dim = self._add_conv_fc_branch(  # type: ignore[unresolved-attribute]
             self.num_shared_convs, self.num_shared_fcs, self.in_channels, True
         )
-        self.shared_out_channels = last_layer_dim
+        self.shared_out_channels = last_layer_dim  # type: ignore[unresolved-attribute]
 
         # add cls specific branch
-        self.cls_convs, self.cls_fcs, self.cls_last_dim = self._add_conv_fc_branch(
+        self.cls_convs, self.cls_fcs, self.cls_last_dim = self._add_conv_fc_branch(  # type: ignore[unresolved-attribute]
             self.num_cls_convs, self.num_cls_fcs, self.shared_out_channels
         )
 
         # add reg specific branch
-        self.reg_convs, self.reg_fcs, self.reg_last_dim = self._add_conv_fc_branch(
+        self.reg_convs, self.reg_fcs, self.reg_last_dim = self._add_conv_fc_branch(  # type: ignore[unresolved-attribute]
             self.num_reg_convs, self.num_reg_fcs, self.shared_out_channels
         )
 
@@ -78,7 +101,7 @@ class ConvFCBBoxHead(BBoxHead):
             if self.num_reg_fcs == 0:
                 self.reg_last_dim *= self.roi_feat_area
 
-        self.relu = nn.ReLU(inplace=True)
+        self.relu = nn.ReLU(inplace=True)  # type: ignore[unresolved-attribute]
         # reconstruct fc_cls and fc_reg since input channels are changed
         if self.with_cls:
             if self.custom_cls_channels:
@@ -87,17 +110,17 @@ class ConvFCBBoxHead(BBoxHead):
                 cls_channels = self.num_classes + 1
             cls_predictor_cfg_ = self.cls_predictor_cfg.copy()
             cls_predictor_cfg_.update(in_features=self.cls_last_dim, out_features=cls_channels)
-            self.fc_cls = MODELS.build(cls_predictor_cfg_)
+            self.fc_cls = MODELS.build(cls_predictor_cfg_)  # type: ignore[unresolved-attribute]
         if self.with_reg:
             box_dim = self.bbox_coder.encode_size
             out_dim_reg = box_dim if self.reg_class_agnostic else box_dim * self.num_classes
             reg_predictor_cfg_ = self.reg_predictor_cfg.copy()
             if isinstance(reg_predictor_cfg_, (dict, ConfigDict)):
                 reg_predictor_cfg_.update(in_features=self.reg_last_dim, out_features=out_dim_reg)
-            self.fc_reg = MODELS.build(reg_predictor_cfg_)
+            self.fc_reg = MODELS.build(reg_predictor_cfg_)  # type: ignore[unresolved-attribute]
 
         if init_cfg is None:
-            self.init_cfg += [
+            self.init_cfg += [  # type: ignore[unresolved-attribute,operator]
                 dict(
                     type="Xavier",
                     distribution="uniform",

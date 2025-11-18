@@ -1,5 +1,3 @@
-# ruff: noqa
-# type: ignore
 # Copyright (c) OpenMMLab. All rights reserved.
 """Cascade RoI head for visdet."""
 
@@ -12,7 +10,7 @@ import torch.nn as nn
 from torch import Tensor
 
 from visdet.engine.structures import InstanceData
-
+from visdet.models.roi_heads.base_roi_head import BaseRoIHead
 from visdet.models.task_modules.samplers import SamplingResult
 from visdet.models.test_time_augs import merge_aug_masks
 from visdet.models.utils import empty_instances, unpack_gt_instances
@@ -26,8 +24,6 @@ from visdet.utils import (
     OptConfigType,
     OptMultiConfig,
 )
-
-from visdet.models.roi_heads.base_roi_head import BaseRoIHead
 
 
 @MODELS.register_module()

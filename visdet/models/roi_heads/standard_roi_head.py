@@ -1,18 +1,18 @@
-# ruff: noqa
-# type: ignore
+from typing import List, Optional, Tuple
+
 import torch
 import torch.nn as nn
-from visdet.registry import MODELS, TASK_UTILS
-from visdet.structures.bbox import bbox2roi
-from visdet.models.utils import empty_instances, unpack_gt_instances
-from visdet.engine.structures import InstanceData
-from visdet.utils.typing_utils import ConfigType
-from visdet.utils import InstanceList, OptConfigType, OptMultiConfig
-from visdet.structures import DetDataSample, SampleList
-from typing import List, Optional, Tuple
 from torch import Tensor
+
+from visdet.engine.structures import InstanceData
 from visdet.models.roi_heads.base_roi_head import BaseRoIHead
 from visdet.models.task_modules.samplers import SamplingResult
+from visdet.models.utils import empty_instances, unpack_gt_instances
+from visdet.registry import MODELS, TASK_UTILS
+from visdet.structures import DetDataSample, SampleList
+from visdet.structures.bbox import bbox2roi
+from visdet.utils import InstanceList, OptConfigType, OptMultiConfig
+from visdet.utils.typing_utils import ConfigType
 
 
 @MODELS.register_module()

@@ -78,8 +78,8 @@ class CocoMetric(BaseMetric):
         metric_items: Sequence[str] | None = None,
         format_only: bool = False,
         outfile_prefix: str | None = None,
-        file_client_args: dict = None,
-        backend_args: dict = None,
+        file_client_args: dict | None = None,
+        backend_args: dict | None = None,
         collect_device: str = "cpu",
         prefix: str | None = None,
         sort_categories: bool = False,
@@ -106,7 +106,7 @@ class CocoMetric(BaseMetric):
         # iou_thrs used to compute recall or precision.
         if iou_thrs is None:
             iou_thrs = np.linspace(0.5, 0.95, int(np.round((0.95 - 0.5) / 0.05)) + 1, endpoint=True)
-        self.iou_thrs = iou_thrs
+        self.iou_thrs: Sequence[float] = iou_thrs if isinstance(iou_thrs, Sequence) else [iou_thrs]
         self.metric_items = metric_items
         self.format_only = format_only
         if self.format_only:
@@ -143,8 +143,8 @@ class CocoMetric(BaseMetric):
             self._coco_api = None
 
         # handle dataset lazy init
-        self.cat_ids = None
-        self.img_ids = None
+        self.cat_ids: list[int] | None = None
+        self.img_ids: list[int] | None = None
 
     def fast_eval_recall(
         self,
@@ -167,6 +167,8 @@ class CocoMetric(BaseMetric):
         """
         gt_bboxes = []
         pred_bboxes = [result["bboxes"] for result in results]
+        assert self.img_ids is not None, "img_ids must be initialized"
+        assert self._coco_api is not None, "coco_api must be initialized"
         for i in range(len(self.img_ids)):
             ann_ids = self._coco_api.get_ann_ids(img_ids=self.img_ids[i])
             ann_info = self._coco_api.load_anns(ann_ids)
@@ -240,6 +242,7 @@ class CocoMetric(BaseMetric):
                 data["image_id"] = image_id
                 data["bbox"] = self.xyxy2xywh(bboxes[i])
                 data["score"] = float(scores[i])
+                assert self.cat_ids is not None, "cat_ids must be initialized"
                 data["category_id"] = self.cat_ids[label]
                 bbox_json_results.append(data)
 
@@ -254,6 +257,7 @@ class CocoMetric(BaseMetric):
                 data["image_id"] = image_id
                 data["bbox"] = self.xyxy2xywh(bboxes[i])
                 data["score"] = float(mask_scores[i])
+                assert self.cat_ids is not None, "cat_ids must be initialized"
                 data["category_id"] = self.cat_ids[label]
                 if isinstance(masks[i]["counts"], bytes):
                     masks[i]["counts"] = masks[i]["counts"].decode()
@@ -282,6 +286,7 @@ class CocoMetric(BaseMetric):
         Returns:
             str: The filename of the json file.
         """
+        assert self.dataset_meta is not None, "dataset_meta must be initialized"
         categories = [dict(id=id, name=name) for id, name in enumerate(self.dataset_meta["classes"])]
         image_infos = []
         annotations = []
@@ -411,6 +416,8 @@ class CocoMetric(BaseMetric):
             self._coco_api = COCO(coco_json_path)
 
         # handle lazy init
+        assert self._coco_api is not None, "coco_api must be initialized"
+        assert self.dataset_meta is not None, "dataset_meta must be initialized"
         if self.cat_ids is None:
             self.cat_ids = self._coco_api.get_cat_ids(cat_names=self.dataset_meta["classes"])
         if self.img_ids is None:
@@ -516,9 +523,14 @@ class CocoMetric(BaseMetric):
                 if self.classwise:  # Compute per-category AP
                     # Compute per-category AP
                     # from https://github.com/facebookresearch/detectron2/
-                    precisions = coco_eval.eval["precision"]
+                    precisions_raw = coco_eval.eval["precision"]
                     # precision: (iou, recall, cls, area range, max dets)
-                    assert len(self.cat_ids) == precisions.shape[2]
+                    assert isinstance(precisions_raw, np.ndarray), "precisions must be ndarray"
+                    precisions: np.ndarray = precisions_raw
+                    assert self.cat_ids is not None, "cat_ids must be initialized"
+                    # Type narrowing for ndarray shape attribute
+                    precisions_shape: tuple[int, ...] = precisions.shape  # type: ignore[assignment]
+                    assert len(self.cat_ids) == precisions_shape[2]
 
                     results_per_category = []
                     for idx, cat_id in enumerate(self.cat_ids):
