@@ -26,6 +26,14 @@ def obsolete_torch_version(torch_version, version_threshold) -> bool:
     return torch_version == "parrots" or torch_version <= version_threshold
 
 
+def _zero_dummy_grad(module: nn.Module, reference: torch.Tensor) -> torch.Tensor:
+    """Return a zero tensor that participates in autograd like module params."""
+    total = torch.zeros([], device=reference.device, dtype=reference.dtype)
+    for parameter in module.parameters():
+        total = total + parameter.view(-1)[0]
+    return total * 0.0
+
+
 class NewEmptyTensorOp(torch.autograd.Function):
     @staticmethod
     def forward(ctx, x: torch.Tensor, new_shape: tuple) -> torch.Tensor:
@@ -43,12 +51,16 @@ class Conv2d(nn.Conv2d):
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         if obsolete_torch_version(TORCH_VERSION, (1, 4)) and x.numel() == 0:
             out_shape = [x.shape[0], self.out_channels]
+            kernel = tuple(int(v) for v in _pair(self.kernel_size))
+            padding = tuple(int(v) for v in _pair(self.padding))
+            stride = tuple(int(v) for v in _pair(self.stride))
+            dilation = tuple(int(v) for v in _pair(self.dilation))
             for i, k, p, s, d in zip(
                 x.shape[-2:],
-                self.kernel_size,
-                self.padding,
-                self.stride,
-                self.dilation,
+                kernel,
+                padding,
+                stride,
+                dilation,
                 strict=False,
             ):
                 o = (i + 2 * p - (d * (k - 1) + 1)) // s + 1
@@ -56,7 +68,7 @@ class Conv2d(nn.Conv2d):
             empty = NewEmptyTensorOp.apply(x, out_shape)
             if self.training:
                 # produce dummy gradient to avoid DDP warning.
-                dummy = sum(x.view(-1)[0] for x in self.parameters()) * 0.0
+                dummy = _zero_dummy_grad(self, x)
                 return empty + dummy
             else:
                 return empty
@@ -69,12 +81,16 @@ class Conv3d(nn.Conv3d):
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         if obsolete_torch_version(TORCH_VERSION, (1, 4)) and x.numel() == 0:
             out_shape = [x.shape[0], self.out_channels]
+            kernel = tuple(int(v) for v in _triple(self.kernel_size))
+            padding = tuple(int(v) for v in _triple(self.padding))
+            stride = tuple(int(v) for v in _triple(self.stride))
+            dilation = tuple(int(v) for v in _triple(self.dilation))
             for i, k, p, s, d in zip(
                 x.shape[-3:],
-                self.kernel_size,
-                self.padding,
-                self.stride,
-                self.dilation,
+                kernel,
+                padding,
+                stride,
+                dilation,
                 strict=False,
             ):
                 o = (i + 2 * p - (d * (k - 1) + 1)) // s + 1
@@ -82,7 +98,7 @@ class Conv3d(nn.Conv3d):
             empty = NewEmptyTensorOp.apply(x, out_shape)
             if self.training:
                 # produce dummy gradient to avoid DDP warning.
-                dummy = sum(x.view(-1)[0] for x in self.parameters()) * 0.0
+                dummy = _zero_dummy_grad(self, x)
                 return empty + dummy
             else:
                 return empty
@@ -96,20 +112,25 @@ class ConvTranspose2d(nn.ConvTranspose2d):
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         if obsolete_torch_version(TORCH_VERSION, (1, 4)) and x.numel() == 0:
             out_shape = [x.shape[0], self.out_channels]
+            kernel = tuple(int(v) for v in _pair(self.kernel_size))
+            padding = tuple(int(v) for v in _pair(self.padding))
+            stride = tuple(int(v) for v in _pair(self.stride))
+            dilation = tuple(int(v) for v in _pair(self.dilation))
+            output_padding = tuple(int(v) for v in _pair(self.output_padding))
             for i, k, p, s, d, op in zip(
                 x.shape[-2:],
-                self.kernel_size,
-                self.padding,
-                self.stride,
-                self.dilation,
-                self.output_padding,
+                kernel,
+                padding,
+                stride,
+                dilation,
+                output_padding,
                 strict=False,
             ):
                 out_shape.append((i - 1) * s - 2 * p + (d * (k - 1) + 1) + op)
             empty = NewEmptyTensorOp.apply(x, out_shape)
             if self.training:
                 # produce dummy gradient to avoid DDP warning.
-                dummy = sum(x.view(-1)[0] for x in self.parameters()) * 0.0
+                dummy = _zero_dummy_grad(self, x)
                 return empty + dummy
             else:
                 return empty
@@ -123,20 +144,25 @@ class ConvTranspose3d(nn.ConvTranspose3d):
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         if obsolete_torch_version(TORCH_VERSION, (1, 4)) and x.numel() == 0:
             out_shape = [x.shape[0], self.out_channels]
+            kernel = tuple(int(v) for v in _triple(self.kernel_size))
+            padding = tuple(int(v) for v in _triple(self.padding))
+            stride = tuple(int(v) for v in _triple(self.stride))
+            dilation = tuple(int(v) for v in _triple(self.dilation))
+            output_padding = tuple(int(v) for v in _triple(self.output_padding))
             for i, k, p, s, d, op in zip(
                 x.shape[-3:],
-                self.kernel_size,
-                self.padding,
-                self.stride,
-                self.dilation,
-                self.output_padding,
+                kernel,
+                padding,
+                stride,
+                dilation,
+                output_padding,
                 strict=False,
             ):
                 out_shape.append((i - 1) * s - 2 * p + (d * (k - 1) + 1) + op)
             empty = NewEmptyTensorOp.apply(x, out_shape)
             if self.training:
                 # produce dummy gradient to avoid DDP warning.
-                dummy = sum(x.view(-1)[0] for x in self.parameters()) * 0.0
+                dummy = _zero_dummy_grad(self, x)
                 return empty + dummy
             else:
                 return empty
@@ -145,16 +171,20 @@ class ConvTranspose3d(nn.ConvTranspose3d):
 
 
 class MaxPool2d(nn.MaxPool2d):
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
+    def forward(self, x: torch.Tensor) -> torch.Tensor | tuple[torch.Tensor, torch.Tensor]:
         # PyTorch 1.9 does not support empty tensor inference yet
         if obsolete_torch_version(TORCH_VERSION, (1, 9)) and x.numel() == 0:
             out_shape = list(x.shape[:2])
+            kernel = tuple(int(v) for v in _pair(self.kernel_size))
+            padding = tuple(int(v) for v in _pair(self.padding))
+            stride = tuple(int(v) for v in _pair(self.stride))
+            dilation = tuple(int(v) for v in _pair(self.dilation))
             for i, k, p, s, d in zip(
                 x.shape[-2:],
-                _pair(self.kernel_size),
-                _pair(self.padding),
-                _pair(self.stride),
-                _pair(self.dilation),
+                kernel,
+                padding,
+                stride,
+                dilation,
                 strict=False,
             ):
                 o = (i + 2 * p - (d * (k - 1) + 1)) / s + 1
@@ -167,16 +197,20 @@ class MaxPool2d(nn.MaxPool2d):
 
 
 class MaxPool3d(nn.MaxPool3d):
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
+    def forward(self, x: torch.Tensor) -> torch.Tensor | tuple[torch.Tensor, torch.Tensor]:
         # PyTorch 1.9 does not support empty tensor inference yet
         if obsolete_torch_version(TORCH_VERSION, (1, 9)) and x.numel() == 0:
             out_shape = list(x.shape[:2])
+            kernel = tuple(int(v) for v in _triple(self.kernel_size))
+            padding = tuple(int(v) for v in _triple(self.padding))
+            stride = tuple(int(v) for v in _triple(self.stride))
+            dilation = tuple(int(v) for v in _triple(self.dilation))
             for i, k, p, s, d in zip(
                 x.shape[-3:],
-                _triple(self.kernel_size),
-                _triple(self.padding),
-                _triple(self.stride),
-                _triple(self.dilation),
+                kernel,
+                padding,
+                stride,
+                dilation,
                 strict=False,
             ):
                 o = (i + 2 * p - (d * (k - 1) + 1)) / s + 1
@@ -188,7 +222,7 @@ class MaxPool3d(nn.MaxPool3d):
         return super().forward(x)
 
 
-class Linear(torch.nn.Linear):
+class Linear(nn.Linear):
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         # empty tensor forward of Linear layer is supported in Pytorch 1.6
         if obsolete_torch_version(TORCH_VERSION, (1, 5)) and x.numel() == 0:
@@ -196,7 +230,7 @@ class Linear(torch.nn.Linear):
             empty = NewEmptyTensorOp.apply(x, out_shape)
             if self.training:
                 # produce dummy gradient to avoid DDP warning.
-                dummy = sum(x.view(-1)[0] for x in self.parameters()) * 0.0
+                dummy = _zero_dummy_grad(self, x)
                 return empty + dummy
             else:
                 return empty

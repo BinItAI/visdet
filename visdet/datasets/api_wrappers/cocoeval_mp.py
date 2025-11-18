@@ -31,10 +31,10 @@ class COCOevalMP(COCOeval):
             dts = []
             img_ids = set(p.imgIds)
             cat_ids = set(p.catIds)
-            for gt in self.cocoGt.dataset["annotations"]:
+            for gt in self.cocoGt.dataset["annotations"]:  # type: ignore[attr-defined]
                 if (gt["category_id"] in cat_ids) and (gt["image_id"] in img_ids):
                     gts.append(gt)
-            for dt in self.cocoDt.dataset["annotations"]:
+            for dt in self.cocoDt.dataset["annotations"]:  # type: ignore[attr-defined]
                 if (dt["category_id"] in cat_ids) and (dt["image_id"] in img_ids):
                     dts.append(dt)
             # gts=self.cocoGt.loadAnns(self.cocoGt.getAnnIds(imgIds=p.imgIds, catIds=p.catIds))
@@ -42,8 +42,8 @@ class COCOevalMP(COCOeval):
             # gts=self.cocoGt.dataset['annotations']
             # dts=self.cocoDt.dataset['annotations']
         else:
-            gts = self.cocoGt.loadAnns(self.cocoGt.getAnnIds(imgIds=p.imgIds))
-            dts = self.cocoDt.loadAnns(self.cocoDt.getAnnIds(imgIds=p.imgIds))
+            gts = self.cocoGt.loadAnns(self.cocoGt.getAnnIds(imgIds=p.imgIds))  # type: ignore[attr-defined]
+            dts = self.cocoDt.loadAnns(self.cocoDt.getAnnIds(imgIds=p.imgIds))  # type: ignore[attr-defined]
 
         # convert ground truth to mask if iouType == 'segm'
         if p.iouType == "segm":
@@ -221,15 +221,15 @@ class COCOevalMP(COCOeval):
                 # IoU
                 if iouThr is not None:
                     t = np.where(iouThr == p.iouThrs)[0]
-                    s = s[t]
-                s = s[:, :, :, aind, mind]
+                    s = s[t]  # type: ignore[index]
+                s = s[:, :, :, aind, mind]  # type: ignore[index]
             else:
                 # dimension of recall: [TxKxAxM]
                 s = self.eval["recall"]
                 if iouThr is not None:
                     t = np.where(iouThr == p.iouThrs)[0]
-                    s = s[t]
-                s = s[:, :, aind, mind]
+                    s = s[t]  # type: ignore[index]
+                s = s[:, :, aind, mind]  # type: ignore[index]
             if len(s[s > -1]) == 0:
                 mean_s = -1
             else:

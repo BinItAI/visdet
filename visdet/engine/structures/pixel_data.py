@@ -123,10 +123,6 @@ class PixelData(BaseDataElement):
         else:
             return None
 
-    # Type stubs for commonly accessed dynamic attributes
-    @overload
-    def __getattr__(self, name: str) -> Any: ...
-
     # Provide specific type hints for common attributes
     if TYPE_CHECKING:
         # These are the most commonly accessed attributes in visualization code

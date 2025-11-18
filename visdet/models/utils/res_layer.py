@@ -149,7 +149,7 @@ class SimplifiedBasicBlock(BaseModule):
         assert dcn is None, "Not implemented yet."
         assert plugins is None, "Not implemented yet."
         assert not with_cp, "Not implemented yet."
-        self.with_norm = norm_cfg is not None
+        self.with_norm: bool = norm_cfg is not None  # type: ignore[misc]
         with_bias = True if norm_cfg is None else False
         self.conv1 = build_conv_layer(
             conv_cfg,
@@ -162,18 +162,20 @@ class SimplifiedBasicBlock(BaseModule):
             bias=with_bias,
         )
         if self.with_norm:
-            self.norm1_name, norm1 = build_norm_layer(norm_cfg, planes, postfix=1)
+            norm1_name, norm1 = build_norm_layer(norm_cfg, planes, postfix=1)
+            self.norm1_name: str = norm1_name  # type: ignore[misc]
             self.add_module(self.norm1_name, norm1)
         self.conv2 = build_conv_layer(conv_cfg, planes, planes, 3, padding=1, bias=with_bias)
         if self.with_norm:
-            self.norm2_name, norm2 = build_norm_layer(norm_cfg, planes, postfix=2)
+            norm2_name, norm2 = build_norm_layer(norm_cfg, planes, postfix=2)
+            self.norm2_name: str = norm2_name  # type: ignore[misc]
             self.add_module(self.norm2_name, norm2)
 
         self.relu = nn.ReLU(inplace=True)
-        self.downsample = downsample
-        self.stride = stride
-        self.dilation = dilation
-        self.with_cp = with_cp
+        self.downsample: nn.Module | None = downsample  # type: ignore[misc]
+        self.stride: int = stride  # type: ignore[misc]
+        self.dilation: int = dilation  # type: ignore[misc]
+        self.with_cp: bool = with_cp  # type: ignore[misc]
 
     @property
     def norm1(self):

@@ -212,10 +212,6 @@ class DetDataSample(BaseDataElement):
     def pred_sem_seg(self) -> None:
         del self._pred_sem_seg  # type: ignore[has-type]
 
-    # Type stubs for commonly accessed dynamic attributes
-    @overload
-    def __getattr__(self, name: str) -> Any: ...
-
     # Provide specific type hints for common attributes
     if TYPE_CHECKING:
         # These are commonly accessed metainfo attributes in visualization code
