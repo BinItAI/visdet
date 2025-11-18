@@ -142,6 +142,7 @@ def bbox2result(bboxes: Tensor | np.ndarray, labels: Tensor | np.ndarray, num_cl
     else:
         if isinstance(bboxes, torch.Tensor):
             bboxes = bboxes.detach().cpu().numpy()
+        if isinstance(labels, torch.Tensor):
             labels = labels.detach().cpu().numpy()
         return [bboxes[labels == i, :] for i in range(num_classes)]
 
@@ -184,7 +185,7 @@ def distance2bbox(
         # clip bboxes with dynamic `min` and `max` for onnx
         if torch.onnx.is_in_onnx_export():
             # TODO: delete
-            from visdet.core.export import dynamic_clip_for_onnx
+            from visdet.core.export import dynamic_clip_for_onnx  # type: ignore[import-not-found]
 
             x1, y1, x2, y2 = dynamic_clip_for_onnx(x1, y1, x2, y2, max_shape)
             bboxes = torch.stack([x1, y1, x2, y2], dim=-1)
@@ -222,8 +223,8 @@ def scale_boxes(boxes: Tensor | BaseBoxes, scale_factor: tuple[float, float]) ->
     else:
         # Tensor boxes will be treated as horizontal boxes
         repeat_num = int(boxes.size(-1) / 2)
-        scale_factor = boxes.new_tensor(scale_factor).repeat((1, repeat_num))
-        return boxes * scale_factor
+        scale_factor_tensor = boxes.new_tensor(scale_factor).repeat((1, repeat_num))
+        return boxes * scale_factor_tensor
 
 
 def get_box_tensor(boxes: Tensor | BaseBoxes) -> Tensor:
@@ -374,6 +375,9 @@ def bbox_project(
         bboxes = torch.from_numpy(bboxes)
     if isinstance(homography_matrix, np.ndarray):
         homography_matrix = torch.from_numpy(homography_matrix)
+
+    # At this point bboxes must be a Tensor
+    assert isinstance(bboxes, torch.Tensor)
     corners = bbox2corner(bboxes)
     corners = torch.cat([corners, corners.new_ones(corners.shape[0], 1)], dim=1)
     corners = torch.matmul(homography_matrix, corners.t()).t()
@@ -403,7 +407,9 @@ def cat_boxes(data_list: list[Tensor | BaseBoxes], dim: int = 0) -> Tensor | Bas
     if data_list and isinstance(data_list[0], BaseBoxes):
         return data_list[0].cat(data_list, dim=dim)
     else:
-        return torch.cat(data_list, dim=dim)
+        # Type checker needs to know these are all Tensors
+        tensor_list: list[Tensor] = [x for x in data_list if isinstance(x, Tensor)]
+        return torch.cat(tensor_list, dim=dim)
 
 
 def stack_boxes(data_list: list[Tensor | BaseBoxes], dim: int = 0) -> Tensor | BaseBoxes:
@@ -421,7 +427,9 @@ def stack_boxes(data_list: list[Tensor | BaseBoxes], dim: int = 0) -> Tensor | B
     if data_list and isinstance(data_list[0], BaseBoxes):
         return data_list[0].stack(data_list, dim=dim)
     else:
-        return torch.stack(data_list, dim=dim)
+        # Type checker needs to know these are all Tensors
+        tensor_list: list[Tensor] = [x for x in data_list if isinstance(x, Tensor)]
+        return torch.stack(tensor_list, dim=dim)
 
 
 def get_box_wh(boxes: Tensor | BaseBoxes) -> tuple[Tensor, Tensor]:

@@ -1,5 +1,4 @@
 # ruff: noqa
-# type: ignore
 # Copyright (c) OpenMMLab. All rights reserved.
 from abc import ABCMeta, abstractmethod, abstractproperty, abstractstaticmethod
 from collections.abc import Sequence

@@ -1,5 +1,4 @@
 # ruff: noqa
-# type: ignore
 # Copyright (c) OpenMMLab. All rights reserved.
 from typing import TypeVar, Union
 
