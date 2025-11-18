@@ -1,5 +1,3 @@
-# ruff: noqa
-# type: ignore
 # Copyright (c) OpenMMLab. All rights reserved.
 import functools
 from collections.abc import Callable
@@ -19,14 +17,15 @@ def reduce_loss(loss: Tensor, reduction: str) -> Tensor:
     Return:
         Tensor: Reduced loss tensor.
     """
-    reduction_enum = F._Reduction.get_enum(reduction)
-    # none: 0, elementwise_mean:1, sum: 2
-    if reduction_enum == 0:
+    # Use string comparison instead of F._Reduction which is private
+    if reduction == "none":
         return loss
-    elif reduction_enum == 1:
+    elif reduction == "mean":
         return loss.mean()
-    elif reduction_enum == 2:
+    elif reduction == "sum":
         return loss.sum()
+    else:
+        raise ValueError(f"Invalid reduction mode: {reduction}")
 
 
 def weight_reduce_loss(
