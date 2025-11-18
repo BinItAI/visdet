@@ -1,5 +1,9 @@
 # Copyright (c) OpenMMLab. All rights reserved.
+from __future__ import annotations
+
 import warnings
+from collections.abc import Mapping, Sequence
+from typing import Any, cast
 
 import torch
 import torch.nn as nn
@@ -15,13 +19,7 @@ from visdet.models.task_modules.samplers import PseudoSampler
 from visdet.models.utils import images_to_levels, multi_apply, unmap
 from visdet.registry import MODELS, TASK_UTILS
 from visdet.structures.bbox import BaseBoxes, cat_boxes, get_box_tensor
-from visdet.utils import (
-    ConfigType,
-    InstanceList,
-    OptConfigType,
-    OptInstanceList,
-    OptMultiConfig,
-)
+from visdet.utils import ConfigType, InstanceList, OptConfigType, OptInstanceList, OptMultiConfig
 
 
 @MODELS.register_module()
@@ -85,10 +83,13 @@ class AnchorHead(BaseDenseHead):
         init_cfg: OptMultiConfig = dict(type="Normal", layer="Conv2d", std=0.01),
     ) -> None:
         super().__init__(init_cfg=init_cfg)
-        self.in_channels = in_channels  # type: ignore[assignment]
-        self.num_classes = num_classes  # type: ignore[assignment]
-        self.feat_channels = feat_channels  # type: ignore[assignment]
-        self.use_sigmoid_cls = loss_cls.get("use_sigmoid", False)  # type: ignore[assignment]
+        self.in_channels = in_channels
+        self.num_classes = num_classes
+        self.feat_channels = feat_channels
+        if not isinstance(loss_cls, Mapping):
+            raise TypeError("loss_cls config must be a mapping")
+        loss_cls_cfg = dict(loss_cls)
+        self.use_sigmoid_cls = bool(loss_cls_cfg.get("use_sigmoid", False))
         if self.use_sigmoid_cls:
             self.cls_out_channels = num_classes  # type: ignore[assignment]
         else:
@@ -98,27 +99,36 @@ class AnchorHead(BaseDenseHead):
             raise ValueError(f"num_classes={num_classes} is too small")
         self.reg_decoded_bbox = reg_decoded_bbox  # type: ignore[assignment]
 
-        self.bbox_coder = TASK_UTILS.build(bbox_coder)  # type: ignore[assignment]
-        self.loss_cls = MODELS.build(loss_cls)  # type: ignore[assignment]
-        self.loss_bbox = MODELS.build(loss_bbox)  # type: ignore[assignment]
-        self.train_cfg = train_cfg  # type: ignore[assignment]
-        self.test_cfg = test_cfg  # type: ignore[assignment]
-        if self.train_cfg:
-            self.assigner = TASK_UTILS.build(self.train_cfg["assigner"])  # type: ignore[assignment]
-            assert train_cfg is not None, "train_cfg must not be None"
-            if train_cfg.get("sampler", None) is not None:
-                self.sampler = TASK_UTILS.build(self.train_cfg["sampler"], default_args=dict(context=self))  # type: ignore[assignment]
+        if (
+            not isinstance(bbox_coder, Mapping)
+            or not isinstance(loss_bbox, Mapping)
+            or not isinstance(anchor_generator, Mapping)
+        ):
+            raise TypeError("bbox_coder, loss_bbox and anchor_generator configs must be mappings")
+        self.bbox_coder = TASK_UTILS.build(dict(bbox_coder))
+        self.loss_cls = MODELS.build(dict(loss_cls))
+        self.loss_bbox = MODELS.build(dict(loss_bbox))
+        self.train_cfg = dict(train_cfg) if isinstance(train_cfg, Mapping) else train_cfg
+        self.test_cfg = dict(test_cfg) if isinstance(test_cfg, Mapping) else test_cfg  # type: ignore[assignment]
+        if isinstance(self.train_cfg, Mapping):
+            assigner_cfg = self.train_cfg["assigner"]
+            if not isinstance(assigner_cfg, Mapping):
+                raise TypeError("assigner cfg must be a mapping")
+            self.assigner = TASK_UTILS.build(dict(assigner_cfg))
+            sampler_cfg = self.train_cfg.get("sampler")
+            if isinstance(sampler_cfg, Mapping):
+                self.sampler = TASK_UTILS.build(dict(sampler_cfg), default_args=dict(context=self))  # type: ignore[assignment]
             else:
                 self.sampler = PseudoSampler(context=self)  # type: ignore[assignment]
 
-        self.fp16_enabled = False  # type: ignore[assignment]
+        self.fp16_enabled = False
 
-        self.prior_generator = TASK_UTILS.build(anchor_generator)  # type: ignore[assignment]
+        self.prior_generator: AnchorGenerator = cast(AnchorGenerator, TASK_UTILS.build(dict(anchor_generator)))
 
         # Usually the numbers of anchors for each level are the same
         # except SSD detectors. So it is an int in the most dense
         # heads but a list of int in SSDHead
-        self.num_base_priors = self.prior_generator.num_base_priors[0]  # type: ignore[assignment]
+        self.num_base_priors = int(self.prior_generator.num_base_priors[0])
         self._init_layers()
 
     @property
@@ -157,7 +167,7 @@ class AnchorHead(BaseDenseHead):
         bbox_pred = self.conv_reg(x)
         return cls_score, bbox_pred
 
-    def forward(self, x: tuple[Tensor]) -> tuple[list[Tensor]]:
+    def forward(self, x: tuple[Tensor]) -> tuple[list[Tensor], list[Tensor]]:
         """Forward features from the upstream network.
 
         Args:
@@ -174,11 +184,12 @@ class AnchorHead(BaseDenseHead):
                     scale levels, each is a 4D-tensor, the channels number \
                     is num_base_priors * 4.
         """
-        return multi_apply(self.forward_single, x)
+        cls_scores, bbox_preds = multi_apply(self.forward_single, x)
+        return list(cls_scores), list(bbox_preds)
 
     def get_anchors(
         self,
-        featmap_sizes: list[tuple],
+        featmap_sizes: Sequence[tuple[int, int] | torch.Size],
         batch_img_metas: list[dict],
         device: torch.device | str = "cuda",
     ) -> tuple[list[list[Tensor]], list[list[Tensor]]]:
@@ -197,17 +208,21 @@ class AnchorHead(BaseDenseHead):
                 - valid_flag_list (list[list[Tensor]]): Valid flags of each
                   image.
         """
+        normalized_sizes: list[tuple[int, int]] = []
+        for size in featmap_sizes:
+            h, w = size[:2]
+            normalized_sizes.append((int(h), int(w)))
         num_imgs = len(batch_img_metas)
 
         # since feature map sizes of all images are the same, we only compute
         # anchors for one time
-        multi_level_anchors = self.prior_generator.grid_priors(featmap_sizes, device=device)  # type: ignore[attr-defined,call-arg]
+        multi_level_anchors = self.prior_generator.grid_priors(normalized_sizes, device=device)
         anchor_list = [multi_level_anchors for _ in range(num_imgs)]
 
         # for each image, we compute valid flags of multi level anchors
         valid_flag_list = []
         for img_id, img_meta in enumerate(batch_img_metas):
-            multi_level_flags = self.prior_generator.valid_flags(featmap_sizes, img_meta["pad_shape"], device)  # type: ignore[attr-defined,call-arg]
+            multi_level_flags = self.prior_generator.valid_flags(normalized_sizes, img_meta["pad_shape"], device)
             valid_flag_list.append(multi_level_flags)
 
         return anchor_list, valid_flag_list
@@ -254,11 +269,15 @@ class AnchorHead(BaseDenseHead):
                 - sampling_result (:obj:`SamplingResult`): Sampling results.
         """
         assert self.train_cfg is not None, "train_cfg must be set for training"
+        train_cfg = self.train_cfg
+        if not isinstance(train_cfg, Mapping):
+            raise TypeError("train_cfg must be a mapping when training")
+        allowed_border = int(train_cfg.get("allowed_border", 0))
         inside_flags = anchor_inside_flags(
             flat_anchors,
             valid_flags,
             img_meta["img_shape"][:2],
-            self.train_cfg["allowed_border"],
+            allowed_border,
         )
         if not inside_flags.any():
             raise ValueError(
@@ -275,7 +294,7 @@ class AnchorHead(BaseDenseHead):
         # Guided Anchoring algorithms
         sampling_result = self.sampler.sample(assign_result, pred_instances, gt_instances)  # type: ignore[attr-defined,call-arg]
 
-        num_valid_anchors = anchors.shape[0]
+        num_valid_anchors = int(anchors.shape[0])
         encode_size = self.bbox_coder.encode_size  # type: ignore[attr-defined]
         assert isinstance(encode_size, int), "encode_size must be an integer"
         target_dim_raw = gt_instances.bboxes.size(-1) if self.reg_decoded_bbox else encode_size
@@ -302,16 +321,17 @@ class AnchorHead(BaseDenseHead):
             bbox_weights[pos_inds, :] = 1.0
 
             labels[pos_inds] = sampling_result.pos_gt_labels
-            if self.train_cfg["pos_weight"] <= 0:
+            pos_weight = float(train_cfg.get("pos_weight", 0))
+            if pos_weight <= 0:
                 label_weights[pos_inds] = 1.0
             else:
-                label_weights[pos_inds] = self.train_cfg["pos_weight"]
+                label_weights[pos_inds] = pos_weight
         if len(neg_inds) > 0:
             label_weights[neg_inds] = 1.0
 
         # map up to original set of anchors
         if unmap_outputs:
-            num_total_anchors = flat_anchors.size(0)
+            num_total_anchors = int(flat_anchors.size(0))
             labels = unmap(labels, num_total_anchors, inside_flags, fill=self.num_classes)  # fill bg label
             label_weights = unmap(label_weights, num_total_anchors, inside_flags)
             bbox_targets = unmap(bbox_targets, num_total_anchors, inside_flags)
@@ -386,7 +406,9 @@ class AnchorHead(BaseDenseHead):
         assert len(anchor_list) == len(valid_flag_list) == num_imgs
 
         if batch_gt_instances_ignore is None:
-            batch_gt_instances_ignore = [None] * num_imgs
+            gt_instances_ignore_list: list[InstanceData | None] = [None for _ in range(num_imgs)]
+        else:
+            gt_instances_ignore_list = list(batch_gt_instances_ignore)
 
         # anchor number of multi levels
         num_level_anchors = [anchors.size(0) for anchors in anchor_list[0]]
@@ -405,7 +427,7 @@ class AnchorHead(BaseDenseHead):
             concat_valid_flag_list,
             batch_gt_instances,
             batch_img_metas,
-            batch_gt_instances_ignore,
+            gt_instances_ignore_list,
             unmap_outputs=unmap_outputs,
         )
         (
