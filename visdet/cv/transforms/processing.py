@@ -484,9 +484,9 @@ class Pad(BaseTransform):
             size = (pad_h, pad_w)
         elif self.size is not None:
             size = self.size[::-1]
-        pad_val_for_impad: int | float | list
+        pad_val_for_impad: int | float | tuple
         if isinstance(pad_val, int) and results["img"].ndim == 3:
-            pad_val_for_impad = list(pad_val for _ in range(results["img"].shape[2]))
+            pad_val_for_impad = tuple(pad_val for _ in range(results["img"].shape[2]))
         else:
             pad_val_for_impad = pad_val
         padded_img = impad(results["img"], shape=size, pad_val=pad_val_for_impad, padding_mode=self.padding_mode)
