@@ -2,7 +2,7 @@
 import copy
 from abc import ABCMeta, abstractmethod
 from inspect import signature
-from typing import Any
+from typing import Any, Mapping, Sequence, cast
 
 import torch
 from torch import Tensor, nn
@@ -14,8 +14,8 @@ from visdet.engine.structures import InstanceData
 from visdet.models.test_time_augs import merge_aug_results
 from visdet.models.utils import filter_scores_and_topk, select_single_mlvl, unpack_gt_instances
 from visdet.structures import SampleList
-from visdet.structures.bbox import cat_boxes, get_box_tensor, get_box_wh, scale_boxes
-from visdet.utils import InstanceList, OptMultiConfig
+from visdet.structures.bbox import BaseBoxes, cat_boxes, get_box_tensor, get_box_wh, scale_boxes
+from visdet.utils import InstanceList
 
 
 class BaseDenseHead(BaseModule, metaclass=ABCMeta):
@@ -64,7 +64,7 @@ class BaseDenseHead(BaseModule, metaclass=ABCMeta):
     test_cfg: ConfigDict | None
     _raw_positive_infos: dict[str, Any]
 
-    def __init__(self, init_cfg: OptMultiConfig = None) -> None:
+    def __init__(self, init_cfg: dict[str, Any] | list[dict[str, Any]] | None = None) -> None:
         super().__init__(init_cfg=init_cfg)
         # `_raw_positive_infos` will be used in `get_positive_infos`, which
         # can get positive information.
@@ -293,9 +293,11 @@ class BaseDenseHead(BaseModule, metaclass=ABCMeta):
             cls_score_list = select_single_mlvl(cls_scores, img_id, detach=True)
             bbox_pred_list = select_single_mlvl(bbox_preds, img_id, detach=True)
             if with_score_factors:
-                score_factor_list = select_single_mlvl(score_factors, img_id, detach=True)
+                score_factor_raw = select_single_mlvl(score_factors, img_id, detach=True)
+                score_factor_list = cast(list[Tensor | None], list(score_factor_raw))
             else:
-                score_factor_list = [None for _ in range(num_levels)]
+                empty_factors: list[Tensor | None] = [None for _ in range(num_levels)]
+                score_factor_list = empty_factors
 
             # Use test_cfg if cfg is not provided
             effective_cfg = cfg if cfg is not None else self.test_cfg
@@ -318,7 +320,7 @@ class BaseDenseHead(BaseModule, metaclass=ABCMeta):
         self,
         cls_score_list: list[Tensor],
         bbox_pred_list: list[Tensor],
-        score_factor_list: list[Tensor],
+        score_factor_list: list[Tensor | None],
         mlvl_priors: list[Tensor],
         img_meta: dict,
         cfg: ConfigDict,
@@ -364,7 +366,7 @@ class BaseDenseHead(BaseModule, metaclass=ABCMeta):
                 - bboxes (Tensor): Has a shape (num_instances, 4),
                   the last dimension 4 arrange as (x1, y1, x2, y2).
         """
-        if score_factor_list[0] is None:
+        if not score_factor_list or score_factor_list[0] is None:
             # e.g. Retina, FreeAnchor, etc.
             with_score_factors = False
         else:
@@ -381,7 +383,7 @@ class BaseDenseHead(BaseModule, metaclass=ABCMeta):
         mlvl_scores = []
         mlvl_labels = []
         if with_score_factors:
-            mlvl_score_factors = []
+            mlvl_score_factors: list[Tensor] | None = []
         else:
             mlvl_score_factors = None
         for level_idx, (cls_score, bbox_pred, score_factor, priors) in enumerate(
@@ -389,9 +391,11 @@ class BaseDenseHead(BaseModule, metaclass=ABCMeta):
         ):
             assert cls_score.size()[-2:] == bbox_pred.size()[-2:]
 
-            dim = self.bbox_coder.encode_size
+            dim_raw = getattr(self.bbox_coder, "encode_size", 4)
+            dim = int(dim_raw)
             bbox_pred = bbox_pred.permute(1, 2, 0).reshape(-1, dim)
             if with_score_factors:
+                assert score_factor is not None
                 score_factor = score_factor.permute(1, 2, 0).reshape(-1).sigmoid()
             cls_score = cls_score.permute(1, 2, 0).reshape(-1, self.cls_out_channels)
 
@@ -418,10 +422,12 @@ class BaseDenseHead(BaseModule, metaclass=ABCMeta):
             results = filter_scores_and_topk(scores, score_thr, nms_pre, dict(bbox_pred=bbox_pred, priors=priors))
             scores, labels, keep_idxs, filtered_results = results
 
+            assert isinstance(filtered_results, dict)
             bbox_pred = filtered_results["bbox_pred"]
             priors = filtered_results["priors"]
 
             if with_score_factors:
+                assert score_factor is not None
                 score_factor = score_factor[keep_idxs]
 
             mlvl_bbox_preds.append(bbox_pred)
@@ -429,11 +435,15 @@ class BaseDenseHead(BaseModule, metaclass=ABCMeta):
             mlvl_scores.append(scores)
             mlvl_labels.append(labels)
 
-            if with_score_factors:
+            if with_score_factors and mlvl_score_factors is not None:
+                assert score_factor is not None
                 mlvl_score_factors.append(score_factor)
 
         bbox_pred = torch.cat(mlvl_bbox_preds)
-        priors = cat_boxes(mlvl_valid_priors)
+        if mlvl_valid_priors and isinstance(mlvl_valid_priors[0], BaseBoxes):
+            priors = cat_boxes(mlvl_valid_priors)  # type: ignore[arg-type]
+        else:
+            priors = torch.cat(mlvl_valid_priors)  # type: ignore[arg-type]
         # Type narrow bbox_coder - it's a Module with decode method
         bboxes = self.bbox_coder.decode(priors, bbox_pred, max_shape=img_shape)  # type: ignore[attr-defined,call-arg]
 
@@ -441,7 +451,7 @@ class BaseDenseHead(BaseModule, metaclass=ABCMeta):
         results.bboxes = bboxes
         results.scores = torch.cat(mlvl_scores)
         results.labels = torch.cat(mlvl_labels)
-        if with_score_factors:
+        if with_score_factors and mlvl_score_factors is not None:
             results.score_factors = torch.cat(mlvl_score_factors)
 
         return self._bbox_post_process(
@@ -503,22 +513,26 @@ class BaseDenseHead(BaseModule, metaclass=ABCMeta):
             results.scores = results.scores * score_factors
 
         # filter small size bboxes
-        if cfg.get("min_bbox_size", -1) >= 0:
+        min_bbox_size = float(cfg.get("min_bbox_size", -1))
+        if min_bbox_size >= 0:
             w, h = get_box_wh(results.bboxes)
-            valid_mask = (w > cfg.min_bbox_size) & (h > cfg.min_bbox_size)
+            valid_mask = (w > min_bbox_size) & (h > min_bbox_size)
             if not valid_mask.all():
                 results = results[valid_mask]
 
         # TODO: deal with `with_nms` and `nms_cfg=None` in test_cfg
         if with_nms and results.bboxes.numel() > 0:
             bboxes = get_box_tensor(results.bboxes)
-            nms_cfg = cfg.get("nms") if isinstance(cfg, ConfigDict) else None
+            nms_cfg = cfg.get("nms")
             det_bboxes, keep_idxs = batched_nms(bboxes, results.scores, results.labels, nms_cfg)
             results = results[keep_idxs]
             # some nms would reweight the score, such as softnms
             results.scores = det_bboxes[:, -1]
-            max_per_img = cfg.get("max_per_img", 100) if isinstance(cfg, ConfigDict) else 100
-            results = results[:max_per_img]
+            max_per_img = int(cfg.get("max_per_img", 100))
+            if keep_idxs.size(0) > max_per_img:
+                _, inds = results.scores.sort(descending=True)
+                inds = inds[:max_per_img]
+                results = results[inds]
 
         return results
 
