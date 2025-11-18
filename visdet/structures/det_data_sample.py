@@ -1,5 +1,7 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 
+from typing import TYPE_CHECKING, Any, overload
+
 from visdet.engine.structures import BaseDataElement, InstanceData, PixelData
 
 
@@ -209,6 +211,18 @@ class DetDataSample(BaseDataElement):
     @pred_sem_seg.deleter
     def pred_sem_seg(self) -> None:
         del self._pred_sem_seg  # type: ignore[has-type]
+
+    # Type stubs for commonly accessed dynamic attributes
+    @overload
+    def __getattr__(self, name: str) -> Any: ...
+
+    # Provide specific type hints for common attributes
+    if TYPE_CHECKING:
+        # These are commonly accessed metainfo attributes in visualization code
+        img_path: str
+        text: str | list[str]
+        tokens_positive: list[list[tuple[int, int]]]
+        phrase_ids: list[int]
 
 
 SampleList = list[DetDataSample]

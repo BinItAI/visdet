@@ -1,5 +1,5 @@
 # Copyright (c) OpenMMLab. All rights reserved.
-from typing import Optional
+from typing import Sequence
 
 import cv2
 import numpy as np
@@ -80,9 +80,9 @@ class DetLocalVisualizer(Visualizer):
         image: np.ndarray | None = None,
         vis_backends: dict | None = None,
         save_dir: str | None = None,
-        bbox_color: str | tuple[int] | None = None,
-        text_color: str | tuple[int] | None = (200, 200, 200),
-        mask_color: str | tuple[int] | None = None,
+        bbox_color: str | tuple[int, ...] | None = None,
+        text_color: str | tuple[int, ...] = (200, 200, 200),
+        mask_color: str | tuple[int, ...] | None = None,
         line_width: int | float = 3,
         alpha: float = 0.8,
     ) -> None:
@@ -100,9 +100,9 @@ class DetLocalVisualizer(Visualizer):
     def _draw_instances(
         self,
         image: np.ndarray,
-        instances: ["InstanceData"],
+        instances: InstanceData,
         classes: list[str] | None,
-        palette: list[tuple] | None,
+        palette: list[tuple[int, ...]] | None,
     ) -> np.ndarray:
         """Draw instances of GT or prediction.
 
@@ -241,9 +241,9 @@ class DetLocalVisualizer(Visualizer):
     def _draw_panoptic_seg(
         self,
         image: np.ndarray,
-        panoptic_seg: ["PixelData"],
-        classes: list[str] | None,
-        palette: list | None,
+        panoptic_seg: PixelData,
+        classes: Sequence[str] | None,
+        palette: list[tuple[int, ...]] | None,
     ) -> np.ndarray:
         """Draw panoptic seg of GT or prediction.
 
@@ -257,6 +257,7 @@ class DetLocalVisualizer(Visualizer):
             np.ndarray: the drawn image which channel is RGB.
         """
         # TODO: Is there a way to bypass？
+        assert classes is not None, "classes should not be None"
         num_classes = len(classes)
 
         panoptic_seg_data = panoptic_seg.sem_seg[0]
@@ -329,8 +330,8 @@ class DetLocalVisualizer(Visualizer):
         self,
         image: np.ndarray,
         sem_seg: PixelData,
-        classes: list | None,
-        palette: list | None,
+        classes: Sequence[str] | None,
+        palette: list[tuple[int, ...]] | None,
     ) -> np.ndarray:
         """Draw semantic seg of GT or prediction.
 
@@ -365,6 +366,9 @@ class DetLocalVisualizer(Visualizer):
             label_names = sem_seg.metainfo["label_names"]
         else:
             label_names = classes
+
+        assert label_names is not None, "label_names should not be None"
+        assert palette is not None, "palette should not be None"
 
         labels = np.array(ids, dtype=np.int64)
         colors = [palette[label] for label in labels]
@@ -407,7 +411,7 @@ class DetLocalVisualizer(Visualizer):
         self,
         name: str,
         image: np.ndarray,
-        data_sample: Optional["DetDataSample"] = None,
+        data_sample: DetDataSample | None = None,
         draw_gt: bool = True,
         draw_pred: bool = True,
         show: bool = False,

@@ -197,7 +197,7 @@ class Visualizer(ManagerMixin):
             if (
                 save_dir_arg is not None
                 and save_dir_arg.default is save_dir_arg.empty
-                and vis_backend._save_dir is None
+                and getattr(vis_backend, "_save_dir", None) is None
             ):
                 warnings.warn(f"Failed to add {vis_backend.__class__}, please provide the `save_dir` argument.")
                 continue
@@ -271,7 +271,7 @@ class Visualizer(ManagerMixin):
 
             # Find a better way for inline to show the image
             if is_inline:
-                return fig
+                return fig  # type: ignore[return-value]
             wait_continue(fig, timeout=wait_time, continue_key=continue_key)
         elif backend == "cv2":
             # Keep images are shown in the same window, and the title of window
@@ -383,7 +383,7 @@ class Visualizer(ManagerMixin):
         Returns:
             bool: Whether the position is in image.
         """
-        flag = (
+        flag = bool(
             (position[..., 0] < self.width).all()
             and (position[..., 0] >= 0).all()
             and (position[..., 1] < self.height).all()
@@ -694,7 +694,7 @@ class Visualizer(ManagerMixin):
         face_colors = color_val_matplotlib(face_colors)  # type: ignore
         circles = []
         for i in range(len(center)):
-            circles.append(Circle(tuple(center[i]), radius[i]))
+            circles.append(Circle(tuple(center[i]), float(radius[i])))
 
         if isinstance(line_widths, (int, float)):
             line_widths = [line_widths] * len(circles)
@@ -776,7 +776,7 @@ class Visualizer(ManagerMixin):
         ).reshape(-1, 4, 2)
         poly = [p for p in poly]
         return self.draw_polygons(
-            poly,
+            poly,  # type: ignore[arg-type]
             alpha=alpha,
             edge_colors=edge_colors,
             line_styles=line_styles,
@@ -838,7 +838,7 @@ class Visualizer(ManagerMixin):
                 )
         polygons = [tensor2ndarray(polygon) for polygon in polygons]
         for polygon in polygons:
-            if not self._is_posion_valid(polygon):
+            if not self._is_posion_valid(tensor2ndarray(polygon)):
                 warnings.warn(
                     "Warning: The polygon is out of bounds, the drawn polygon may not be in the image",
                     UserWarning,
@@ -991,7 +991,7 @@ class Visualizer(ManagerMixin):
 
         assert isinstance(featmap, torch.Tensor), f"`featmap` should be torch.Tensor, but got {type(featmap)}"
         assert featmap.ndim == 3, f"Input dimension must be 3, but got {featmap.ndim}"
-        featmap = featmap.detach().cpu()
+        featmap = featmap.detach().cpu()  # type: ignore[misc]
 
         if overlaid_image is not None:
             if overlaid_image.ndim == 2:
@@ -1062,7 +1062,7 @@ class Visualizer(ManagerMixin):
                 axes.axis("off")
                 axes.text(2, 15, f"channel: {indices[i]}", fontsize=10)
                 axes.imshow(convert_overlay_heatmap(topk_featmap[i], overlaid_image, alpha))
-            image = img_from_canvas(fig.canvas)
+            image = img_from_canvas(fig.canvas)  # type: ignore[arg-type]
             plt.close(fig)
             return image
 
@@ -1131,14 +1131,15 @@ class Visualizer(ManagerMixin):
     @master_only
     def add_datasample(
         self,
-        name,
+        name: str,
         image: np.ndarray,
         data_sample: Optional["BaseDataElement"] = None,
         draw_gt: bool = True,
         draw_pred: bool = True,
         show: bool = False,
-        wait_time: int = 0,
+        wait_time: int | float = 0,
         step: int = 0,
+        **kwargs,  # Allow subclasses to add extra arguments like pred_score_thr, out_file, etc.
     ) -> None:
         """Draw datasample."""
         pass
@@ -1181,5 +1182,8 @@ class Visualizer(ManagerMixin):
             object: Corresponding name instance.
         """
         instance = super().get_instance(name, **kwargs)
-        Visualizer._instance_dict[name] = instance
+        # Store instance in the class-level dict for get_current_instance()
+        if not hasattr(Visualizer, "_instance_dict"):
+            Visualizer._instance_dict = {}  # type: ignore[attr-defined]
+        Visualizer._instance_dict[name] = instance  # type: ignore[attr-defined,index,assignment]
         return instance

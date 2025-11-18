@@ -5,10 +5,12 @@ import functools
 import os
 import pickle
 import warnings
-from typing import Any, List, Optional
+from typing import Any, Callable, List, Optional, TypeVar
 
 import torch
 import torch.distributed as dist_lib
+
+F = TypeVar("F", bound=Callable)
 
 
 def _is_dist_available_and_initialized():
@@ -55,13 +57,14 @@ def is_main_process():
     return get_rank() == 0
 
 
-def master_only(func):
+def master_only(func: F) -> F:
     """Decorator to make a function only execute on master process."""
     @functools.wraps(func)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args, **kwargs):  # type: ignore[no-untyped-def]
         if is_main_process():
             return func(*args, **kwargs)
-    return wrapper
+        return None
+    return wrapper  # type: ignore[return-value]
 
 
 def barrier():

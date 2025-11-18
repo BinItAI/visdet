@@ -1,7 +1,7 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import warnings
 from collections.abc import Sequence
-from typing import Any
+from typing import TYPE_CHECKING, Any, overload
 
 import numpy as np
 import torch
@@ -122,5 +122,14 @@ class PixelData(BaseDataElement):
             return None
         else:
             return None
+
+    # Type stubs for commonly accessed dynamic attributes
+    @overload
+    def __getattr__(self, name: str) -> Any: ...
+
+    # Provide specific type hints for common attributes
+    if TYPE_CHECKING:
+        # These are the most commonly accessed attributes in visualization code
+        sem_seg: torch.Tensor | np.ndarray
 
     # TODO padding, resize

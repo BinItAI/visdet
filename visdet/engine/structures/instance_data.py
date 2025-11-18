@@ -1,13 +1,17 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import itertools
 from collections.abc import Sized
-from typing import Any, Union
+from typing import TYPE_CHECKING, Any, Union, overload
 
 import numpy as np
 import torch
 
 from visdet.engine.device import get_device
 from visdet.engine.structures.base_data_element import BaseDataElement
+
+if TYPE_CHECKING:
+    from visdet.structures.bbox import BaseBoxes
+    from visdet.structures.mask import BitmapMasks, PolygonMasks
 
 BoolTypeTensor: type[torch.Tensor]
 LongTypeTensor: type[torch.Tensor]
@@ -299,3 +303,16 @@ class InstanceData(BaseDataElement):
             return len(self.values()[0])
         else:
             return 0
+
+    # Type stubs for commonly accessed dynamic attributes
+    @overload
+    def __getattr__(self, name: str) -> Any: ...
+
+    # Provide specific type hints for common attributes
+    if TYPE_CHECKING:
+        # These are the most commonly accessed attributes in visualization code
+        bboxes: torch.Tensor | "BaseBoxes"
+        labels: torch.Tensor
+        scores: torch.Tensor
+        masks: torch.Tensor | "BitmapMasks" | "PolygonMasks"
+        label_names: list[str]

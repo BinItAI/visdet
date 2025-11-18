@@ -57,7 +57,7 @@ class DetVisualizationHook(Hook):
         show: bool = False,
         wait_time: float = 0.0,
         test_out_dir: str | None = None,
-        backend_args: dict = None,
+        backend_args: dict | None = None,
     ):
         self._visualizer: Visualizer = Visualizer.get_current_instance()
         self.interval = interval
@@ -83,8 +83,8 @@ class DetVisualizationHook(Hook):
         self,
         runner: Runner,
         batch_idx: int,
-        data_batch: dict,
-        outputs: Sequence[DetDataSample],
+        data_batch: dict | tuple | list | None = None,
+        outputs: Sequence[DetDataSample] | None = None,
     ) -> None:
         """Run after every ``self.interval`` validation iterations.
 
@@ -95,7 +95,7 @@ class DetVisualizationHook(Hook):
             outputs (Sequence[:obj:`DetDataSample`]]): A batch of data samples
                 that contain annotations and predictions.
         """
-        if self.draw is False:
+        if self.draw is False or outputs is None:
             return
 
         # There is no guarantee that the same batch of images
@@ -122,8 +122,8 @@ class DetVisualizationHook(Hook):
         self,
         runner: Runner,
         batch_idx: int,
-        data_batch: dict,
-        outputs: Sequence[DetDataSample],
+        data_batch: dict | tuple | list | None = None,
+        outputs: Sequence[DetDataSample] | None = None,
     ) -> None:
         """Run after every testing iterations.
 
@@ -134,7 +134,7 @@ class DetVisualizationHook(Hook):
             outputs (Sequence[:obj:`DetDataSample`]): A batch of data samples
                 that contain annotations and predictions.
         """
-        if self.draw is False:
+        if self.draw is False or outputs is None:
             return
 
         if self.test_out_dir is not None:
@@ -200,8 +200,8 @@ class GroundingVisualizationHook(DetVisualizationHook):
         self,
         runner: Runner,
         batch_idx: int,
-        data_batch: dict,
-        outputs: Sequence[DetDataSample],
+        data_batch: dict | tuple | list | None = None,
+        outputs: Sequence[DetDataSample] | None = None,
     ) -> None:
         """Run after every testing iterations.
 
@@ -212,7 +212,7 @@ class GroundingVisualizationHook(DetVisualizationHook):
             outputs (Sequence[:obj:`DetDataSample`]): A batch of data samples
                 that contain annotations and predictions.
         """
-        if self.draw is False:
+        if self.draw is False or outputs is None:
             return
 
         if self.test_out_dir is not None:
