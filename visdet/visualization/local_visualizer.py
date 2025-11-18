@@ -469,8 +469,9 @@ class DetLocalVisualizer(Visualizer):
             step (int): Global step value to record. Defaults to 0.
         """
         image = image.clip(0, 255).astype(np.uint8)
-        classes = self.dataset_meta.get("classes", None)
-        palette = self.dataset_meta.get("palette", None)
+        # Type guard: dataset_meta is guaranteed to be a dict
+        classes = self.dataset_meta.get("classes", None)  # type: ignore
+        palette = self.dataset_meta.get("palette", None)  # type: ignore
 
         gt_img_data = None
         pred_img_data = None
