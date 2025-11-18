@@ -204,7 +204,7 @@ class PatchEmbed(BaseModule):
             # disable the padding of conv
             padding = 0
         else:
-            self.adaptive_padding = None
+            object.__setattr__(self, "adaptive_padding", None)
         padding = to_2tuple(padding)
 
         self.projection = build_conv_layer(
@@ -221,7 +221,7 @@ class PatchEmbed(BaseModule):
         if norm_cfg is not None:
             self.norm = build_norm_layer(norm_cfg, embed_dims)[1]
         else:
-            self.norm = None
+            object.__setattr__(self, "norm", None)
 
         if input_size:
             input_size = to_2tuple(input_size)
@@ -300,6 +300,10 @@ class PatchMerging(BaseModule):
             Default: None.
     """
 
+    adaptive_padding: AdaptivePadding | None
+    norm: nn.Module | None
+    sampler: nn.Unfold
+
     def __init__(
         self,
         in_channels: int,
@@ -315,36 +319,38 @@ class PatchMerging(BaseModule):
         super().__init__(init_cfg=init_cfg)
         object.__setattr__(self, "in_channels", in_channels)
         object.__setattr__(self, "out_channels", out_channels)
-        if stride:
-            stride = stride
-        else:
-            stride = kernel_size
+        stride_value = stride if stride is not None else kernel_size
 
-        kernel_size = to_2tuple(kernel_size)
-        stride = to_2tuple(stride)
-        dilation = to_2tuple(dilation)
+        kernel_size_tuple = to_2tuple(kernel_size)
+        stride_tuple = to_2tuple(stride_value)
+        dilation_tuple = to_2tuple(dilation)
 
         if isinstance(padding, str):
             self.adaptive_padding = AdaptivePadding(
-                kernel_size=kernel_size,
-                stride=stride,
-                dilation=dilation,
+                kernel_size=kernel_size_tuple,
+                stride=stride_tuple,
+                dilation=dilation_tuple,
                 padding=padding,
             )
             # disable the padding of unfold
             padding = 0
         else:
-            self.adaptive_padding = None
+            object.__setattr__(self, "adaptive_padding", None)
 
-        padding = to_2tuple(padding)
-        self.sampler = nn.Unfold(kernel_size=kernel_size, dilation=dilation, padding=padding, stride=stride)
+        padding_tuple = to_2tuple(padding)
+        self.sampler = nn.Unfold(
+            kernel_size=kernel_size_tuple,
+            dilation=dilation_tuple,
+            padding=padding_tuple,
+            stride=stride_tuple,
+        )
 
-        sample_dim = kernel_size[0] * kernel_size[1] * in_channels
+        sample_dim = kernel_size_tuple[0] * kernel_size_tuple[1] * in_channels
 
         if norm_cfg is not None:
             self.norm = build_norm_layer(norm_cfg, sample_dim)[1]
         else:
-            self.norm = None
+            object.__setattr__(self, "norm", None)
 
         self.reduction = nn.Linear(sample_dim, out_channels, bias=bias)
 
@@ -379,16 +385,17 @@ class PatchMerging(BaseModule):
         # if kernel_size=2 and stride=2, x should has shape (B, 4*C, H/2*W/2)
         x = self.sampler(x)
 
-        out_h = (
-            H + 2 * self.sampler.padding[0] - self.sampler.dilation[0] * (self.sampler.kernel_size[0] - 1) - 1
-        ) // self.sampler.stride[0] + 1
-        out_w = (
-            W + 2 * self.sampler.padding[1] - self.sampler.dilation[1] * (self.sampler.kernel_size[1] - 1) - 1
-        ) // self.sampler.stride[1] + 1
+        padding_hw = to_2tuple(self.sampler.padding)
+        dilation_hw = to_2tuple(self.sampler.dilation)
+        kernel_hw = to_2tuple(self.sampler.kernel_size)
+        stride_hw = to_2tuple(self.sampler.stride)
+        out_h = (H + 2 * padding_hw[0] - dilation_hw[0] * (kernel_hw[0] - 1) - 1) // stride_hw[0] + 1
+        out_w = (W + 2 * padding_hw[1] - dilation_hw[1] * (kernel_hw[1] - 1) - 1) // stride_hw[1] + 1
 
         output_size = (out_h, out_w)
         x = x.transpose(1, 2)  # B, H/2*W/2, 4*C
-        x = self.norm(x) if self.norm else x
+        if self.norm is not None:
+            x = self.norm(x)
         x = self.reduction(x)
         return x, output_size
 
@@ -701,7 +708,8 @@ class BaseTransformerLayer(BaseModule):
                     f"to a dict named `ffn_cfgs`. ",
                     DeprecationWarning,
                 )
-                ffn_cfgs[new_name] = kwargs[ori_name]
+                if isinstance(ffn_cfgs, dict):
+                    ffn_cfgs[new_name] = kwargs[ori_name]  # type: ignore[index]
 
         super().__init__(init_cfg)
 
@@ -716,6 +724,7 @@ class BaseTransformerLayer(BaseModule):
         if isinstance(attn_cfgs, dict):
             attn_cfgs = [copy.deepcopy(attn_cfgs) for _ in range(num_attn)]
         else:
+            assert attn_cfgs is not None, "attn_cfgs must be provided"
             assert num_attn == len(attn_cfgs), (
                 f"The length of attn_cfg {num_attn} is not consistent with the number of attentionin operation_order {operation_order}."
             )
@@ -729,6 +738,7 @@ class BaseTransformerLayer(BaseModule):
         index = 0
         for operation_name in operation_order:
             if operation_name in ["self_attn", "cross_attn"]:
+                assert attn_cfgs is not None
                 if "batch_first" in attn_cfgs[index]:
                     assert self.batch_first == attn_cfgs[index]["batch_first"]
                 else:
