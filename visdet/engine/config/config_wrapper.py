@@ -6,7 +6,7 @@ with support for YAML configuration files.
 
 import warnings
 from pathlib import Path
-from typing import Any, Dict, Union
+from typing import TYPE_CHECKING, Any, Dict, Union, cast
 
 from visdet.engine.config import Config as BaseConfig
 from visdet.engine.config.schema_generator import validate_config_with_schema
@@ -73,7 +73,9 @@ class Config(BaseConfig):
                     stacklevel=2,
                 )
             # Use the parent class's fromfile method for .py files
-            return super(Config, Config).fromfile(str(filename))
+            # The base Config.fromfile returns BaseConfig, but since Config extends BaseConfig,
+            # we can safely cast it back to Config
+            return cast("Config", super(Config, Config).fromfile(str(filename)))
 
         else:
             raise ValueError(f"Unsupported config file extension: {filename.suffix}. Supported: .yaml, .yml, .py")

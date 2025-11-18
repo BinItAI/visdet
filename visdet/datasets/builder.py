@@ -12,13 +12,13 @@ from torch.utils.data import DataLoader
 from visdet.cv import build_from_cfg
 from visdet.engine.dist import get_dist_info
 from visdet.engine.registry import Registry
-from visdet.engine.utils import TORCH_VERSION, digit_version
+from visdet.engine.utils import digit_version
 
 try:
-    from torch.utils.data import collate_fn
+    from torch.utils.data import default_collate  # type: ignore[attr-defined]
 
     def collate(batch):
-        return collate_fn(batch)
+        return default_collate(batch)
 except ImportError:
     # Fallback implementation
     def collate(batch):
@@ -49,7 +49,7 @@ PIPELINES = Registry("pipeline")
 
 
 def _concat_dataset(cfg, default_args=None):
-    from visdet.datasets.dataset_wrappers import ConcatDataset
+    from visdet.engine.dataset.dataset_wrapper import ConcatDataset
 
     ann_files = cfg["ann_file"]
     img_prefixes = cfg.get("img_prefix", None)
@@ -77,10 +77,9 @@ def _concat_dataset(cfg, default_args=None):
 
 
 def build_dataset(cfg, default_args=None):
-    from visdet.datasets.dataset_wrappers import (
+    from visdet.engine.dataset.dataset_wrapper import (
         ClassBalancedDataset,
         ConcatDataset,
-        MultiImageMixDataset,
         RepeatDataset,
     )
 
@@ -96,10 +95,8 @@ def build_dataset(cfg, default_args=None):
     elif cfg["type"] == "ClassBalancedDataset":
         dataset = ClassBalancedDataset(build_dataset(cfg["dataset"], default_args), cfg["oversample_thr"])
     elif cfg["type"] == "MultiImageMixDataset":
-        cp_cfg = copy.deepcopy(cfg)
-        cp_cfg["dataset"] = build_dataset(cp_cfg["dataset"])
-        cp_cfg.pop("type")
-        dataset = MultiImageMixDataset(**cp_cfg)
+        # MultiImageMixDataset not yet implemented in visdet
+        raise NotImplementedError("MultiImageMixDataset is not yet available in visdet")
     elif isinstance(cfg.get("ann_file"), (list, tuple)):
         dataset = _concat_dataset(cfg, default_args)
     else:
@@ -200,7 +197,8 @@ def build_dataloader(
 
     init_fn = partial(worker_init_fn, num_workers=num_workers, rank=rank, seed=seed) if seed is not None else None
 
-    if TORCH_VERSION != "parrots" and digit_version(TORCH_VERSION) >= digit_version("1.7.0"):
+    # Check PyTorch version for persistent_workers support (available in 1.7.0+)
+    if digit_version(torch.__version__) >= digit_version("1.7.0"):
         kwargs["persistent_workers"] = persistent_workers
     elif persistent_workers is True:
         warnings.warn("persistent_workers is invalid because your pytorch version is lower than 1.7.0")

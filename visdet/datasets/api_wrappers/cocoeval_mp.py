@@ -3,7 +3,7 @@ import copy
 import itertools
 import time
 from collections import defaultdict
-from typing import Any, Iterable
+from typing import Any, Iterable, cast
 
 import numpy as np
 import torch.multiprocessing as mp
@@ -14,6 +14,12 @@ from visdet.engine.logging import MMLogger
 
 
 class COCOevalMP(COCOeval):
+    _gts: dict[tuple[int, int], list[dict[str, Any]]]
+    _dts: dict[tuple[int, int], list[dict[str, Any]]]
+    evalImgs: Any
+    eval: dict[str, Any]
+    stats: np.ndarray
+
     def _prepare(self):
         """
         Prepare ._gts and ._dts for evaluation based on params
@@ -27,6 +33,8 @@ class COCOevalMP(COCOeval):
                 ann["segmentation"] = rle
 
         p = self.params
+        gts: list[dict[str, Any]]
+        dts: list[dict[str, Any]]
         if p.useCats:
             gts = []
             dts = []
@@ -34,17 +42,17 @@ class COCOevalMP(COCOeval):
             cat_ids = set(p.catIds)
             for gt in self.cocoGt.dataset["annotations"]:  # type: ignore[attr-defined]
                 if (gt["category_id"] in cat_ids) and (gt["image_id"] in img_ids):
-                    gts.append(gt)
+                    gts.append(cast(dict[str, Any], gt))
             for dt in self.cocoDt.dataset["annotations"]:  # type: ignore[attr-defined]
                 if (dt["category_id"] in cat_ids) and (dt["image_id"] in img_ids):
-                    dts.append(dt)
+                    dts.append(cast(dict[str, Any], dt))
             # gts=self.cocoGt.loadAnns(self.cocoGt.getAnnIds(imgIds=p.imgIds, catIds=p.catIds))
             # dts=self.cocoDt.loadAnns(self.cocoDt.getAnnIds(imgIds=p.imgIds, catIds=p.catIds))
             # gts=self.cocoGt.dataset['annotations']
             # dts=self.cocoDt.dataset['annotations']
         else:
-            gts = self.cocoGt.loadAnns(self.cocoGt.getAnnIds(imgIds=p.imgIds))  # type: ignore[attr-defined]
-            dts = self.cocoDt.loadAnns(self.cocoDt.getAnnIds(imgIds=p.imgIds))  # type: ignore[attr-defined]
+            gts = [cast(dict[str, Any], ann) for ann in self.cocoGt.loadAnns(self.cocoGt.getAnnIds(imgIds=p.imgIds))]  # type: ignore[attr-defined]
+            dts = [cast(dict[str, Any], ann) for ann in self.cocoDt.loadAnns(self.cocoDt.getAnnIds(imgIds=p.imgIds))]  # type: ignore[attr-defined]
 
         # convert ground truth to mask if iouType == 'segm'
         if p.iouType == "segm":
@@ -56,14 +64,14 @@ class COCOevalMP(COCOeval):
             gt["ignore"] = "iscrowd" in gt and gt["iscrowd"]
             if p.iouType == "keypoints":
                 gt["ignore"] = (gt["num_keypoints"] == 0) or gt["ignore"]
-        self._gts = defaultdict(list)  # gt for evaluation
-        self._dts = defaultdict(list)  # dt for evaluation
+        self._gts = defaultdict(list)
+        self._dts = defaultdict(list)
         for gt in gts:
             self._gts[gt["image_id"], gt["category_id"]].append(gt)
         for dt in dts:
             self._dts[dt["image_id"], dt["category_id"]].append(dt)
-        self.evalImgs = defaultdict(list)  # per-image per-category evaluation results
-        self.eval = {}  # accumulated evaluation results
+        self.evalImgs = defaultdict(list)
+        self.eval = {}
 
     def evaluate(self):
         """Run per image evaluation on given images and store results (a list
@@ -145,8 +153,14 @@ class COCOevalMP(COCOeval):
         iscrowd = [int(o["iscrowd"]) for o in gt]
         # load computed ious
         # ious = self.ious[imgId, catId][:, gtind] if len(self.ious[imgId, catId]) > 0 else self.ious[imgId, catId]
-        ious = self.computeIoU(imgId, catId)
-        ious = ious[:, gtind] if len(ious) > 0 else ious
+        ious_raw = self.computeIoU(imgId, catId)
+        ious_array = np.asarray(ious_raw, dtype=float)
+        if ious_array.size == 0:
+            ious = np.zeros((0, 0))
+        else:
+            if ious_array.ndim == 1:
+                ious_array = ious_array.reshape((-1, 1))
+            ious = ious_array[:, gtind]
 
         T = len(p.iouThrs)
         G = len(gt)

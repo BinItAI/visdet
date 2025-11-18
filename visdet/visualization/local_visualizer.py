@@ -1,5 +1,7 @@
 # Copyright (c) OpenMMLab. All rights reserved.
-from typing import Sequence
+from __future__ import annotations
+
+from typing import Any, Sequence, cast
 
 import cv2
 import numpy as np
@@ -15,6 +17,9 @@ from visdet.structures import DetDataSample
 from visdet.structures.bbox import BaseBoxes
 from visdet.structures.mask import BitmapMasks, PolygonMasks, bitmap_to_polygon
 from visdet.visualization.palette import _get_adaptive_scales, get_palette, jitter_color
+
+ColorTuple = tuple[int, int, int]
+PaletteInput = list[ColorTuple] | ColorTuple | str | None
 
 
 @VISUALIZERS.register_module()
@@ -81,9 +86,9 @@ class DetLocalVisualizer(Visualizer):
         image: np.ndarray | None = None,
         vis_backends: dict | None = None,
         save_dir: str | None = None,
-        bbox_color: str | tuple[int, ...] | None = None,
-        text_color: str | tuple[int, ...] = (200, 200, 200),
-        mask_color: str | tuple[int, ...] | None = None,
+        bbox_color: str | ColorTuple | None = None,
+        text_color: str | ColorTuple = (200, 200, 200),
+        mask_color: str | ColorTuple | None = None,
         line_width: int | float = 3,
         alpha: float = 0.8,
     ) -> None:
@@ -96,14 +101,50 @@ class DetLocalVisualizer(Visualizer):
         # Set default value. When calling
         # `DetLocalVisualizer().dataset_meta=xxx`,
         # it will override the default value.
-        self.dataset_meta: dict[str, list[str] | list[tuple[int, ...]]] = {}
+        # Meta information attached by runner/metrics; values may vary so keep
+        # loose typing internally and normalize on read.
+        self.dataset_meta: dict[str, Any] = {}
+
+    def _meta_classes(self) -> list[str] | None:
+        meta = self.dataset_meta or {}
+        classes = meta.get("classes")
+        if isinstance(classes, Sequence) and all(isinstance(name, str) for name in classes):
+            return list(classes)
+        return None
+
+    def _meta_palette(self) -> PaletteInput:
+        meta = self.dataset_meta or {}
+        palette = meta.get("palette")
+        return self._normalize_palette_input(palette)
+
+    def _normalize_palette_input(self, palette: Any) -> PaletteInput:
+        if palette is None:
+            return None
+        if isinstance(palette, list):
+            normalized: list[ColorTuple] = []
+            for color in palette:
+                if isinstance(color, tuple):
+                    normalized.append(cast(ColorTuple, tuple(int(c) for c in color[:3])))
+                elif isinstance(color, list):
+                    normalized.append(cast(ColorTuple, tuple(int(c) for c in color[:3])))
+            return normalized or None
+        if isinstance(palette, np.ndarray):
+            if palette.ndim == 2:
+                return [cast(ColorTuple, tuple(int(c) for c in row.tolist()[:3])) for row in palette]
+            if palette.ndim == 1:
+                return cast(ColorTuple, tuple(int(c) for c in palette.tolist()[:3]))
+        if isinstance(palette, tuple):
+            return cast(ColorTuple, tuple(int(c) for c in palette[:3]))
+        if isinstance(palette, str):
+            return palette
+        return None
 
     def _draw_instances(
         self,
         image: np.ndarray,
         instances: InstanceData,
         classes: list[str] | None,
-        palette: list[tuple[int, ...]] | None,
+        palette: PaletteInput,
     ) -> np.ndarray:
         """Draw instances of GT or prediction.
 
@@ -129,15 +170,19 @@ class DetLocalVisualizer(Visualizer):
                 bboxes = bboxes_raw
 
             if bboxes.sum() > 0:
-                labels = instances.labels
+                label_tensor = cast(torch.Tensor, instances.labels)
+                label_ids = label_tensor.to(dtype=torch.int64).tolist()
 
-                max_label = int(max(labels) if len(labels) > 0 else 0)
+                max_label = int(max(label_ids) if len(label_ids) > 0 else 0)
                 text_palette = get_palette(self.text_color, max_label + 1)
-                text_colors = [text_palette[label] for label in labels]
+                text_colors = [text_palette[label] for label in label_ids]
 
-                bbox_color = palette if self.bbox_color is None else self.bbox_color
+                if self.bbox_color is None:
+                    bbox_color: PaletteInput = palette
+                else:
+                    bbox_color = cast(PaletteInput, self.bbox_color)
                 bbox_palette = get_palette(bbox_color, max_label + 1)
-                colors = [bbox_palette[label] for label in labels]
+                colors = [bbox_palette[label] for label in label_ids]
                 self.draw_bboxes(
                     bboxes,
                     edge_colors=colors,
@@ -146,15 +191,17 @@ class DetLocalVisualizer(Visualizer):
                 )
 
                 positions = bboxes[:, :2] + self.line_width
+                if isinstance(positions, torch.Tensor):
+                    positions = positions.cpu().numpy()
                 areas = (bboxes[:, 3] - bboxes[:, 1]) * (bboxes[:, 2] - bboxes[:, 0])
                 # Convert to numpy if it's a tensor
                 if isinstance(areas, torch.Tensor):
                     areas = areas.cpu().numpy()
                 scales = _get_adaptive_scales(areas)
 
-                for i, (pos, label) in enumerate(zip(positions, labels)):
+                for i, (pos, label) in enumerate(zip(positions, label_ids)):
                     if "label_names" in instances:
-                        label_text = instances.label_names[i]
+                        label_text = str(instances.label_names[i])
                     else:
                         label_text = classes[label] if classes is not None else f"class {label}"
                     if "scores" in instances:
@@ -177,7 +224,8 @@ class DetLocalVisualizer(Visualizer):
                     )
 
         if "masks" in instances:
-            labels = instances.labels
+            label_tensor = cast(torch.Tensor, instances.labels)
+            label_ids = label_tensor.to(dtype=torch.int64).tolist()
             masks = instances.masks
             if isinstance(masks, torch.Tensor):
                 masks = masks.numpy()
@@ -193,14 +241,17 @@ class DetLocalVisualizer(Visualizer):
             logger.debug(f"Image shape: {image.shape}")
             logger.debug(f"Masks shape: {masks.shape}")
             logger.debug(f"Masks dtype: {masks.dtype}")
-            logger.debug(f"Number of instances: {len(labels)}")
+            logger.debug(f"Number of instances: {len(label_ids)}")
 
-            max_label = int(max(labels) if len(labels) > 0 else 0)
-            mask_color = palette if self.mask_color is None else self.mask_color
+            max_label = int(max(label_ids) if len(label_ids) > 0 else 0)
+            if self.mask_color is None:
+                mask_color: PaletteInput = palette
+            else:
+                mask_color = cast(PaletteInput, self.mask_color)
             mask_palette = get_palette(mask_color, max_label + 1)
-            colors = [jitter_color(mask_palette[label]) for label in labels]
+            colors = [jitter_color(mask_palette[label]) for label in label_ids]
             text_palette = get_palette(self.text_color, max_label + 1)
-            text_colors = [text_palette[label] for label in labels]
+            text_colors = [text_palette[label] for label in label_ids]
 
             polygons = []
             for i, mask in enumerate(masks):
@@ -218,7 +269,7 @@ class DetLocalVisualizer(Visualizer):
                 else:
                     has_valid_bboxes = bboxes_raw.sum() > 0
 
-            if len(labels) > 0 and not has_valid_bboxes:
+            if len(label_ids) > 0 and not has_valid_bboxes:
                 # instances.bboxes.sum()==0 represent dummy bboxes.
                 # A typical example of SOLO does not exist bbox branch.
                 areas = []
@@ -232,7 +283,7 @@ class DetLocalVisualizer(Visualizer):
                 areas = np.stack(areas, axis=0)
                 scales = _get_adaptive_scales(areas)
 
-                for i, (pos, label) in enumerate(zip(positions, labels)):
+                for i, (pos, label) in enumerate(zip(positions, label_ids)):
                     if "label_names" in instances:
                         label_text = instances.label_names[i]
                     else:
@@ -262,8 +313,8 @@ class DetLocalVisualizer(Visualizer):
         self,
         image: np.ndarray,
         panoptic_seg: PixelData,
-        classes: Sequence[str] | None,
-        palette: list[tuple[int, ...]] | None,
+        classes: list[str] | None,
+        palette: PaletteInput,
     ) -> np.ndarray:
         """Draw panoptic seg of GT or prediction.
 
@@ -277,8 +328,10 @@ class DetLocalVisualizer(Visualizer):
             np.ndarray: the drawn image which channel is RGB.
         """
         # TODO: Is there a way to bypass？
-        assert classes is not None, "classes should not be None"
-        num_classes = len(classes)
+        if classes is None:
+            raise ValueError("classes should not be None when drawing panoptic segmentation")
+        class_list = list(classes)
+        num_classes = len(class_list)
 
         panoptic_seg_data = panoptic_seg.sem_seg[0]
 
@@ -286,8 +339,8 @@ class DetLocalVisualizer(Visualizer):
 
         if "label_names" in panoptic_seg:
             # open set panoptic segmentation
-            classes = panoptic_seg.metainfo["label_names"]
-            ignore_index = panoptic_seg.metainfo.get("ignore_index", len(classes))
+            class_list = list(panoptic_seg.metainfo["label_names"])
+            ignore_index = panoptic_seg.metainfo.get("ignore_index", len(class_list))
             ids = ids[ids != ignore_index]
         else:
             # for VOID label
@@ -295,11 +348,15 @@ class DetLocalVisualizer(Visualizer):
 
         labels = np.array([id % INSTANCE_OFFSET for id in ids], dtype=np.int64)
         segms = panoptic_seg_data[None] == ids[:, None, None]
+        segms = np.asarray(segms, dtype=bool)
 
         max_label = int(max(labels) if len(labels) > 0 else 0)
 
-        mask_color = palette if self.mask_color is None else self.mask_color
-        mask_palette = get_palette(mask_color, max_label + 1)
+        if palette is not None:
+            mask_color_input: PaletteInput = palette
+        else:
+            mask_color_input = cast(PaletteInput, self.mask_color)
+        mask_palette = get_palette(mask_color_input, max_label + 1)
         colors = [mask_palette[label] for label in labels]
 
         self.set_image(image)
@@ -327,7 +384,7 @@ class DetLocalVisualizer(Visualizer):
         text_colors = [text_palette[label] for label in labels]
 
         for i, (pos, label) in enumerate(zip(positions, labels)):
-            label_text = classes[label]
+            label_text = class_list[label] if label < len(class_list) else f"class {label}"
 
             self.draw_texts(
                 label_text,
@@ -350,8 +407,8 @@ class DetLocalVisualizer(Visualizer):
         self,
         image: np.ndarray,
         sem_seg: PixelData,
-        classes: Sequence[str] | None,
-        palette: list[tuple[int, ...]] | None,
+        classes: list[str] | None,
+        palette: PaletteInput,
     ) -> np.ndarray:
         """Draw semantic seg of GT or prediction.
 
@@ -383,23 +440,26 @@ class DetLocalVisualizer(Visualizer):
 
         if "label_names" in sem_seg:
             # open set semseg
-            label_names = sem_seg.metainfo["label_names"]
+            label_names_seq = sem_seg.metainfo["label_names"]
+            label_names = list(label_names_seq)
         else:
+            if classes is None:
+                raise ValueError("label_names should not be None")
             label_names = classes
 
-        assert label_names is not None, "label_names should not be None"
-        assert palette is not None, "palette should not be None"
+        palette_source: PaletteInput = palette if palette is not None else self.mask_color
+        palette_list = get_palette(palette_source, len(label_names))
 
         labels = np.array(ids, dtype=np.int64)
-        colors = [palette[label] for label in labels]
+        colors = [palette_list[label] for label in labels]
 
         self.set_image(image)
 
         # draw semantic masks
         for i, (label, color) in enumerate(zip(labels, colors)):
-            masks = sem_seg_data == label
+            masks = (sem_seg_data == label).astype(bool)
             self.draw_binary_masks(masks, colors=[color], alphas=self.alpha)
-            label_text = label_names[label]
+            label_text = label_names[label] if label < len(label_names) else f"class {label}"
             _, _, stats, centroids = cv2.connectedComponentsWithStats(masks[0].astype(np.uint8), connectivity=8)
             if stats.shape[0] > 1:
                 largest_id = np.argmax(stats[1:, -1]) + 1
@@ -469,9 +529,8 @@ class DetLocalVisualizer(Visualizer):
             step (int): Global step value to record. Defaults to 0.
         """
         image = image.clip(0, 255).astype(np.uint8)
-        # Type guard: dataset_meta is guaranteed to be a dict
-        classes = self.dataset_meta.get("classes", None)  # type: ignore
-        palette = self.dataset_meta.get("palette", None)  # type: ignore
+        classes = self._meta_classes()
+        palette = self._meta_palette()
 
         gt_img_data = None
         pred_img_data = None

@@ -1,11 +1,33 @@
 # ruff: noqa
 # Copyright (c) OpenMMLab. All rights reserved.
 
+from __future__ import annotations
+
+from collections.abc import Sequence
+from typing import Any
+
 import numpy as np
 from visdet.engine.utils import is_str
 
+ColorTuple = tuple[int, int, int]
 
-def palette_val(palette: list[tuple]) -> list[tuple]:
+
+def _as_color_tuple(color: Any) -> ColorTuple | None:
+    if isinstance(color, np.ndarray):
+        color = color.tolist()
+    if isinstance(color, Sequence):
+        ints = [int(c) for c in color[:3]]
+        if not ints:
+            return None
+        while len(ints) < 3:
+            ints.append(0)
+        return tuple(ints)
+    if isinstance(color, tuple):
+        return tuple(int(c) for c in color[:3])
+    return None
+
+
+def palette_val(palette: Sequence[Sequence[int]] | Sequence[int]) -> list[ColorTuple]:
     """Convert palette to matplotlib palette.
 
     Args:
@@ -16,12 +38,18 @@ def palette_val(palette: list[tuple]) -> list[tuple]:
     """
     new_palette = []
     for color in palette:
-        color = [c / 255 for c in color]
+        color_tuple = _as_color_tuple(color)
+        if color_tuple is None:
+            continue
+        color = [c / 255 for c in color_tuple]
         new_palette.append(tuple(color))
     return new_palette
 
 
-def get_palette(palette: list[tuple] | str | tuple | None, num_classes: int) -> list[tuple[int, ...]]:
+def get_palette(
+    palette: Sequence[Sequence[int]] | Sequence[int] | np.ndarray | str | ColorTuple | None,
+    num_classes: int,
+) -> list[ColorTuple]:
     """Get palette from various inputs.
 
     Args:
@@ -33,19 +61,40 @@ def get_palette(palette: list[tuple] | str | tuple | None, num_classes: int) -> 
     """
     assert isinstance(num_classes, int)
 
-    dataset_palette: list[tuple[int, ...]]
+    dataset_palette: list[ColorTuple] | None = None
     if isinstance(palette, list):
-        dataset_palette = palette  # type: ignore
-    elif isinstance(palette, tuple):
-        dataset_palette = [palette] * num_classes  # type: ignore
-    elif palette == "random" or palette is None:
+        colors: list[ColorTuple] = []
+        for color in palette:
+            color_tuple = _as_color_tuple(color)
+            if color_tuple is not None:
+                colors.append(color_tuple)
+        if colors:
+            dataset_palette = colors
+    elif isinstance(palette, np.ndarray):
+        if palette.ndim == 1:
+            color_tuple = _as_color_tuple(palette)
+            if color_tuple is not None:
+                dataset_palette = [color_tuple] * num_classes
+        else:
+            colors = []
+            for row in palette:
+                color_tuple = _as_color_tuple(row)
+                if color_tuple is not None:
+                    colors.append(color_tuple)
+            if colors:
+                dataset_palette = colors
+    else:
+        color_tuple = _as_color_tuple(palette)
+        if color_tuple is not None:
+            dataset_palette = [color_tuple] * num_classes
+    if dataset_palette is None and (palette == "random" or palette is None):
         state = np.random.get_state()
         # random color
         np.random.seed(42)
         palette = np.random.randint(0, 256, size=(num_classes, 3))
         np.random.set_state(state)
         dataset_palette = [tuple(c) for c in palette]
-    elif palette == "coco":
+    elif dataset_palette is None and palette == "coco":
         # For now, we'll use a predefined COCO palette
         # This avoids circular imports from datasets
         coco_palette = [
@@ -136,7 +185,7 @@ def get_palette(palette: list[tuple] | str | tuple | None, num_classes: int) -> 
             np.random.seed(42)
             extra_colors = np.random.randint(0, 256, size=(num_classes - len(dataset_palette), 3))
             dataset_palette.extend([tuple(c) for c in extra_colors])
-    elif palette == "citys":
+    elif dataset_palette is None and palette == "citys":
         # Cityscapes palette - simplified version
         citys_palette = [
             (128, 64, 128),
@@ -164,7 +213,7 @@ def get_palette(palette: list[tuple] | str | tuple | None, num_classes: int) -> 
             np.random.seed(42)
             extra_colors = np.random.randint(0, 256, size=(num_classes - len(dataset_palette), 3))
             dataset_palette.extend([tuple(c) for c in extra_colors])
-    elif palette == "voc":
+    elif dataset_palette is None and palette == "voc":
         # VOC palette
         voc_palette = [
             (0, 0, 0),
@@ -194,7 +243,7 @@ def get_palette(palette: list[tuple] | str | tuple | None, num_classes: int) -> 
             np.random.seed(42)
             extra_colors = np.random.randint(0, 256, size=(num_classes - len(dataset_palette), 3))
             dataset_palette.extend([tuple(c) for c in extra_colors])
-    elif is_str(palette):
+    elif dataset_palette is None and is_str(palette):
         # Convert color string to RGB tuple
         # Simple color name to RGB mapping
         color_map = {
@@ -209,11 +258,14 @@ def get_palette(palette: list[tuple] | str | tuple | None, num_classes: int) -> 
         }
         rgb = color_map.get(palette.lower(), (128, 128, 128))
         dataset_palette = [rgb] * num_classes
-    else:
+    if dataset_palette is None:
         raise TypeError(f"Invalid type for palette: {type(palette)}")
 
-    assert len(dataset_palette) >= num_classes, "The length of palette should not be less than `num_classes`."
-    return dataset_palette
+    if len(dataset_palette) < num_classes:
+        last_color = dataset_palette[-1] if dataset_palette else (0, 0, 0)
+        dataset_palette = dataset_palette + [last_color] * (num_classes - len(dataset_palette))
+
+    return dataset_palette[:num_classes]
 
 
 def _get_adaptive_scales(areas: np.ndarray | float, min_area: int = 800, max_area: int = 30000) -> np.ndarray:

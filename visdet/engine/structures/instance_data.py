@@ -304,11 +304,7 @@ class InstanceData(BaseDataElement):
         else:
             return 0
 
-    # Type stubs for commonly accessed dynamic attributes
-    @overload
-    def __getattr__(self, name: str) -> Any: ...
-
-    # Provide specific type hints for common attributes
+    # Provide type hints for commonly accessed dynamic attributes
     if TYPE_CHECKING:
         # These are the most commonly accessed attributes in visualization code
         bboxes: torch.Tensor | "BaseBoxes"
