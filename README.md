@@ -238,6 +238,9 @@ A specialized research platform built on top of Detectron2, focused specifically
 
 **Choose detrex if:** You're doing cutting-edge Transformer-based detection research or want to experiment with DETR variants. But I'm aiming to integrate all of the models that have operations supported by ONNX.
 
+### [rf-detr](https://github.com/roboflow/rf-detr)
+Ever since their integration of instance segmentation they're a valid and good alternative. We like roboflow.
+
 ### visdet (this project)
 A streamlined fork of MMDetection with integrated dependencies, no CUDA compilation requirements, and modern training techniques from fast.ai and LLM fine-tuning.
 
