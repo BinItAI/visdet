@@ -223,6 +223,8 @@ This project is released under the [Apache 2.0 License](https://binitai.github.i
 
 visdet is part of a rich ecosystem of object detection frameworks. Here's how visdet compares to other notable projects:
 
+> **Note**: Read here for more hot takes on the ecosystem: [Reddit discussion](https://www.reddit.com/r/computervision/comments/1agn844/comment/nrr918l/?context=1)
+
 ### [MMDetection](https://github.com/open-mmlab/mmdetection)
 The original framework that visdet is based on. A comprehensive object detection toolbox with modular design, supporting 40+ architectures including detection, instance segmentation, and panoptic segmentation. Part of the OpenMMLab project with extensive model zoo and state-of-the-art implementations.
 
