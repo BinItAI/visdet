@@ -31,6 +31,12 @@
 
 </div>
 
+### The Most Useable Research Platform
+
+Our motivation is simple: to be **the most useable research platform**.
+
+If you've ever wondered **"does THIS with THAT work?"**, visdet is designed to help you answer **THAT** question.
+
 **Simplified Installation & Dependencies**
 - **Integrated Dependencies**: MMCV and MMEngine are bundled directly into the package as `visdet.cv` and `visdet.engine`, eliminating complex multi-package dependency management
 - **No Custom CUDA Required**: All custom CUDA operations have been removed, making installation straightforward with just `uv pip install visdet`
