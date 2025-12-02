@@ -1,20 +1,25 @@
 # Copyright (c) OpenMMLab. All rights reserved.
+from __future__ import annotations
+
 import os.path as osp
 import warnings
 from collections.abc import Sequence
+from typing import TYPE_CHECKING
 
 import numpy as np
 
 from visdet.cv import imfrombytes, imwrite
 from visdet.engine.fileio import get
 from visdet.engine.hooks import Hook
-from visdet.engine.runner import Runner
 from visdet.engine.utils import mkdir_or_exist
 from visdet.engine.visualization import Visualizer
 from visdet.registry import HOOKS
 from visdet.structures import DetDataSample
 from visdet.structures.bbox import BaseBoxes
 from visdet.visualization.palette import _get_adaptive_scales
+
+if TYPE_CHECKING:
+    from visdet.engine.runner import Runner
 
 
 @HOOKS.register_module()

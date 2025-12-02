@@ -275,7 +275,7 @@ class SingleDeviceStrategy(BaseStrategy):
         extra_ckpt["meta"].update(
             seed=self.seed,
             time=time.strftime("%Y%m%d_%H%M%S", time.localtime()),
-            visengine=visengine.__version__ + get_git_hash(),
+            visdet_engine=visdet.engine.__version__ + get_git_hash(),
         )
 
         state_dict.update(extra_ckpt)

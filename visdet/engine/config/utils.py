@@ -165,7 +165,7 @@ def _is_builtin_module(module_name: str) -> bool:
     """
     if module_name.startswith("."):
         return False
-    if module_name.startswith("visengine.config"):
+    if module_name.startswith("visdet.engine.config"):
         return True
     if module_name in sys.builtin_module_names:
         return True
@@ -361,13 +361,13 @@ class ImportTransformer(ast.NodeTransformer):
             elif alias_node.asname is not None:
                 # case1:
                 # from visdet.engine.dataset import BaseDataset as Dataset ->
-                # Dataset = LazyObject('visengine.dataset', 'BaseDataset')
+                # Dataset = LazyObject('visdet.engine.dataset', 'BaseDataset')
                 code = f'{alias_node.asname} = LazyObject("{module}", "{alias_node.name}", "{self.filename}, line {lineno}")'  # noqa: E501
                 self.imported_obj.add(alias_node.asname)
             else:
                 # case2:
                 # from visdet.engine.model import BaseModel
-                # BaseModel = LazyObject('visengine.model', 'BaseModel')
+                # BaseModel = LazyObject('visdet.engine.model', 'BaseModel')
                 code = (
                     f'{alias_node.name} = LazyObject("{module}", "{alias_node.name}", "{self.filename}, line {lineno}")'  # noqa: E501
                 )

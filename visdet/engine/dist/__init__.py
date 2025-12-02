@@ -126,6 +126,10 @@ def collect_results(result_part, size, tmpdir=None):
     """Collect results from all processes and merge them."""
     rank, world_size = get_dist_info()
 
+    # Non-distributed mode: just return the results directly
+    if world_size == 1:
+        return result_part
+
     if tmpdir is None:
         tmpdir = '.'
 

@@ -33,13 +33,13 @@ from visdet.engine.registry import WEIGHT_INITIALIZERS as VISENGINE_WEIGHT_INITI
 from visdet.engine.registry import Registry
 
 # manage all kinds of runners like `EpochBasedRunner` and `IterBasedRunner`
-RUNNERS = Registry("runner", parent=VISENGINE_RUNNERS, locations=["visengine.runner"])
+RUNNERS = Registry("runner", parent=VISENGINE_RUNNERS, locations=["visdet.engine.runner"])
 # manage runner constructors that define how to initialize runners
 RUNNER_CONSTRUCTORS = Registry(
-    "runner constructor", parent=VISENGINE_RUNNER_CONSTRUCTORS, locations=["visengine.runner"]
+    "runner constructor", parent=VISENGINE_RUNNER_CONSTRUCTORS, locations=["visdet.engine.runner"]
 )
 # manage all kinds of loops like `EpochBasedTrainLoop`
-LOOPS = Registry("loop", parent=VISENGINE_LOOPS, locations=["visengine.runner"])
+LOOPS = Registry("loop", parent=VISENGINE_LOOPS, locations=["visdet.engine.runner"])
 # manage all kinds of hooks like `CheckpointHook`
 HOOKS = VISENGINE_HOOKS
 

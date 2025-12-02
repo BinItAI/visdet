@@ -287,7 +287,7 @@ class MMLogger(Logger, ManagerMixin):
     Args:
         name (str): Global instance name.
         logger_name (str): ``name`` attribute of ``Logging.Logger`` instance.
-            If `logger_name` is not defined, defaults to 'visengine'.
+            If `logger_name` is not defined, defaults to 'visdet'.
         log_file (str, optional): The log filename. If specified, a
             ``FileHandler`` will be added to the logger. Defaults to None.
         log_level (str): The log level of the handler. Defaults to
@@ -317,7 +317,7 @@ class MMLogger(Logger, ManagerMixin):
     def __init__(
         self,
         name: str,
-        logger_name="visengine",
+        logger_name="visdet",
         log_file: str | None = None,
         log_level: int | str = "INFO",
         file_mode: str = "w",
@@ -404,7 +404,7 @@ class MMLogger(Logger, ManagerMixin):
             MMLogger: Configured logger instance.
         """
         if not cls._instance_dict:
-            cls.get_instance("visengine")
+            cls.get_instance("visdet")
         return super().get_current_instance()
 
     def callHandlers(self, record: LogRecord) -> None:

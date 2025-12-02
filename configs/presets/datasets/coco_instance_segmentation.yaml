@@ -9,12 +9,12 @@ type: CocoDataset
 data_root: data/coco/
 ann_file: annotations/instances_train2017.json
 data_prefix:
-  img: train2017/
+  img_path: train2017/
 
 # Validation paths
 val_ann_file: annotations/instances_val2017.json
 val_data_prefix:
-  img: val2017/
+  img_path: val2017/
 
 # Data pipeline for training
 train_pipeline:

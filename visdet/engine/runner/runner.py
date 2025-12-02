@@ -217,7 +217,7 @@ class Runner:
             dict build Visualizer object. Defaults to None. If not
             specified, default config will be used.
         default_scope (str): Used to reset registries location.
-            Defaults to "visengine".
+            Defaults to "visdet".
         randomness (dict): Some settings to make the experiment as reproducible
             as possible like seed and deterministic.
             Defaults to ``dict(seed=None)``. If seed is None, a random number
@@ -319,7 +319,7 @@ class Runner:
         log_processor: dict | None = None,
         log_level: str = "INFO",
         visualizer: Visualizer | dict | None = None,
-        default_scope: str = "visengine",
+        default_scope: str = "visdet",
         randomness: dict | None = None,
         experiment_name: str | None = None,
         cfg: ConfigType | None = None,
@@ -519,7 +519,7 @@ class Runner:
             log_processor=cfg.get("log_processor"),
             log_level=cfg.get("log_level", "INFO"),
             visualizer=cfg.get("visualizer"),
-            default_scope=cfg.get("default_scope", "visengine"),
+            default_scope=cfg.get("default_scope", "visdet"),
             randomness=cfg.get("randomness", {"seed": None}),
             experiment_name=cfg.get("experiment_name"),
             cfg=cfg,
@@ -1999,7 +1999,7 @@ class Runner:
         # check whether the number of GPU used for current experiment
         # is consistent with resuming from checkpoint
         if "config" in checkpoint["meta"]:
-            config = visengine.Config.fromstring(checkpoint["meta"]["config"], file_format=".py")
+            config = Config.fromstring(checkpoint["meta"]["config"], file_format=".py")
             previous_gpu_ids = config.get("gpu_ids", None)
             if previous_gpu_ids is not None and len(previous_gpu_ids) > 0 and len(previous_gpu_ids) != self._world_size:
                 # TODO, should we modify the iteration?
@@ -2193,7 +2193,7 @@ class Runner:
             seed=self.seed,
             experiment_name=self.experiment_name,
             time=time.strftime("%Y%m%d_%H%M%S", time.localtime()),
-            visengine_version=__version__ + get_git_hash(),
+            visdet_version=__version__ + get_git_hash(),
         )
 
         if hasattr(self.train_dataloader.dataset, "metainfo"):

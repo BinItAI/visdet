@@ -372,6 +372,10 @@ class SimpleRunner:
             logger.info(f"Overriding training annotation file with: {self.train_ann_file}")
             self.dataset_cfg["ann_file"] = self.train_ann_file
 
+        # Rename train_pipeline to pipeline for training dataset
+        if "train_pipeline" in self.dataset_cfg:
+            self.dataset_cfg["pipeline"] = self.dataset_cfg.pop("train_pipeline")
+
         # --- Train Dataloader ---
         train_dataloader = {
             "batch_size": self.batch_size,
@@ -405,13 +409,23 @@ class SimpleRunner:
             has_validation = True
 
         if has_validation:
-            # Use a different pipeline for validation if provided
-            if "val_pipeline" in val_dataset_cfg:
-                val_dataset_cfg["pipeline"] = val_dataset_cfg.pop("val_pipeline")
-            else:  # Or remove augmentations from the training pipeline
+            # Use validation data prefix if provided, otherwise keep training prefix
+            if "val_data_prefix" in val_dataset_cfg:
+                val_dataset_cfg["data_prefix"] = val_dataset_cfg.pop("val_data_prefix")
+
+            # Use test_pipeline for validation if provided, otherwise fall back to pipeline
+            if "test_pipeline" in val_dataset_cfg:
+                val_dataset_cfg["pipeline"] = val_dataset_cfg.pop("test_pipeline")
+            elif "train_pipeline" in val_dataset_cfg:
+                # Remove train_pipeline and use existing pipeline without augmentations
+                val_dataset_cfg.pop("train_pipeline")
                 val_dataset_cfg["pipeline"] = [
                     p for p in val_dataset_cfg.get("pipeline", []) if p.get("type") not in ["RandomFlip"]
                 ]
+
+            # Remove validation-specific keys that shouldn't be passed to dataset
+            for key in ["val_ann_file", "val_data_prefix"]:
+                val_dataset_cfg.pop(key, None)
 
             val_dataloader = {
                 "batch_size": self.batch_size,
@@ -428,6 +442,16 @@ class SimpleRunner:
                     "ann_file": str(Path(val_dataset_cfg["data_root"]) / val_dataset_cfg["ann_file"]),
                     "metric": ["bbox", "segm"],
                 }
+
+        # Clean up non-dataset keys from configs
+        # These are convenience keys in the preset that shouldn't be passed to the dataset
+        keys_to_remove = [
+            "val_ann_file", "val_data_prefix", "train_pipeline", "test_pipeline",
+            "batch_size", "num_workers", "persistent_workers"
+        ]
+        for key in keys_to_remove:
+            self.dataset_cfg.pop(key, None)
+            val_dataset_cfg.pop(key, None) if val_dataset_cfg else None
 
         # --- Assemble Final Config ---
         config_dict = {

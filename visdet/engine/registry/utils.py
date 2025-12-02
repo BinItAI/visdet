@@ -66,13 +66,13 @@ def count_registered_modules(save_path: str | None = None, verbose: bool = True)
         dict: Statistic results of all registered modules.
     """
     # import modules to trigger registering
-    import visengine.dataset
-    import visengine.evaluator
-    import visengine.hooks
-    import visengine.model
-    import visengine.optim
-    import visengine.runner
-    import visengine.visualization  # noqa: F401
+    import visdet.datasets  # noqa: F401
+    import visdet.evaluation  # noqa: F401
+    import visdet.core  # noqa: F401
+    import visdet.models  # noqa: F401
+    import visdet.engine.optim  # noqa: F401
+    import visdet.engine.runner  # noqa: F401
+    import visdet.visualization  # noqa: F401
 
     registries_info = {}
     # traverse all registries in MMEngine

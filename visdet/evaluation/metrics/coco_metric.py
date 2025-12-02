@@ -236,6 +236,9 @@ class CocoMetric(BaseMetric):
             scores = result["scores"]
             # bbox results
             for i, label in enumerate(labels):
+                # Skip predictions with out-of-range category labels
+                if label >= len(self.cat_ids):
+                    continue
                 data = dict()
                 data["image_id"] = image_id
                 data["bbox"] = self.xyxy2xywh(bboxes[i])
@@ -250,6 +253,9 @@ class CocoMetric(BaseMetric):
             masks = result["masks"]
             mask_scores = result.get("mask_scores", scores)
             for i, label in enumerate(labels):
+                # Skip predictions with out-of-range category labels
+                if label >= len(self.cat_ids):
+                    continue
                 data = dict()
                 data["image_id"] = image_id
                 data["bbox"] = self.xyxy2xywh(bboxes[i])

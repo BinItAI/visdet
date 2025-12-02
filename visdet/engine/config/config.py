@@ -1186,9 +1186,9 @@ class Config:
                 else:
                     base_files = []
         elif file_format in (".yml", ".yaml", ".json"):
-            import visengine
+            from visdet.engine.fileio import load as fileio_load
 
-            cfg_dict = visengine.load(filename)
+            cfg_dict = fileio_load(filename)
             base_files = cfg_dict.get(BASE_KEY, [])
         else:
             raise ConfigParsingError(f"The config type should be py, json, yaml or yml, but got {file_format}")
@@ -1622,8 +1622,8 @@ class Config:
                 # relative import -> lazy_import
                 if node.level != 0:
                     return True
-                # Skip checking when using `visengine.config` in cfg file
-                if node.module == "visengine" and len(node.names) == 1 and node.names[0].name == "Config":
+                # Skip checking when using `visdet.engine.config` in cfg file
+                if node.module == "visdet.engine.config" and len(node.names) == 1 and node.names[0].name == "Config":
                     continue
                 if not isinstance(node.module, str):
                     continue

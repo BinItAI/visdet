@@ -14,13 +14,16 @@ from visdet.engine.hooks.profiler_hook import NPUProfilerHook, ProfilerHook
 from visdet.engine.hooks.runtime_info_hook import RuntimeInfoHook
 from visdet.engine.hooks.sampler_seed_hook import DistSamplerSeedHook
 from visdet.engine.hooks.sync_buffer_hook import SyncBuffersHook
+from visdet.engine.hooks.visualization_hook import DetVisualizationHook, GroundingVisualizationHook
 
 __all__ = [
     "CheckpointHook",
+    "DetVisualizationHook",
     "DistSamplerSeedHook",
     "EMAHook",
     "EarlyStoppingHook",
     "EmptyCacheHook",
+    "GroundingVisualizationHook",
     "Hook",
     "IterTimerHook",
     "LoggerHook",

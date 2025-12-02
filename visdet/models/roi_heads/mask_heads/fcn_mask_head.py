@@ -319,7 +319,13 @@ class FCNMaskHead(BaseModule):
             >>> assert encoded_masks.size()[0] == N
             >>> assert encoded_masks.size()[1:] == ori_shape
         """
-        scale_factor = bboxes.new_tensor(img_meta["scale_factor"]).repeat((1, 2))
+        scale_factor_raw = img_meta["scale_factor"]
+        if len(scale_factor_raw) == 2:
+            # (w_scale, h_scale) -> (w, h, w, h)
+            scale_factor = bboxes.new_tensor(scale_factor_raw).repeat((1, 2))
+        else:
+            # Already 4 elements (w, h, w, h) or similar
+            scale_factor = bboxes.new_tensor(scale_factor_raw[:4]).reshape(1, 4)
         img_h, img_w = img_meta["ori_shape"][:2]
         device = bboxes.device
 

@@ -35,8 +35,8 @@ def runtimeinfo_step(self, runner, batch_idx, data_batch=None):
         runner.message_hub.update_scalar(f"train/{name}", momentum[0])
 
 
-@patch("visengine.optim.optimizer.OptimWrapper.update_params", update_params_step)
-@patch("visengine.hooks.RuntimeInfoHook.before_train_iter", runtimeinfo_step)
+@patch("visdet.engine.optim.optimizer.OptimWrapper.update_params", update_params_step)
+@patch("visdet.engine.hooks.RuntimeInfoHook.before_train_iter", runtimeinfo_step)
 def fake_run(cfg):
     from visdet.engine.runner import Runner
 
