@@ -59,16 +59,13 @@ class MMFormatter(logging.Formatter):
             :meth:`logging.Formatter.__init__`.
     """
 
-    _color_mapping: dict = {
-        "ERROR": "red",
-        "WARNING": "yellow",
-        "INFO": "white",
-        "DEBUG": "green",
-    }
+    _color_mapping: dict = {"ERROR": "red", "WARNING": "yellow", "INFO": "white", "DEBUG": "green"}
+    _enable_message_colors: bool = True
 
     def __init__(self, color: bool = True, blink: bool = False, **kwargs):
         super().__init__(**kwargs)
         assert not (not color and blink), "blink should only be available when color is True"
+        self.color = color
         # Get prefix format according to color.
         error_prefix = self._get_prefix("ERROR", color, blink=True)
         warn_prefix = self._get_prefix("WARNING", color, blink=True)
@@ -103,6 +100,120 @@ class MMFormatter(logging.Formatter):
             prefix = level
         return prefix
 
+    def _colorize_message(self, message: str) -> str:
+        """Colorize different parts of the log message for better readability.
+
+        Args:
+            message (str): The log message to colorize.
+
+        Returns:
+            str: Colorized message.
+        """
+        if not getattr(self, "color", False) or not self._enable_message_colors:
+            return message
+
+        # Color patterns for different parts of training logs
+        import re
+
+        # 1. Color epoch/iteration headers (e.g., "Epoch(train) [1][10/742]")
+        message = re.sub(
+            r"(Epoch|Iter)\((\w+)\)\s*(\[[\d\s]+\])(\[[\d/]+\])",
+            lambda m: f"{colored(m.group(1), 'cyan', attrs=['bold'])}({colored(m.group(2), 'magenta', attrs=['bold'])})"
+            f"{colored(m.group(3), 'white')}{colored(m.group(4), 'cyan')}",
+            message,
+        )
+
+        # 2. Color GPU stats header
+        message = re.sub(
+            r"GPU \[(\d+)\]:",
+            lambda m: f"{colored('GPU', 'green', attrs=['bold'])} [{colored(m.group(1), 'yellow', attrs=['bold'])}]:",
+            message,
+        )
+
+        # 3. Color learning rates (with scientific notation support)
+        message = re.sub(
+            r"\b([\w_]*lr): ([\d.e+-]+)",
+            lambda m: f"{colored(m.group(1), 'blue', attrs=['bold'])}: {colored(m.group(2), 'white')}",
+            message,
+        )
+
+        # 4. Color ETA (time remaining)
+        message = re.sub(
+            r"\b(eta): ([\d:]+)",
+            lambda m: f"{colored(m.group(1), 'blue', attrs=['bold'])}: {colored(m.group(2), 'white')}",
+            message,
+        )
+
+        # 5. Color time metrics
+        message = re.sub(
+            r"\b(time|data_time): ([\d.]+)",
+            lambda m: f"{colored(m.group(1), 'blue', attrs=['bold'])}: {colored(m.group(2), 'white')}",
+            message,
+        )
+
+        # 6. Color images per second
+        message = re.sub(
+            r"\b(img/s): ([\d.]+)",
+            lambda m: f"{colored(m.group(1), 'blue', attrs=['bold'])}: {colored(m.group(2), 'white')}",
+            message,
+        )
+
+        # 7. Color memory usage
+        message = re.sub(
+            r"\b(memory): (\d+)",
+            lambda m: f"{colored(m.group(1), 'blue', attrs=['bold'])}: {colored(m.group(2), 'white')}",
+            message,
+        )
+
+        # 8. Color loss metrics (various types)
+        message = re.sub(
+            r"\b(loss[_\w]*): ([\d.]+)",
+            lambda m: f"{colored(m.group(1), 'blue', attrs=['bold'])}: {colored(m.group(2), 'white')}",
+            message,
+        )
+
+        # 9. Color accuracy metrics
+        message = re.sub(
+            r"\b(acc[_\w]*): ([\d.]+)",
+            lambda m: f"{colored(m.group(1), 'blue', attrs=['bold'])}: {colored(m.group(2), 'white')}",
+            message,
+        )
+
+        # 10. Color GPU utilization percentage
+        message = re.sub(
+            r"\b(util)=([\d]+)%",
+            lambda m: f"{colored(m.group(1), 'blue', attrs=['bold'])}={colored(m.group(2) + '%', 'white')}",
+            message,
+        )
+
+        # 11. Color GPU memory percentage and MB
+        message = re.sub(
+            r"\b(mem)=([\d]+)%\s*\(([\d]+)(MB)\)",
+            lambda m: f"{colored(m.group(1), 'blue', attrs=['bold'])}={colored(m.group(2) + '%', 'white')} "
+            f"({colored(m.group(3), 'white')}{colored(m.group(4), 'white')})",
+            message,
+        )
+
+        # 12. Color GPU power usage
+        message = re.sub(
+            r"\b(power)=([\d]+)(W)",
+            lambda m: f"{colored(m.group(1), 'blue', attrs=['bold'])}={colored(m.group(2), 'white')}{colored(m.group(3), 'white')}",
+            message,
+        )
+
+        # 13. Color any remaining key-value pairs (catch-all for other metrics)
+        # This matches patterns like "key: value" that haven't been matched yet
+        message = re.sub(
+            r"\b([a-zA-Z_][a-zA-Z0-9_]*): ([\d.e+-]+)",
+            lambda m: f"{colored(m.group(1), 'blue', attrs=['bold'])}: {colored(m.group(2), 'white')}",
+            message,
+        )
+
+        # 14. Color the pipe separator in GPU stats
+        message = re.sub(r" \| ", lambda m: colored(" | ", "white", attrs=["dark"]), message)
+
+        return message
+
     def format(self, record: LogRecord) -> str:
         """Override the `logging.Formatter.format`` method `. Output the
         message according to the specified log level.
@@ -114,6 +225,11 @@ class MMFormatter(logging.Formatter):
         Returns:
             str: Formatted result.
         """
+        # Colorize the message content before formatting
+        original_msg = record.msg
+        if isinstance(original_msg, str):
+            record.msg = self._colorize_message(original_msg)
+
         if record.levelno == logging.ERROR:
             self._style._fmt = self.err_format
         elif record.levelno == logging.WARNING:
@@ -124,6 +240,10 @@ class MMFormatter(logging.Formatter):
             self._style._fmt = self.debug_format
 
         result = logging.Formatter.format(self, record)
+
+        # Restore original message
+        record.msg = original_msg
+
         return result
 
 
