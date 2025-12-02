@@ -33,6 +33,13 @@ The master branch works with **PyTorch 1.5+**.
 
 </details>
 
+## Roadmap
+
+See our [Roadmap](roadmap.md) for planned features, including:
+- **SPDL Integration**: Thread-based data loading for 74% faster training
+- **Kornia**: GPU-accelerated augmentations
+- **Python 3.13t**: Free-threaded Python support
+
 ## What's New
 
 For the latest updates and improvements to VisDet, please refer to the [changelog](about/changelog.md).

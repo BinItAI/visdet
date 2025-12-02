@@ -1,5 +1,7 @@
 # Tutorial 3: Customize Data Pipelines
 
+> **Future Enhancement**: We're planning to integrate [SPDL](https://github.com/facebookresearch/spdl) (Scalable and Performant Data Loading) for thread-based data loading that's 74% faster than PyTorch's DataLoader. See the [Roadmap](../roadmap.md) for details.
+
 ## Design of Data pipelines
 
 Following typical conventions, we use `Dataset` and `DataLoader` for data loading
