@@ -41,65 +41,40 @@ RUNNER_CONSTRUCTORS = Registry(
 # manage all kinds of loops like `EpochBasedTrainLoop`
 LOOPS = Registry("loop", parent=VISENGINE_LOOPS, locations=["visengine.runner"])
 # manage all kinds of hooks like `CheckpointHook`
-HOOKS = Registry("hook", parent=VISENGINE_HOOKS, locations=["visdet.engine.hooks"])
+HOOKS = VISENGINE_HOOKS
 
 # manage data-related modules
-DATASETS = Registry("dataset", parent=VISENGINE_DATASETS, locations=["visdet.datasets"])
-DATA_SAMPLERS = Registry(
-    "data sampler", parent=VISENGINE_DATA_SAMPLERS, locations=["visdet.datasets.samplers"]
-)
-TRANSFORMS = Registry(
-    "transform", parent=VISENGINE_TRANSFORMS, locations=["visdet.datasets.transforms", "viscv.transforms"]
-)
+DATASETS = VISENGINE_DATASETS
+DATA_SAMPLERS = VISENGINE_DATA_SAMPLERS
+TRANSFORMS = VISENGINE_TRANSFORMS
 
 # manage all kinds of modules inheriting `nn.Module`
-MODELS = Registry("model", parent=VISENGINE_MODELS, locations=["visdet.models"])
+MODELS = VISENGINE_MODELS
 # manage all kinds of model wrappers like 'MMDistributedDataParallel'
-MODEL_WRAPPERS = Registry(
-    "model_wrapper", parent=VISENGINE_MODEL_WRAPPERS, locations=["visdet.models"]
-)
+MODEL_WRAPPERS = VISENGINE_MODEL_WRAPPERS
 # manage all kinds of weight initialization modules like `Uniform`
-WEIGHT_INITIALIZERS = Registry(
-    "weight initializer", parent=VISENGINE_WEIGHT_INITIALIZERS, locations=["visdet.models"]
-)
+WEIGHT_INITIALIZERS = VISENGINE_WEIGHT_INITIALIZERS
 
 # manage all kinds of optimizers like `SGD` and `Adam`
-OPTIMIZERS = Registry(
-    "optimizer", parent=VISENGINE_OPTIMIZERS, locations=["visdet.engine.optimizers"]
-)
+OPTIMIZERS = VISENGINE_OPTIMIZERS
 # manage optimizer wrapper
-OPTIM_WRAPPERS = Registry(
-    "optim_wrapper", parent=VISENGINE_OPTIM_WRAPPERS, locations=["visdet.engine.optimizers"]
-)
+OPTIM_WRAPPERS = VISENGINE_OPTIM_WRAPPERS
 # manage constructors that customize the optimization hyperparameters.
-OPTIM_WRAPPER_CONSTRUCTORS = Registry(
-    "optimizer constructor",
-    parent=VISENGINE_OPTIM_WRAPPER_CONSTRUCTORS,
-    locations=["visdet.engine.optimizers"],
-)
+OPTIM_WRAPPER_CONSTRUCTORS = VISENGINE_OPTIM_WRAPPER_CONSTRUCTORS
 # manage all kinds of parameter schedulers like `MultiStepLR`
-PARAM_SCHEDULERS = Registry(
-    "parameter scheduler", parent=VISENGINE_PARAM_SCHEDULERS, locations=["visengine.optim.scheduler.param_scheduler"]
-)
+PARAM_SCHEDULERS = VISENGINE_PARAM_SCHEDULERS
 # manage all kinds of metrics
-METRICS = Registry("metric", parent=VISENGINE_METRICS, locations=["visdet.evaluation"])
+METRICS = VISENGINE_METRICS
 # manage evaluator
-EVALUATOR = Registry("evaluator", parent=VISENGINE_EVALUATOR, locations=["visdet.evaluation"])
+EVALUATOR = VISENGINE_EVALUATOR
 
 # manage task-specific modules like anchor generators and box coders
-TASK_UTILS = Registry("task util", parent=VISENGINE_TASK_UTILS, locations=["visdet.models"])
+TASK_UTILS = VISENGINE_TASK_UTILS
 
 # manage visualizer
-VISUALIZERS = Registry("visualizer", parent=VISENGINE_VISUALIZERS, locations=["visdet.visualization"])
+VISUALIZERS = VISENGINE_VISUALIZERS
 # manage visualizer backend
-VISBACKENDS = Registry(
-    "vis_backend", parent=VISENGINE_VISBACKENDS, locations=["visdet.visualization"]
-)
+VISBACKENDS = VISENGINE_VISBACKENDS
 
 # manage logprocessor
-LOG_PROCESSORS = Registry(
-    "log_processor",
-    parent=VISENGINE_LOG_PROCESSORS,
-    # TODO: update the location when visdet has its own log processor
-    locations=["visdet.engine"],
-)
+LOG_PROCESSORS = VISENGINE_LOG_PROCESSORS

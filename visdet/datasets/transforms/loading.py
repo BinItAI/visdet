@@ -146,7 +146,7 @@ class LoadMultiChannelImageFromFiles(BaseTransform):
         return repr_str
 
 
-@TRANSFORMS.register_module()
+@TRANSFORMS.register_module(force=True)
 class LoadAnnotations(MMCV_LoadAnnotations):
     """Load and process the ``instances`` and ``seg_map`` annotation provided
     by dataset.

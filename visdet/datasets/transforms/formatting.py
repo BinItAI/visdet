@@ -9,7 +9,7 @@ from visdet.structures import DetDataSample
 from visdet.structures.bbox import BaseBoxes
 
 
-@TRANSFORMS.register_module()
+@TRANSFORMS.register_module(force=True)
 class PackDetInputs(BaseTransform):
     """Pack the inputs data for the detection / semantic segmentation /
     panoptic segmentation.
@@ -149,7 +149,7 @@ class PackDetInputs(BaseTransform):
         return repr_str
 
 
-@TRANSFORMS.register_module()
+@TRANSFORMS.register_module(force=True)
 class ToTensor:
     """Convert some results to :obj:`torch.Tensor` by given keys.
 
@@ -178,7 +178,7 @@ class ToTensor:
         return self.__class__.__name__ + f"(keys={self.keys})"
 
 
-@TRANSFORMS.register_module()
+@TRANSFORMS.register_module(force=True)
 class ImageToTensor:
     """Convert image to :obj:`torch.Tensor` by given keys.
 

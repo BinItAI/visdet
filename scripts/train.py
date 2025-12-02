@@ -13,7 +13,8 @@ For distributed training or advanced options, use tools/train.py instead.
 
 import argparse
 
-from visdet.engine import Config, Runner
+from visdet.engine.config import Config
+from visdet.engine.runner import Runner
 from visdet.registry import DATASETS, EVALUATOR, METRICS, MODELS
 
 
@@ -41,12 +42,15 @@ def build_dataloader(dataset_cfg, cfg):
     dataset = DATASETS.build(dataset_cfg)
 
     # Create dataloader (simplified - uses config values)
+    from visdet.engine.dataset import pseudo_collate
+
     dataloader = DataLoader(
         dataset,
         batch_size=cfg.get("batch_size", 2),
         shuffle=True,
         num_workers=cfg.get("num_workers", 2),
         persistent_workers=True if cfg.get("num_workers", 2) > 0 else False,
+        collate_fn=pseudo_collate,
     )
 
     return dataloader
@@ -75,10 +79,12 @@ def main():
         val_dataloader = build_dataloader(cfg.data.val, cfg)
 
     # Build Evaluation Metrics
-    # Metrics must inherit from BaseMetric and implement process() and compute_metrics()
     val_evaluator = None
-    if cfg.get("evaluation"):
-        print("Building evaluator...")
+    if cfg.get("val_evaluator"):
+        print("Building evaluator from val_evaluator config...")
+        val_evaluator = EVALUATOR.build(cfg.val_evaluator)
+    elif cfg.get("evaluation"):
+        print("Building evaluator from evaluation config...")
         # Build evaluator from config
         if isinstance(cfg.evaluation.get("metric"), list):
             # Multiple metrics
@@ -105,8 +111,8 @@ def main():
         # Training configuration (epochs, validation interval, etc.)
         train_cfg=dict(
             by_epoch=True,
-            max_epochs=cfg.get("total_epochs", 12),
-            val_interval=cfg.get("evaluation", {}).get("interval", 1),
+            max_epochs=cfg.get("total_epochs", cfg.runner.get("max_epochs", 12)),
+            val_interval=cfg.get("evaluation", {}).get("interval", 1) if cfg.get("evaluation") else 1,
         ),
         # Validation dataloader (optional)
         val_dataloader=val_dataloader,
@@ -114,6 +120,7 @@ def main():
         val_cfg=dict() if val_dataloader else None,
         # Validation evaluator (Metrics that inherit from BaseMetric)
         val_evaluator=val_evaluator,
+        default_scope="visdet",
     )
 
     # Start training

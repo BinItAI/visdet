@@ -631,7 +631,7 @@ class Registry:
                 existed_module = self.module_dict[name]
                 print_log(
                     f"Warning: {name} is already registered in {self.name} at {existed_module.__module__}, "
-                    f"it will be overwritten by the module at {module.__module__}",
+                    f"it will be overwritten by the module at {module.__module__} (force={force})",
                     logger="current",
                     level=logging.WARNING,
                 )

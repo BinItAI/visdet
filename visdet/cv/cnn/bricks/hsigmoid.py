@@ -7,7 +7,7 @@ import torch.nn as nn
 from visdet.engine.registry import MODELS
 
 
-@MODELS.register_module()
+@MODELS.register_module(force=True)
 class HSigmoid(nn.Module):
     """Hard Sigmoid Module. Apply the hard sigmoid function:
     Hsigmoid(x) = min(max((x + bias) / divisor, min_value), max_value)

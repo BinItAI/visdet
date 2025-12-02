@@ -25,11 +25,6 @@ class HardDiskBackend(LocalBackend):
     """Raw hard disks storage backend."""
 
     def __init__(self, use_exif: bool = False) -> None:
-        print_log(
-            '"HardDiskBackend" is the alias of "LocalBackend" and the former will be deprecated in future.',
-            logger="current",
-            level=logging.WARNING,
-        )
         self.use_exif = use_exif
 
     @property
@@ -97,11 +92,6 @@ class FileClient:
     client: Any
 
     def __new__(cls, backend=None, prefix=None, **kwargs):
-        print_log(
-            '"FileClient" will be deprecated in future. Please use io functions in https://mmengine.readthedocs.io/en/latest/api/fileio.html#file-io',
-            logger="current",
-            level=logging.WARNING,
-        )
         if backend is None and prefix is None:
             backend = "disk"
         if backend is not None and backend not in cls._backends:

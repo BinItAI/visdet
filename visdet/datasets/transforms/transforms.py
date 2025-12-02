@@ -10,7 +10,7 @@ from visdet.registry import TRANSFORMS
 from visdet.structures.bbox import autocast_box_type
 
 
-@TRANSFORMS.register_module()
+@TRANSFORMS.register_module(force=True)
 class Pad(MMCV_Pad):
     """Pad the image & segmentation map.
 
@@ -92,7 +92,7 @@ class Pad(MMCV_Pad):
         return results
 
 
-@TRANSFORMS.register_module()
+@TRANSFORMS.register_module(force=True)
 class RandomFlip(MMCV_RandomFlip):
     """Flip the image & bbox & mask & segmentation map. Added or Updated keys:
     flip, flip_direction, img, gt_bboxes, and gt_seg_map. There are 3 flip
@@ -189,7 +189,7 @@ class RandomFlip(MMCV_RandomFlip):
         self._record_homography_matrix(results)
 
 
-@TRANSFORMS.register_module()
+@TRANSFORMS.register_module(force=True)
 class RandomCrop(BaseTransform):
     """Random crop the image & bboxes & masks.
 

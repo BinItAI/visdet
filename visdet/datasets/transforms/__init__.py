@@ -26,17 +26,17 @@ def _register_pipelines():
     from visdet.datasets.builder import PIPELINES
 
     # Register to both TRANSFORMS and PIPELINES for compatibility
-    PIPELINES.register_module()(_Resize)
-    PIPELINES.register_module()(_Pad)
-    PIPELINES.register_module()(_Normalize)
-    PIPELINES.register_module()(_LoadImageFromFile)
-    PIPELINES.register_module()(_RandomFlip)
-    PIPELINES.register_module()(_RandomResize)
-    PIPELINES.register_module()(_LoadAnnotations)
-    PIPELINES.register_module()(_PackDetInputs)
-    PIPELINES.register_module()(_RandomApply)
-    PIPELINES.register_module()(_RandomCrop)
-    PIPELINES.register_module()(_RandomChoice)
+    # PIPELINES.register_module()(_Resize)
+    # PIPELINES.register_module()(_Pad)
+    # PIPELINES.register_module()(_Normalize)
+    # PIPELINES.register_module()(_LoadImageFromFile)
+    # PIPELINES.register_module()(_RandomFlip)
+    # PIPELINES.register_module()(_RandomResize)
+    # PIPELINES.register_module()(_LoadAnnotations)
+    # PIPELINES.register_module()(_PackDetInputs)
+    # PIPELINES.register_module()(_RandomApply)
+    # PIPELINES.register_module()(_RandomCrop)
+    # PIPELINES.register_module()(_RandomChoice)
     # PIPELINES.register_module()(_RandomChoiceResize)
 
 
@@ -46,19 +46,32 @@ try:
 except ImportError:
     pass
 
-# Also register to TRANSFORMS
-Resize = TRANSFORMS.register_module()(_Resize)
-Pad = TRANSFORMS.register_module()(_Pad)
-Normalize = TRANSFORMS.register_module()(_Normalize)
-LoadImageFromFile = TRANSFORMS.register_module()(_LoadImageFromFile)
-RandomFlip = TRANSFORMS.register_module()(_RandomFlip)
-RandomResize = TRANSFORMS.register_module()(_RandomResize)
-LoadAnnotations = TRANSFORMS.register_module()(_LoadAnnotations)
-PackDetInputs = TRANSFORMS.register_module()(_PackDetInputs)
-RandomApply = TRANSFORMS.register_module()(_RandomApply)
-RandomCrop = TRANSFORMS.register_module()(_RandomCrop)
-RandomChoice = TRANSFORMS.register_module()(_RandomChoice)
+# Also register to TRANSFORMS - THESE ARE REDUNDANT AND CAUSE WARNINGS
+# Resize = TRANSFORMS.register_module()(_Resize)
+# Pad = TRANSFORMS.register_module()(_Pad)
+# Normalize = TRANSFORMS.register_module()(_Normalize)
+# LoadImageFromFile = TRANSFORMS.register_module()(_LoadImageFromFile)
+# RandomFlip = TRANSFORMS.register_module()(_RandomFlip)
+# RandomResize = TRANSFORMS.register_module()(_RandomResize)
+# LoadAnnotations = TRANSFORMS.register_module()(_LoadAnnotations)
+# PackDetInputs = TRANSFORMS.register_module()(_PackDetInputs)
+# RandomApply = TRANSFORMS.register_module()(_RandomApply)
+# RandomCrop = TRANSFORMS.register_module()(_RandomCrop)
+# RandomChoice = TRANSFORMS.register_module()(_RandomChoice)
 # RandomChoiceResize = TRANSFORMS.register_module()(_RandomChoiceResize)
+
+# Expose them for import
+Resize = _Resize
+Pad = _Pad
+Normalize = _Normalize
+LoadImageFromFile = _LoadImageFromFile
+RandomFlip = _RandomFlip
+RandomResize = _RandomResize
+LoadAnnotations = _LoadAnnotations
+PackDetInputs = _PackDetInputs
+RandomApply = _RandomApply
+RandomCrop = _RandomCrop
+RandomChoice = _RandomChoice
 
 __all__ = [
     "LoadAnnotations",

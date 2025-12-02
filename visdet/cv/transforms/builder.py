@@ -1,60 +1,6 @@
 # Copyright (c) OpenMMLab. All rights reserved.
-# Create a simple registry for transforms
-class Registry:
-    """A simple registry to register transforms."""
-
-    def __init__(self, name):
-        self._name = name
-        self._module_dict = {}
-
-    def register_module(self, name=None, module=None, force=False):
-        """Register a module.
-
-        Args:
-            name (str | None): The module name to be registered. If not
-                specified, the class name will be used.
-            module (type): Module class to be registered.
-            force (bool): Whether to override an existing class with the same
-                name. Default: False.
-        """
-        if module is not None:
-            self._register_module(module_class=module, module_name=name, force=force)
-            return module
-
-        # use as a decorator
-        def _register(cls):
-            self._register_module(module_class=cls, module_name=name, force=force)
-            return cls
-
-        return _register
-
-    def _register_module(self, module_class, module_name=None, force=False):
-        if module_name is None:
-            module_name = module_class.__name__
-        if not force and module_name in self._module_dict:
-            raise KeyError(f"{module_name} is already registered in {self._name}")
-        self._module_dict[module_name] = module_class
-
-    def get(self, key):
-        """Get the registered module."""
-        return self._module_dict.get(key, None)
-
-    def build(self, cfg):
-        """Build a module from config dict."""
-        if isinstance(cfg, dict):
-            cfg = cfg.copy()
-            if "type" not in cfg:
-                raise KeyError('cfg must contain the key "type"')
-            module_type = cfg.pop("type")
-            if module_type not in self._module_dict:
-                raise KeyError(f"{module_type} is not in the {self._name} registry")
-            module_cls = self._module_dict[module_type]
-            return module_cls(**cfg)
-        else:
-            raise TypeError("cfg must be a dict")
-
-
-TRANSFORMS = Registry("transforms")
+from visdet.engine.registry import TRANSFORMS
+from visdet.engine.registry import build_from_cfg as engine_build_from_cfg
 
 
 def _map_legacy_transform_args(cfg, transform_type):
@@ -102,21 +48,13 @@ def build_from_cfg(cfg, registry, default_args=None):
         for k, v in default_args.items():
             cfg.setdefault(k, v)
 
-    obj_type = cfg.pop("type")
+    obj_type = cfg.get("type")
 
+    # Map legacy args before building
     if isinstance(obj_type, str):
-        obj_cls = registry.get(obj_type)
-        if obj_cls is None:
-            raise KeyError(f"{obj_type} is not in the {registry._name} registry")
-        # Apply legacy argument mapping for backward compatibility
         _map_legacy_transform_args(cfg, obj_type)
-    else:
-        obj_cls = obj_type
-        # Apply legacy argument mapping if obj_type has __name__
-        if hasattr(obj_type, "__name__"):
-            _map_legacy_transform_args(cfg, obj_type.__name__)
 
-    return obj_cls(**cfg)
+    return engine_build_from_cfg(cfg, registry, default_args)
 
 
 def build_transforms(cfg):

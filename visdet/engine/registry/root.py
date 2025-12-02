@@ -23,18 +23,18 @@ RUNNER_CONSTRUCTORS = Registry("runner constructor")
 # manage all kinds of loops like `EpochBasedTrainLoop`
 LOOPS = Registry("loop")
 # manage all kinds of hooks like `CheckpointHook`
-HOOKS = Registry("hook")
+HOOKS = Registry("hook", locations=["visdet.engine.hooks"])
 
 # manage all kinds of strategies like `NativeStrategy` and `DDPStrategy`
 STRATEGIES = Registry("strategy")
 
 # manage data-related modules
-DATASETS = Registry("dataset")
+DATASETS = Registry("dataset", locations=["visdet.datasets"])
 DATA_SAMPLERS = Registry("data sampler")
-TRANSFORMS = Registry("transform", locations=["viscv.transforms"])
+TRANSFORMS = Registry("transform", locations=["visdet.cv.transforms", "visdet.datasets.transforms"])
 
 # mangage all kinds of modules inheriting `nn.Module`
-MODELS = Registry("model", build_model_from_cfg)
+MODELS = Registry("model", build_func=build_model_from_cfg, locations=["visdet.models"])
 # mangage all kinds of model wrappers like 'MMDistributedDataParallel'
 MODEL_WRAPPERS = Registry("model_wrapper")
 # mangage all kinds of weight initialization modules like `Uniform`
@@ -50,9 +50,9 @@ OPTIM_WRAPPER_CONSTRUCTORS = Registry("optimizer wrapper constructor")
 PARAM_SCHEDULERS = Registry("parameter scheduler", build_func=build_scheduler_from_cfg)
 
 # manage all kinds of metrics
-METRICS = Registry("metric")
+METRICS = Registry("metric", locations=["visdet.evaluation"])
 # manage evaluator
-EVALUATOR = Registry("evaluator")
+EVALUATOR = Registry("evaluator", locations=["visdet.evaluation"])
 
 # manage task-specific modules like anchor generators and box coders
 TASK_UTILS = Registry("task util")

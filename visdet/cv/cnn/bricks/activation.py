@@ -23,9 +23,9 @@ for module in [
     MODELS.register_module(module=module)
 
 # Register custom activation modules
-MODELS.register_module(module=HSigmoid)
-MODELS.register_module(module=HSwish)
-MODELS.register_module(module=Swish)
+# MODELS.register_module(module=HSigmoid)
+# MODELS.register_module(module=HSwish)
+# MODELS.register_module(module=Swish)
 MODELS.register_module(module=nn.SiLU, name="SiLU")
 MODELS.register_module(module=nn.GELU)
 

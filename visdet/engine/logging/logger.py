@@ -46,7 +46,7 @@ class FilterDuplicateWarning(logging.Filter):
         return False
 
 
-class MMFormatter(logging.Formatter):
+class LogFormatter(logging.Formatter):
     """Colorful format for MMLogger. If the log level is error, the logger will
     additionally output the location of the code.
 
@@ -337,7 +337,7 @@ class MMLogger(Logger, ManagerMixin):
         stream_handler = logging.StreamHandler(stream=sys.stdout)
         # `StreamHandler` record month, day, hour, minute, and second
         # timestamp.
-        stream_handler.setFormatter(MMFormatter(color=True, datefmt="%m/%d %H:%M:%S"))
+        stream_handler.setFormatter(LogFormatter(color=True, datefmt="%m/%d %H:%M:%S"))
         # Only rank0 `StreamHandler` will log messages below error level.
         if global_rank == 0:
             stream_handler.setLevel(log_level)
@@ -382,7 +382,7 @@ class MMLogger(Logger, ManagerMixin):
                 # `StreamHandler` record year, month, day hour, minute,
                 # and second timestamp. file_handler will only record logs
                 # without color to avoid garbled code saved in files.
-                file_handler.setFormatter(MMFormatter(color=False, datefmt="%Y/%m/%d %H:%M:%S"))
+                file_handler.setFormatter(LogFormatter(color=False, datefmt="%Y/%m/%d %H:%M:%S"))
                 file_handler.setLevel(log_level)
                 file_handler.addFilter(FilterDuplicateWarning(logger_name))
                 self.handlers.append(file_handler)

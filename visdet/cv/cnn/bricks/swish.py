@@ -5,7 +5,7 @@ import torch.nn as nn
 from visdet.engine.registry import MODELS
 
 
-@MODELS.register_module()
+@MODELS.register_module(force=True)
 class Swish(nn.Module):
     """Swish Module.
 
