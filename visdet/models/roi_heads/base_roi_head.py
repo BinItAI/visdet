@@ -1,5 +1,6 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 from abc import ABCMeta, abstractmethod
+from typing import Any
 
 from torch import Tensor
 
@@ -11,6 +12,11 @@ from visdet.utils import InstanceList, OptConfigType, OptMultiConfig
 
 class BaseRoIHead(BaseModule, metaclass=ABCMeta):
     """Base class for RoIHeads."""
+
+    train_cfg: Any
+    test_cfg: Any
+    predict_bbox: Any  # Method attribute defined in subclasses
+    predict_mask: Any  # Method attribute defined in subclasses
 
     def __init__(
         self,
@@ -24,8 +30,8 @@ class BaseRoIHead(BaseModule, metaclass=ABCMeta):
         init_cfg: OptMultiConfig = None,
     ) -> None:
         super().__init__(init_cfg=init_cfg)
-        self.train_cfg = train_cfg
-        self.test_cfg = test_cfg
+        self.train_cfg = train_cfg  # type: ignore[unresolved-attribute]
+        self.test_cfg = test_cfg  # type: ignore[unresolved-attribute]
         if shared_head is not None:
             self.shared_head = MODELS.build(shared_head)
 

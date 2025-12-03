@@ -271,7 +271,8 @@ class DefaultOptimWrapperConstructor:
 
     def __call__(self, model: nn.Module):  # -> OptimWrapper:
         if hasattr(model, "module"):
-            model = model.module
+            # DistributedDataParallel wraps the model in a .module attribute
+            model = model.module  # type: ignore[assignment]
 
         optim_wrapper_cfg = self.optim_wrapper_cfg.copy()
         optim_wrapper_cfg.setdefault("type", "OptimWrapper")

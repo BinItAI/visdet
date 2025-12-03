@@ -1,5 +1,3 @@
-# ruff: noqa
-# type: ignore
 # Copyright (c) OpenMMLab. All rights reserved.
 from visdet.engine.structures.base_data_element import BaseDataElement
 from visdet.engine.structures.instance_data import InstanceData

@@ -22,6 +22,9 @@ class BaseRoIExtractor(BaseModule, metaclass=ABCMeta):
             dict], optional): Initialization config dict. Defaults to None.
     """
 
+    out_channels: int
+    featmap_strides: list[int]
+
     def __init__(
         self,
         roi_layer: ConfigType,
@@ -31,8 +34,8 @@ class BaseRoIExtractor(BaseModule, metaclass=ABCMeta):
     ) -> None:
         super().__init__(init_cfg=init_cfg)
         self.roi_layers = self.build_roi_layers(roi_layer, featmap_strides)
-        self.out_channels = out_channels
-        self.featmap_strides = featmap_strides
+        self.out_channels = out_channels  # type: ignore[unresolved-attribute]
+        self.featmap_strides = featmap_strides  # type: ignore[unresolved-attribute]
 
     @property
     def num_inputs(self) -> int:

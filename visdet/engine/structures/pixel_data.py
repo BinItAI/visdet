@@ -1,8 +1,7 @@
-# ruff: noqa
-# type: ignore
 # Copyright (c) OpenMMLab. All rights reserved.
 import warnings
 from collections.abc import Sequence
+from typing import TYPE_CHECKING, Any, overload
 
 import numpy as np
 import torch
@@ -95,10 +94,12 @@ class PixelData(BaseDataElement):
         new_data = self.__class__(metainfo=self.metainfo)
         if isinstance(item, tuple):
             assert len(item) == 2, "Only support to slice height and width"
+            shape = self.shape
+            assert shape is not None, "Cannot slice PixelData with no data fields"
             tmp_item: list[slice] = []
             for index, single_item in enumerate(item[::-1]):
                 if isinstance(single_item, int):
-                    tmp_item.insert(0, slice(single_item, None, self.shape[-index - 1]))
+                    tmp_item.insert(0, slice(single_item, None, shape[-index - 1]))
                 elif isinstance(single_item, slice):
                     tmp_item.insert(0, single_item)
                 else:
@@ -112,11 +113,19 @@ class PixelData(BaseDataElement):
         return new_data
 
     @property
-    def shape(self):
+    def shape(self) -> tuple[int, int] | None:
         """The shape of pixel data."""
         if len(self._data_fields) > 0:
-            return tuple(self.values()[0].shape[-2:])
+            first_value = self.values()[0]
+            if isinstance(first_value, (torch.Tensor, np.ndarray)):
+                return tuple(first_value.shape[-2:])  # type: ignore[return-value]
+            return None
         else:
             return None
+
+    # Provide specific type hints for common attributes
+    if TYPE_CHECKING:
+        # These are the most commonly accessed attributes in visualization code
+        sem_seg: torch.Tensor | np.ndarray
 
     # TODO padding, resize

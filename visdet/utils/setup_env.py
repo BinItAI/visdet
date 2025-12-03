@@ -32,6 +32,7 @@ def register_all_modules(init_default_scope: bool = True) -> None:
             DefaultScope.get_instance("visdet", scope_name="visdet")
             return
         current_scope = DefaultScope.get_current_instance()
+        assert current_scope is not None, "DefaultScope instance should exist at this point"
         if current_scope.scope_name != "visdet":
             warnings.warn(
                 "The current default scope "

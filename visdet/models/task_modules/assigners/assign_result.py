@@ -113,7 +113,7 @@ class AssignResult(util_mixins.NiceRepr):
             >>> self = AssignResult.random()
             >>> print(self.info)
         """
-        from ..samplers.sampling_result import ensure_rng
+        from visdet.core.bbox.demodata import ensure_rng
 
         rng = ensure_rng(kwargs.get("rng", None))
 

@@ -27,6 +27,11 @@ class HSigmoid(nn.Module):
         Tensor: The output tensor.
     """
 
+    bias: float
+    divisor: float
+    min_value: float
+    max_value: float
+
     def __init__(
         self,
         bias: float = 3.0,
@@ -43,11 +48,11 @@ class HSigmoid(nn.Module):
             "Hsigmoid(x) = min(max((x + 3) / 6, 0), 1).",
             stacklevel=2,
         )
-        self.bias = bias
-        self.divisor = divisor
+        object.__setattr__(self, "bias", bias)
+        object.__setattr__(self, "divisor", divisor)
         assert self.divisor != 0
-        self.min_value = min_value
-        self.max_value = max_value
+        object.__setattr__(self, "min_value", min_value)
+        object.__setattr__(self, "max_value", max_value)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = (x + self.bias) / self.divisor

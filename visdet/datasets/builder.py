@@ -3,28 +3,16 @@ import copy
 import platform
 import random
 import warnings
+from collections.abc import Mapping, Sequence
 from functools import partial
+from typing import Any
 
 import numpy as np
 import torch
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, Dataset, default_collate
 
 from visdet.cv import build_from_cfg
-from visdet.engine.dist import get_dist_info
-from visdet.engine.registry import Registry
-from visdet.engine.utils import TORCH_VERSION, digit_version
-
-try:
-    from torch.utils.data import collate_fn
-
-    def collate(batch):
-        return collate_fn(batch)
-except ImportError:
-    # Fallback implementation
-    def collate(batch):
-        return batch
-
-
+from visdet.datasets.dataset_wrappers import ClassBalancedDataset, ConcatDataset, RepeatDataset
 from visdet.datasets.samplers import (
     ClassAwareSampler,
     DistributedGroupSampler,
@@ -33,6 +21,9 @@ from visdet.datasets.samplers import (
     InfiniteBatchSampler,
     InfiniteGroupBatchSampler,
 )
+from visdet.engine.dist import get_dist_info
+from visdet.engine.registry import Registry
+from visdet.engine.utils import digit_version
 
 if platform.system() != "Windows":
     # https://github.com/pytorch/pytorch/issues/973
@@ -48,9 +39,12 @@ DATASETS = Registry("dataset")
 PIPELINES = Registry("pipeline")
 
 
-def _concat_dataset(cfg, default_args=None):
-    from visdet.datasets.dataset_wrappers import ConcatDataset
+def collate(batch, samples_per_gpu: int = 1):  # noqa: ARG001 - kept for backward compat
+    """Wrap PyTorch's default collate to match mmengine's signature."""
+    return default_collate(batch)
 
+
+def _concat_dataset(cfg: dict[str, Any], default_args: dict[str, Any] | None = None):
     ann_files = cfg["ann_file"]
     img_prefixes = cfg.get("img_prefix", None)
     seg_prefixes = cfg.get("seg_prefix", None)
@@ -76,14 +70,9 @@ def _concat_dataset(cfg, default_args=None):
     return ConcatDataset(datasets, separate_eval)
 
 
-def build_dataset(cfg, default_args=None):
-    from visdet.datasets.dataset_wrappers import (
-        ClassBalancedDataset,
-        ConcatDataset,
-        MultiImageMixDataset,
-        RepeatDataset,
-    )
-
+def build_dataset(
+    cfg: dict[str, Any] | list[dict[str, Any]] | tuple[dict[str, Any], ...], default_args: dict[str, Any] | None = None
+):
     if isinstance(cfg, (list, tuple)):
         dataset = ConcatDataset([build_dataset(c, default_args) for c in cfg])
     elif cfg["type"] == "ConcatDataset":
@@ -96,10 +85,7 @@ def build_dataset(cfg, default_args=None):
     elif cfg["type"] == "ClassBalancedDataset":
         dataset = ClassBalancedDataset(build_dataset(cfg["dataset"], default_args), cfg["oversample_thr"])
     elif cfg["type"] == "MultiImageMixDataset":
-        cp_cfg = copy.deepcopy(cfg)
-        cp_cfg["dataset"] = build_dataset(cp_cfg["dataset"])
-        cp_cfg.pop("type")
-        dataset = MultiImageMixDataset(**cp_cfg)
+        raise NotImplementedError("MultiImageMixDataset is not yet available in visdet")
     elif isinstance(cfg.get("ann_file"), (list, tuple)):
         dataset = _concat_dataset(cfg, default_args)
     else:
@@ -109,18 +95,18 @@ def build_dataset(cfg, default_args=None):
 
 
 def build_dataloader(
-    dataset,
-    samples_per_gpu,
-    workers_per_gpu,
-    num_gpus=1,
-    dist=True,
-    shuffle=True,
-    seed=None,
-    runner_type="EpochBasedRunner",
-    persistent_workers=False,
-    class_aware_sampler=None,
-    **kwargs,
-):
+    dataset: Dataset,
+    samples_per_gpu: int,
+    workers_per_gpu: int,
+    num_gpus: int = 1,
+    dist: bool = True,
+    shuffle: bool = True,
+    seed: int | None = None,
+    runner_type: str = "EpochBasedRunner",
+    persistent_workers: bool = False,
+    class_aware_sampler: dict[str, Any] | None = None,
+    **kwargs: Any,
+) -> DataLoader:
     """Build PyTorch DataLoader.
 
     In distributed training, each GPU/process has a dataloader.
@@ -150,18 +136,22 @@ def build_dataloader(
         DataLoader: A PyTorch dataloader.
     """
     rank, world_size = get_dist_info()
+    samples_per_gpu_int = int(samples_per_gpu)
+    workers_per_gpu_int = int(workers_per_gpu)
+    num_gpus_int = int(num_gpus)
+    seed_int = int(seed) if seed is not None else None
 
     if dist:
         # When model is :obj:`DistributedDataParallel`,
         # `batch_size` of :obj:`dataloader` is the
         # number of training samples on each GPU.
-        batch_size = samples_per_gpu
-        num_workers = workers_per_gpu
+        batch_size = samples_per_gpu_int
+        num_workers = workers_per_gpu_int
     else:
         # When model is obj:`DataParallel`
         # the batch size is samples on all the GPUS
-        batch_size = num_gpus * samples_per_gpu
-        num_workers = num_gpus * workers_per_gpu
+        batch_size = num_gpus_int * samples_per_gpu_int
+        num_workers = num_gpus_int * workers_per_gpu_int
 
     if runner_type == "IterBasedRunner":
         # this is a batch sampler, which can yield
@@ -169,38 +159,42 @@ def build_dataloader(
         # it can be used in both `DataParallel` and
         # `DistributedDataParallel`
         if shuffle:
-            batch_sampler = InfiniteGroupBatchSampler(dataset, batch_size, world_size, rank, seed=seed)
+            batch_sampler = InfiniteGroupBatchSampler(dataset, batch_size, world_size, rank, seed=seed_int)
         else:
-            batch_sampler = InfiniteBatchSampler(dataset, batch_size, world_size, rank, seed=seed, shuffle=False)
+            batch_sampler = InfiniteBatchSampler(dataset, batch_size, world_size, rank, seed=seed_int, shuffle=False)
         batch_size = 1
         sampler = None
     else:
         if class_aware_sampler is not None:
             # ClassAwareSampler can be used in both distributed and
             # non-distributed training.
-            num_sample_class = class_aware_sampler.get("num_sample_class", 1)
+            num_sample_class = int(class_aware_sampler.get("num_sample_class", 1))
             sampler = ClassAwareSampler(
                 dataset,
-                samples_per_gpu,
+                samples_per_gpu_int,
                 world_size,
                 rank,
-                seed=seed,
+                seed=seed_int,
                 num_sample_class=num_sample_class,
             )
         elif dist:
             # DistributedGroupSampler will definitely shuffle the data to
             # satisfy that images on each GPU are in the same group
             if shuffle:
-                sampler = DistributedGroupSampler(dataset, samples_per_gpu, world_size, rank, seed=seed)
+                sampler = DistributedGroupSampler(dataset, samples_per_gpu_int, world_size, rank, seed=seed_int)
             else:
-                sampler = DistributedSampler(dataset, world_size, rank, shuffle=False, seed=seed)
+                # DistributedSampler signature differs between PyTorch versions
+                sampler = DistributedSampler(dataset, world_size, rank, shuffle=False, seed=seed_int)  # type: ignore[call-arg]
         else:
-            sampler = GroupSampler(dataset, samples_per_gpu) if shuffle else None
+            sampler = GroupSampler(dataset, samples_per_gpu_int) if shuffle else None
         batch_sampler = None
 
-    init_fn = partial(worker_init_fn, num_workers=num_workers, rank=rank, seed=seed) if seed is not None else None
+    init_fn = (
+        partial(worker_init_fn, num_workers=num_workers, rank=rank, seed=seed_int) if seed_int is not None else None
+    )
 
-    if TORCH_VERSION != "parrots" and digit_version(TORCH_VERSION) >= digit_version("1.7.0"):
+    # Check PyTorch version for persistent_workers support (available in 1.7.0+)
+    if digit_version(torch.__version__) >= digit_version("1.7.0"):
         kwargs["persistent_workers"] = persistent_workers
     elif persistent_workers is True:
         warnings.warn("persistent_workers is invalid because your pytorch version is lower than 1.7.0")
@@ -211,7 +205,7 @@ def build_dataloader(
         sampler=sampler,
         num_workers=num_workers,
         batch_sampler=batch_sampler,
-        collate_fn=partial(collate, samples_per_gpu=samples_per_gpu),
+        collate_fn=partial(collate, samples_per_gpu=samples_per_gpu_int),
         pin_memory=kwargs.pop("pin_memory", False),
         worker_init_fn=init_fn,
         **kwargs,

@@ -19,9 +19,9 @@ class Bottleneck(_Bottleneck):
 
     def __init__(self, inplanes, planes, groups=1, base_width=4, base_channels=64, **kwargs):
         # Extract groups and base_width before calling parent
-        self.groups = groups
-        self.base_width = base_width
-        self.base_channels = base_channels
+        self.groups = groups  # type: ignore[unresolved-attribute]
+        self.base_width = base_width  # type: ignore[unresolved-attribute]
+        self.base_channels = base_channels  # type: ignore[unresolved-attribute]
 
         super(Bottleneck, self).__init__(inplanes, planes, **kwargs)
 
@@ -31,9 +31,9 @@ class Bottleneck(_Bottleneck):
             width = math.floor(self.planes * (base_width / base_channels)) * groups
 
         # Rebuild norm and conv layers with grouped convolutions
-        self.norm1_name, norm1 = build_norm_layer(self.norm_cfg, width, postfix=1)
-        self.norm2_name, norm2 = build_norm_layer(self.norm_cfg, width, postfix=2)
-        self.norm3_name, norm3 = build_norm_layer(self.norm_cfg, self.planes * self.expansion, postfix=3)
+        self.norm1_name, norm1 = build_norm_layer(self.norm_cfg, width, postfix=1)  # type: ignore[unresolved-attribute]
+        self.norm2_name, norm2 = build_norm_layer(self.norm_cfg, width, postfix=2)  # type: ignore[unresolved-attribute]
+        self.norm3_name, norm3 = build_norm_layer(self.norm_cfg, self.planes * self.expansion, postfix=3)  # type: ignore[unresolved-attribute]
 
         self.conv1 = build_conv_layer(
             self.conv_cfg,
@@ -104,8 +104,8 @@ class ResNeXt(ResNet):
     }
 
     def __init__(self, groups=1, base_width=4, **kwargs):
-        self.groups = groups
-        self.base_width = base_width
+        self.groups = groups  # type: ignore[unresolved-attribute]
+        self.base_width = base_width  # type: ignore[unresolved-attribute]
         super(ResNeXt, self).__init__(**kwargs)
 
     def make_res_layer(self, **kwargs):

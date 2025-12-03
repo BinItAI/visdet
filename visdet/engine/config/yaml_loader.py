@@ -162,13 +162,13 @@ class YAMLConfigLoader:
         Returns:
             Absolute resolved path
         """
-        ref_path = Path(ref_path)
+        ref_path_obj = Path(ref_path)
 
-        if ref_path.is_absolute():
-            return ref_path
+        if ref_path_obj.is_absolute():
+            return ref_path_obj
         else:
             # Resolve relative to the directory containing current_file
-            return (current_file.parent / ref_path).resolve()
+            return (current_file.parent / ref_path_obj).resolve()
 
     def _deep_merge(self, base: Dict[str, Any], override: Dict[str, Any]) -> Dict[str, Any]:
         """Deep merge two dictionaries, with override taking precedence.

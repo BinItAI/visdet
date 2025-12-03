@@ -1,19 +1,28 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import math
+from typing import Iterator, Optional
 
 import torch
+from torch.utils.data import Dataset
 from torch.utils.data import DistributedSampler as _DistributedSampler
 
 from visdet.engine.dist import sync_random_seed
 
 
-def get_device():
+def get_device() -> str:
     """Returns an available device, cuda or cpu."""
     return "cuda" if torch.cuda.is_available() else "cpu"
 
 
 class DistributedSampler(_DistributedSampler):
-    def __init__(self, dataset, num_replicas=None, rank=None, shuffle=True, seed=0):
+    def __init__(
+        self,
+        dataset: Dataset,
+        num_replicas: Optional[int] = None,
+        rank: Optional[int] = None,
+        shuffle: bool = True,
+        seed: int = 0,
+    ) -> None:
         super().__init__(dataset, num_replicas=num_replicas, rank=rank, shuffle=shuffle)
 
         # In distributed sampling, different ranks should sample
@@ -25,7 +34,7 @@ class DistributedSampler(_DistributedSampler):
         device = get_device()
         self.seed = sync_random_seed(seed, device)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[int]:
         # deterministically shuffle based on epoch
         if self.shuffle:
             g = torch.Generator()
@@ -34,9 +43,9 @@ class DistributedSampler(_DistributedSampler):
             # Otherwise, the next iteration of this sampler will
             # yield the same ordering.
             g.manual_seed(self.epoch + self.seed)
-            indices = torch.randperm(len(self.dataset), generator=g).tolist()
+            indices = torch.randperm(len(self.dataset), generator=g).tolist()  # type: ignore[arg-type]
         else:
-            indices = torch.arange(len(self.dataset)).tolist()
+            indices = torch.arange(len(self.dataset)).tolist()  # type: ignore[arg-type]
 
         # add extra samples to make it evenly divisible
         # in case that indices is shorter than half of total_size

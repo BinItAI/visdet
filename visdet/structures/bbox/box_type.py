@@ -1,8 +1,6 @@
-# ruff: noqa
-# type: ignore
 # Copyright (c) OpenMMLab. All rights reserved.
 from collections.abc import Callable
-from typing import Union
+from typing import Any, TypeVar, Union
 
 import numpy as np
 import torch
@@ -11,10 +9,12 @@ from torch import Tensor
 from visdet.structures.bbox.base_boxes import BaseBoxes
 
 BoxType = Union[np.ndarray, Tensor, BaseBoxes]
+T = TypeVar("T", bound=type)
+F = TypeVar("F", bound=Callable)
 
-box_types: dict = {}
-_box_type_to_name: dict = {}
-box_converters: dict = {}
+box_types: dict[str, type] = {}
+_box_type_to_name: dict[type, str] = {}
+box_converters: dict[str, Callable] = {}
 
 
 def _register_box(name: str, box_type: type, force: bool = False) -> None:
@@ -42,7 +42,7 @@ def _register_box(name: str, box_type: type, force: bool = False) -> None:
     _box_type_to_name[box_type] = name
 
 
-def register_box(name: str, box_type: type | None = None, force: bool = False) -> type | Callable:
+def register_box(name: str, box_type: T | None = None, force: bool = False) -> T | Callable[[T], T]:
     """Register a box type.
 
     A record will be added to ``bbox_types``, whose key is the box type name
@@ -80,7 +80,7 @@ def register_box(name: str, box_type: type | None = None, force: bool = False) -
         return box_type
 
     # use it as a decorator: @register_box(name)
-    def _register(cls):
+    def _register(cls: T) -> T:
         _register_box(name=name, box_type=cls, force=force)
         return cls
 
@@ -113,9 +113,9 @@ def _register_box_converter(
 def register_box_converter(
     src_type: str | type,
     dst_type: str | type,
-    converter: Callable | None = None,
+    converter: F | None = None,
     force: bool = False,
-) -> Callable:
+) -> F | Callable[[F], F]:
     """Register a box converter.
 
     A record will be added to ``box_converter``, whose key is
@@ -151,7 +151,7 @@ def register_box_converter(
         return converter
 
     # use it as a decorator: @register_box_converter(name)
-    def _register(func):
+    def _register(func: F) -> F:
         _register_box_converter(src_type=src_type, dst_type=dst_type, converter=func, force=force)
         return func
 
@@ -226,16 +226,17 @@ def convert_box_type(
     converter = box_converters[converter_name]
 
     if is_box_cls:
-        boxes = converter(boxes.tensor)
-        return dst_type_cls(boxes)
+        converted_boxes: Tensor = converter(boxes.tensor)  # type: ignore[arg-type]
+        return dst_type_cls(converted_boxes)
     elif is_numpy:
-        boxes = converter(torch.from_numpy(boxes))
-        return boxes.numpy()
+        converted_boxes = converter(torch.from_numpy(boxes))  # type: ignore[arg-type]
+        assert isinstance(converted_boxes, Tensor)
+        return converted_boxes.numpy()
     else:
-        return converter(boxes)
+        return converter(boxes)  # type: ignore[arg-type,return-value]
 
 
-def autocast_box_type(dst_box_type="hbox") -> Callable:
+def autocast_box_type(dst_box_type: str = "hbox") -> Callable[[Callable], Callable]:
     """A decorator which automatically casts results['gt_bboxes'] to the
     destination box type.
 
@@ -253,7 +254,7 @@ def autocast_box_type(dst_box_type="hbox") -> Callable:
     _, box_type_cls = get_box_type(dst_box_type)
 
     def decorator(func: Callable) -> Callable:
-        def wrapper(self, results: dict, *args, **kwargs) -> dict:
+        def wrapper(self: Any, results: dict, *args: Any, **kwargs: Any) -> dict:
             if "gt_bboxes" not in results or isinstance(results["gt_bboxes"], BaseBoxes):
                 return func(self, results)
             elif isinstance(results["gt_bboxes"], np.ndarray):

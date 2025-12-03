@@ -38,7 +38,7 @@ def collect_env():
 
     cuda_available = is_cuda_available()
     env_info["CUDA available"] = cuda_available
-    env_info["numpy_random_seed"] = np.random.get_state()[1][0]
+    env_info["numpy_random_seed"] = np.random.get_state()[1][0]  # type: ignore[misc]
 
     if cuda_available:
         devices = defaultdict(list)
@@ -48,7 +48,7 @@ def collect_env():
             env_info["GPU " + ",".join(device_ids)] = name
 
     env_info["PyTorch"] = torch.__version__
-    env_info["TorchVision"] = torchvision.__version__
+    env_info["TorchVision"] = torchvision.__version__  # type: ignore[attr-defined]
     env_info["OpenCV"] = cv2.__version__
     env_info["VisEngine"] = visengine_version
 

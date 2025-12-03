@@ -13,19 +13,19 @@ from cv2 import (
 )
 
 try:
-    from turbojpeg import TJCS_RGB, TJPF_BGR, TJPF_GRAY, TurboJPEG
+    from turbojpeg import TJCS_RGB, TJPF_BGR, TJPF_GRAY, TurboJPEG  # type: ignore[import-untyped]
 except ImportError:
-    TJCS_RGB = TJPF_GRAY = TJPF_BGR = TurboJPEG = None
+    TJCS_RGB = TJPF_GRAY = TJPF_BGR = TurboJPEG = None  # type: ignore[assignment]
 
 try:
     from PIL import Image, ImageOps
 except ImportError:
-    Image = None
+    Image = None  # type: ignore[assignment]
 
 try:
-    import tifffile
+    import tifffile  # type: ignore[import-untyped]
 except ImportError:
-    tifffile = None
+    tifffile = None  # type: ignore[assignment]
 
 jpeg = None
 supported_backends = ["cv2", "turbojpeg", "pillow", "tifffile"]
@@ -137,11 +137,11 @@ def imfrombytes(
     else:
         # cv2 backend
         if len(content) == 0:
-            return None
+            return None  # type: ignore[return-value]
         img_np = np.frombuffer(content, np.uint8)
-        flag = imread_flags[flag] if isinstance(flag, str) else flag
-        img = cv2.imdecode(img_np, flag)
-        if img is not None and flag == IMREAD_COLOR and channel_order == "rgb":
+        flag_int: int = imread_flags[flag] if isinstance(flag, str) else flag
+        img = cv2.imdecode(img_np, flag_int)  # type: ignore[arg-type]
+        if img is not None and flag_int == IMREAD_COLOR and channel_order == "rgb":
             cv2.cvtColor(img, cv2.COLOR_BGR2RGB, img)
         return img
 
@@ -264,7 +264,7 @@ def imwrite(
     # Encode image according to image suffix.
     # For example, if image path is '/path/your/img.jpg', the encode
     # format is '.jpg'.
-    flag, img_buff = cv2.imencode(img_ext, img, params)
+    flag, img_buff = cv2.imencode(img_ext, img, params)  # type: ignore[arg-type]
 
     if flag:
         with open(file_path, "wb") as f:

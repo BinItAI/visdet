@@ -21,7 +21,7 @@ def imrenormalize(img: Tensor | np.ndarray, img_norm_cfg: dict, new_img_norm_cfg
         assert img.ndim == 4 and img.shape[0] == 1
         new_img = img.squeeze(0).cpu().numpy().transpose(1, 2, 0)
         new_img = _imrenormalize(new_img, img_norm_cfg, new_img_norm_cfg)
-        new_img = new_img.transpose(2, 0, 1)[None]
+        new_img = new_img.transpose(2, 0, 1)[None]  # type: ignore[misc]
         return torch.from_numpy(new_img).to(img)
     else:
         return _imrenormalize(img, img_norm_cfg, new_img_norm_cfg)
