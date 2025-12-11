@@ -127,8 +127,8 @@ class PackDetInputs(BaseTransform):
             data_sample.proposals = proposals
 
         if "gt_seg_map" in results:
-            gt_sem_seg_data = dict(sem_seg=to_tensor(results["gt_seg_map"][None, ...].copy()))
-            gt_sem_seg_data = PixelData(**gt_sem_seg_data)
+            gt_sem_seg_tensor = to_tensor(results["gt_seg_map"][None, ...].copy())
+            gt_sem_seg_data = PixelData(sem_seg=gt_sem_seg_tensor)
             if "ignore_index" in results:
                 metainfo = dict(ignore_index=results["ignore_index"])
                 gt_sem_seg_data.set_metainfo(metainfo)

@@ -16,23 +16,27 @@ class NormedLinear(nn.Linear):
 
     Args:
         tempeature (float, optional): Tempeature term. Defaults to 20.
-        power (int, optional): Power term. Defaults to 1.0.
+        power (float, optional): Power term. Defaults to 1.0.
         eps (float, optional): The minimal value of divisor to
              keep numerical stability. Defaults to 1e-6.
     """
+
+    tempearture: float
+    power: float
+    eps: float
 
     def __init__(
         self,
         *args,
         tempearture: float = 20,
-        power: int = 1.0,
+        power: float = 1.0,
         eps: float = 1e-6,
         **kwargs,
     ) -> None:
         super().__init__(*args, **kwargs)
-        self.tempearture = tempearture
-        self.power = power
-        self.eps = eps
+        self.tempearture = tempearture  # type: ignore[misc]
+        self.power = power  # type: ignore[misc]
+        self.eps = eps  # type: ignore[misc]
         self.init_weights()
 
     def init_weights(self) -> None:
@@ -56,27 +60,32 @@ class NormedConv2d(nn.Conv2d):
 
     Args:
         tempeature (float, optional): Tempeature term. Defaults to 20.
-        power (int, optional): Power term. Defaults to 1.0.
+        power (float, optional): Power term. Defaults to 1.0.
         eps (float, optional): The minimal value of divisor to
              keep numerical stability. Defaults to 1e-6.
         norm_over_kernel (bool, optional): Normalize over kernel.
              Defaults to False.
     """
 
+    tempearture: float
+    power: float
+    norm_over_kernel: bool
+    eps: float
+
     def __init__(
         self,
         *args,
         tempearture: float = 20,
-        power: int = 1.0,
+        power: float = 1.0,
         eps: float = 1e-6,
         norm_over_kernel: bool = False,
         **kwargs,
     ) -> None:
         super().__init__(*args, **kwargs)
-        self.tempearture = tempearture
-        self.power = power
-        self.norm_over_kernel = norm_over_kernel
-        self.eps = eps
+        self.tempearture = tempearture  # type: ignore[misc]
+        self.power = power  # type: ignore[misc]
+        self.norm_over_kernel = norm_over_kernel  # type: ignore[misc]
+        self.eps = eps  # type: ignore[misc]
 
     def forward(self, x: Tensor) -> Tensor:
         """Forward function for `NormedConv2d`."""
@@ -91,7 +100,7 @@ class NormedConv2d(nn.Conv2d):
         x_ = x_ * self.tempearture
 
         if hasattr(self, "conv2d_forward"):
-            x_ = self.conv2d_forward(x_, weight_)
+            x_ = self.conv2d_forward(x_, weight_)  # type: ignore[misc]
         else:
             if digit_version(torch.__version__) >= digit_version("1.8"):
                 x_ = self._conv_forward(x_, weight_, self.bias)

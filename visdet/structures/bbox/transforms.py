@@ -1,7 +1,6 @@
-# ruff: noqa
-# type: ignore
 # Copyright (c) OpenMMLab. All rights reserved.
 from collections.abc import Sequence
+from typing import Literal
 
 import numpy as np
 import torch
@@ -25,20 +24,23 @@ def find_inside_bboxes(bboxes: Tensor, img_h: int, img_w: int) -> Tensor:
     return inside_inds
 
 
-def bbox_flip(bboxes: Tensor, img_shape: tuple[int], direction: str = "horizontal") -> Tensor:
+def bbox_flip(
+    bboxes: Tensor,
+    img_shape: tuple[int, int],
+    direction: Literal["horizontal", "vertical", "diagonal"] = "horizontal",
+) -> Tensor:
     """Flip bboxes horizontally or vertically.
 
     Args:
         bboxes (Tensor): Shape (..., 4*k)
-        img_shape (Tuple[int]): Image shape.
-        direction (str): Flip direction, options are "horizontal", "vertical",
-            "diagonal". Default: "horizontal"
+        img_shape (tuple[int, int]): Image shape as (height, width).
+        direction (Literal["horizontal", "vertical", "diagonal"]): Flip direction.
+            Default: "horizontal"
 
     Returns:
         Tensor: Flipped bboxes.
     """
     assert bboxes.shape[-1] % 4 == 0
-    assert direction in ["horizontal", "vertical", "diagonal"]
     flipped = bboxes.clone()
     if direction == "horizontal":
         flipped[..., 0::4] = img_shape[1] - bboxes[..., 2::4]
@@ -56,10 +58,10 @@ def bbox_flip(bboxes: Tensor, img_shape: tuple[int], direction: str = "horizonta
 
 def bbox_mapping(
     bboxes: Tensor,
-    img_shape: tuple[int],
-    scale_factor: float | tuple[float],
+    img_shape: tuple[int, int],
+    scale_factor: float | tuple[float, float],
     flip: bool,
-    flip_direction: str = "horizontal",
+    flip_direction: Literal["horizontal", "vertical", "diagonal"] = "horizontal",
 ) -> Tensor:
     """Map bboxes from the original image scale to testing scale."""
     new_bboxes = bboxes * bboxes.new_tensor(scale_factor)
@@ -70,10 +72,10 @@ def bbox_mapping(
 
 def bbox_mapping_back(
     bboxes: Tensor,
-    img_shape: tuple[int],
-    scale_factor: float | tuple[float],
+    img_shape: tuple[int, int],
+    scale_factor: float | tuple[float, float],
     flip: bool,
-    flip_direction: str = "horizontal",
+    flip_direction: Literal["horizontal", "vertical", "diagonal"] = "horizontal",
 ) -> Tensor:
     """Map bboxes from testing scale to original image scale."""
     new_bboxes = bbox_flip(bboxes, img_shape, flip_direction) if flip else bboxes
@@ -140,6 +142,7 @@ def bbox2result(bboxes: Tensor | np.ndarray, labels: Tensor | np.ndarray, num_cl
     else:
         if isinstance(bboxes, torch.Tensor):
             bboxes = bboxes.detach().cpu().numpy()
+        if isinstance(labels, torch.Tensor):
             labels = labels.detach().cpu().numpy()
         return [bboxes[labels == i, :] for i in range(num_classes)]
 
@@ -182,7 +185,7 @@ def distance2bbox(
         # clip bboxes with dynamic `min` and `max` for onnx
         if torch.onnx.is_in_onnx_export():
             # TODO: delete
-            from visdet.core.export import dynamic_clip_for_onnx
+            from visdet.core.export import dynamic_clip_for_onnx  # type: ignore[import-not-found]
 
             x1, y1, x2, y2 = dynamic_clip_for_onnx(x1, y1, x2, y2, max_shape)
             bboxes = torch.stack([x1, y1, x2, y2], dim=-1)
@@ -220,8 +223,8 @@ def scale_boxes(boxes: Tensor | BaseBoxes, scale_factor: tuple[float, float]) ->
     else:
         # Tensor boxes will be treated as horizontal boxes
         repeat_num = int(boxes.size(-1) / 2)
-        scale_factor = boxes.new_tensor(scale_factor).repeat((1, repeat_num))
-        return boxes * scale_factor
+        scale_factor_tensor = boxes.new_tensor(scale_factor).repeat((1, repeat_num))
+        return boxes * scale_factor_tensor
 
 
 def get_box_tensor(boxes: Tensor | BaseBoxes) -> Tensor:
@@ -324,7 +327,7 @@ def bbox_xyxy_to_cxcywh(bbox: Tensor) -> Tensor:
     return torch.cat(bbox_new, dim=-1)
 
 
-def bbox2corner(bboxes: torch.Tensor) -> torch.Tensor:
+def bbox2corner(bboxes: Tensor) -> Tensor:
     """Convert bbox coordinates from (x1, y1, x2, y2) to corners ((x1, y1),
     (x2, y1), (x1, y2), (x2, y2)).
 
@@ -337,7 +340,7 @@ def bbox2corner(bboxes: torch.Tensor) -> torch.Tensor:
     return torch.cat([x1, y1, x2, y1, x1, y2, x2, y2], dim=1).reshape(-1, 2)
 
 
-def corner2bbox(corners: torch.Tensor) -> torch.Tensor:
+def corner2bbox(corners: Tensor) -> Tensor:
     """Convert bbox coordinates from corners ((x1, y1), (x2, y1), (x1, y2),
     (x2, y2)) to (x1, y1, x2, y2).
 
@@ -353,10 +356,10 @@ def corner2bbox(corners: torch.Tensor) -> torch.Tensor:
 
 
 def bbox_project(
-    bboxes: torch.Tensor | np.ndarray,
-    homography_matrix: torch.Tensor | np.ndarray,
+    bboxes: Tensor | np.ndarray,
+    homography_matrix: Tensor | np.ndarray,
     img_shape: tuple[int, int] | None = None,
-) -> torch.Tensor | np.ndarray:
+) -> Tensor | np.ndarray:
     """Geometric transformation for bbox.
 
     Args:
@@ -372,6 +375,9 @@ def bbox_project(
         bboxes = torch.from_numpy(bboxes)
     if isinstance(homography_matrix, np.ndarray):
         homography_matrix = torch.from_numpy(homography_matrix)
+
+    # At this point bboxes must be a Tensor
+    assert isinstance(bboxes, torch.Tensor)
     corners = bbox2corner(bboxes)
     corners = torch.cat([corners, corners.new_ones(corners.shape[0], 1)], dim=1)
     corners = torch.matmul(homography_matrix, corners.t()).t()
@@ -401,7 +407,9 @@ def cat_boxes(data_list: list[Tensor | BaseBoxes], dim: int = 0) -> Tensor | Bas
     if data_list and isinstance(data_list[0], BaseBoxes):
         return data_list[0].cat(data_list, dim=dim)
     else:
-        return torch.cat(data_list, dim=dim)
+        # Type checker needs to know these are all Tensors
+        tensor_list: list[Tensor] = [x for x in data_list if isinstance(x, Tensor)]
+        return torch.cat(tensor_list, dim=dim)
 
 
 def stack_boxes(data_list: list[Tensor | BaseBoxes], dim: int = 0) -> Tensor | BaseBoxes:
@@ -419,29 +427,9 @@ def stack_boxes(data_list: list[Tensor | BaseBoxes], dim: int = 0) -> Tensor | B
     if data_list and isinstance(data_list[0], BaseBoxes):
         return data_list[0].stack(data_list, dim=dim)
     else:
-        return torch.stack(data_list, dim=dim)
-
-
-def scale_boxes(boxes: Tensor | BaseBoxes, scale_factor: tuple[float, float]) -> Tensor | BaseBoxes:
-    """Scale boxes with type of tensor or box type.
-
-    Args:
-        boxes (Tensor or :obj:`BaseBoxes`): boxes need to be scaled. Its type
-            can be a tensor or a box type.
-        scale_factor (Tuple[float, float]): factors for scaling boxes.
-            The length should be 2.
-
-    Returns:
-        Union[Tensor, :obj:`BaseBoxes`]: Scaled boxes.
-    """
-    if isinstance(boxes, BaseBoxes):
-        boxes.rescale_(scale_factor)
-        return boxes
-    else:
-        # Tensor boxes will be treated as horizontal boxes
-        repeat_num = int(boxes.size(-1) / 2)
-        scale_factor = boxes.new_tensor(scale_factor).repeat((1, repeat_num))
-        return boxes * scale_factor
+        # Type checker needs to know these are all Tensors
+        tensor_list: list[Tensor] = [x for x in data_list if isinstance(x, Tensor)]
+        return torch.stack(tensor_list, dim=dim)
 
 
 def get_box_wh(boxes: Tensor | BaseBoxes) -> tuple[Tensor, Tensor]:
@@ -464,22 +452,6 @@ def get_box_wh(boxes: Tensor | BaseBoxes) -> tuple[Tensor, Tensor]:
     return w, h
 
 
-def get_box_tensor(boxes: Tensor | BaseBoxes) -> Tensor:
-    """Get tensor data from box type boxes.
-
-    Args:
-        boxes (Tensor or BaseBoxes): boxes with type of tensor or box type.
-            If its type is a tensor, the boxes will be directly returned.
-            If its type is a box type, the `boxes.tensor` will be returned.
-
-    Returns:
-        Tensor: boxes tensor.
-    """
-    if isinstance(boxes, BaseBoxes):
-        boxes = boxes.tensor
-    return boxes
-
-
 def empty_box_as(boxes: Tensor | BaseBoxes) -> Tensor | BaseBoxes:
     """Generate empty box according to input ``boxes` type and device.
 
@@ -497,7 +469,7 @@ def empty_box_as(boxes: Tensor | BaseBoxes) -> Tensor | BaseBoxes:
         return boxes.new_zeros(0, 4)
 
 
-def bbox_xyxy_to_cxcyah(bboxes: torch.Tensor) -> torch.Tensor:
+def bbox_xyxy_to_cxcyah(bboxes: Tensor) -> Tensor:
     """Convert bbox coordinates from (x1, y1, x2, y2) to (cx, cy, ratio, h).
 
     Args:
@@ -514,7 +486,7 @@ def bbox_xyxy_to_cxcyah(bboxes: torch.Tensor) -> torch.Tensor:
     return xyah
 
 
-def bbox_cxcyah_to_xyxy(bboxes: torch.Tensor) -> torch.Tensor:
+def bbox_cxcyah_to_xyxy(bboxes: Tensor) -> Tensor:
     """Convert bbox coordinates from (cx, cy, ratio, h) to (x1, y1, x2, y2).
 
     Args:

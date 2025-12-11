@@ -1,4 +1,6 @@
 # Copyright (c) OpenMMLab. All rights reserved.
+from typing import Any
+
 import torch.nn as nn
 
 
@@ -49,7 +51,7 @@ def accuracy(pred, target, topk=1, thresh=None):
 
 
 class Accuracy(nn.Module):
-    def __init__(self, topk=(1,), thresh=None):
+    def __init__(self, topk: tuple[int, ...] | int = (1,), thresh: float | None = None):
         """Module to calculate the accuracy.
 
         Args:
@@ -59,8 +61,8 @@ class Accuracy(nn.Module):
                 under this threshold are considered incorrect. Default to None.
         """
         super().__init__()
-        self.topk = topk
-        self.thresh = thresh
+        self.topk: tuple[int, ...] | int = topk
+        self.thresh: float | None = thresh
 
     def forward(self, pred, target):
         """Forward function to calculate accuracy.

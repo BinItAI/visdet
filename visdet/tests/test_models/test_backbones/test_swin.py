@@ -1,4 +1,4 @@
-import pytest
+import pytest  # type: ignore[import-not-found]
 import torch
 
 from visdet.models.backbones.swin import (

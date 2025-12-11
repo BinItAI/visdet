@@ -42,8 +42,8 @@ class Bottle2neck(_Bottleneck):
         assert scales > 1, "Res2Net degenerates to ResNet when scales = 1."
         width = int(math.floor(self.planes * (base_width / 64)))
 
-        self.norm1_name, norm1 = build_norm_layer(self.norm_cfg, width * scales, postfix=1)
-        self.norm3_name, norm3 = build_norm_layer(self.norm_cfg, self.planes * self.expansion, postfix=3)
+        self.norm1_name, norm1 = build_norm_layer(self.norm_cfg, width * scales, postfix=1)  # type: ignore[unresolved-attribute]
+        self.norm3_name, norm3 = build_norm_layer(self.norm_cfg, self.planes * self.expansion, postfix=3)  # type: ignore[unresolved-attribute]
 
         self.conv1 = build_conv_layer(
             self.conv_cfg,
@@ -87,9 +87,9 @@ class Bottle2neck(_Bottleneck):
         )
         self.add_module(self.norm3_name, norm3)
 
-        self.stage_type = stage_type
-        self.scales = scales
-        self.width = width
+        self.stage_type = stage_type  # type: ignore[unresolved-attribute]
+        self.scales = scales  # type: ignore[unresolved-attribute]
+        self.width = width  # type: ignore[unresolved-attribute]
 
         # Remove conv2 since we replaced it with multi-scale convs
         delattr(self, "conv2")
@@ -291,8 +291,8 @@ class Res2Net(ResNet):
         avg_down=True,
         **kwargs,
     ):
-        self.scales = scales
-        self.base_width = base_width
+        self.scales = scales  # type: ignore[unresolved-attribute]
+        self.base_width = base_width  # type: ignore[unresolved-attribute]
         super(Res2Net, self).__init__(
             depth=depth,
             deep_stem=deep_stem,

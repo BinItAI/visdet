@@ -1,13 +1,17 @@
-# ruff: noqa
-# type: ignore
 # Copyright (c) OpenMMLab. All rights reserved.
+from typing import Any
+
 import numpy as np
 import pycocotools.mask as mask_util
 import torch
+from torch import Tensor
+
 from visdet.engine.utils import slice_list
 
 
-def split_combined_polys(polys, poly_lens, polys_per_mask):
+def split_combined_polys(
+    polys: list[Tensor], poly_lens: list[Tensor], polys_per_mask: list[Tensor]
+) -> list[list[list[Any]]]:
     """Split the combined 1-D polys into masks.
 
     A mask is represented as a list of polys, and a poly is represented as
@@ -37,7 +41,7 @@ def split_combined_polys(polys, poly_lens, polys_per_mask):
 
 
 # TODO: move this function to more proper place
-def encode_mask_results(mask_results):
+def encode_mask_results(mask_results: list[np.ndarray]) -> list[dict[str, Any]]:
     """Encode bitmap mask to RLE code.
 
     Args:
@@ -54,7 +58,7 @@ def encode_mask_results(mask_results):
     return encoded_mask_results
 
 
-def mask2bbox(masks):
+def mask2bbox(masks: Tensor) -> Tensor:
     """Obtain tight bounding boxes of binary masks.
 
     Args:

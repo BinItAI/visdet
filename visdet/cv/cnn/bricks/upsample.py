@@ -27,6 +27,11 @@ class PixelShufflePack(nn.Module):
             channels.
     """
 
+    in_channels: int
+    out_channels: int
+    scale_factor: int
+    upsample_kernel: int
+
     def __init__(
         self,
         in_channels: int,
@@ -35,10 +40,10 @@ class PixelShufflePack(nn.Module):
         upsample_kernel: int,
     ):
         super().__init__()
-        self.in_channels = in_channels
-        self.out_channels = out_channels
-        self.scale_factor = scale_factor
-        self.upsample_kernel = upsample_kernel
+        object.__setattr__(self, "in_channels", in_channels)
+        object.__setattr__(self, "out_channels", out_channels)
+        object.__setattr__(self, "scale_factor", scale_factor)
+        object.__setattr__(self, "upsample_kernel", upsample_kernel)
         self.upsample_conv = nn.Conv2d(
             self.in_channels,
             self.out_channels * scale_factor * scale_factor,

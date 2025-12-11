@@ -360,7 +360,11 @@ class LoadAnnotations(BaseTransform):
         else:
             img_bytes = engine_fileio.get(results["seg_map_path"], backend_args=self.backend_args)
 
-        results["gt_seg_map"] = imfrombytes(img_bytes, flag="unchanged", backend=self.imdecode_backend).squeeze()
+        # Convert memoryview to bytes if needed
+        img_bytes_for_decode = bytes(img_bytes) if isinstance(img_bytes, memoryview) else img_bytes
+        results["gt_seg_map"] = imfrombytes(
+            img_bytes_for_decode, flag="unchanged", backend=self.imdecode_backend
+        ).squeeze()
 
     def _load_kps(self, results: dict) -> None:
         """Private function to load keypoints annotations.

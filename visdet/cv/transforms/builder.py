@@ -73,7 +73,7 @@ def build_transforms(cfg):
             transforms.append(transform)
 
         # Import Compose here to avoid circular imports
-        from visdet.cv.transforms.compose import Compose
+        from visdet.cv.transforms.wrappers import Compose
 
         return Compose(transforms)
     else:

@@ -61,14 +61,14 @@ class WindowMSA(BaseModule):
         self.num_heads = num_heads
         head_embed_dims = embed_dims // num_heads
         self.scale = qk_scale or head_embed_dims**-0.5
-        self.init_cfg = init_cfg
+        self.init_cfg = init_cfg  # type: ignore[unresolved-attribute]
         if backend not in {"torch", "flash"}:
             raise ValueError(f"Unsupported attention backend: {backend}")
         # Fall back to torch if flash is not available
         if backend == "flash" and flash_swin_attn_func is None:
-            self.backend = "torch"
+            self.backend = "torch"  # type: ignore[unresolved-attribute]
         else:
-            self.backend = backend
+            self.backend = backend  # type: ignore[unresolved-attribute]
         self.head_embed_dims = head_embed_dims
 
         # define a parameter table of relative position bias
@@ -89,7 +89,7 @@ class WindowMSA(BaseModule):
         self.proj_drop = nn.Dropout(proj_drop_rate)
 
         self.softmax = nn.Softmax(dim=-1)
-        self._flash_fallback_warned = False
+        self._flash_fallback_warned = False  # type: ignore[unresolved-attribute]
 
     def init_weights(self):
         trunc_normal_(self.relative_position_bias_table, std=0.02)
@@ -108,7 +108,7 @@ class WindowMSA(BaseModule):
         # make torchscript happy (cannot use tensor as tuple)
         q, k, v = qkv[0], qkv[1], qkv[2]
 
-        relative_position_bias = self.relative_position_bias_table[self.relative_position_index.view(-1)].view(
+        relative_position_bias = self.relative_position_bias_table[self.relative_position_index.view(-1)].view(  # type: ignore[call-non-callable,no-matching-overload]
             self.window_size[0] * self.window_size[1],
             self.window_size[0] * self.window_size[1],
             -1,
@@ -185,9 +185,9 @@ class ShiftWindowMSA(BaseModule):
         super().__init__(init_cfg)
 
         self.window_size = window_size
-        self.shift_size = shift_size
+        self.shift_size = shift_size  # type: ignore[unresolved-attribute]
         assert 0 <= self.shift_size < self.window_size
-        self.backend = backend
+        self.backend = backend  # type: ignore[unresolved-attribute]
 
         self.w_msa = WindowMSA(
             embed_dims=embed_dims,
@@ -349,9 +349,9 @@ class SwinBlock(BaseModule):
     ):
         super(SwinBlock, self).__init__()
 
-        self.init_cfg = init_cfg
-        self.with_cp = with_cp
-        self.attn_backend = attn_backend
+        self.init_cfg = init_cfg  # type: ignore[unresolved-attribute]
+        self.with_cp = with_cp  # type: ignore[unresolved-attribute]
+        self.attn_backend = attn_backend  # type: ignore[unresolved-attribute]
 
         self.norm1 = build_norm_layer(norm_cfg, embed_dims)[1]
         self.attn = ShiftWindowMSA(
@@ -480,7 +480,7 @@ class SwinBlockSequence(BaseModule):
             )
             self.blocks.append(block)
 
-        self.downsample = downsample
+        self.downsample = downsample  # type: ignore[unresolved-attribute]
 
     def forward(self, x, hw_shape):
         for block in self.blocks:
@@ -580,8 +580,8 @@ class SwinTransformer(BaseModule):
         frozen_stages=-1,
         init_cfg=None,
     ):
-        self.convert_weights = convert_weights
-        self.frozen_stages = frozen_stages
+        self.convert_weights = convert_weights  # type: ignore[unresolved-attribute]
+        self.frozen_stages = frozen_stages  # type: ignore[unresolved-attribute]
         if isinstance(pretrain_img_size, int):
             pretrain_img_size = to_2tuple(pretrain_img_size)
         elif isinstance(pretrain_img_size, tuple):
@@ -594,17 +594,17 @@ class SwinTransformer(BaseModule):
         assert not (init_cfg and pretrained), "init_cfg and pretrained cannot be specified at the same time"
         if isinstance(pretrained, str):
             warnings.warn('DeprecationWarning: pretrained is deprecated, please use "init_cfg" instead')
-            self.init_cfg = dict(type="Pretrained", checkpoint=pretrained)
+            self.init_cfg = dict(type="Pretrained", checkpoint=pretrained)  # type: ignore[unresolved-attribute]
         elif pretrained is None:
-            self.init_cfg = init_cfg
+            self.init_cfg = init_cfg  # type: ignore[unresolved-attribute]
         else:
             raise TypeError("pretrained must be a str or None")
 
         super(SwinTransformer, self).__init__(init_cfg=init_cfg)
 
         num_layers = len(depths)
-        self.out_indices = out_indices
-        self.use_abs_pos_embed = use_abs_pos_embed
+        self.out_indices = out_indices  # type: ignore[unresolved-attribute]
+        self.use_abs_pos_embed = use_abs_pos_embed  # type: ignore[unresolved-attribute]
 
         assert strides[0] == patch_size, "Use non-overlapping patch embed."
 
@@ -625,7 +625,7 @@ class SwinTransformer(BaseModule):
             self.absolute_pos_embed = nn.Parameter(torch.zeros((1, num_patches, embed_dims)))
 
         self.drop_after_pos = nn.Dropout(p=drop_rate)
-        self.attn_backend = attn_backend
+        self.attn_backend = attn_backend  # type: ignore[unresolved-attribute]
 
         # set stochastic depth decay rule
         total_depth = sum(depths)
@@ -667,7 +667,7 @@ class SwinTransformer(BaseModule):
             if downsample:
                 in_channels = downsample.out_channels
 
-        self.num_features = [int(embed_dims * 2**i) for i in range(num_layers)]
+        self.num_features = [int(embed_dims * 2**i) for i in range(num_layers)]  # type: ignore[unresolved-attribute]
         # Add a norm layer for each output
         for i in out_indices:
             layer = build_norm_layer(norm_cfg, self.num_features[i])[1]
@@ -715,7 +715,7 @@ class SwinTransformer(BaseModule):
             assert "checkpoint" in self.init_cfg, (
                 f"Only support specify `Pretrained` in `init_cfg` in {self.__class__.__name__} "
             )
-            ckpt = CheckpointLoader.load_checkpoint(self.init_cfg.checkpoint, logger=logger, map_location="cpu")
+            ckpt = CheckpointLoader.load_checkpoint(self.init_cfg.checkpoint, logger=logger, map_location="cpu")  # type: ignore[possibly-missing-attribute]
             if "state_dict" in ckpt:
                 _state_dict = ckpt["state_dict"]
             elif "model" in ckpt:

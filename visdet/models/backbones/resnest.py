@@ -75,8 +75,8 @@ class SplitAttentionConv2d(BaseModule):
     ):
         super(SplitAttentionConv2d, self).__init__(init_cfg)
         inter_channels = max(in_channels * radix // reduction_factor, 32)
-        self.radix = radix
-        self.groups = groups
+        self.radix = radix  # type: ignore[unresolved-attribute]
+        self.groups = groups  # type: ignore[unresolved-attribute]
         self.channels = channels
         self.conv = build_conv_layer(
             conv_cfg,
@@ -90,11 +90,11 @@ class SplitAttentionConv2d(BaseModule):
             bias=False,
         )
         # To be consistent with original implementation, starting from 0
-        self.norm0_name, norm0 = build_norm_layer(norm_cfg, channels * radix, postfix=0)
+        self.norm0_name, norm0 = build_norm_layer(norm_cfg, channels * radix, postfix=0)  # type: ignore[unresolved-attribute]
         self.add_module(self.norm0_name, norm0)
         self.relu = nn.ReLU(inplace=True)
         self.fc1 = build_conv_layer(None, channels, inter_channels, 1, groups=self.groups)
-        self.norm1_name, norm1 = build_norm_layer(norm_cfg, inter_channels, postfix=1)
+        self.norm1_name, norm1 = build_norm_layer(norm_cfg, inter_channels, postfix=1)  # type: ignore[unresolved-attribute]
         self.add_module(self.norm1_name, norm1)
         self.fc2 = build_conv_layer(None, inter_channels, channels * radix, 1, groups=self.groups)
         self.rsoftmax = RSoftmax(radix, groups)
@@ -177,10 +177,10 @@ class Bottleneck(_Bottleneck):
         else:
             width = math.floor(self.planes * (base_width / base_channels)) * groups
 
-        self.avg_down_stride = avg_down_stride and self.conv2_stride > 1
+        self.avg_down_stride = avg_down_stride and self.conv2_stride > 1  # type: ignore[unresolved-attribute]
 
-        self.norm1_name, norm1 = build_norm_layer(self.norm_cfg, width, postfix=1)
-        self.norm3_name, norm3 = build_norm_layer(self.norm_cfg, self.planes * self.expansion, postfix=3)
+        self.norm1_name, norm1 = build_norm_layer(self.norm_cfg, width, postfix=1)  # type: ignore[unresolved-attribute]
+        self.norm3_name, norm3 = build_norm_layer(self.norm_cfg, self.planes * self.expansion, postfix=3)  # type: ignore[unresolved-attribute]
 
         self.conv1 = build_conv_layer(
             self.conv_cfg,
@@ -290,11 +290,11 @@ class ResNeSt(ResNet):
         avg_down=True,
         **kwargs,
     ):
-        self.groups = groups
-        self.base_width = base_width
-        self.radix = radix
-        self.reduction_factor = reduction_factor
-        self.avg_down_stride = avg_down_stride
+        self.groups = groups  # type: ignore[unresolved-attribute]
+        self.base_width = base_width  # type: ignore[unresolved-attribute]
+        self.radix = radix  # type: ignore[unresolved-attribute]
+        self.reduction_factor = reduction_factor  # type: ignore[unresolved-attribute]
+        self.avg_down_stride = avg_down_stride  # type: ignore[unresolved-attribute]
         super(ResNeSt, self).__init__(
             depth=depth,
             deep_stem=deep_stem,

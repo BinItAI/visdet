@@ -1,10 +1,11 @@
-# ruff: noqa
-# type: ignore
 # Copyright (c) OpenMMLab. All rights reserved.
+from typing import Literal
+
 import torch
+from torch import Tensor
 
 
-def fp16_clamp(x, min=None, max=None):
+def fp16_clamp(x: Tensor, min: float | None = None, max: float | None = None) -> Tensor:
     if not x.is_cuda and x.dtype == torch.float16:
         # clamp for cpu float16, tensor fp16 has no clamp implementation
         return x.float().clamp(min, max).half()
@@ -12,7 +13,13 @@ def fp16_clamp(x, min=None, max=None):
     return x.clamp(min, max)
 
 
-def bbox_overlaps(bboxes1, bboxes2, mode="iou", is_aligned=False, eps=1e-6):
+def bbox_overlaps(
+    bboxes1: Tensor,
+    bboxes2: Tensor,
+    mode: Literal["iou", "iof", "giou"] = "iou",
+    is_aligned: bool = False,
+    eps: float = 1e-6,
+) -> Tensor:
     """Calculate overlap between two set of bboxes.
 
     FP16 Contributed by https://github.com/open-mmlab/mmdetection/pull/4889
@@ -146,14 +153,14 @@ def bbox_overlaps(bboxes1, bboxes2, mode="iou", is_aligned=False, eps=1e-6):
             enclosed_lt = torch.min(bboxes1[..., :, None, :2], bboxes2[..., None, :, :2])
             enclosed_rb = torch.max(bboxes1[..., :, None, 2:], bboxes2[..., None, :, 2:])
 
-    eps = union.new_tensor([eps])
-    union = torch.max(union, eps)
+    eps_tensor = union.new_tensor([eps])
+    union = torch.max(union, eps_tensor)
     ious = overlap / union
     if mode in ["iou", "iof"]:
         return ious
     # calculate gious
     enclose_wh = (enclosed_rb - enclosed_lt).clamp(min=0)
     enclose_area = enclose_wh[..., 0] * enclose_wh[..., 1]
-    enclose_area = torch.max(enclose_area, eps)
+    enclose_area = torch.max(enclose_area, eps_tensor)
     gious = ious - (enclose_area - union) / enclose_area
     return gious

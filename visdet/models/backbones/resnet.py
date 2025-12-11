@@ -1,6 +1,7 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import logging
 import warnings
+from typing import Any
 
 import torch.nn as nn
 import torch.utils.checkpoint as cp
@@ -34,6 +35,16 @@ class BasicBlock(BaseModule):
 
     expansion = 1
 
+    norm1_name: str
+    norm2_name: str
+    conv1: nn.Module
+    conv2: nn.Module
+    relu: nn.ReLU
+    downsample: nn.Module | None
+    stride: int
+    dilation: int
+    with_cp: bool
+
     def __init__(
         self,
         inplanes,
@@ -53,8 +64,8 @@ class BasicBlock(BaseModule):
         assert dcn is None, "DCN is not supported in BasicBlock"
         assert plugins is None, "Plugins are not supported yet"
 
-        self.norm1_name, norm1 = build_norm_layer(norm_cfg, planes, postfix=1)
-        self.norm2_name, norm2 = build_norm_layer(norm_cfg, planes, postfix=2)
+        self.norm1_name, norm1 = build_norm_layer(norm_cfg, planes, postfix=1)  # type: ignore[unresolved-attribute]
+        self.norm2_name, norm2 = build_norm_layer(norm_cfg, planes, postfix=2)  # type: ignore[unresolved-attribute]
 
         self.conv1 = build_conv_layer(
             conv_cfg,
@@ -71,10 +82,10 @@ class BasicBlock(BaseModule):
         self.add_module(self.norm2_name, norm2)
 
         self.relu = nn.ReLU(inplace=True)
-        self.downsample = downsample
-        self.stride = stride
-        self.dilation = dilation
-        self.with_cp = with_cp
+        self.downsample = downsample  # type: ignore[unresolved-attribute]
+        self.stride = stride  # type: ignore[unresolved-attribute]
+        self.dilation = dilation  # type: ignore[unresolved-attribute]
+        self.with_cp = with_cp  # type: ignore[unresolved-attribute]
 
     @property
     def norm1(self):
@@ -136,6 +147,27 @@ class Bottleneck(BaseModule):
 
     expansion = 4
 
+    inplanes: int
+    planes: int
+    stride: int
+    dilation: int
+    style: str
+    with_cp: bool
+    conv_cfg: dict[str, Any] | None
+    norm_cfg: dict[str, Any]
+    dcn: dict[str, Any] | None
+    with_dcn: bool
+    conv1_stride: int
+    conv2_stride: int
+    norm1_name: str
+    norm2_name: str
+    norm3_name: str
+    conv1: nn.Module
+    conv2: nn.Module
+    conv3: nn.Module
+    relu: nn.ReLU
+    downsample: nn.Module | None
+
     def __init__(
         self,
         inplanes,
@@ -161,27 +193,27 @@ class Bottleneck(BaseModule):
         assert dcn is None or isinstance(dcn, dict)
         assert plugins is None, "Plugins are not supported yet"
 
-        self.inplanes = inplanes
-        self.planes = planes
-        self.stride = stride
-        self.dilation = dilation
-        self.style = style
-        self.with_cp = with_cp
-        self.conv_cfg = conv_cfg
-        self.norm_cfg = norm_cfg
-        self.dcn = dcn
-        self.with_dcn = dcn is not None
+        self.inplanes = inplanes  # type: ignore[unresolved-attribute]
+        self.planes = planes  # type: ignore[unresolved-attribute]
+        self.stride = stride  # type: ignore[unresolved-attribute]
+        self.dilation = dilation  # type: ignore[unresolved-attribute]
+        self.style = style  # type: ignore[unresolved-attribute]
+        self.with_cp = with_cp  # type: ignore[unresolved-attribute]
+        self.conv_cfg = conv_cfg  # type: ignore[unresolved-attribute]
+        self.norm_cfg = norm_cfg  # type: ignore[unresolved-attribute]
+        self.dcn = dcn  # type: ignore[unresolved-attribute]
+        self.with_dcn = dcn is not None  # type: ignore[unresolved-attribute]
 
         if self.style == "pytorch":
-            self.conv1_stride = 1
-            self.conv2_stride = stride
+            self.conv1_stride = 1  # type: ignore[unresolved-attribute]
+            self.conv2_stride = stride  # type: ignore[unresolved-attribute]
         else:
-            self.conv1_stride = stride
-            self.conv2_stride = 1
+            self.conv1_stride = stride  # type: ignore[unresolved-attribute]
+            self.conv2_stride = 1  # type: ignore[unresolved-attribute]
 
-        self.norm1_name, norm1 = build_norm_layer(norm_cfg, planes, postfix=1)
-        self.norm2_name, norm2 = build_norm_layer(norm_cfg, planes, postfix=2)
-        self.norm3_name, norm3 = build_norm_layer(norm_cfg, planes * self.expansion, postfix=3)
+        self.norm1_name, norm1 = build_norm_layer(norm_cfg, planes, postfix=1)  # type: ignore[unresolved-attribute]
+        self.norm2_name, norm2 = build_norm_layer(norm_cfg, planes, postfix=2)  # type: ignore[unresolved-attribute]
+        self.norm3_name, norm3 = build_norm_layer(norm_cfg, planes * self.expansion, postfix=3)  # type: ignore[unresolved-attribute]
 
         self.conv1 = build_conv_layer(
             conv_cfg,
@@ -215,7 +247,7 @@ class Bottleneck(BaseModule):
         self.add_module(self.norm3_name, norm3)
 
         self.relu = nn.ReLU(inplace=True)
-        self.downsample = downsample
+        self.downsample = downsample  # type: ignore[unresolved-attribute]
 
     @property
     def norm1(self):
@@ -324,6 +356,35 @@ class ResNet(BaseModule):
         152: (Bottleneck, (3, 8, 36, 3)),
     }
 
+    zero_init_residual: bool
+    depth: int
+    stem_channels: int
+    base_channels: int
+    num_stages: int
+    strides: tuple[int, ...]
+    dilations: tuple[int, ...]
+    out_indices: tuple[int, ...]
+    style: str
+    deep_stem: bool
+    avg_down: bool
+    frozen_stages: int
+    conv_cfg: dict[str, Any] | None
+    norm_cfg: dict[str, Any]
+    with_cp: bool
+    norm_eval: bool
+    dcn: dict[str, Any] | None
+    stage_with_dcn: tuple[bool, ...]
+    block: type[BasicBlock] | type[Bottleneck]
+    stage_blocks: tuple[int, ...]
+    inplanes: int
+    res_layers: list[str]
+    feat_dim: int
+    stem: nn.Sequential
+    conv1: nn.Module
+    norm1_name: str
+    relu: nn.ReLU
+    maxpool: nn.MaxPool2d
+
     def __init__(
         self,
         depth,
@@ -349,7 +410,7 @@ class ResNet(BaseModule):
         init_cfg=None,
     ):
         super(ResNet, self).__init__(init_cfg=init_cfg)
-        self.zero_init_residual = zero_init_residual
+        self.zero_init_residual = zero_init_residual  # type: ignore[unresolved-attribute]
         if depth not in self.arch_settings:
             raise KeyError(f"invalid depth {depth} for resnet")
 
@@ -357,10 +418,10 @@ class ResNet(BaseModule):
         assert not (init_cfg and pretrained), "init_cfg and pretrained cannot be specified at the same time"
         if isinstance(pretrained, str):
             warnings.warn("DeprecationWarning: pretrained is deprecated, please use 'init_cfg' instead")
-            self.init_cfg = dict(type="Pretrained", checkpoint=pretrained)
+            self.init_cfg = dict(type="Pretrained", checkpoint=pretrained)  # type: ignore[unresolved-attribute]
         elif pretrained is None:
             if init_cfg is None:
-                self.init_cfg = [
+                self.init_cfg = [  # type: ignore[unresolved-attribute]
                     dict(type="Kaiming", layer="Conv2d"),
                     dict(type="Constant", val=1, layer=["_BatchNorm", "GroupNorm"]),
                 ]
@@ -373,37 +434,37 @@ class ResNet(BaseModule):
         else:
             raise TypeError("pretrained must be a str or None")
 
-        self.depth = depth
+        self.depth = depth  # type: ignore[unresolved-attribute]
         if stem_channels is None:
             stem_channels = base_channels
-        self.stem_channels = stem_channels
-        self.base_channels = base_channels
-        self.num_stages = num_stages
+        self.stem_channels = stem_channels  # type: ignore[unresolved-attribute]
+        self.base_channels = base_channels  # type: ignore[unresolved-attribute]
+        self.num_stages = num_stages  # type: ignore[unresolved-attribute]
         assert num_stages >= 1 and num_stages <= 4
-        self.strides = strides
-        self.dilations = dilations
+        self.strides = strides  # type: ignore[unresolved-attribute]
+        self.dilations = dilations  # type: ignore[unresolved-attribute]
         assert len(strides) == len(dilations) == num_stages
-        self.out_indices = out_indices
+        self.out_indices = out_indices  # type: ignore[unresolved-attribute]
         assert max(out_indices) < num_stages
-        self.style = style
-        self.deep_stem = deep_stem
-        self.avg_down = avg_down
-        self.frozen_stages = frozen_stages
-        self.conv_cfg = conv_cfg
-        self.norm_cfg = norm_cfg
-        self.with_cp = with_cp
-        self.norm_eval = norm_eval
-        self.dcn = dcn
-        self.stage_with_dcn = stage_with_dcn
+        self.style = style  # type: ignore[unresolved-attribute]
+        self.deep_stem = deep_stem  # type: ignore[unresolved-attribute]
+        self.avg_down = avg_down  # type: ignore[unresolved-attribute]
+        self.frozen_stages = frozen_stages  # type: ignore[unresolved-attribute]
+        self.conv_cfg = conv_cfg  # type: ignore[unresolved-attribute]
+        self.norm_cfg = norm_cfg  # type: ignore[unresolved-attribute]
+        self.with_cp = with_cp  # type: ignore[unresolved-attribute]
+        self.norm_eval = norm_eval  # type: ignore[unresolved-attribute]
+        self.dcn = dcn  # type: ignore[unresolved-attribute]
+        self.stage_with_dcn = stage_with_dcn  # type: ignore[unresolved-attribute]
         if dcn is not None:
             assert len(stage_with_dcn) == num_stages
-        self.block, stage_blocks = self.arch_settings[depth]
-        self.stage_blocks = stage_blocks[:num_stages]
-        self.inplanes = stem_channels
+        self.block, stage_blocks = self.arch_settings[depth]  # type: ignore[unresolved-attribute]
+        self.stage_blocks = stage_blocks[:num_stages]  # type: ignore[unresolved-attribute]
+        self.inplanes = stem_channels  # type: ignore[unresolved-attribute]
 
         self._make_stem_layer(in_channels, stem_channels)
 
-        self.res_layers = []
+        self.res_layers = []  # type: ignore[unresolved-attribute]
         for i, num_blocks in enumerate(self.stage_blocks):
             stride = strides[i]
             dilation = dilations[i]
@@ -424,14 +485,14 @@ class ResNet(BaseModule):
                 dcn=dcn,
                 init_cfg=block_init_cfg,
             )
-            self.inplanes = planes * self.block.expansion
+            self.inplanes = planes * self.block.expansion  # type: ignore[unresolved-attribute]
             layer_name = f"layer{i + 1}"
             self.add_module(layer_name, res_layer)
             self.res_layers.append(layer_name)
 
         self._freeze_stages()
 
-        self.feat_dim = self.block.expansion * base_channels * 2 ** (len(self.stage_blocks) - 1)
+        self.feat_dim = self.block.expansion * base_channels * 2 ** (len(self.stage_blocks) - 1)  # type: ignore[unresolved-attribute]
 
     def make_res_layer(self, **kwargs):
         """Pack all blocks in a stage into a ``ResLayer``."""
@@ -489,7 +550,7 @@ class ResNet(BaseModule):
                 padding=3,
                 bias=False,
             )
-            self.norm1_name, norm1 = build_norm_layer(self.norm_cfg, stem_channels, postfix=1)
+            self.norm1_name, norm1 = build_norm_layer(self.norm_cfg, stem_channels, postfix=1)  # type: ignore[unresolved-attribute]
             self.add_module(self.norm1_name, norm1)
             self.relu = nn.ReLU(inplace=True)
         self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)

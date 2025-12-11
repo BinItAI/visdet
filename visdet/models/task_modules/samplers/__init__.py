@@ -3,6 +3,7 @@ import torch
 from visdet.registry import TASK_UTILS
 from visdet.utils import util_mixins
 from visdet.engine.structures import InstanceData
+from visdet.structures.bbox import BaseBoxes
 
 
 class SamplingResult(util_mixins.NiceRepr):
@@ -74,6 +75,10 @@ class PseudoSampler:
         priors = pred_instances.priors
         gt_bboxes = gt_instances.bboxes
 
+        # Convert BaseBoxes to tensor if needed
+        if isinstance(gt_bboxes, BaseBoxes):
+            gt_bboxes = gt_bboxes.tensor
+
         pos_inds = torch.nonzero(assign_result.gt_inds > 0, as_tuple=False).squeeze(-1)
         neg_inds = torch.nonzero(assign_result.gt_inds == 0, as_tuple=False).squeeze(-1)
 
@@ -110,6 +115,10 @@ class RandomSampler:
         """Sample positive and negative bboxes."""
         priors = pred_instances.priors
         gt_bboxes = gt_instances.bboxes
+
+        # Convert BaseBoxes to tensor if needed
+        if isinstance(gt_bboxes, BaseBoxes):
+            gt_bboxes = gt_bboxes.tensor
 
         num_expected_pos = int(self.num * self.pos_fraction)
         pos_inds = torch.nonzero(assign_result.gt_inds > 0, as_tuple=False).squeeze(-1)

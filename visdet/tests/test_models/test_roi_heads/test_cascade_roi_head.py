@@ -1,6 +1,6 @@
 """Tests for CascadeRoIHead to validate cascade logic and mask prediction."""
 
-import pytest
+import pytest  # type: ignore[import-not-found]
 import torch
 
 from visdet.engine.config import ConfigDict
