@@ -162,6 +162,7 @@ dev = [
     "ruff",
     "skylos",
     "zuban>=0.1.2",
+    "modal>=0.63.0",
 ]
 
 
