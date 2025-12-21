@@ -1,4 +1,6 @@
 # ruff: noqa
+# Copyright (c) OpenMMLab. All rights reserved.
+
 import torch
 from visdet.registry import TASK_UTILS
 
@@ -88,4 +90,6 @@ class DeltaXYWHBBoxCoder:
         return decoded_bboxes
 
 
-__all__ = ["DeltaXYWHBBoxCoder"]
+from visdet.models.task_modules.coders.distance_point_bbox_coder import DistancePointBBoxCoder
+
+__all__ = ["DeltaXYWHBBoxCoder", "DistancePointBBoxCoder"]

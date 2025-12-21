@@ -29,7 +29,15 @@ class WrapFunction(nn.Module):
         self.wrapped_function = wrapped_function
 
     def forward(self, *args, **kwargs):
-        return self.wrapped_function(*args, **kwargs)
+        try:
+            return self.wrapped_function(*args, **kwargs)
+        except TypeError as exc:
+            # Some functions expect aggregated tuple/list inputs rather than
+            # positional tensors. Retry by passing the args tuple as a single
+            # argument to maximize compatibility across PyTorch versions.
+            if len(args) > 1:
+                return self.wrapped_function(args, **kwargs)
+            raise exc
 
 
 def ort_validate(model, feats, onnx_io="tmp.onnx"):
@@ -50,10 +58,14 @@ def ort_validate(model, feats, onnx_io="tmp.onnx"):
     else:
         wrap_model = WrapFunction(model)
     wrap_model.cpu().eval()
+    export_inputs = feats
+    if isinstance(feats, list):
+        export_inputs = tuple(feats)
+
     with torch.no_grad():
         torch.onnx.export(
             wrap_model,
-            feats,
+            export_inputs,
             onnx_io,
             export_params=True,
             keep_initializers_as_inputs=True,

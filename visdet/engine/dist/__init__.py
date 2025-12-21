@@ -97,6 +97,16 @@ def broadcast_object_list(obj_list, src=0, group=None):
     return obj_list
 
 
+def reduce_mean(tensor: torch.Tensor) -> torch.Tensor:
+    """Calculate the mean of a tensor across distributed workers."""
+    if not _is_dist_available_and_initialized():
+        return tensor
+    tensor = tensor.clone()
+    dist_lib.all_reduce(tensor)
+    tensor.div_(get_world_size())
+    return tensor
+
+
 def all_reduce_params(model):
     """All reduce model parameters for synchronization."""
     if not _is_dist_available_and_initialized():
@@ -213,6 +223,7 @@ __all__ = [
     'barrier',
     'broadcast',
     'broadcast_object_list',
+    'reduce_mean',
     'all_reduce_params',
     'init_dist',
     'collect_results',
