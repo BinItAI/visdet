@@ -52,7 +52,7 @@ def register_dadaptation_optimizers() -> list[str]:
     """
     dadaptation_optimizers = []
     try:
-        import dadaptation
+        import dadaptation  # type: ignore[import-untyped]
     except ImportError:
         pass
     else:
@@ -75,7 +75,7 @@ def register_lion_optimizers() -> list[str]:
     """
     optimizers = []
     try:
-        from lion_pytorch import Lion
+        from lion_pytorch import Lion  # type: ignore[import-untyped]
     except ImportError:
         pass
     else:
@@ -95,7 +95,7 @@ def register_sophia_optimizers() -> list[str]:
     """
     optimizers = []
     try:
-        import Sophia
+        import Sophia  # type: ignore[import-untyped]
     except ImportError:
         pass
     else:
@@ -122,7 +122,7 @@ def register_bitsandbytes_optimizers() -> list[str]:
     """
     dadaptation_optimizers = []
     try:
-        import bitsandbytes as bnb
+        import bitsandbytes as bnb  # type: ignore[import-untyped]
     except ImportError:
         # bitsandbytes is an optional dependency
         return dadaptation_optimizers
@@ -150,7 +150,7 @@ except Exception:
 def register_transformers_optimizers():
     transformer_optimizers = []
     try:
-        from transformers import Adafactor
+        from transformers import Adafactor  # type: ignore[import-untyped]
     except ImportError:
         pass
     else:

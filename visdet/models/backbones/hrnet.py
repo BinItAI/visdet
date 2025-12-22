@@ -1,5 +1,6 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import warnings
+from typing import Any
 
 import torch.nn as nn
 from torch.nn.modules.batchnorm import _BatchNorm
@@ -17,6 +18,17 @@ class HRModule(BaseModule):
     is in this module.
     """
 
+    block_init_cfg: dict[str, Any] | None
+    in_channels: list[int]
+    num_branches: int
+    multiscale_output: bool
+    norm_cfg: dict[str, Any]
+    conv_cfg: dict[str, Any] | None
+    with_cp: bool
+    branches: ModuleList
+    fuse_layers: nn.ModuleList | None
+    relu: nn.ReLU
+
     def __init__(
         self,
         num_branches,
@@ -32,16 +44,16 @@ class HRModule(BaseModule):
         init_cfg=None,
     ):
         super(HRModule, self).__init__(init_cfg)
-        self.block_init_cfg = block_init_cfg
+        self.block_init_cfg = block_init_cfg  # type: ignore[unresolved-attribute]
         self._check_branches(num_branches, num_blocks, in_channels, num_channels)
 
         self.in_channels = in_channels
         self.num_branches = num_branches
 
-        self.multiscale_output = multiscale_output
-        self.norm_cfg = norm_cfg
-        self.conv_cfg = conv_cfg
-        self.with_cp = with_cp
+        self.multiscale_output = multiscale_output  # type: ignore[unresolved-attribute]
+        self.norm_cfg = norm_cfg  # type: ignore[unresolved-attribute]
+        self.conv_cfg = conv_cfg  # type: ignore[unresolved-attribute]
+        self.with_cp = with_cp  # type: ignore[unresolved-attribute]
         self.branches = self._make_branches(num_branches, blocks, num_blocks, num_channels)
         self.fuse_layers = self._make_fuse_layers()
         self.relu = nn.ReLU(inplace=False)
@@ -187,6 +199,7 @@ class HRModule(BaseModule):
             x[i] = self.branches[i](x[i])
 
         x_fuse = []
+        assert self.fuse_layers is not None
         for i in range(len(self.fuse_layers)):
             y = 0
             for j in range(self.num_branches):
@@ -276,6 +289,30 @@ class HRNet(BaseModule):
 
     blocks_dict = {"BASIC": BasicBlock, "BOTTLENECK": Bottleneck}
 
+    pretrained: str | None
+    extra: dict[str, Any]
+    conv_cfg: dict[str, Any] | None
+    norm_cfg: dict[str, Any]
+    norm_eval: bool
+    with_cp: bool
+    zero_init_residual: bool
+    norm1_name: str
+    norm2_name: str
+    conv1: nn.Module
+    conv2: nn.Module
+    relu: nn.ReLU
+    layer1: Sequential
+    stage1_cfg: dict[str, Any]
+    stage2_cfg: dict[str, Any]
+    stage3_cfg: dict[str, Any]
+    stage4_cfg: dict[str, Any]
+    transition1: nn.ModuleList
+    transition2: nn.ModuleList
+    transition3: nn.ModuleList
+    stage2: Sequential
+    stage3: Sequential
+    stage4: Sequential
+
     def __init__(
         self,
         extra,
@@ -291,14 +328,14 @@ class HRNet(BaseModule):
     ):
         super(HRNet, self).__init__(init_cfg)
 
-        self.pretrained = pretrained
+        self.pretrained = pretrained  # type: ignore[unresolved-attribute]
         assert not (init_cfg and pretrained), "init_cfg and pretrained cannot be specified at the same time"
         if isinstance(pretrained, str):
             warnings.warn('DeprecationWarning: pretrained is deprecated, please use "init_cfg" instead')
-            self.init_cfg = dict(type="Pretrained", checkpoint=pretrained)
+            self.init_cfg = dict(type="Pretrained", checkpoint=pretrained)  # type: ignore[unresolved-attribute]
         elif pretrained is None:
             if init_cfg is None:
-                self.init_cfg = [
+                self.init_cfg = [  # type: ignore[unresolved-attribute]
                     dict(type="Kaiming", layer="Conv2d"),
                     dict(type="Constant", val=1, layer=["_BatchNorm", "GroupNorm"]),
                 ]
@@ -314,15 +351,15 @@ class HRNet(BaseModule):
             assert len(cfg["num_blocks"]) == cfg["num_branches"] and len(cfg["num_channels"]) == cfg["num_branches"]
 
         self.extra = extra
-        self.conv_cfg = conv_cfg
-        self.norm_cfg = norm_cfg
-        self.norm_eval = norm_eval
-        self.with_cp = with_cp
-        self.zero_init_residual = zero_init_residual
+        self.conv_cfg = conv_cfg  # type: ignore[unresolved-attribute]
+        self.norm_cfg = norm_cfg  # type: ignore[unresolved-attribute]
+        self.norm_eval = norm_eval  # type: ignore[unresolved-attribute]
+        self.with_cp = with_cp  # type: ignore[unresolved-attribute]
+        self.zero_init_residual = zero_init_residual  # type: ignore[unresolved-attribute]
 
         # stem net
-        self.norm1_name, norm1 = build_norm_layer(self.norm_cfg, 64, postfix=1)
-        self.norm2_name, norm2 = build_norm_layer(self.norm_cfg, 64, postfix=2)
+        self.norm1_name, norm1 = build_norm_layer(self.norm_cfg, 64, postfix=1)  # type: ignore[unresolved-attribute]
+        self.norm2_name, norm2 = build_norm_layer(self.norm_cfg, 64, postfix=2)  # type: ignore[unresolved-attribute]
 
         self.conv1 = build_conv_layer(
             self.conv_cfg,

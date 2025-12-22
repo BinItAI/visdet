@@ -362,7 +362,7 @@ class SimpleRunner:
 
     def _build_config(self) -> None:
         """Build a full MMEngine-compatible configuration from resolved presets."""
-        from visdet.engine import Config
+        from visdet.engine.config import Config
 
         # Automatically sync num_classes from dataset to model
         self._sync_num_classes()
@@ -559,7 +559,7 @@ class SimpleRunner:
         """
         # MMEngineRunner is imported here to avoid potential circular dependencies
         # and to ensure registries are populated first.
-        from visdet.engine import DefaultScope
+        from visdet.engine.registry import DefaultScope
         from visdet.engine.runner import Runner as MMEngineRunner
 
         # Ensure the 'visdet' scope is active for component registration.

@@ -51,8 +51,9 @@ class cache_randomness:
     def __call__(self, *args, **kwargs):
         # Get the transform instance whose method is decorated
         # by cache_randomness
+        assert self.instance_ref is not None, "instance_ref must be set"
         instance = self.instance_ref()
-        name = self.__name__
+        name: str = self.__name__  # type: ignore[misc]
 
         # Check the flag ``self._cache_enabled``, which should be
         # set by the contextmanagers like ``cache_random_parameters```
@@ -63,12 +64,12 @@ class cache_randomness:
             # ``cache_enabled``` is set by contextmanagers like
             # ``cache_random_params```.
             if not hasattr(instance, "_cache"):
-                instance._cache = {}
+                instance._cache = {}  # type: ignore[attr-defined]
 
-            if name not in instance._cache:
-                instance._cache[name] = self.func(instance, *args, **kwargs)
+            if name not in instance._cache:  # type: ignore[attr-defined]
+                instance._cache[name] = self.func(instance, *args, **kwargs)  # type: ignore[attr-defined]
             # Return the cached value
-            return instance._cache[name]
+            return instance._cache[name]  # type: ignore[attr-defined]
         else:
             # Clear cache
             if hasattr(instance, "_cache"):
@@ -210,12 +211,12 @@ def cache_random_params(transforms: BaseTransform | Iterable):
             return
 
         # Set cache enabled flag
-        t._cache_enabled = True
+        t._cache_enabled = True  # type: ignore[attr-defined]
 
         # Store the original method and init the counter
         if hasattr(t, "_methods_with_randomness"):
-            t.transform = _add_invoke_checker(t, "transform")
-            for name in t._methods_with_randomness:
+            t.transform = _add_invoke_checker(t, "transform")  # type: ignore[method-assign]
+            for name in t._methods_with_randomness:  # type: ignore[attr-defined]
                 setattr(t, name, _add_invoke_counter(t, name))
 
     def _end_cache(t: BaseTransform):
@@ -230,19 +231,19 @@ def cache_random_params(transforms: BaseTransform | Iterable):
 
         # Restore the original method
         if hasattr(t, "_methods_with_randomness"):
-            for name in t._methods_with_randomness:
+            for name in t._methods_with_randomness:  # type: ignore[attr-defined]
                 key = f"{id(t)}.{name}"
                 setattr(t, name, key2method[key])
 
             key_transform = f"{id(t)}.transform"
-            t.transform = key2method[key_transform]
+            t.transform = key2method[key_transform]  # type: ignore[method-assign]
 
     def _apply(t: BaseTransform | Iterable, func: Callable[[BaseTransform], None]):
         if isinstance(t, BaseTransform):
             func(t)
         if isinstance(t, Iterable):
             for _t in t:
-                _apply(_t, func)
+                _apply(_t, func)  # type: ignore[arg-type]
 
     try:
         _apply(transforms, _start_cache)

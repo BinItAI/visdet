@@ -37,9 +37,11 @@ class DropPath(nn.Module):
         drop_prob (float): Probability of the path to be zeroed. Default: 0.1
     """
 
+    drop_prob: float
+
     def __init__(self, drop_prob: float = 0.1):
         super().__init__()
-        self.drop_prob = drop_prob
+        object.__setattr__(self, "drop_prob", drop_prob)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         return drop_path(x, self.drop_prob, self.training)
@@ -61,10 +63,14 @@ class Dropout(nn.Dropout):
         super().__init__(p=drop_prob, inplace=inplace)
 
 
-def build_dropout(cfg: dict | float | None, default_args: dict | None = None) -> Any:
+def build_dropout(cfg: dict[str, Any] | float | None, default_args: dict | None = None) -> Any:
     """Builder for drop out layers."""
     if cfg is None:
         return None
     if isinstance(cfg, float):
-        cfg = dict(type="Dropout", drop_prob=cfg)
-    return MODELS.build(cfg, default_args=default_args)
+        cfg_dict: dict[str, Any] = dict(type="Dropout", drop_prob=cfg)
+    else:
+        if not isinstance(cfg, dict):
+            raise TypeError(f"cfg must be dict or float, but got {type(cfg)!r}")
+        cfg_dict = cfg
+    return MODELS.build(cfg_dict, default_args=default_args)

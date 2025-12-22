@@ -1,5 +1,7 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 
+from typing import Any
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -22,6 +24,26 @@ from visdet.utils import ConfigType, InstanceList, OptMultiConfig
 class BBoxHead(BaseModule):
     """Simplest RoI head, with only two fc layers for classification and
     regression respectively."""
+
+    with_avg_pool: bool
+    with_cls: bool
+    with_reg: bool
+    roi_feat_size: tuple[int, int]
+    roi_feat_area: int
+    in_channels: int
+    num_classes: int
+    predict_box_type: str
+    reg_class_agnostic: bool
+    reg_decoded_bbox: bool
+    reg_predictor_cfg: Any
+    cls_predictor_cfg: Any
+    bbox_coder: Any
+    loss_cls: Any
+    loss_bbox: Any
+    fc_cls: Any
+    fc_reg: Any
+    avg_pool: Any
+    debug_imgs: Any
 
     def __init__(
         self,
@@ -48,26 +70,26 @@ class BBoxHead(BaseModule):
     ) -> None:
         super().__init__(init_cfg=init_cfg)
         assert with_cls or with_reg
-        self.with_avg_pool = with_avg_pool
-        self.with_cls = with_cls
-        self.with_reg = with_reg
-        self.roi_feat_size = _pair(roi_feat_size)
-        self.roi_feat_area = self.roi_feat_size[0] * self.roi_feat_size[1]
-        self.in_channels = in_channels
-        self.num_classes = num_classes
-        self.predict_box_type = predict_box_type
-        self.reg_class_agnostic = reg_class_agnostic
-        self.reg_decoded_bbox = reg_decoded_bbox
-        self.reg_predictor_cfg = reg_predictor_cfg
-        self.cls_predictor_cfg = cls_predictor_cfg
+        self.with_avg_pool = with_avg_pool  # type: ignore[unresolved-attribute]
+        self.with_cls = with_cls  # type: ignore[unresolved-attribute]
+        self.with_reg = with_reg  # type: ignore[unresolved-attribute]
+        self.roi_feat_size = _pair(roi_feat_size)  # type: ignore[unresolved-attribute]
+        self.roi_feat_area = self.roi_feat_size[0] * self.roi_feat_size[1]  # type: ignore[unresolved-attribute]
+        self.in_channels = in_channels  # type: ignore[unresolved-attribute]
+        self.num_classes = num_classes  # type: ignore[unresolved-attribute]
+        self.predict_box_type = predict_box_type  # type: ignore[unresolved-attribute]
+        self.reg_class_agnostic = reg_class_agnostic  # type: ignore[unresolved-attribute]
+        self.reg_decoded_bbox = reg_decoded_bbox  # type: ignore[unresolved-attribute]
+        self.reg_predictor_cfg = reg_predictor_cfg  # type: ignore[unresolved-attribute]
+        self.cls_predictor_cfg = cls_predictor_cfg  # type: ignore[unresolved-attribute]
 
-        self.bbox_coder = TASK_UTILS.build(bbox_coder)
-        self.loss_cls = MODELS.build(loss_cls)
-        self.loss_bbox = MODELS.build(loss_bbox)
+        self.bbox_coder = TASK_UTILS.build(bbox_coder)  # type: ignore[unresolved-attribute]
+        self.loss_cls = MODELS.build(loss_cls)  # type: ignore[unresolved-attribute]
+        self.loss_bbox = MODELS.build(loss_bbox)  # type: ignore[unresolved-attribute]
 
         in_channels = self.in_channels
         if self.with_avg_pool:
-            self.avg_pool = nn.AvgPool2d(self.roi_feat_size)
+            self.avg_pool = nn.AvgPool2d(self.roi_feat_size)  # type: ignore[unresolved-attribute]
         else:
             in_channels *= self.roi_feat_area
         if self.with_cls:
@@ -78,17 +100,17 @@ class BBoxHead(BaseModule):
                 cls_channels = num_classes + 1
             cls_predictor_cfg_ = self.cls_predictor_cfg.copy()
             cls_predictor_cfg_.update(in_features=in_channels, out_features=cls_channels)
-            self.fc_cls = MODELS.build(cls_predictor_cfg_)
+            self.fc_cls = MODELS.build(cls_predictor_cfg_)  # type: ignore[unresolved-attribute]
         if self.with_reg:
             box_dim = self.bbox_coder.encode_size
             out_dim_reg = box_dim if reg_class_agnostic else box_dim * num_classes
             reg_predictor_cfg_ = self.reg_predictor_cfg.copy()
             if isinstance(reg_predictor_cfg_, (dict, ConfigDict)):
                 reg_predictor_cfg_.update(in_features=in_channels, out_features=out_dim_reg)
-            self.fc_reg = MODELS.build(reg_predictor_cfg_)
-        self.debug_imgs = None
+            self.fc_reg = MODELS.build(reg_predictor_cfg_)  # type: ignore[unresolved-attribute]
+        self.debug_imgs = None  # type: ignore[unresolved-attribute]
         if init_cfg is None:
-            self.init_cfg = []
+            self.init_cfg = []  # type: ignore[unresolved-attribute]
             if self.with_cls:
                 self.init_cfg += [dict(type="Normal", std=0.01, override=dict(name="fc_cls"))]
             if self.with_reg:
@@ -112,11 +134,11 @@ class BBoxHead(BaseModule):
         """get custom_accuracy from loss_cls."""
         return getattr(self.loss_cls, "custom_accuracy", False)
 
-    def forward(self, x: tuple[Tensor]) -> tuple:
+    def forward(self, x: Tensor) -> tuple:
         """Forward features from the upstream network.
 
         Args:
-            x (tuple[Tensor]): Features from the upstream network, each is
+            x (Tensor): Features from the upstream network, each is
                 a 4D-tensor.
 
         Returns:
@@ -136,7 +158,7 @@ class BBoxHead(BaseModule):
             else:
                 # avg_pool does not support empty tensor,
                 # so use torch.mean instead it
-                x = torch.mean(x, dim=(-1, -2))
+                x = torch.mean(x, dim=(-1, -2), keepdim=False)
         cls_score = self.fc_cls(x) if self.with_cls else None
         bbox_pred = self.fc_reg(x) if self.with_reg else None
         return cls_score, bbox_pred
@@ -199,7 +221,8 @@ class BBoxHead(BaseModule):
         if cfg is None:
             return bboxes, scores
         else:
-            det_bboxes, det_labels = multiclass_nms(bboxes, scores, cfg.score_thr, cfg.nms, cfg.max_per_img)
+            nms_result = multiclass_nms(bboxes, scores, cfg.score_thr, cfg.nms, cfg.max_per_img)
+            det_bboxes, det_labels = nms_result[0], nms_result[1]
 
             return det_bboxes, det_labels
 
@@ -381,7 +404,7 @@ class BBoxHead(BaseModule):
             bbox_pred,
             rois,
             *cls_reg_targets,
-            reduction_override=reduction_override,
+            reduction_override=reduction_override,  # type: ignore[arg-type]
         )
 
         # cls_reg_targets is only for cascade rcnn
@@ -607,8 +630,9 @@ class BBoxHead(BaseModule):
 
         if rescale and bboxes.size(0) > 0:
             assert img_meta.get("scale_factor") is not None
-            scale_factor = [1 / s for s in img_meta["scale_factor"]]
-            bboxes = scale_boxes(bboxes, scale_factor)
+            scale_factor_list = [1 / s for s in img_meta["scale_factor"]]
+            scale_factor_tuple = (scale_factor_list[0], scale_factor_list[1])
+            bboxes = scale_boxes(bboxes, scale_factor_tuple)
 
         # Get the inside tensor when `bboxes` is a box type
         bboxes = get_box_tensor(bboxes)
@@ -621,7 +645,7 @@ class BBoxHead(BaseModule):
             results.bboxes = bboxes
             results.scores = scores
         else:
-            det_bboxes, det_labels = multiclass_nms(
+            nms_result = multiclass_nms(
                 bboxes,
                 scores,
                 rcnn_test_cfg["score_thr"],
@@ -629,6 +653,7 @@ class BBoxHead(BaseModule):
                 rcnn_test_cfg["max_per_img"],
                 box_dim=box_dim,
             )
+            det_bboxes, det_labels = nms_result[0], nms_result[1]
             results.bboxes = det_bboxes[:, :-1]
             results.scores = det_bboxes[:, -1]
             results.labels = det_labels

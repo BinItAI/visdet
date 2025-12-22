@@ -246,6 +246,7 @@ class Resize(BaseTransform):
 
     def _random_scale(self, results):
         """Randomly sample an img_scale."""
+        assert self.img_scale is not None, "img_scale must be initialized"
         if self.ratio_range is not None:
             scale, scale_idx = self.random_sample_ratio(self.img_scale[0], self.ratio_range)
         elif len(self.img_scale) == 1:
@@ -487,9 +488,12 @@ class Pad(BaseTransform):
             size = (pad_h, pad_w)
         elif self.size is not None:
             size = self.size[::-1]
+        pad_val_for_impad: int | float | tuple
         if isinstance(pad_val, int) and results["img"].ndim == 3:
-            pad_val = tuple(pad_val for _ in range(results["img"].shape[2]))
-        padded_img = impad(results["img"], shape=size, pad_val=pad_val, padding_mode=self.padding_mode)
+            pad_val_for_impad = tuple(pad_val for _ in range(results["img"].shape[2]))
+        else:
+            pad_val_for_impad = pad_val
+        padded_img = impad(results["img"], shape=size, pad_val=pad_val_for_impad, padding_mode=self.padding_mode)
 
         results["img"] = padded_img
 
@@ -514,13 +518,16 @@ class Pad(BaseTransform):
         """Pad semantic segmentation map according to
         ``results['pad_shape']``."""
         if results.get("gt_seg_map", None) is not None:
-            pad_val = self.pad_val.get("seg", 255)
-            if isinstance(pad_val, int) and results["gt_seg_map"].ndim == 3:
-                pad_val = tuple(pad_val for _ in range(results["gt_seg_map"].shape[2]))
+            pad_val_seg = self.pad_val.get("seg", 255)
+            pad_val_for_seg: int | float | list
+            if isinstance(pad_val_seg, int) and results["gt_seg_map"].ndim == 3:
+                pad_val_for_seg = list(pad_val_seg for _ in range(results["gt_seg_map"].shape[2]))
+            else:
+                pad_val_for_seg = pad_val_seg
             results["gt_seg_map"] = impad(
                 results["gt_seg_map"],
                 shape=results["pad_shape"][:2],
-                pad_val=pad_val,
+                pad_val=pad_val_for_seg,
                 padding_mode=self.padding_mode,
             )
 
@@ -720,7 +727,7 @@ class CenterCrop(BaseTransform):
                 img_width = max(img_width, crop_width)
                 pad_size = (img_width, img_height)
                 _pad_cfg = self.pad_cfg.copy()
-                _pad_cfg.update(dict(size=pad_size))
+                _pad_cfg["size"] = pad_size  # type: ignore[index]
                 pad_transform = TRANSFORMS.build(_pad_cfg)
                 results = pad_transform(results)
             else:
@@ -970,12 +977,13 @@ class MultiScaleFlipAug(BaseTransform):
         for scale in self.scales:
             for flip, direction in flip_args:
                 _resize_cfg = self.resize_cfg.copy()
-                _resize_cfg.update({self.scale_key: scale})
+                _resize_cfg[self.scale_key] = scale  # type: ignore[index]
                 _resize_flip = [_resize_cfg]
 
                 if flip:
                     _flip_cfg = self.flip_cfg.copy()
-                    _flip_cfg.update(prob=1.0, direction=direction)
+                    _flip_cfg["prob"] = 1.0  # type: ignore[index]
+                    _flip_cfg["direction"] = direction  # type: ignore[index]
                     _resize_flip.append(_flip_cfg)
                 else:
                     results["flip"] = False
@@ -1335,8 +1343,8 @@ class RandomFlip(BaseTransform):
         """
         # Handle BaseBoxes objects using their own flip method
         if hasattr(bboxes, "flip_"):
-            flipped = bboxes.clone()
-            flipped.flip_(img_shape, direction)
+            flipped = bboxes.clone()  # type: ignore[attr-defined]
+            flipped.flip_(img_shape, direction)  # type: ignore[attr-defined]
             return flipped
 
         # Handle numpy arrays
@@ -1398,7 +1406,7 @@ class RandomFlip(BaseTransform):
         flipped = np.concatenate([flipped, meta_info], axis=-1)
         return flipped
 
-    def _flip_seg_map(self, seg_map: dict, direction: str) -> np.ndarray:
+    def _flip_seg_map(self, seg_map: np.ndarray, direction: str) -> np.ndarray:
         """Flip segmentation map horizontally, vertically or diagonally.
 
         Args:

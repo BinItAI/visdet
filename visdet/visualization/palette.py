@@ -1,11 +1,32 @@
 # ruff: noqa
 # Copyright (c) OpenMMLab. All rights reserved.
 
+from __future__ import annotations
+
+from collections.abc import Sequence
+from typing import Any, cast
+
 import numpy as np
-from visdet.engine.utils import is_str
+
+ColorTuple = tuple[int, int, int]
 
 
-def palette_val(palette: list[tuple]) -> list[tuple]:
+def _as_color_tuple(color: Any) -> ColorTuple | None:
+    if isinstance(color, np.ndarray):
+        values = color.tolist()
+        ints = [int(c) for c in values[:3]]
+    elif isinstance(color, (list, tuple)):
+        ints = [int(c) for c in list(color)[:3]]
+    else:
+        return None
+    if not ints:
+        return None
+    while len(ints) < 3:
+        ints.append(0)
+    return cast(ColorTuple, tuple(ints[:3]))
+
+
+def palette_val(palette: Sequence[Sequence[int]] | Sequence[int]) -> list[ColorTuple]:
     """Convert palette to matplotlib palette.
 
     Args:
@@ -16,35 +37,63 @@ def palette_val(palette: list[tuple]) -> list[tuple]:
     """
     new_palette = []
     for color in palette:
-        color = [c / 255 for c in color]
+        color_tuple = _as_color_tuple(color)
+        if color_tuple is None:
+            continue
+        color = [c / 255 for c in color_tuple]
         new_palette.append(tuple(color))
     return new_palette
 
 
-def get_palette(palette: list[tuple] | str | tuple, num_classes: int) -> list[tuple[int]]:
+def get_palette(
+    palette: Sequence[Sequence[int]] | Sequence[int] | np.ndarray | str | ColorTuple | None,
+    num_classes: int,
+) -> list[ColorTuple]:
     """Get palette from various inputs.
 
     Args:
-        palette (list[tuple] | str | tuple): palette inputs.
+        palette (list[tuple] | str | tuple | None): palette inputs.
         num_classes (int): the number of classes.
 
     Returns:
-        list[tuple[int]]: A list of color tuples.
+        list[tuple[int, ...]]: A list of color tuples.
     """
     assert isinstance(num_classes, int)
 
+    dataset_palette: list[ColorTuple] | None = None
     if isinstance(palette, list):
-        dataset_palette = palette
-    elif isinstance(palette, tuple):
-        dataset_palette = [palette] * num_classes
-    elif palette == "random" or palette is None:
+        colors: list[ColorTuple] = []
+        for color in palette:
+            color_tuple = _as_color_tuple(color)
+            if color_tuple is not None:
+                colors.append(color_tuple)
+        if colors:
+            dataset_palette = colors
+    elif isinstance(palette, np.ndarray):
+        if palette.ndim == 1:
+            color_tuple = _as_color_tuple(palette)
+            if color_tuple is not None:
+                dataset_palette = [color_tuple] * num_classes
+        else:
+            colors = []
+            for row in palette:
+                color_tuple = _as_color_tuple(row)
+                if color_tuple is not None:
+                    colors.append(color_tuple)
+            if colors:
+                dataset_palette = colors
+    else:
+        color_tuple = _as_color_tuple(palette)
+        if color_tuple is not None:
+            dataset_palette = [color_tuple] * num_classes
+    if dataset_palette is None and (palette == "random" or palette is None):
         state = np.random.get_state()
         # random color
         np.random.seed(42)
         palette = np.random.randint(0, 256, size=(num_classes, 3))
         np.random.set_state(state)
-        dataset_palette = [tuple(c) for c in palette]
-    elif palette == "coco":
+        dataset_palette = [cast(ColorTuple, tuple(int(x) for x in c[:3])) for c in palette]
+    elif dataset_palette is None and palette == "coco":
         # For now, we'll use a predefined COCO palette
         # This avoids circular imports from datasets
         coco_palette = [
@@ -134,8 +183,8 @@ def get_palette(palette: list[tuple] | str | tuple, num_classes: int) -> list[tu
             # Generate additional colors if needed
             np.random.seed(42)
             extra_colors = np.random.randint(0, 256, size=(num_classes - len(dataset_palette), 3))
-            dataset_palette.extend([tuple(c) for c in extra_colors])
-    elif palette == "citys":
+            dataset_palette.extend([cast(ColorTuple, tuple(int(x) for x in c[:3])) for c in extra_colors])
+    elif dataset_palette is None and palette == "citys":
         # Cityscapes palette - simplified version
         citys_palette = [
             (128, 64, 128),
@@ -162,8 +211,8 @@ def get_palette(palette: list[tuple] | str | tuple, num_classes: int) -> list[tu
         if len(dataset_palette) < num_classes:
             np.random.seed(42)
             extra_colors = np.random.randint(0, 256, size=(num_classes - len(dataset_palette), 3))
-            dataset_palette.extend([tuple(c) for c in extra_colors])
-    elif palette == "voc":
+            dataset_palette.extend([cast(ColorTuple, tuple(int(x) for x in c[:3])) for c in extra_colors])
+    elif dataset_palette is None and palette == "voc":
         # VOC palette
         voc_palette = [
             (0, 0, 0),
@@ -192,8 +241,8 @@ def get_palette(palette: list[tuple] | str | tuple, num_classes: int) -> list[tu
         if len(dataset_palette) < num_classes:
             np.random.seed(42)
             extra_colors = np.random.randint(0, 256, size=(num_classes - len(dataset_palette), 3))
-            dataset_palette.extend([tuple(c) for c in extra_colors])
-    elif is_str(palette):
+            dataset_palette.extend([cast(ColorTuple, tuple(int(x) for x in c[:3])) for c in extra_colors])
+    elif dataset_palette is None and isinstance(palette, str):
         # Convert color string to RGB tuple
         # Simple color name to RGB mapping
         color_map = {
@@ -208,14 +257,17 @@ def get_palette(palette: list[tuple] | str | tuple, num_classes: int) -> list[tu
         }
         rgb = color_map.get(palette.lower(), (128, 128, 128))
         dataset_palette = [rgb] * num_classes
-    else:
+    if dataset_palette is None:
         raise TypeError(f"Invalid type for palette: {type(palette)}")
 
-    assert len(dataset_palette) >= num_classes, "The length of palette should not be less than `num_classes`."
-    return dataset_palette
+    if len(dataset_palette) < num_classes:
+        last_color = dataset_palette[-1] if dataset_palette else (0, 0, 0)
+        dataset_palette = dataset_palette + [last_color] * (num_classes - len(dataset_palette))
+
+    return dataset_palette[:num_classes]
 
 
-def _get_adaptive_scales(areas: np.ndarray, min_area: int = 800, max_area: int = 30000) -> np.ndarray:
+def _get_adaptive_scales(areas: np.ndarray | float, min_area: int = 800, max_area: int = 30000) -> np.ndarray:
     """Get adaptive scales according to areas.
 
     The scale range is [0.5, 1.0]. When the area is less than
@@ -223,19 +275,24 @@ def _get_adaptive_scales(areas: np.ndarray, min_area: int = 800, max_area: int =
     ``max_area``, the scale is 1.0.
 
     Args:
-        areas (ndarray): The areas of bboxes or masks with the
-            shape of (n, ).
+        areas (ndarray | float): The areas of bboxes or masks with the
+            shape of (n, ) or a single float value.
         min_area (int): Lower bound areas for adaptive scales.
             Defaults to 800.
         max_area (int): Upper bound areas for adaptive scales.
             Defaults to 30000.
 
     Returns:
-        ndarray: The adaotive scales with the shape of (n, ).
+        ndarray: The adaotive scales with the shape of (n, ) or (1,).
     """
-    scales = 0.5 + (areas - min_area) // (max_area - min_area)
-    scales = np.clip(scales, 0.5, 1.0)
-    return scales
+    if isinstance(areas, np.ndarray):
+        scales = 0.5 + (areas - min_area) // (max_area - min_area)
+        scales = np.clip(scales, 0.5, 1.0)
+        return scales
+    else:
+        # Handle scalar case - convert to array
+        scale = 0.5 + (areas - min_area) / (max_area - min_area)
+        return np.array([np.clip(scale, 0.5, 1.0)])
 
 
 def jitter_color(color: tuple) -> tuple:
@@ -250,5 +307,5 @@ def jitter_color(color: tuple) -> tuple:
     """
     jitter = np.random.rand(3)
     jitter = (jitter / np.linalg.norm(jitter) - 0.5) * 0.5 * 255
-    color = np.clip(jitter + color, 0, 255).astype(np.uint8)
-    return tuple(color)
+    clipped = np.clip(jitter + color, 0, 255).astype(np.uint8)
+    return cast(ColorTuple, tuple(int(c) for c in clipped.tolist()[:3]))

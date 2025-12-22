@@ -1,4 +1,6 @@
 # Copyright (c) OpenMMLab. All rights reserved.
+from typing import Tuple, Union
+
 import torch.nn as nn
 from torchvision.ops import RoIAlign as TVRoIAlign
 from torchvision.ops import roi_align as tv_roi_align
@@ -19,25 +21,33 @@ class RoIAlign(nn.Module):
             We set this to True by default for better performance.
     """
 
+    output_size: Union[int, Tuple[int, int]]
+    spatial_scale: float
+    sampling_ratio: int
+    pool_mode: str
+    aligned: bool
+    use_torchvision: bool
+    roi_align: TVRoIAlign
+
     def __init__(
         self,
-        output_size,
-        spatial_scale=1.0,
-        sampling_ratio=0,
-        pool_mode="avg",
-        aligned=True,
-        use_torchvision=True,
-    ):
+        output_size: Union[int, Tuple[int, int]],
+        spatial_scale: float = 1.0,
+        sampling_ratio: int = 0,
+        pool_mode: str = "avg",
+        aligned: bool = True,
+        use_torchvision: bool = True,
+    ) -> None:
         super().__init__()
-        self.output_size = output_size
-        self.spatial_scale = spatial_scale
-        self.sampling_ratio = sampling_ratio
-        self.pool_mode = pool_mode
-        self.aligned = aligned
-        self.use_torchvision = use_torchvision
+        self.output_size = output_size  # type: ignore[misc]
+        self.spatial_scale = spatial_scale  # type: ignore[misc]
+        self.sampling_ratio = sampling_ratio  # type: ignore[misc]
+        self.pool_mode = pool_mode  # type: ignore[misc]
+        self.aligned = aligned  # type: ignore[misc]
+        self.use_torchvision = use_torchvision  # type: ignore[misc]
 
         if isinstance(self.output_size, int):
-            self.output_size = (self.output_size, self.output_size)
+            self.output_size = (self.output_size, self.output_size)  # type: ignore[misc]
 
         # We always use torchvision's implementation for simplicity
         self.roi_align = TVRoIAlign(
