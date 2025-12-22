@@ -22,7 +22,7 @@ from visdet.datasets.samplers import (
     InfiniteGroupBatchSampler,
 )
 from visdet.engine.dist import get_dist_info
-from visdet.engine.registry import Registry
+from visdet.engine.registry import Registry, TRANSFORMS
 from visdet.engine.utils import digit_version
 
 if platform.system() != "Windows":
@@ -36,7 +36,7 @@ if platform.system() != "Windows":
     resource.setrlimit(resource.RLIMIT_NOFILE, (soft_limit, hard_limit))
 
 DATASETS = Registry("dataset")
-PIPELINES = Registry("pipeline")
+PIPELINES = Registry("pipeline", parent=TRANSFORMS)
 
 
 def collate(batch, samples_per_gpu: int = 1):  # noqa: ARG001 - kept for backward compat
