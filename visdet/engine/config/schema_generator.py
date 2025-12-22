@@ -17,19 +17,31 @@ class SchemaRegistry:
         """Initialize the schema registry."""
         self._schemas: Dict[Type, Type[BaseModel]] = {}
         self._manual_overrides: Dict[Type, Type[BaseModel]] = {}
+        self._type_name_to_schema: Dict[str, Type[BaseModel]] = {}
 
-    def register_schema(self, component_cls: Type, schema_cls: Type[BaseModel], is_manual: bool = False) -> None:
+    def register_schema(
+        self,
+        component_cls: Type,
+        schema_cls: Type[BaseModel],
+        is_manual: bool = False,
+        type_name: Optional[str] = None,
+    ) -> None:
         """Register a Pydantic schema for a component class.
 
         Args:
             component_cls: The component class to register a schema for
             schema_cls: The Pydantic model schema
             is_manual: Whether this is a manually created schema (overrides auto-generated)
+            type_name: Optional type name for reverse lookup (defaults to class name)
         """
         if is_manual:
             self._manual_overrides[component_cls] = schema_cls
         else:
             self._schemas[component_cls] = schema_cls
+
+        # Register reverse lookup by type name
+        name = type_name or component_cls.__name__
+        self._type_name_to_schema[name] = schema_cls
 
     def get_schema(self, component_cls: Type) -> Optional[Type[BaseModel]]:
         """Get the Pydantic schema for a component class.
@@ -45,6 +57,23 @@ class SchemaRegistry:
             return self._manual_overrides[component_cls]
         return self._schemas.get(component_cls)
 
+    def get_schema_by_type_name(self, type_name: str) -> Optional[Type[BaseModel]]:
+        """Get the Pydantic schema by type name (for config 'type' field).
+
+        This enables validation of config dicts without knowing the component class.
+
+        Args:
+            type_name: The 'type' field value from a config dict
+
+        Returns:
+            The Pydantic model schema, or None if not found
+
+        Example:
+            >>> schema = registry.get_schema_by_type_name('SwinTransformer')
+            >>> validated = schema(**config_dict)
+        """
+        return self._type_name_to_schema.get(type_name)
+
     def has_schema(self, component_cls: Type) -> bool:
         """Check if a schema exists for a component class.
 
@@ -55,6 +84,14 @@ class SchemaRegistry:
             True if a schema is registered
         """
         return component_cls in self._manual_overrides or component_cls in self._schemas
+
+    def list_type_names(self) -> list[str]:
+        """List all registered type names.
+
+        Returns:
+            List of type names with registered schemas.
+        """
+        return list(self._type_name_to_schema.keys())
 
 
 # Global schema registry
@@ -202,7 +239,8 @@ def validate_config_with_schema(
     Args:
         config: Configuration dictionary to validate
         component_cls: The component class (if known)
-        type_name: The 'type' value from config (for registry lookup)
+        type_name: The 'type' value from config (for registry lookup).
+                   If not provided, will try to extract from config['type'].
 
     Returns:
         Validated Pydantic model instance
@@ -214,6 +252,8 @@ def validate_config_with_schema(
     Example:
         >>> config = {'type': 'SwinTransformer', 'embed_dims': 96, 'depths': [2,2,6,2]}
         >>> validated = validate_config_with_schema(config, type_name='SwinTransformer')
+        >>> # Or auto-detect from config:
+        >>> validated = validate_config_with_schema(config)
     """
     # Try to get schema by component class
     if component_cls:
@@ -222,15 +262,18 @@ def validate_config_with_schema(
             return schema(**config)
 
     # Try to get schema by type name
+    if type_name is None:
+        # Try to extract from config
+        type_name = config.get("type")
+
     if type_name:
-        # This would require a reverse lookup in registries
-        # For now, raise an error - this can be implemented later
-        raise NotImplementedError(
-            "Schema lookup by type name not yet implemented. Please provide component_cls instead."
-        )
+        schema = _schema_registry.get_schema_by_type_name(type_name)
+        if schema:
+            return schema(**config)
 
     raise ValueError(
-        "Cannot validate config: no component_cls or type_name provided, or no schema registered for the component"
+        f"Cannot validate config: no schema registered for type '{type_name}'. "
+        f"Available types: {_schema_registry.list_type_names()}"
     )
 
 

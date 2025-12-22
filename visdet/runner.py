@@ -551,6 +551,61 @@ class SimpleRunner:
                     f"across {len(roi_head['bbox_head'])} stages (from {source})"
                 )
 
+    @classmethod
+    def from_config(cls, config: "ExperimentConfig") -> "SimpleRunner":
+        """Create a SimpleRunner from a Pydantic ExperimentConfig.
+
+        This method provides full IDE autocomplete and type safety for configuration.
+        Use with configs from visdet.py_configs or visdet.schemas.
+
+        Args:
+            config: A Pydantic ExperimentConfig from visdet.schemas or visdet.py_configs.
+
+        Returns:
+            Configured SimpleRunner ready for training.
+
+        Example:
+            >>> from visdet.py_configs import mask_rcnn_swin_tiny_coco
+            >>> from visdet import SimpleRunner
+            >>>
+            >>> # Create config with full IDE autocomplete
+            >>> cfg = mask_rcnn_swin_tiny_coco(data_root='/data/coco')
+            >>> cfg.train_cfg.max_epochs = 24  # Modify with autocomplete
+            >>>
+            >>> # Create runner from Pydantic config
+            >>> runner = SimpleRunner.from_config(cfg)
+            >>> runner.train()
+        """
+        from visdet.engine import Config
+        from visdet.schemas.base import VisdetBaseConfig
+
+        # Convert Pydantic model to dict
+        if isinstance(config, VisdetBaseConfig):
+            config_dict = config.to_dict()
+        elif hasattr(config, "model_dump"):
+            # Pydantic v2
+            config_dict = config.model_dump(exclude_none=True)
+        elif hasattr(config, "dict"):
+            # Pydantic v1 fallback
+            config_dict = config.dict(exclude_none=True)
+        else:
+            raise TypeError(
+                f"config must be a Pydantic model (VisdetBaseConfig or similar), "
+                f"got {type(config).__name__}"
+            )
+
+        # Create a new instance that bypasses the normal __init__
+        instance = object.__new__(cls)
+
+        # Set attributes directly from the config
+        instance.epochs = config_dict.get("train_cfg", {}).get("max_epochs", 12)
+        instance.work_dir = config_dict.get("work_dir", "./work_dirs")
+
+        # Create Config object from dict
+        instance.cfg = Config(config_dict)
+
+        return instance
+
     def train(self) -> None:
         """Start training using the assembled configuration.
 
@@ -568,7 +623,8 @@ class SimpleRunner:
         print("Building runner from config...")
         runner = MMEngineRunner.from_cfg(self.cfg)
 
-        print(f"Starting training for {self.epochs} epochs...")
+        epochs = getattr(self, "epochs", 12)
+        print(f"Starting training for {epochs} epochs...")
         runner.train()
 
     # Discoverability class methods
