@@ -1,9 +1,12 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import warnings
+from collections.abc import Callable
+from typing import Any
 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torch import Tensor
 
 from visdet.models.losses.accuracy import accuracy
 from visdet.models.losses.utils import weight_reduce_loss
@@ -196,14 +199,14 @@ def mask_cross_entropy(
 class CrossEntropyLoss(nn.Module):
     def __init__(
         self,
-        use_sigmoid=False,
-        use_mask=False,
-        reduction="mean",
-        class_weight=None,
-        ignore_index=None,
-        loss_weight=1.0,
-        avg_non_ignore=False,
-    ):
+        use_sigmoid: bool = False,
+        use_mask: bool = False,
+        reduction: str = "mean",
+        class_weight: list[float] | None = None,
+        ignore_index: int | None = None,
+        loss_weight: float = 1.0,
+        avg_non_ignore: bool = False,
+    ) -> None:
         """CrossEntropyLoss.
 
         Args:
@@ -223,13 +226,13 @@ class CrossEntropyLoss(nn.Module):
         """
         super(CrossEntropyLoss, self).__init__()
         assert (use_sigmoid is False) or (use_mask is False)
-        self.use_sigmoid = use_sigmoid
-        self.use_mask = use_mask
-        self.reduction = reduction
-        self.loss_weight = loss_weight
-        self.class_weight = class_weight
-        self.ignore_index = ignore_index
-        self.avg_non_ignore = avg_non_ignore
+        self.use_sigmoid: bool = use_sigmoid
+        self.use_mask: bool = use_mask
+        self.reduction: str = reduction
+        self.loss_weight: float = loss_weight
+        self.class_weight: list[float] | None = class_weight
+        self.ignore_index: int | None = ignore_index
+        self.avg_non_ignore: bool = avg_non_ignore
         if (ignore_index is not None) and not self.avg_non_ignore and self.reduction == "mean":
             warnings.warn(
                 "Default ``avg_non_ignore`` is False, if you would like to "
@@ -239,11 +242,11 @@ class CrossEntropyLoss(nn.Module):
             )
 
         if self.use_sigmoid:
-            self.cls_criterion = binary_cross_entropy
+            self.cls_criterion: Callable[..., Tensor] = binary_cross_entropy
         elif self.use_mask:
-            self.cls_criterion = mask_cross_entropy
+            self.cls_criterion: Callable[..., Tensor] = mask_cross_entropy
         else:
-            self.cls_criterion = cross_entropy
+            self.cls_criterion: Callable[..., Tensor] = cross_entropy
 
     def extra_repr(self):
         """Extra repr."""
@@ -252,14 +255,14 @@ class CrossEntropyLoss(nn.Module):
 
     def forward(
         self,
-        cls_score,
-        label,
-        weight=None,
-        avg_factor=None,
-        reduction_override=None,
-        ignore_index=None,
-        **kwargs,
-    ):
+        cls_score: Tensor,
+        label: Tensor,
+        weight: Tensor | None = None,
+        avg_factor: int | None = None,
+        reduction_override: str | None = None,
+        ignore_index: int | None = None,
+        **kwargs: Any,
+    ) -> Tensor:
         """Forward function.
 
         Args:
@@ -302,15 +305,15 @@ class CrossEntropyLoss(nn.Module):
 class CrossEntropyCustomLoss(CrossEntropyLoss):
     def __init__(
         self,
-        use_sigmoid=False,
-        use_mask=False,
-        reduction="mean",
-        num_classes=-1,
-        class_weight=None,
-        ignore_index=None,
-        loss_weight=1.0,
-        avg_non_ignore=False,
-    ):
+        use_sigmoid: bool = False,
+        use_mask: bool = False,
+        reduction: str = "mean",
+        num_classes: int = -1,
+        class_weight: list[float] | None = None,
+        ignore_index: int | None = None,
+        loss_weight: float = 1.0,
+        avg_non_ignore: bool = False,
+    ) -> None:
         """CrossEntropyCustomLoss.
 
         Args:
@@ -331,13 +334,13 @@ class CrossEntropyCustomLoss(CrossEntropyLoss):
         """
         super(CrossEntropyCustomLoss, self).__init__()
         assert (use_sigmoid is False) or (use_mask is False)
-        self.use_sigmoid = use_sigmoid
-        self.use_mask = use_mask
-        self.reduction = reduction
-        self.loss_weight = loss_weight
-        self.class_weight = class_weight
-        self.ignore_index = ignore_index
-        self.avg_non_ignore = avg_non_ignore
+        self.use_sigmoid: bool = use_sigmoid
+        self.use_mask: bool = use_mask
+        self.reduction: str = reduction
+        self.loss_weight: float = loss_weight
+        self.class_weight: list[float] | None = class_weight
+        self.ignore_index: int | None = ignore_index
+        self.avg_non_ignore: bool = avg_non_ignore
         if (ignore_index is not None) and not self.avg_non_ignore and self.reduction == "mean":
             warnings.warn(
                 "Default ``avg_non_ignore`` is False, if you would like to "
@@ -347,22 +350,22 @@ class CrossEntropyCustomLoss(CrossEntropyLoss):
             )
 
         if self.use_sigmoid:
-            self.cls_criterion = binary_cross_entropy
+            self.cls_criterion: Callable[..., Tensor] = binary_cross_entropy
         elif self.use_mask:
-            self.cls_criterion = mask_cross_entropy
+            self.cls_criterion: Callable[..., Tensor] = mask_cross_entropy
         else:
-            self.cls_criterion = cross_entropy
+            self.cls_criterion: Callable[..., Tensor] = cross_entropy
 
-        self.num_classes = num_classes
+        self.num_classes: int = num_classes
 
         assert self.num_classes != -1
 
         # custom output channels of the classifier
-        self.custom_cls_channels = True
+        self.custom_cls_channels: bool = True
         # custom activation of cls_score
-        self.custom_activation = True
+        self.custom_activation: bool = True
         # custom accuracy of the classsifier
-        self.custom_accuracy = True
+        self.custom_accuracy: bool = True
 
     def get_cls_channels(self, num_classes):
         assert num_classes == self.num_classes

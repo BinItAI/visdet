@@ -33,7 +33,7 @@ class AdaptivePadding(nn.Module):
         stride = to_2tuple(stride)
         dilation = to_2tuple(dilation)
 
-        self.padding = padding
+        self.padding: str = padding  # type: ignore[misc]
         self.kernel_size = kernel_size
         self.stride = stride
         self.dilation = dilation
@@ -90,8 +90,8 @@ class PatchEmbed(BaseModule):
         if stride is None:
             stride = patch_size
 
-        self.img_size = img_size
-        self.patch_size = patch_size
+        self.img_size: int = img_size  # type: ignore[misc]
+        self.patch_size: int = patch_size  # type: ignore[misc]
 
         kernel_size = to_2tuple(patch_size)
         stride = to_2tuple(stride)
@@ -107,7 +107,7 @@ class PatchEmbed(BaseModule):
             # disable the padding of conv
             padding = 0
         else:
-            self.adap_padding = None
+            self.adap_padding: None = None  # type: ignore[misc]
 
         padding = to_2tuple(padding)
 
@@ -124,7 +124,7 @@ class PatchEmbed(BaseModule):
         if norm_cfg is not None:
             self.norm = nn.LayerNorm(embed_dims)
         else:
-            self.norm = None
+            self.norm: None = None  # type: ignore[misc]
 
     def forward(self, x):
         B, C, H, W = x.shape
@@ -154,7 +154,7 @@ class PatchMerging(BaseModule):
         super().__init__(init_cfg=init_cfg)
         self.in_channels = in_channels
         self.out_channels = out_channels
-        self.stride = stride
+        self.stride: int = stride  # type: ignore[misc]
         self.reduction = nn.Linear(stride * stride * in_channels, out_channels, bias=False)
         self.norm = nn.LayerNorm(stride * stride * in_channels)
 

@@ -5,6 +5,8 @@ This module re-exports transforms from visdet.datasets.transforms for
 backward compatibility with the old pipelines namespace.
 """
 
+# Import available transforms
+from visdet.datasets.transforms.formatting import PackDetInputs
 from visdet.datasets.transforms.load_image import (
     LoadImageFromFile,
     LoadImageFromWebcam,
@@ -20,23 +22,11 @@ from visdet.datasets.transforms.transforms import (
     RandomFlip,
 )
 
-# Try to import optional transforms that may not exist in all versions
-try:
-    from visdet.datasets.transforms.transforms import RandomResize
-except ImportError:
-    RandomResize = None
-
-try:
-    from visdet.datasets.transforms.formatting import DefaultFormatBundle, PackDetInputs
-except ImportError:
-    PackDetInputs = None
-    DefaultFormatBundle = None
-
-try:
-    from visdet.datasets.transforms.wrappers import RandomApply, RandomChoice
-except ImportError:
-    RandomApply = None
-    RandomChoice = None
+# These transforms don't exist in visdet yet - set to None for compatibility
+RandomResize = None  # type: ignore[assignment]
+DefaultFormatBundle = None  # type: ignore[assignment]
+RandomApply = None  # type: ignore[assignment]
+RandomChoice = None  # type: ignore[assignment]
 
 __all__ = [
     "FilterAnnotations",

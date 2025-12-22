@@ -64,9 +64,9 @@ class SmoothL1Loss(nn.Module):
 
     def __init__(self, beta: float = 1.0, reduction: str = "mean", loss_weight: float = 1.0) -> None:
         super().__init__()
-        self.beta = beta
-        self.reduction = reduction
-        self.loss_weight = loss_weight
+        self.beta: float = beta
+        self.reduction: str = reduction
+        self.loss_weight: float = loss_weight
 
     def forward(
         self,
@@ -123,8 +123,8 @@ class L1Loss(nn.Module):
 
     def __init__(self, reduction: str = "mean", loss_weight: float = 1.0) -> None:
         super().__init__()
-        self.reduction = reduction
-        self.loss_weight = loss_weight
+        self.reduction: str = reduction
+        self.loss_weight: float = loss_weight
 
     def forward(
         self,

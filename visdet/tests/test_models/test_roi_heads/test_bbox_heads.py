@@ -1,6 +1,6 @@
 """Test cases for bbox heads."""
 
-import pytest
+import pytest  # type: ignore[import-not-found]
 import torch
 
 from visdet.engine.config import Config

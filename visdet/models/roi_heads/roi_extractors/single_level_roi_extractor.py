@@ -27,6 +27,8 @@ class SingleRoIExtractor(BaseRoIExtractor):
             dict], optional): Initialization config dict. Defaults to None.
     """
 
+    finest_scale: int
+
     def __init__(
         self,
         roi_layer: ConfigType,
@@ -41,7 +43,7 @@ class SingleRoIExtractor(BaseRoIExtractor):
             featmap_strides=featmap_strides,
             init_cfg=init_cfg,
         )
-        self.finest_scale = finest_scale
+        self.finest_scale = finest_scale  # type: ignore[unresolved-attribute]
 
     def map_roi_levels(self, rois: Tensor, num_levels: int) -> Tensor:
         """Map rois to corresponding feature levels by scales.

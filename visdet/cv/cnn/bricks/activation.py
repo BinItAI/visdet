@@ -45,12 +45,15 @@ class Clamp(nn.Module):
             Default to 1.
     """
 
+    min: float
+    max: float
+
     def __init__(self, min: float = -1.0, max: float = 1.0):
         super().__init__()
-        self.min = min
-        self.max = max
+        object.__setattr__(self, "min", min)
+        object.__setattr__(self, "max", max)
 
-    def forward(self, x) -> torch.Tensor:
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Forward function.
 
         Args:

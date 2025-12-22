@@ -1,5 +1,6 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import warnings
+from typing import Any
 
 import numpy as np
 import torch.nn as nn
@@ -79,6 +80,11 @@ class RegNet(ResNet):
         "regnetx_12gf": dict(w0=168, wa=73.36, wm=2.37, group_w=112, depth=19, bot_mul=1.0),
     }
 
+    bottleneck_ratio: list[float]
+    stage_widths: list[int]
+    group_widths: list[int]
+    plugins: Any
+
     def __init__(
         self,
         arch,
@@ -122,41 +128,41 @@ class RegNet(ResNet):
         stage_widths, stage_blocks = self.get_stages_from_blocks(widths)
         # Generate group widths and bot muls
         group_widths = [arch["group_w"] for _ in range(num_stages)]
-        self.bottleneck_ratio = [arch["bot_mul"] for _ in range(num_stages)]
+        self.bottleneck_ratio = [arch["bot_mul"] for _ in range(num_stages)]  # type: ignore[unresolved-attribute]
         # Adjust the compatibility of stage_widths and group_widths
         stage_widths, group_widths = self.adjust_width_group(stage_widths, self.bottleneck_ratio, group_widths)
 
         # Group params by stage
-        self.stage_widths = stage_widths
-        self.group_widths = group_widths
-        self.depth = sum(stage_blocks)
-        self.stem_channels = stem_channels
-        self.base_channels = base_channels
-        self.num_stages = num_stages
+        self.stage_widths = stage_widths  # type: ignore[unresolved-attribute]
+        self.group_widths = group_widths  # type: ignore[unresolved-attribute]
+        self.depth = sum(stage_blocks)  # type: ignore[unresolved-attribute]
+        self.stem_channels = stem_channels  # type: ignore[unresolved-attribute]
+        self.base_channels = base_channels  # type: ignore[unresolved-attribute]
+        self.num_stages = num_stages  # type: ignore[unresolved-attribute]
         assert num_stages >= 1 and num_stages <= 4
-        self.strides = strides
-        self.dilations = dilations
+        self.strides = strides  # type: ignore[unresolved-attribute]
+        self.dilations = dilations  # type: ignore[unresolved-attribute]
         assert len(strides) == len(dilations) == num_stages
-        self.out_indices = out_indices
+        self.out_indices = out_indices  # type: ignore[unresolved-attribute]
         assert max(out_indices) < num_stages
-        self.style = style
-        self.deep_stem = deep_stem
-        self.avg_down = avg_down
-        self.frozen_stages = frozen_stages
-        self.conv_cfg = conv_cfg
-        self.norm_cfg = norm_cfg
-        self.with_cp = with_cp
-        self.norm_eval = norm_eval
-        self.dcn = dcn
-        self.stage_with_dcn = stage_with_dcn
+        self.style = style  # type: ignore[unresolved-attribute]
+        self.deep_stem = deep_stem  # type: ignore[unresolved-attribute]
+        self.avg_down = avg_down  # type: ignore[unresolved-attribute]
+        self.frozen_stages = frozen_stages  # type: ignore[unresolved-attribute]
+        self.conv_cfg = conv_cfg  # type: ignore[unresolved-attribute]
+        self.norm_cfg = norm_cfg  # type: ignore[unresolved-attribute]
+        self.with_cp = with_cp  # type: ignore[unresolved-attribute]
+        self.norm_eval = norm_eval  # type: ignore[unresolved-attribute]
+        self.dcn = dcn  # type: ignore[unresolved-attribute]
+        self.stage_with_dcn = stage_with_dcn  # type: ignore[unresolved-attribute]
         if dcn is not None:
             assert len(stage_with_dcn) == num_stages
-        self.plugins = plugins
-        self.zero_init_residual = zero_init_residual
-        self.block = Bottleneck
+        self.plugins = plugins  # type: ignore[unresolved-attribute]
+        self.zero_init_residual = zero_init_residual  # type: ignore[unresolved-attribute]
+        self.block = Bottleneck  # type: ignore[unresolved-attribute]
         expansion_bak = self.block.expansion
         self.block.expansion = 1
-        self.stage_blocks = stage_blocks[:num_stages]
+        self.stage_blocks = stage_blocks[:num_stages]  # type: ignore[unresolved-attribute]
 
         self._make_stem_layer(in_channels, stem_channels)
 
@@ -164,10 +170,10 @@ class RegNet(ResNet):
         assert not (init_cfg and pretrained), "init_cfg and pretrained cannot be specified at the same time"
         if isinstance(pretrained, str):
             warnings.warn('DeprecationWarning: pretrained is deprecated, please use "init_cfg" instead')
-            self.init_cfg = dict(type="Pretrained", checkpoint=pretrained)
+            self.init_cfg = dict(type="Pretrained", checkpoint=pretrained)  # type: ignore[unresolved-attribute]
         elif pretrained is None:
             if init_cfg is None:
-                self.init_cfg = [
+                self.init_cfg = [  # type: ignore[unresolved-attribute]
                     dict(type="Kaiming", layer="Conv2d"),
                     dict(type="Constant", val=1, layer=["_BatchNorm", "GroupNorm"]),
                 ]
@@ -176,8 +182,8 @@ class RegNet(ResNet):
         else:
             raise TypeError("pretrained must be a str or None")
 
-        self.inplanes = stem_channels
-        self.res_layers = []
+        self.inplanes = stem_channels  # type: ignore[unresolved-attribute]
+        self.res_layers = []  # type: ignore[unresolved-attribute]
         for i, num_blocks in enumerate(self.stage_blocks):
             stride = self.strides[i]
             dilation = self.dilations[i]
@@ -187,7 +193,7 @@ class RegNet(ResNet):
 
             dcn = self.dcn if self.stage_with_dcn[i] else None
             if self.plugins is not None:
-                stage_plugins = self.make_stage_plugins(self.plugins, i)
+                stage_plugins = self.make_stage_plugins(self.plugins, i)  # type: ignore[call-non-callable]
             else:
                 stage_plugins = None
 
@@ -210,14 +216,14 @@ class RegNet(ResNet):
                 base_channels=self.stage_widths[i],
                 init_cfg=block_init_cfg,
             )
-            self.inplanes = self.stage_widths[i]
+            self.inplanes = self.stage_widths[i]  # type: ignore[unresolved-attribute]
             layer_name = f"layer{i + 1}"
             self.add_module(layer_name, res_layer)
             self.res_layers.append(layer_name)
 
         self._freeze_stages()
 
-        self.feat_dim = stage_widths[-1]
+        self.feat_dim = stage_widths[-1]  # type: ignore[unresolved-attribute]
         self.block.expansion = expansion_bak
 
     def _make_stem_layer(self, in_channels, base_channels):
@@ -230,7 +236,7 @@ class RegNet(ResNet):
             padding=1,
             bias=False,
         )
-        self.norm1_name, norm1 = build_norm_layer(self.norm_cfg, base_channels, postfix=1)
+        self.norm1_name, norm1 = build_norm_layer(self.norm_cfg, base_channels, postfix=1)  # type: ignore[unresolved-attribute]
         self.add_module(self.norm1_name, norm1)
         self.relu = nn.ReLU(inplace=True)
 
