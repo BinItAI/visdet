@@ -48,6 +48,14 @@ repos:
         pass_filenames: false
         files: ^visdet/structures/
 
+      - id: zuban-apis
+        name: Zuban type checker (visdet/apis)
+        entry: uv run zuban check visdet/apis
+        language: system
+        types: [python]
+        pass_filenames: false
+        files: ^visdet/apis/
+
   - repo: https://github.com/kynan/nbstripout
     rev: 0.8.1
     hooks:
