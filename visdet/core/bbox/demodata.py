@@ -4,8 +4,10 @@
 # These are test utilities - provide stubs or imports if they exist
 # TODO: Check if these exist in the codebase
 
+from typing import Any
 
-def ensure_rng(rng=None):
+
+def ensure_rng(rng: Any = None) -> Any:
     """Ensure we have a random number generator."""
     import numpy as np
 
