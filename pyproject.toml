@@ -168,4 +168,4 @@ dev = [
 # Note: mmtracking git dependency removed due to build isolation issues
 # To install for tests: uv pip install --no-build-isolation git+https://github.com/open-mmlab/mmtracking.git
 
-# Test token: ci-pipeline-verification-token-001
+# Test token: ci-pipeline-verification-token-002
