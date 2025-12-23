@@ -56,6 +56,14 @@ repos:
         pass_filenames: false
         files: ^visdet/apis/
 
+      - id: zuban-core-anchor
+        name: Zuban type checker (visdet/core/anchor)
+        entry: uv run zuban check visdet/core/anchor
+        language: system
+        types: [python]
+        pass_filenames: false
+        files: ^visdet/core/anchor/
+
   - repo: https://github.com/kynan/nbstripout
     rev: 0.8.1
     hooks:
