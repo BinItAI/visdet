@@ -446,8 +446,13 @@ class SimpleRunner:
         # Clean up non-dataset keys from configs
         # These are convenience keys in the preset that shouldn't be passed to the dataset
         keys_to_remove = [
-            "val_ann_file", "val_data_prefix", "train_pipeline", "test_pipeline",
-            "batch_size", "num_workers", "persistent_workers"
+            "val_ann_file",
+            "val_data_prefix",
+            "train_pipeline",
+            "test_pipeline",
+            "batch_size",
+            "num_workers",
+            "persistent_workers",
         ]
         for key in keys_to_remove:
             self.dataset_cfg.pop(key, None)
