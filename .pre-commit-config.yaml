@@ -56,6 +56,14 @@ repos:
         pass_filenames: false
         files: ^visdet/apis/
 
+      - id: zuban-presets
+        name: Zuban type checker (visdet/presets)
+        entry: uv run zuban check visdet/presets
+        language: system
+        types: [python]
+        pass_filenames: false
+        files: ^visdet/presets/
+
   - repo: https://github.com/kynan/nbstripout
     rev: 0.8.1
     hooks:
