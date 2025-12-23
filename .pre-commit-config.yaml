@@ -56,6 +56,14 @@ repos:
         pass_filenames: false
         files: ^visdet/apis/
 
+      - id: zuban-core-evaluation
+        name: Zuban type checker (visdet/core/evaluation)
+        entry: uv run zuban check visdet/core/evaluation
+        language: system
+        types: [python]
+        pass_filenames: false
+        files: ^visdet/core/evaluation/
+
   - repo: https://github.com/kynan/nbstripout
     rev: 0.8.1
     hooks:
