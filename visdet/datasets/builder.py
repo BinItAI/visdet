@@ -11,7 +11,7 @@ from torch.utils.data import DataLoader
 
 from visdet.cv import build_from_cfg
 from visdet.engine.dist import get_dist_info
-from visdet.engine.registry import Registry
+from visdet.engine.registry import TRANSFORMS, Registry
 from visdet.engine.utils import TORCH_VERSION, digit_version
 
 try:
@@ -45,7 +45,21 @@ if platform.system() != "Windows":
     resource.setrlimit(resource.RLIMIT_NOFILE, (soft_limit, hard_limit))
 
 DATASETS = Registry("dataset")
-PIPELINES = Registry("pipeline")
+# Legacy MMDetection/MMCV compatibility: pipelines are transforms.
+PIPELINES = Registry("pipeline", parent=TRANSFORMS)
+
+
+def _register_default_transforms() -> None:
+    # Ensure built-in transforms are imported and registered.
+    # Import both cv transforms and datasets transforms to trigger registration.
+    # This is needed because Registry.get() doesn't call import_from_location()
+    # on parent registries when traversing the parent chain.
+    from visdet.cv import transforms as _cv_transforms  # noqa: F401
+
+    from . import transforms as _transforms  # noqa: F401
+
+
+_register_default_transforms()
 
 
 def _concat_dataset(cfg, default_args=None):
