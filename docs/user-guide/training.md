@@ -24,6 +24,24 @@ Example with 8 GPUs:
 bash tools/dist_train.sh configs/faster_rcnn/faster_rcnn_r50_fpn_1x_coco.py 8
 ```
 
+## Datasets
+
+### COCO 2017 (local)
+
+```bash
+python tools/misc/download_dataset.py --dataset-name coco2017 --save-dir data/coco --unzip --delete
+```
+
+### COCO 2017 (Modal Volume)
+
+Populate a persistent Modal Volume with COCO under `/root/data/coco/`:
+
+```bash
+VISDET_COCO_VOLUME=visdet-coco modal run tools/modal/download_coco2017_to_volume.py
+```
+
+Mount the same volume at `/root/data` in your training app so configs using `data/coco/` work unchanged.
+
 ## Configuration
 
 Training behavior is controlled through configuration files. See the [Configuration Guide](configuration.md) for details.
