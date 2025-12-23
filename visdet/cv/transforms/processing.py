@@ -156,15 +156,10 @@ class Resize(BaseTransform):
                         assert is_list_of(img_scale, tuple), f"img_scale must be a list of tuples, got {img_scale}"
                         self.img_scale = img_scale
                     elif isinstance(first_elem, (int, float)):
-                        # List of 2 integers like [1333, 800] - convert to tuple
-                        # This commonly comes from YAML configs which don't have tuple syntax
-                        if len(img_scale) == 2:
-                            self.img_scale = [tuple(img_scale)]
-                        else:
-                            raise AssertionError(
-                                f"img_scale must be a tuple or list of tuples, not a list of integers. "
-                                f"Got {img_scale}. Did you mean ({img_scale[0]}, {img_scale[1]})?"
-                            )
+                        raise AssertionError(
+                            f"img_scale must be a tuple or list of tuples, got {img_scale}. "
+                            f"If you meant a single scale, use ({img_scale[0]}, {img_scale[1]})."
+                        )
                     else:
                         raise AssertionError(f"img_scale must be a tuple or list of tuples, got {img_scale}")
                 else:
