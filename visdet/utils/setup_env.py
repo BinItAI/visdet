@@ -27,11 +27,12 @@ def register_all_modules(init_default_scope: bool = True) -> None:
     import visdet.visualization  # type: ignore # noqa: F401
 
     if init_default_scope:
-        never_created = DefaultScope.get_current_instance() is None or not DefaultScope.check_instance_created("visdet")
+        current_scope = DefaultScope.get_current_instance()
+        never_created = current_scope is None or not DefaultScope.check_instance_created("visdet")
         if never_created:
             DefaultScope.get_instance("visdet", scope_name="visdet")
             return
-        current_scope = DefaultScope.get_current_instance()
+        assert current_scope is not None
         if current_scope.scope_name != "visdet":
             warnings.warn(
                 "The current default scope "

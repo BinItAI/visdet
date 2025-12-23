@@ -64,6 +64,14 @@ repos:
         pass_filenames: false
         files: ^visdet/core/mask/
 
+      - id: zuban-utils
+        name: Zuban type checker (visdet/utils)
+        entry: uv run zuban check visdet/utils
+        language: system
+        types: [python]
+        pass_filenames: false
+        files: ^visdet/utils/
+
   - repo: https://github.com/kynan/nbstripout
     rev: 0.8.1
     hooks:
