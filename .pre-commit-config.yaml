@@ -37,6 +37,17 @@ repos:
         stages: [pre-commit]
         pass_filenames: false
 
+  # Zuban type checker (scoped to a single directory)
+  - repo: local
+    hooks:
+      - id: zuban
+        name: Zuban type checker (visdet/structures)
+        entry: uv run zuban check visdet/structures
+        language: system
+        types: [python]
+        pass_filenames: false
+        files: ^visdet/structures/
+
   - repo: https://github.com/kynan/nbstripout
     rev: 0.8.1
     hooks:
