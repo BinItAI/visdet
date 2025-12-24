@@ -189,7 +189,7 @@ def train_mask_rcnn_coco_smoke(*, force_regen_ann: bool = False) -> dict[str, An
         "train_pipeline": [
             {"type": "LoadImageFromFile"},
             {"type": "LoadAnnotations", "with_bbox": True, "with_mask": True},
-            {"type": "Resize", "scale": [320, 240], "keep_ratio": True},
+            {"type": "Resize", "scale": (320, 240), "keep_ratio": True},
             {"type": "RandomFlip", "prob": 0.0},
             {"type": "PackDetInputs"},
         ],
