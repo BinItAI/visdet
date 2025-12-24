@@ -161,6 +161,7 @@ dev = [
     "prek>=0.2.10",
     "ruff",
     "skylos",
+    "modal",
     "zuban>=0.1.2",
 ]
 
