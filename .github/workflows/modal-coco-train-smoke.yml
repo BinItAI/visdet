@@ -38,7 +38,7 @@ jobs:
           fi
 
       - name: Ensure COCO is present in Modal Volume
-        run: uv run python -m modal run tools/modal/download_coco2017_to_volume.py --no-train
+        run: uv run python -m modal run tools/modal/download_coco2017_to_volume.py --no-include-train
 
       - name: Run Modal COCO training smoke test
         run: uv run pytest -v --tb=short tests/test_modal_coco_training_on_modal.py
