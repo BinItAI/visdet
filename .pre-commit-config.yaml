@@ -56,6 +56,14 @@ repos:
         pass_filenames: false
         files: ^visdet/apis/
 
+      - id: zuban-engine-logging
+        name: Zuban type checker (visdet/engine/logging)
+        entry: uv run zuban check visdet/engine/logging
+        language: system
+        types: [python]
+        pass_filenames: false
+        files: ^visdet/engine/logging/
+
   - repo: https://github.com/kynan/nbstripout
     rev: 0.8.1
     hooks:
