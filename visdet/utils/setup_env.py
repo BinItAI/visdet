@@ -32,7 +32,7 @@ def register_all_modules(init_default_scope: bool = True) -> None:
             DefaultScope.get_instance("visdet", scope_name="visdet")
             return
         current_scope = DefaultScope.get_current_instance()
-        if current_scope.scope_name != "visdet":
+        if current_scope is not None and current_scope.scope_name != "visdet":
             warnings.warn(
                 "The current default scope "
                 f'"{current_scope.scope_name}" is not "visdet", '

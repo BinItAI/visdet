@@ -77,7 +77,9 @@ image = (
         "tqdm",
     )
     .add_local_dir(REPO_ROOT / "visdet", remote_path=f"{REMOTE_REPO_PATH}/visdet", copy=True, ignore=_ignore_repo_path)
-    .add_local_dir(REPO_ROOT / "configs", remote_path=f"{REMOTE_REPO_PATH}/configs", copy=True, ignore=_ignore_repo_path)
+    .add_local_dir(
+        REPO_ROOT / "configs", remote_path=f"{REMOTE_REPO_PATH}/configs", copy=True, ignore=_ignore_repo_path
+    )
 )
 
 app = modal.App("visdet-train-maskrcnn-coco-smoke", image=image)

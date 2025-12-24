@@ -6,7 +6,6 @@ from pathlib import Path
 
 import pytest
 
-
 _RUN_MODAL_INTEGRATION_TESTS = os.environ.get("VISDET_RUN_MODAL_INTEGRATION_TESTS") == "1"
 
 pytestmark = pytest.mark.skipif(
