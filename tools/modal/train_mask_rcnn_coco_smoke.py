@@ -3,8 +3,8 @@
 This is intended as an integration test / infrastructure smoke test, not a
 benchmark. It:
   - mounts a persistent Modal Volume containing COCO 2017 under `/root/data`
-  - generates a 1-image COCO annotation file (val split) for fast iteration
-  - runs 1 epoch of `mask_rcnn_swin_s` with small images and no checkpointing
+  - generates a tiny COCO annotation file (val split) for fast iteration
+  - runs a few training iterations of `mask_rcnn_swin_s` and then exits
 
 Prereqs:
   1) `modal` installed + authenticated (`python -m modal token new` etc.)
@@ -30,6 +30,7 @@ DEFAULT_VOLUME_NAME = os.environ.get("VISDET_COCO_VOLUME", "visdet-coco")
 DATA_MOUNT_PATH = "/root/data"
 COCO_DIRNAME = "coco"
 REMOTE_REPO_PATH = "/root/visdet"
+DEFAULT_NUM_IMAGES = 3
 
 
 def _ignore_repo_path(path: Path) -> bool:
@@ -110,7 +111,10 @@ app = modal.App("visdet-train-maskrcnn-coco-smoke", image=image)
 volume = modal.Volume.from_name(DEFAULT_VOLUME_NAME, create_if_missing=False)
 
 
-def _make_one_image_coco_subset(*, source_ann: Path, coco_images_dir: Path, out_ann: Path) -> None:
+def _make_coco_subset(*, source_ann: Path, coco_images_dir: Path, out_ann: Path, num_images: int) -> int:
+    if num_images < 1:
+        raise ValueError(f"num_images must be >= 1, got {num_images}")
+
     data = json.loads(source_ann.read_text())
     annotations = data.get("annotations", [])
     images = data.get("images", [])
@@ -123,8 +127,11 @@ def _make_one_image_coco_subset(*, source_ann: Path, coco_images_dir: Path, out_
             continue
         ann_by_image.setdefault(image_id, []).append(ann)
 
-    chosen_image: dict[str, Any] | None = None
+    chosen_images: list[dict[str, Any]] = []
+    chosen_image_ids: list[int] = []
     for img in images:
+        if len(chosen_images) >= num_images:
+            break
         image_id = img.get("id")
         file_name = img.get("file_name")
         if not isinstance(image_id, int) or not isinstance(file_name, str):
@@ -133,20 +140,22 @@ def _make_one_image_coco_subset(*, source_ann: Path, coco_images_dir: Path, out_
             continue
         if not (coco_images_dir / file_name).is_file():
             continue
-        chosen_image = img
-        break
+        chosen_images.append(img)
+        chosen_image_ids.append(image_id)
 
-    if chosen_image is None:
-        raise RuntimeError(f"Could not find a COCO image with annotations in {source_ann}")
+    if len(chosen_images) < num_images:
+        raise RuntimeError(
+            f"Could not find {num_images} COCO images with annotations in {source_ann} (found {len(chosen_images)})"
+        )
 
-    chosen_id = chosen_image["id"]
     subset = {
-        "images": [chosen_image],
-        "annotations": [ann for ann in annotations if ann.get("image_id") == chosen_id],
+        "images": chosen_images,
+        "annotations": [ann for image_id in chosen_image_ids for ann in ann_by_image.get(image_id, [])],
         "categories": categories,
     }
     out_ann.parent.mkdir(parents=True, exist_ok=True)
     out_ann.write_text(json.dumps(subset))
+    return len(chosen_images)
 
 
 @app.function(
@@ -155,10 +164,13 @@ def _make_one_image_coco_subset(*, source_ann: Path, coco_images_dir: Path, out_
     memory=16_000,
     volumes={DATA_MOUNT_PATH: volume},
 )
-def train_mask_rcnn_coco_smoke(*, force_regen_ann: bool = False) -> dict[str, Any]:
+def train_mask_rcnn_coco_smoke(*, force_regen_ann: bool = False, num_images: int = DEFAULT_NUM_IMAGES) -> dict[str, Any]:
     import sys
 
     sys.path.insert(0, REMOTE_REPO_PATH)
+
+    if num_images < 1:
+        raise ValueError(f"num_images must be >= 1, got {num_images}")
 
     coco_root = Path(DATA_MOUNT_PATH) / COCO_DIRNAME
     source_ann = coco_root / "annotations" / "instances_val2017.json"
@@ -172,9 +184,15 @@ def train_mask_rcnn_coco_smoke(*, force_regen_ann: bool = False) -> dict[str, An
     if not coco_images_dir.is_dir():
         raise RuntimeError(f"COCO image dir missing: {coco_images_dir}")
 
-    smoke_ann = coco_root / "annotations" / "instances_val2017_smoke_1img.json"
+    smoke_ann = coco_root / "annotations" / f"instances_val2017_smoke_{num_images}img.json"
     if force_regen_ann or not smoke_ann.is_file():
-        _make_one_image_coco_subset(source_ann=source_ann, coco_images_dir=coco_images_dir, out_ann=smoke_ann)
+        num_written = _make_coco_subset(
+            source_ann=source_ann,
+            coco_images_dir=coco_images_dir,
+            out_ann=smoke_ann,
+            num_images=num_images,
+        )
+        print(f"VISDET_MODAL_SMOKE: wrote {num_written} images to {smoke_ann}")
 
     # Run a tiny training loop.
     from visdet import SimpleRunner
@@ -183,7 +201,7 @@ def train_mask_rcnn_coco_smoke(*, force_regen_ann: bool = False) -> dict[str, An
         "_base_": "coco_instance_segmentation",
         # Use absolute paths to avoid depending on the CWD.
         "data_root": f"{coco_root}/",
-        "ann_file": "annotations/instances_val2017_smoke_1img.json",
+        "ann_file": f"annotations/instances_val2017_smoke_{num_images}img.json",
         "data_prefix": {"img_path": "val2017/"},
         # Keep the pipeline minimal for a fast smoke test.
         "train_pipeline": [
@@ -195,6 +213,7 @@ def train_mask_rcnn_coco_smoke(*, force_regen_ann: bool = False) -> dict[str, An
 
     work_dir = "/tmp/work_dirs/mask_rcnn_coco_smoke"
     start = time.time()
+    print(f"VISDET_MODAL_SMOKE: starting training (num_images={num_images}, epochs=1)")
     runner = SimpleRunner(
         model="mask_rcnn_swin_s",
         dataset=dataset_override,
@@ -217,6 +236,7 @@ def train_mask_rcnn_coco_smoke(*, force_regen_ann: bool = False) -> dict[str, An
         },
     )
     runner.train()
+    print("VISDET_MODAL_SMOKE: finished training")
     return {"status": "ok", "seconds": time.time() - start, "work_dir": work_dir, "ann_file": str(smoke_ann)}
 
 
@@ -227,7 +247,13 @@ if __name__ == "__main__":
         default=DEFAULT_VOLUME_NAME,
         help=(f"Modal volume name (must match VISDET_COCO_VOLUME at import time). Default: {DEFAULT_VOLUME_NAME!r}"),
     )
-    parser.add_argument("--force-regen-ann", action="store_true", help="Regenerate the 1-image COCO annotation file")
+    parser.add_argument(
+        "--num-images",
+        type=int,
+        default=DEFAULT_NUM_IMAGES,
+        help=f"How many COCO val images to include in the smoke train subset (default: {DEFAULT_NUM_IMAGES})",
+    )
+    parser.add_argument("--force-regen-ann", action="store_true", help="Regenerate the smoke COCO annotation file")
     args = parser.parse_args()
 
     if args.volume != DEFAULT_VOLUME_NAME:
@@ -236,5 +262,5 @@ if __name__ == "__main__":
             f"  VISDET_COCO_VOLUME={args.volume} python -m modal run tools/modal/train_mask_rcnn_coco_smoke.py\n"
         )
 
-    out = train_mask_rcnn_coco_smoke.remote(force_regen_ann=args.force_regen_ann)
+    out = train_mask_rcnn_coco_smoke.remote(force_regen_ann=args.force_regen_ann, num_images=args.num_images)
     print(out)
