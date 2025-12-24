@@ -92,6 +92,7 @@ image = (
         "scipy",
         "shapely",
         "addict",
+        "packaging",
         "six",
         "termcolor",
         "terminaltables",
