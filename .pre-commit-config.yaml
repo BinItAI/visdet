@@ -80,6 +80,14 @@ repos:
         pass_filenames: false
         files: ^visdet/engine/fileio/
 
+      - id: zuban-engine-infer
+        name: Zuban type checker (visdet/engine/infer)
+        entry: uv run zuban check visdet/engine/infer
+        language: system
+        types: [python]
+        pass_filenames: false
+        files: ^visdet/engine/infer/
+
       - id: zuban-engine-optimizers
         name: Zuban type checker (visdet/engine/optimizers)
         entry: uv run zuban check visdet/engine/optimizers
