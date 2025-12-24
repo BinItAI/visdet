@@ -49,7 +49,28 @@ def _ignore_repo_path(path: Path) -> bool:
     return False
 
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+def _find_repo_root() -> Path:
+    """Best-effort repo root resolution.
+
+    `modal run` copies this file into the container as `/root/<name>.py`, so
+    `Path(__file__).parents[2]` is not stable. Prefer a marker-based search.
+    """
+
+    this_file = Path(__file__).resolve()
+    for parent in [this_file.parent, *this_file.parents]:
+        if (parent / "pyproject.toml").is_file() and (parent / "visdet").is_dir() and (parent / "configs").is_dir():
+            return parent
+
+    # Inside the Modal image, the repo is baked into `/root/visdet`.
+    modal_repo = Path(REMOTE_REPO_PATH)
+    if (modal_repo / "visdet").is_dir() and (modal_repo / "configs").is_dir():
+        return modal_repo
+
+    # Fall back to something safe (may disable add_local_dir on CI misconfigs).
+    return this_file.parent
+
+
+REPO_ROOT = _find_repo_root()
 
 image = (
     modal.Image.debian_slim(python_version="3.12")
