@@ -23,7 +23,7 @@ train_pipeline:
     with_bbox: true
     with_mask: true
   - type: Resize
-    scale: !!python/tuple [1333, 800]
+    scale: [1333, 800]
     keep_ratio: true
   - type: RandomFlip
     prob: 0.5
@@ -33,7 +33,7 @@ train_pipeline:
 test_pipeline:
   - type: LoadImageFromFile
   - type: Resize
-    scale: !!python/tuple [1333, 800]
+    scale: [1333, 800]
     keep_ratio: true
   - type: LoadAnnotations
     with_bbox: true
