@@ -92,11 +92,11 @@ print(sorted(OPTIMIZERS.module_dict.keys()))
 
 [^sgd]: Robbins & Monro (1951), *A Stochastic Approximation Method*. https://doi.org/10.1214/aoms/1177729586
 [^asgd]: Polyak & Juditsky (1992), *Acceleration of Stochastic Approximation by Averaging*. https://doi.org/10.1137/0330046
-[^rprop]: Riedmiller & Braun (1993), *A Direct Adaptive Method for Faster Backpropagation Learning: The RPROP Algorithm*.
+[^rprop]: Riedmiller & Braun (1993), *A Direct Adaptive Method for Faster Backpropagation Learning: The RPROP Algorithm*. https://doi.org/10.1109/ICNN.1993.298623
 [^lbfgs]: Liu & Nocedal (1989), *On the Limited Memory BFGS Method for Large Scale Optimization*. https://doi.org/10.1007/BF01589116
 [^adagrad]: Duchi, Hazan & Singer (2011), *Adaptive Subgradient Methods for Online Learning and Stochastic Optimization*. https://jmlr.org/papers/v12/duchi11a.html
 [^adadelta]: Zeiler (2012), *ADADELTA: An Adaptive Learning Rate Method*. https://arxiv.org/abs/1212.5701
-[^rmsprop]: Tieleman & Hinton (2012), *RMSProp* (lecture note; widely referenced).
+[^rmsprop]: Tieleman & Hinton (2012), *Lecture 6.5 — RMSProp: Divide the gradient by a running average of its recent magnitude*. https://www.cs.toronto.edu/~hinton/coursera/lecture6/lec6.pdf
 [^adam]: Kingma & Ba (2014), *Adam: A Method for Stochastic Optimization*. https://arxiv.org/abs/1412.6980
 [^nadam]: Dozat (2016), *Incorporating Nesterov Momentum into Adam*. https://openreview.net/forum?id=OM0jvwB8jIp57ZJjtNEZ
 [^adamw]: Loshchilov & Hutter (2017), *Decoupled Weight Decay Regularization*. https://arxiv.org/abs/1711.05101
