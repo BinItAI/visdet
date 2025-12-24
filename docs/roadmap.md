@@ -8,7 +8,7 @@ This document outlines the development roadmap for visdet, with a focus on perfo
 
 ### Overview
 
-[SPDL (Scalable and Performant Data Loading)](https://github.com/facebookresearch/spdl) is Meta's thread-based data loading library that dramatically outperforms PyTorch's process-based `DataLoader`. Integrating SPDL into visdet will provide:
+SPDL (Scalable and Performant Data Loading) is Meta's thread-based data loading library that dramatically outperforms PyTorch's process-based `DataLoader`. Integrating SPDL into visdet will provide:
 
 - **74% faster iteration** through datasets like ImageNet
 - **38% less CPU usage** during training
@@ -243,7 +243,7 @@ Test configurations:
 
 ### References
 
-- [SPDL GitHub Repository](https://github.com/facebookresearch/spdl)
+- SPDL GitHub Repository
 - [SPDL Documentation](https://facebookresearch.github.io/spdl/main/)
 - [Migration from PyTorch DataLoader](https://facebookresearch.github.io/spdl/main/migration/pytorch.html)
 - [Meta AI Blog: Introducing SPDL](https://ai.meta.com/blog/spdl-faster-ai-model-training-with-thread-based-data-loading-reality-labs/)

@@ -1,6 +1,6 @@
 # Tutorial 3: Customize Data Pipelines
 
-> **Future Enhancement**: We're planning to integrate [SPDL](https://github.com/facebookresearch/spdl) (Scalable and Performant Data Loading) for thread-based data loading that's 74% faster than PyTorch's DataLoader. See the [Roadmap](../roadmap.md) for details.
+> **Future Enhancement**: We're planning to integrate SPDL (Scalable and Performant Data Loading) for thread-based data loading that's 74% faster than PyTorch's DataLoader. See the [Roadmap](../roadmap.md) for details.
 
 ## Design of Data pipelines
 
@@ -10,7 +10,6 @@ the arguments of models' forward method.
 Since the data in object detection may not be the same size (image size, gt bbox size, etc.),
 we introduce a new `DataContainer` type in MMCV to help collect and distribute
 data of different size.
-See [here](https://github.com/open-mmlab/mmcv/blob/master/mmcv/parallel/data_container.py) for more details.
 
 The data preparation pipeline and the dataset is decomposed. Usually a dataset
 defines how to process the annotations and a data pipeline defines all the steps to prepare a data dict.
