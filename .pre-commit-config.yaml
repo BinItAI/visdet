@@ -104,6 +104,166 @@ repos:
         pass_filenames: false
         files: ^visdet/engine/utils/
 
+      - id: zuban-utils
+        name: Zuban type checker (visdet/utils)
+        entry: uv run zuban check visdet/utils
+        language: system
+        types: [python]
+        pass_filenames: false
+        files: ^visdet/utils/
+
+      - id: zuban-core-anchor
+        name: Zuban type checker (visdet/core/anchor)
+        entry: uv run zuban check visdet/core/anchor
+        language: system
+        types: [python]
+        pass_filenames: false
+        files: ^visdet/core/anchor/
+
+      - id: zuban-core-evaluation
+        name: Zuban type checker (visdet/core/evaluation)
+        entry: uv run zuban check visdet/core/evaluation
+        language: system
+        types: [python]
+        pass_filenames: false
+        files: ^visdet/core/evaluation/
+
+      - id: zuban-core-hook
+        name: Zuban type checker (visdet/core/hook)
+        entry: uv run zuban check visdet/core/hook
+        language: system
+        types: [python]
+        pass_filenames: false
+        files: ^visdet/core/hook/
+
+      - id: zuban-core-bbox
+        name: Zuban type checker (visdet/core/bbox)
+        entry: uv run zuban check visdet/core/bbox
+        language: system
+        types: [python]
+        pass_filenames: false
+        files: ^visdet/core/bbox/
+
+      - id: zuban-presets
+        name: Zuban type checker (visdet/presets)
+        entry: uv run zuban check visdet/presets
+        language: system
+        types: [python]
+        pass_filenames: false
+        files: ^visdet/presets/
+
+      - id: zuban-testing
+        name: Zuban type checker (visdet/testing)
+        entry: uv run zuban check visdet/testing
+        language: system
+        types: [python]
+        pass_filenames: false
+        files: ^visdet/testing/
+
+      - id: zuban-visdet-configs
+        name: Zuban type checker (visdet/configs)
+        entry: uv run zuban check visdet/configs
+        language: system
+        types: [python]
+        pass_filenames: false
+        files: ^visdet/configs/
+
+      - id: zuban-eval-evaluator
+        name: Zuban type checker (visdet/evaluation/evaluator)
+        entry: uv run zuban check visdet/evaluation/evaluator
+        language: system
+        types: [python]
+        pass_filenames: false
+        files: ^visdet/evaluation/evaluator/
+
+      - id: zuban-eval-functional
+        name: Zuban type checker (visdet/evaluation/functional)
+        entry: uv run zuban check visdet/evaluation/functional
+        language: system
+        types: [python]
+        pass_filenames: false
+        files: ^visdet/evaluation/functional/
+
+      - id: zuban-engine-registry
+        name: Zuban type checker (visdet/engine/registry)
+        entry: uv run zuban check visdet/engine/registry
+        language: system
+        types: [python]
+        pass_filenames: false
+        files: ^visdet/engine/registry/
+
+      - id: zuban-engine-structures
+        name: Zuban type checker (visdet/engine/structures)
+        entry: uv run zuban check visdet/engine/structures
+        language: system
+        types: [python]
+        pass_filenames: false
+        files: ^visdet/engine/structures/
+
+      - id: zuban-engine-device
+        name: Zuban type checker (visdet/engine/device)
+        entry: uv run zuban check visdet/engine/device
+        language: system
+        types: [python]
+        pass_filenames: false
+        files: ^visdet/engine/device/
+
+      - id: zuban-engine-logging
+        name: Zuban type checker (visdet/engine/logging)
+        entry: uv run zuban check visdet/engine/logging
+        language: system
+        types: [python]
+        pass_filenames: false
+        files: ^visdet/engine/logging/
+
+      - id: zuban-engine-runner
+        name: Zuban type checker (visdet/engine/runner)
+        entry: uv run zuban check visdet/engine/runner
+        language: system
+        types: [python]
+        pass_filenames: false
+        files: ^visdet/engine/runner/
+
+      - id: zuban-engine-model
+        name: Zuban type checker (visdet/engine/model)
+        entry: uv run zuban check visdet/engine/model
+        language: system
+        types: [python]
+        pass_filenames: false
+        files: ^visdet/engine/model/
+
+      - id: zuban-engine-dataset
+        name: Zuban type checker (visdet/engine/dataset)
+        entry: uv run zuban check visdet/engine/dataset
+        language: system
+        types: [python]
+        pass_filenames: false
+        files: ^visdet/engine/dataset/
+
+      - id: zuban-engine-strategy
+        name: Zuban type checker (visdet/engine/_strategy)
+        entry: uv run zuban check visdet/engine/_strategy
+        language: system
+        types: [python]
+        pass_filenames: false
+        files: ^visdet/engine/_strategy/
+
+      - id: zuban-engine-evaluator
+        name: Zuban type checker (visdet/engine/evaluator)
+        entry: uv run zuban check visdet/engine/evaluator
+        language: system
+        types: [python]
+        pass_filenames: false
+        files: ^visdet/engine/evaluator/
+
+      - id: zuban-engine-hub
+        name: Zuban type checker (visdet/engine/hub)
+        entry: uv run zuban check visdet/engine/hub
+        language: system
+        types: [python]
+        pass_filenames: false
+        files: ^visdet/engine/hub/
+
   - repo: https://github.com/kynan/nbstripout
     rev: 0.8.1
     hooks:
