@@ -84,23 +84,17 @@ class SimpleRunner:
             batch_size: Batch size for the dataloader.
             num_workers: Number of worker processes for the dataloader.
             train_ann_file: Path to training annotation file (COCO format).
-                Overrides 'ann_file' in dataset config. Useful for dynamic
-                annotation generation in ML pipelines where annotation files
-                are generated on-the-fly from upstream data sources (e.g.,
-                MLflow artifacts, data processing jobs, cross-validation splits).
+                Overrides 'ann_file' in dataset config.
             val_ann_file: Path to validation annotation file (COCO format).
-                Overrides 'val_ann_file' in dataset config. Enables validation
-                even if dataset preset doesn't define a validation annotation file.
-                Useful for generating validation splits dynamically.
+                Overrides 'val_ann_file' in dataset config.
             **kwargs: Additional config overrides to be set at the top level.
 
         Example:
-            >>> # Using preset with dynamic annotation files from upstream pipeline
             >>> runner = SimpleRunner(
             ...     model='mask_rcnn_swin_s',
-            ...     dataset='cmr_instance_segmentation',  # Use preset for pipeline/classes
-            ...     train_ann_file='/mlflow/artifacts/run_123/train.json',  # Generated upstream
-            ...     val_ann_file='/mlflow/artifacts/run_123/val.json',      # Generated upstream
+            ...     dataset='coco_instance_segmentation',
+            ...     train_ann_file='/data/train.json',
+            ...     val_ann_file='/data/val.json',
             ...     epochs=12
             ... )
             >>> runner.train()

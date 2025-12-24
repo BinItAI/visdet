@@ -1,9 +1,4 @@
-"""Tests for SimpleRunner dynamic annotation file parameters.
-
-Tests cover the new train_ann_file and val_ann_file parameters that allow
-users to specify annotation files dynamically, supporting ML pipelines with
-on-the-fly annotation generation from upstream sources.
-"""
+"""Tests for SimpleRunner train_ann_file and val_ann_file parameters."""
 
 import json
 import tempfile
@@ -16,7 +11,7 @@ from visdet.runner import SimpleRunner
 
 
 class TestSimpleRunnerAnnotationFiles(unittest.TestCase):
-    """Test dynamic annotation file parameter handling in SimpleRunner."""
+    """Test annotation file parameter handling in SimpleRunner."""
 
     def setUp(self) -> None:
         """Set up test fixtures with temporary annotation files."""

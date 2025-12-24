@@ -9,31 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **Dynamic Annotation File Parameters** - SimpleRunner now accepts `train_ann_file` and `val_ann_file` parameters for specifying annotation files directly at runtime (#XX)
-  - Enables seamless integration with ML pipelines where annotation files are generated on-the-fly
-  - Supports MLflow experiment tracking artifact downloads
-  - Enables cross-validation workflows with fold-specific annotation files
-  - Supports A/B testing with programmatically generated data distributions
-  - Works with CI/CD pipelines for integration testing with synthetic data
-  - Both parameters validated during initialization for early error detection
-  - Fully backward compatible - existing code without these parameters works unchanged
-  - Comprehensive documentation with real-world examples in `docs/DYNAMIC_ANNOTATIONS.md`
-  - Full test coverage with 13+ unit tests in `tests/test_simple_runner_annotation_files.py`
-  - Integration examples demonstrating MLflow, cross-validation, and A/B testing workflows
-
-- **Automatic Class Detection and Configuration** - SimpleRunner now automatically detects and configures model classes from annotation files
-  - Parses COCO annotation files at runtime to detect actual classes in data
-  - Eliminates manual `num_classes` configuration
-  - Uses UNION of classes when both train and val annotation files provided
-  - Prevents mismatches between model architecture and training data
-  - Supports both StandardRoIHead (single dict) and CascadeRoIHead (multi-stage list)
-  - Clear priority hierarchy: annotation files > dataset metainfo > skip
-  - HIGH severity warning for validation-only classes (model won't learn them)
-  - MEDIUM severity warning for training-only classes (no validation metrics)
-  - Error detection for category ID conflicts and non-contiguous IDs
-  - Comprehensive logging for debugging class configuration issues
-  - Zero performance impact - detection is one-time during initialization
-  - Full test coverage with 8+ new test cases in `TestAnnotationClassDetection`
+- SimpleRunner accepts `train_ann_file` and `val_ann_file` parameters to override annotation file paths
+- Automatic class detection from annotation files - `num_classes` is configured automatically
 
 ### Changed
 
