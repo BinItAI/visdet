@@ -97,6 +97,7 @@ nav:
   - Model Zoo: model-zoo.md
   - User Guide:
       - Training: user-guide/training.md
+      - Optimizers: user-guide/optimizers.md
       - Inference: user-guide/inference.md
       - Configuration: user-guide/configuration.md
   - Tutorials:
