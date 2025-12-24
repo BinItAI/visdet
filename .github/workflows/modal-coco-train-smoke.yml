@@ -8,7 +8,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 90
     env:
-      VISDET_RUN_MODAL_INTEGRATION_TESTS: "1"
       VISDET_COCO_VOLUME: "visdet-coco"
       MODAL_TOKEN_ID: ${{ secrets.MODAL_TOKEN_ID || vars.MODAL_TOKEN_ID }}
       MODAL_TOKEN_SECRET: ${{ secrets.MODAL_TOKEN_SECRET || vars.MODAL_TOKEN_SECRET }}
@@ -31,10 +30,15 @@ jobs:
       - name: Install dependencies
         run: uv sync --extra tests --group dev
 
+      - name: Check Modal auth env
+        run: |
+          if [ -z "${MODAL_TOKEN_ID:-}" ] || [ -z "${MODAL_TOKEN_SECRET:-}" ]; then
+            echo "MODAL_TOKEN_ID and MODAL_TOKEN_SECRET must be set (secrets or vars)."
+            exit 1
+          fi
+
       - name: Ensure COCO is present in Modal Volume
         run: uv run python -m modal run tools/modal/download_coco2017_to_volume.py --no-train
 
       - name: Run Modal COCO training smoke test
         run: uv run pytest -v --tb=short tests/test_modal_coco_training_on_modal.py
-
-

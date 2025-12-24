@@ -36,11 +36,11 @@ jobs:
         run: uv sync --extra tests
 
       - name: Run unit tests
-        run: uv run pytest -v --tb=short
+        run: uv run pytest -v --tb=short --ignore tests/test_modal_coco_training_on_modal.py
 
       - name: Run tests with coverage
         if: matrix.python-version == '3.14'
-        run: uv run pytest --cov=mmdet --cov-report=term-missing --cov-report=xml
+        run: uv run pytest --cov=mmdet --cov-report=term-missing --cov-report=xml --ignore tests/test_modal_coco_training_on_modal.py
 
       - name: Upload coverage to Codecov
         if: matrix.python-version == '3.14'
@@ -48,3 +48,43 @@ jobs:
         with:
           file: ./coverage.xml
           fail_ci_if_error: false
+
+  modal-coco-train-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    env:
+      VISDET_COCO_VOLUME: "visdet-coco"
+      MODAL_TOKEN_ID: ${{ secrets.MODAL_TOKEN_ID || vars.MODAL_TOKEN_ID }}
+      MODAL_TOKEN_SECRET: ${{ secrets.MODAL_TOKEN_SECRET || vars.MODAL_TOKEN_SECRET }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: uv sync --extra tests --group dev
+
+      - name: Check Modal auth env
+        run: |
+          if [ -z "${MODAL_TOKEN_ID:-}" ] || [ -z "${MODAL_TOKEN_SECRET:-}" ]; then
+            echo "MODAL_TOKEN_ID and MODAL_TOKEN_SECRET must be set (secrets or vars)."
+            exit 1
+          fi
+
+      - name: Ensure COCO is present in Modal Volume
+        run: uv run python -m modal run tools/modal/download_coco2017_to_volume.py --no-train
+
+      - name: Run Modal COCO training smoke test
+        run: uv run pytest -v --tb=short tests/test_modal_coco_training_on_modal.py
