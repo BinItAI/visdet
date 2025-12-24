@@ -12,7 +12,7 @@ git log --oneline
 
 ## Upstream MMDetection Changelog
 
-The original MMDetection project is available at [github.com/open-mmlab/mmdetection](https://github.com/open-mmlab/mmdetection).
+The original MMDetection project is available at github.com/open-mmlab/mmdetection.
 
 For the complete history of changes in the upstream project, please consult the original repository's changelog.
 

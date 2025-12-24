@@ -20,7 +20,7 @@
 ### Prerequisite
 
 1. Please refer to the installation guide for setting up VisDet and its dependencies from source.
-2. Please refer to [ONNXRuntime in mmcv](MMCV documentation) and [TensorRT plugin in mmcv](https://github.com/open-mmlab/mmcv/blob/master/docs/en/deployment/tensorrt_plugin.md/) to install `mmcv-full` with ONNXRuntime custom ops and TensorRT plugins.
+2. Please refer to the MMCV documentation for ONNXRuntime and TensorRT plugin setup to install `mmcv-full` with ONNXRuntime custom ops and TensorRT plugins.
 3. Use our tool [pytorch2onnx](pytorch2onnx.md) to convert the model from PyTorch to ONNX.
 
 ### Usage
