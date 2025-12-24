@@ -1,19 +1,26 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 """Backward compatibility for bbox demodata utilities."""
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import numpy as np
+
 # These are test utilities - provide stubs or imports if they exist
 # TODO: Check if these exist in the codebase
 
 
-def ensure_rng(rng=None):
+def ensure_rng(rng: int | np.random.RandomState | None = None) -> np.random.RandomState:
     """Ensure we have a random number generator."""
     import numpy as np
 
     if rng is None:
         return np.random.RandomState()
-    elif isinstance(rng, int):
-        return np.random.RandomState(rng)
-    return rng
+    if isinstance(rng, np.random.RandomState):
+        return rng
+    return np.random.RandomState(rng)
 
 
 def random_boxes(num_boxes, scale=1.0, rng=None, dtype="float32"):

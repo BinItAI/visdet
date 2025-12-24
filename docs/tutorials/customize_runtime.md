@@ -99,7 +99,7 @@ class MyOptimizerConstructor(object):
 
 ```
 
-The default optimizer constructor is implemented [here](https://github.com/open-mmlab/mmcv/blob/9ecd6b0d5ff9d2172c49a182eaa669e9f27bb8e7/mmcv/runner/optimizer/default_constructor.py#L11), which could also serve as a template for new optimizer constructor.
+The default optimizer constructor is implemented in MMCV's `mmcv/runner/optimizer/default_constructor.py`, which could also serve as a template for new optimizer constructor.
 
 ### Additional settings
 
@@ -118,7 +118,7 @@ Tricks not implemented by the optimizer should be implemented through optimizer 
 - __Use momentum schedule to accelerate model convergence__:
   We support momentum scheduler to modify model's momentum according to learning rate, which could make the model converge in a faster way.
   Momentum scheduler is usually used with LR scheduler, for example, the following config is used in 3D detection to accelerate convergence.
-  For more details, please refer to the implementation of [CyclicLrUpdater](https://github.com/open-mmlab/mmcv/blob/f48241a65aebfe07db122e9db320c31b685dc674/mmcv/runner/hooks/lr_updater.py#L327) and [CyclicMomentumUpdater](https://github.com/open-mmlab/mmcv/blob/f48241a65aebfe07db122e9db320c31b685dc674/mmcv/runner/hooks/momentum_updater.py#L130).
+  For more details, please refer to the implementation of `CyclicLrUpdater` and `CyclicMomentumUpdater` in MMCV.
 
   ```python
   lr_config = dict(
@@ -137,8 +137,8 @@ Tricks not implemented by the optimizer should be implemented through optimizer 
 
 ## Customize training schedules
 
-By default we use step learning rate with 1x schedule, this calls [`StepLRHook`](https://github.com/open-mmlab/mmcv/blob/f48241a65aebfe07db122e9db320c31b685dc674/mmcv/runner/hooks/lr_updater.py#L153) in MMCV.
-We support many other learning rate schedule [here](https://github.com/open-mmlab/mmcv/blob/master/mmcv/runner/hooks/lr_updater.py), such as `CosineAnnealing` and `Poly` schedule. Here are some examples
+By default we use step learning rate with 1x schedule, this calls `StepLRHook` in MMCV.
+We support many other learning rate schedules in MMCV's `lr_updater.py`, such as `CosineAnnealing` and `Poly` schedule. Here are some examples
 
 - Poly schedule:
 
