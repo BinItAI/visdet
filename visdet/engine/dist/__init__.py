@@ -70,7 +70,7 @@ def barrier():
         dist_lib.barrier()
 
 
-def broadcast(data, src=0, group=None):
+def broadcast(data: Any, src: int = 0, group: Any | None = None) -> Any:
     """Broadcast data from src rank to all ranks."""
     if not _is_dist_available_and_initialized():
         return data
@@ -109,7 +109,7 @@ def all_reduce_params(model):
             param.grad.data.div_(world_size)
 
 
-def init_dist(launcher='pytorch', backend='nccl', **kwargs):
+def init_dist(launcher: str = "pytorch", backend: str = "nccl", **kwargs: Any) -> tuple[int, int]:
     """Initialize distributed environment."""
     if _is_dist_available_and_initialized():
         return get_dist_info()
