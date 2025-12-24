@@ -185,12 +185,10 @@ def train_mask_rcnn_coco_smoke(*, force_regen_ann: bool = False) -> dict[str, An
         "data_root": f"{coco_root}/",
         "ann_file": "annotations/instances_val2017_smoke_1img.json",
         "data_prefix": {"img_path": "val2017/"},
-        # Smaller images for faster CPU iteration.
+        # Keep the pipeline minimal for a fast smoke test.
         "train_pipeline": [
             {"type": "LoadImageFromFile"},
             {"type": "LoadAnnotations", "with_bbox": True, "with_mask": True},
-            {"type": "Resize", "scale": (320, 240), "keep_ratio": True},
-            {"type": "RandomFlip", "prob": 0.0},
             {"type": "PackDetInputs"},
         ],
     }
