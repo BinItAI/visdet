@@ -164,7 +164,9 @@ def _make_coco_subset(*, source_ann: Path, coco_images_dir: Path, out_ann: Path,
     memory=16_000,
     volumes={DATA_MOUNT_PATH: volume},
 )
-def train_mask_rcnn_coco_smoke(*, force_regen_ann: bool = False, num_images: int = DEFAULT_NUM_IMAGES) -> dict[str, Any]:
+def train_mask_rcnn_coco_smoke(
+    *, force_regen_ann: bool = False, num_images: int = DEFAULT_NUM_IMAGES
+) -> dict[str, Any]:
     import sys
 
     sys.path.insert(0, REMOTE_REPO_PATH)
