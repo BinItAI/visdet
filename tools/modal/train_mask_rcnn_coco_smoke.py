@@ -96,6 +96,7 @@ image = (
         "termcolor",
         "terminaltables",
         "tqdm",
+        "yapf",
     )
     .add_local_dir(REPO_ROOT / "visdet", remote_path=f"{REMOTE_REPO_PATH}/visdet", copy=True, ignore=_ignore_repo_path)
     .add_local_dir(
