@@ -64,6 +64,14 @@ repos:
         pass_filenames: false
         files: ^visdet/core/mask/
 
+      - id: zuban-engine-dist
+        name: Zuban type checker (visdet/engine/dist)
+        entry: uv run zuban check visdet/engine/dist
+        language: system
+        types: [python]
+        pass_filenames: false
+        files: ^visdet/engine/dist/
+
       - id: zuban-engine-fileio
         name: Zuban type checker (visdet/engine/fileio)
         entry: uv run zuban check visdet/engine/fileio
@@ -80,13 +88,13 @@ repos:
         pass_filenames: false
         files: ^visdet/engine/optimizers/
 
-      - id: zuban-engine-dist
-        name: Zuban type checker (visdet/engine/dist)
-        entry: uv run zuban check visdet/engine/dist
+      - id: zuban-engine-utils
+        name: Zuban type checker (visdet/engine/utils)
+        entry: uv run zuban check visdet/engine/utils
         language: system
         types: [python]
         pass_filenames: false
-        files: ^visdet/engine/dist/
+        files: ^visdet/engine/utils/
 
   - repo: https://github.com/kynan/nbstripout
     rev: 0.8.1
