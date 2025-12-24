@@ -56,6 +56,14 @@ repos:
         pass_filenames: false
         files: ^visdet/apis/
 
+      - id: zuban-engine-device
+        name: Zuban type checker (visdet/engine/device)
+        entry: uv run zuban check visdet/engine/device
+        language: system
+        types: [python]
+        pass_filenames: false
+        files: ^visdet/engine/device/
+
   - repo: https://github.com/kynan/nbstripout
     rev: 0.8.1
     hooks:
