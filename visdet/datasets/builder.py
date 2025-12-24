@@ -13,7 +13,6 @@ from visdet.cv import build_from_cfg
 from visdet.engine.dist import get_dist_info
 from visdet.engine.registry import TRANSFORMS, Registry
 from visdet.engine.utils import TORCH_VERSION, digit_version
-from visdet.registry import TRANSFORMS
 
 try:
     from torch.utils.data import collate_fn
