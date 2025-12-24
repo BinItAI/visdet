@@ -1,5 +1,6 @@
 import sys
 from collections import OrderedDict, defaultdict
+from typing import Any, cast
 
 import cv2
 import numpy as np
@@ -10,7 +11,7 @@ from visdet.engine.device import is_cuda_available
 from visdet.version import __version__ as visengine_version
 
 
-def collect_env():
+def collect_env() -> OrderedDict[str, Any]:
     """Collect the information of the running environments.
 
     Returns:
@@ -32,13 +33,14 @@ def collect_env():
             - MMENGINE: MMENGINE version.
     """
 
-    env_info = OrderedDict()
+    env_info: OrderedDict[str, Any] = OrderedDict()
     env_info["sys.platform"] = sys.platform
     env_info["Python"] = sys.version.replace("\n", "")
 
     cuda_available = is_cuda_available()
     env_info["CUDA available"] = cuda_available
-    env_info["numpy_random_seed"] = np.random.get_state()[1][0]
+    np_state = cast(Any, np.random.get_state())
+    env_info["numpy_random_seed"] = int(np_state[1][0])
 
     if cuda_available:
         devices = defaultdict(list)
