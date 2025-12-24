@@ -56,6 +56,14 @@ repos:
         pass_filenames: false
         files: ^visdet/apis/
 
+      - id: zuban-engine-registry
+        name: Zuban type checker (visdet/engine/registry)
+        entry: uv run zuban check visdet/engine/registry
+        language: system
+        types: [python]
+        pass_filenames: false
+        files: ^visdet/engine/registry/
+
   - repo: https://github.com/kynan/nbstripout
     rev: 0.8.1
     hooks:
