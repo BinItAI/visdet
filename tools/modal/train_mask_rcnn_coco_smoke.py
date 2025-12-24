@@ -88,6 +88,7 @@ image = (
         "pycocotools",
         "pydantic>=2.0.0",
         "pyyaml",
+        "matplotlib",
         "rich",
         "scipy",
         "shapely",
