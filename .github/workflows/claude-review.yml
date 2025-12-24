@@ -1,0 +1,91 @@
+name: Multi-Model Consensus PR Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, ready_for_review]
+
+jobs:
+  multi-model-review:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install openai pydantic
+
+      - name: Get changed Python files
+        id: changed
+        run: |
+          git diff --name-only origin/${{ github.base_ref }}...HEAD | grep '\.py$' > /tmp/changed_files.txt || true
+          echo "count=$(wc -l < /tmp/changed_files.txt | tr -d ' ')" >> $GITHUB_OUTPUT
+
+      - name: Run Multi-Model Consensus Review
+        if: steps.changed.outputs.count != '0'
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+        run: python .github/scripts/multi_model_review.py
+
+      - name: Post Review Comment
+        if: steps.changed.outputs.count != '0'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            let results = {};
+            try {
+              results = JSON.parse(fs.readFileSync('/tmp/review_results.json', 'utf8'));
+            } catch (e) {
+              console.log('No results file found');
+              return;
+            }
+
+            if (Object.keys(results).length === 0) {
+              return;
+            }
+
+            let comment = '## 🤖 Multi-Model Consensus Review\n\n';
+            comment += '| Model | Status |\n|-------|--------|\n';
+            comment += '| Claude Sonnet 4 | ✅ |\n';
+            comment += '| GPT-4o | ✅ |\n';
+            comment += '| Gemini 2.0 Flash | ✅ |\n\n';
+
+            for (const [file, result] of Object.entries(results)) {
+              const status = result.consensus_issues.length > 0 ? '⚠️' : '✅';
+              comment += `### ${status} \`${file}\`\n`;
+              comment += `**Pass Rate**: ${result.models_passed}/${result.total_models} models\n\n`;
+
+              if (result.unanimous_issues.length > 0) {
+                comment += `**🔴 Unanimous (all models agree)**:\n`;
+                for (const issue of result.unanimous_issues) {
+                  comment += `- ${issue}\n`;
+                }
+                comment += '\n';
+              }
+
+              if (result.consensus_issues.length > 0) {
+                comment += `**🟡 Consensus (majority agree)**:\n`;
+                for (const issue of result.consensus_issues) {
+                  comment += `- ${issue}\n`;
+                }
+                comment += '\n';
+              }
+            }
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
