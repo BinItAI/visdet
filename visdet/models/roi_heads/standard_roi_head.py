@@ -125,7 +125,8 @@ class StandardRoIHead(BaseRoIHead):
         for i in range(num_imgs):
             # rename rpn_results.bboxes to rpn_results.priors
             rpn_results = rpn_results_list[i]
-            rpn_results.priors = rpn_results.pop("bboxes")
+            if "bboxes" in rpn_results:
+                rpn_results.priors = rpn_results.pop("bboxes")
 
             assign_result = self.bbox_assigner.assign(rpn_results, batch_gt_instances[i], batch_gt_instances_ignore[i])
             sampling_result = self.bbox_sampler.sample(

@@ -10,6 +10,19 @@ We appreciate all contributions to improve this project. Please follow the guide
 4. Run tests to ensure everything works
 5. Submit a pull request
 
+## Git Worktrees
+
+We use git worktrees for feature development. Always create new worktrees at the same level as `main`:
+
+```
+visdet-worktrees/
+├── main/              # Main development worktree
+├── feature-xyz/       # Feature worktree
+└── bugfix-abc/        # Another worktree
+```
+
+**Convention**: Each worktree should have a corresponding branch with a matching name. For example, the `feature-xyz` worktree should be on the `feature-xyz` branch.
+
 ## Code Style
 
 We use the following tools to maintain code quality:
