@@ -4,7 +4,6 @@ import tempfile
 from pathlib import Path
 
 import pytest
-
 from codediff.parser import ClassInfo, CodeParser, FunctionInfo
 
 
