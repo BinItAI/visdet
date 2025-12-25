@@ -121,7 +121,7 @@ def test_libra_rcnn_forward_backward():
         if isinstance(loss_value, torch.Tensor):
             total_loss += loss_value.sum()
         elif isinstance(loss_value, list):
-            total_loss += sum(l.sum() for l in loss_value)
+            total_loss += sum(loss_item.sum() for loss_item in loss_value)
 
     total_loss.backward()
     assert imgs.grad is not None

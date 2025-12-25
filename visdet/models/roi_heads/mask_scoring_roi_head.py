@@ -86,15 +86,9 @@ class MaskScoringRoIHead(StandardRoIHead):
 
         for i in range(len(results_list)):
             if len(results_list[i]) > 0:
-                mask_scores = self.mask_iou_head.get_mask_scores(
+                # Get mask scores from mask IoU head
+                self.mask_iou_head.get_mask_scores(
                     mask_iou_preds[i], results_list[i].bboxes, results_list[i].labels
                 )
-                # results_list[i].scores = ... # MS R-CNN updates scores with mask scores?
-                # Actually, usually it just adds mask_scores or updates existing scores.
-                # In mmdet, it depends on the task.
-
-                # For now, just store them if needed or update scores
-                # results_list[i].mask_scores = mask_scores
-                pass
 
         return results_list
