@@ -604,6 +604,81 @@ def load_from_mmcls(filename, map_location=None):
     return checkpoint
 
 
+@CheckpointLoader.register_scheme(prefixes=("hf://", "huggingface://"))
+def load_from_huggingface(filename, map_location=None):
+    """Load checkpoint from Hugging Face Hub.
+
+    Args:
+        filename (str): checkpoint path with hf:// or huggingface:// prefix.
+            Format: hf://repo_id/path/to/file.pth
+            Examples:
+                - hf://BinItAI/visdet-weights/openmmlab/resnet50_msra-5891d200.pth
+                - huggingface://org/repo/model.pth
+        map_location (str, optional): Same as :func:`torch.load`.
+            Defaults to None.
+
+    Returns:
+        dict or OrderedDict: The loaded checkpoint.
+    """
+    # Parse the HuggingFace path
+    if filename.startswith("huggingface://"):
+        path = filename[14:]
+    else:
+        path = filename[5:]  # hf://
+
+    # Split into repo_id and filename within repo
+    # Format: org/repo/path/to/file.pth -> repo_id=org/repo, filepath=path/to/file.pth
+    parts = path.split("/")
+    if len(parts) < 3:
+        raise ValueError(f"Invalid HuggingFace path: {filename}. Expected format: hf://org/repo/path/to/file.pth")
+
+    repo_id = "/".join(parts[:2])
+    filepath = "/".join(parts[2:])
+
+    rank, world_size = get_dist_info()
+
+    # Download only on rank 0 in distributed setting
+    if rank == 0:
+        try:
+            from huggingface_hub import hf_hub_download
+        except ImportError:
+            raise ImportError(
+                "Please install huggingface_hub to load checkpoints from HuggingFace: pip install huggingface_hub"
+            )
+
+        print_log(f"Downloading checkpoint from HuggingFace: {repo_id}/{filepath}")
+        local_path = hf_hub_download(
+            repo_id=repo_id,
+            filename=filepath,
+            repo_type="model",
+        )
+        print_log(f"Downloaded checkpoint to: {local_path}")
+
+    # Synchronize in distributed setting
+    if world_size > 1:
+        torch.distributed.barrier()
+        if rank > 0:
+            from huggingface_hub import hf_hub_download
+
+            local_path = hf_hub_download(
+                repo_id=repo_id,
+                filename=filepath,
+                repo_type="model",
+            )
+
+    # Load the checkpoint
+    checkpoint = load_from_local(local_path, map_location)
+    return checkpoint
+
+
+def get_huggingface_models():
+    """Get model URLs from HuggingFace mapping file."""
+    hf_json_path = osp.join(visdet.engine.__path__[0], "hub/huggingface.json")
+    if osp.exists(hf_json_path):
+        return load_file(hf_json_path)
+    return {}
+
+
 def _load_checkpoint(filename, map_location=None, logger=None):
     """Load checkpoint from somewhere (modelzoo, file, url).
 
