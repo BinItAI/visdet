@@ -1,7 +1,8 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import torch
-from visdet.structures import DetDataSample, InstanceData
+
 from visdet.registry import MODELS
+from visdet.structures import DetDataSample, InstanceData
 
 
 def test_atss_forward_backward():
@@ -80,7 +81,7 @@ def test_atss_forward_backward():
         if isinstance(loss_value, torch.Tensor):
             total_loss += loss_value.sum()
         elif isinstance(loss_value, list):
-            total_loss += sum(l.sum() for l in loss_value)
+            total_loss += sum(loss_item.sum() for loss_item in loss_value)
 
     total_loss.backward()
     assert imgs.grad is not None

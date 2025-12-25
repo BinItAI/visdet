@@ -1,7 +1,8 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import torch
-from visdet.structures import DetDataSample, InstanceData
+
 from visdet.registry import MODELS
+from visdet.structures import DetDataSample, InstanceData
 
 
 def test_fcos_forward_backward():
@@ -71,7 +72,7 @@ def test_fcos_forward_backward():
     assert "loss_centerness" in losses
 
     # Backward pass
-    total_loss = sum(l.sum() for l in losses.values())
+    total_loss = sum(loss_item.sum() for loss_item in losses.values())
     total_loss.backward()
     assert imgs.grad is not None
     print("Backward pass passed!")

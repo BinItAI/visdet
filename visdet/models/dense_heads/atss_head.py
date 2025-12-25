@@ -6,8 +6,9 @@ from torch import Tensor
 from visdet.cv.cnn import ConvModule, Scale
 from visdet.models.task_modules.samplers import PseudoSampler
 from visdet.models.utils import images_to_levels, multi_apply, unmap
-from visdet.utils import reduce_mean
 from visdet.registry import MODELS, TASK_UTILS
+from visdet.utils import reduce_mean
+
 from .anchor_head import AnchorHead
 
 
@@ -189,7 +190,6 @@ class ATSSHead(AnchorHead):
         featmap_sizes = [featmap.size()[-2:] for featmap in cls_scores]
         device = cls_scores[0].device
         anchor_list, valid_flag_list = self.get_anchors(featmap_sizes, batch_img_metas, device=device)
-        label_channels = self.cls_out_channels if self.use_sigmoid_cls else 1
 
         cls_reg_targets = self.get_targets(
             anchor_list,
