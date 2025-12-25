@@ -80,31 +80,6 @@ def mask_target_single(pos_proposals, pos_assigned_gt_inds, gt_masks, cfg):
 
     Returns:
         Tensor: Mask target of each positive proposals in the image.
-
-    Example:
-        >>> from visdet.engine.config import Config
-        >>> import visdet
-        >>> from visdet.data_elements.mask import BitmapMasks
-        >>> from visdet.data_elements.mask.mask_target import *  # NOQA
-        >>> H, W = 32, 32
-        >>> cfg = Config({'mask_size': (7, 11)})
-        >>> rng = np.random.RandomState(0)
-        >>> # Masks for each ground truth box (relative to the image)
-        >>> gt_masks_data = rng.rand(3, H, W)
-        >>> gt_masks = BitmapMasks(gt_masks_data, height=H, width=W)
-        >>> # Predicted positive boxes in one image
-        >>> pos_proposals = torch.FloatTensor([
-        >>>     [ 16.2,   5.5, 19.9, 20.9],
-        >>>     [ 17.3,  13.6, 19.3, 19.3],
-        >>>     [ 14.8,  16.4, 17.0, 23.7],
-        >>>     [  0.0,   0.0, 16.0, 16.0],
-        >>>     [  4.0,   0.0, 20.0, 16.0],
-        >>> ])
-        >>> # For each predicted proposal, its assignment to a gt mask
-        >>> pos_assigned_gt_inds = torch.LongTensor([0, 1, 2, 1, 1])
-        >>> mask_targets = mask_target_single(
-        >>>     pos_proposals, pos_assigned_gt_inds, gt_masks, cfg)
-        >>> assert mask_targets.shape == (5,) + cfg['mask_size']
     """
     device = pos_proposals.device
     mask_size = _pair(cfg["mask_size"])
