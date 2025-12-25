@@ -7,6 +7,7 @@ from torch import Tensor
 from visdet.cv.cnn import ConvModule
 from visdet.models.utils import multi_apply
 from visdet.registry import MODELS
+
 from .anchor_head import AnchorHead
 
 

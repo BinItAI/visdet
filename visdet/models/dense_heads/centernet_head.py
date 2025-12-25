@@ -4,14 +4,15 @@ import torch.nn as nn
 from torch import Tensor
 
 from visdet.models.utils import (
-    gen_gaussian_target,
     gaussian_radius,
+    gen_gaussian_target,
     get_local_maximum,
     get_topk_from_heatmap,
     transpose_and_gather_feat,
 )
 from visdet.models.utils.misc import multi_apply
 from visdet.registry import MODELS
+
 from .base_dense_head import BaseDenseHead
 
 

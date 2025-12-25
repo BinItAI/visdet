@@ -6,8 +6,9 @@ from torch import Tensor
 from visdet.cv.cnn import ConvModule, Scale
 from visdet.models.task_modules.samplers import PseudoSampler
 from visdet.models.utils import images_to_levels, multi_apply, unmap
-from visdet.utils import reduce_mean
 from visdet.registry import MODELS, TASK_UTILS
+from visdet.utils import reduce_mean
+
 from .anchor_head import AnchorHead
 
 

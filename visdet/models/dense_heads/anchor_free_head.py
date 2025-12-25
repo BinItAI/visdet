@@ -1,5 +1,6 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 from abc import abstractmethod
+
 import torch
 import torch.nn as nn
 from torch import Tensor
@@ -7,6 +8,7 @@ from torch import Tensor
 from visdet.cv.cnn import ConvModule
 from visdet.models.utils import multi_apply
 from visdet.registry import MODELS, TASK_UTILS
+
 from .base_dense_head import BaseDenseHead
 
 

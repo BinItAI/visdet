@@ -5,6 +5,7 @@ from torch import Tensor
 
 from visdet.models.utils.misc import multi_apply, unmap
 from visdet.registry import MODELS
+
 from .retina_head import RetinaHead
 
 
@@ -165,8 +166,8 @@ class FSAFHead(RetinaHead):
         # anchor number of multi levels
         num_level_anchors = [anchors.size(0) for anchors in anchor_list[0]]
 
-        from visdet.structures.bbox import cat_boxes
         from visdet.models.utils.misc import images_to_levels
+        from visdet.structures.bbox import cat_boxes
 
         # Re-organize anchors
         all_anchor_list = []

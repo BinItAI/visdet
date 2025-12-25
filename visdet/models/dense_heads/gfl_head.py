@@ -12,9 +12,10 @@ from visdet.models.utils import (
     multi_apply,
     unmap,
 )
+from visdet.registry import MODELS, TASK_UTILS
 from visdet.structures.bbox import bbox_overlaps
 from visdet.utils import reduce_mean
-from visdet.registry import MODELS, TASK_UTILS
+
 from .anchor_head import AnchorHead
 
 

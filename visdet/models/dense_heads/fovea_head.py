@@ -3,8 +3,9 @@ import torch
 import torch.nn as nn
 from torch import Tensor
 
-from visdet.models.utils.misc import multi_apply, filter_scores_and_topk
+from visdet.models.utils.misc import filter_scores_and_topk, multi_apply
 from visdet.registry import MODELS
+
 from .anchor_free_head import AnchorFreeHead
 
 INF = 1e8

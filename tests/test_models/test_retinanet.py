@@ -1,8 +1,9 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import torch
 import torch.nn as nn
-from visdet.structures import DetDataSample, InstanceData
+
 from visdet.registry import MODELS
+from visdet.structures import DetDataSample, InstanceData
 
 
 def test_retinanet_forward_backward():
