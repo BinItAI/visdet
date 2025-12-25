@@ -1,0 +1,54 @@
+targets:
+  - name: wheel_py
+    command: uv build --wheel --out-dir dist/grog/py --clear --no-create-gitignore
+    inputs:
+      - pyproject.toml
+      - hatch_build.py
+      - visdet/**
+      - README.md
+      - LICENSE
+      - MANIFEST.in
+    outputs:
+      - dir::dist/grog/py
+
+  - name: wheel_cpp
+    command: VISDET_BUILD_CPP_EXT=1 uv build --wheel --out-dir dist/grog/cpp --clear --no-create-gitignore
+    inputs:
+      - pyproject.toml
+      - hatch_build.py
+      - visdet/**
+      - README.md
+      - LICENSE
+      - MANIFEST.in
+    outputs:
+      - dir::dist/grog/cpp
+
+  - name: install_smoke_py_test
+    dependencies:
+      - :wheel_py
+    command: |
+      set -e
+      ROOT="$(pwd)"
+      rm -rf "$ROOT/.grog/venv-py"
+      uv venv "$ROOT/.grog/venv-py"
+      uv pip install --python "$ROOT/.grog/venv-py" "$ROOT/dist/grog/py"/*.whl
+      (cd /tmp && "$ROOT/.grog/venv-py/bin/python" -c "import visdet; from visdet._ext_demo import add, HAS_EXT; assert add(1,2)==3; assert HAS_EXT is False")
+      mkdir -p "$ROOT/.grog/out"
+      touch "$ROOT/.grog/out/install_smoke_py.ok"
+    outputs:
+      - .grog/out/install_smoke_py.ok
+
+  - name: install_smoke_cpp_test
+    dependencies:
+      - :wheel_cpp
+    command: |
+      set -e
+      ROOT="$(pwd)"
+      rm -rf "$ROOT/.grog/venv-cpp"
+      uv venv "$ROOT/.grog/venv-cpp"
+      uv pip install --python "$ROOT/.grog/venv-cpp" "$ROOT/dist/grog/cpp"/*.whl
+      (cd /tmp && "$ROOT/.grog/venv-cpp/bin/python" -c "import visdet; from visdet._ext_demo import add, HAS_EXT; assert add(2,3)==5; assert HAS_EXT is True")
+      mkdir -p "$ROOT/.grog/out"
+      touch "$ROOT/.grog/out/install_smoke_cpp.ok"
+    outputs:
+      - .grog/out/install_smoke_cpp.ok

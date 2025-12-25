@@ -1,0 +1,40 @@
+name: Grog (Wheel Install Smoke)
+
+on:
+  pull_request:
+    branches:
+      - master
+      - main
+  push:
+    branches:
+      - master
+      - main
+
+jobs:
+  grog:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install grog
+        shell: bash
+        run: |
+          curl -L https://grog.build/latest/grog-linux-amd64 -o grog
+          chmod +x grog
+          sudo mv grog /usr/local/bin/grog
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run grog install smoke tests
+        run: grog test
