@@ -8,6 +8,7 @@ import warnings
 from typing import Optional
 
 import torch
+import torch.nn as nn
 from torch import Tensor
 
 from visdet.engine.logging import MMLogger
@@ -47,7 +48,11 @@ class TwoStageDetector(BaseDetector):
 
         # Handle neck as either config dict or direct object
         if neck is not None:
-            if isinstance(neck, dict):
+            if isinstance(neck, list):
+                self.neck = nn.ModuleList()
+                for n in neck:
+                    self.neck.append(MODELS.build(n))
+            elif isinstance(neck, dict):
                 self.neck = MODELS.build(neck)
             else:
                 self.neck = neck
@@ -55,8 +60,20 @@ class TwoStageDetector(BaseDetector):
         # Handle rpn_head as either config dict or direct object
         if rpn_head is not None:
             if isinstance(rpn_head, dict):
-                rpn_train_cfg = train_cfg["rpn"] if train_cfg is not None and "rpn" in train_cfg else None
-                rpn_test_cfg = test_cfg["rpn"] if test_cfg is not None and "rpn" in test_cfg else None
+                rpn_train_cfg = None
+                if train_cfg is not None:
+                    if isinstance(train_cfg, dict):
+                        rpn_train_cfg = train_cfg.get("rpn", None)
+                    else:
+                        rpn_train_cfg = getattr(train_cfg, "rpn", None)
+
+                rpn_test_cfg = None
+                if test_cfg is not None:
+                    if isinstance(test_cfg, dict):
+                        rpn_test_cfg = test_cfg.get("rpn", None)
+                    else:
+                        rpn_test_cfg = getattr(test_cfg, "rpn", None)
+
                 rpn_head_ = rpn_head.copy()
                 rpn_head_.update(train_cfg=rpn_train_cfg, test_cfg=rpn_test_cfg)
                 rpn_head_num_classes = rpn_head_.get("num_classes", None)
@@ -80,8 +97,20 @@ class TwoStageDetector(BaseDetector):
             if isinstance(roi_head, dict):
                 # update train and test cfg here for now
                 # TODO: refactor assigner & sampler
-                rcnn_train_cfg = train_cfg["rcnn"] if train_cfg is not None and "rcnn" in train_cfg else None
-                rcnn_test_cfg = test_cfg["rcnn"] if test_cfg is not None and "rcnn" in test_cfg else None
+                rcnn_train_cfg = None
+                if train_cfg is not None:
+                    if isinstance(train_cfg, dict):
+                        rcnn_train_cfg = train_cfg.get("rcnn", train_cfg.get("roi", None))
+                    else:
+                        rcnn_train_cfg = getattr(train_cfg, "rcnn", getattr(train_cfg, "roi", None))
+
+                rcnn_test_cfg = None
+                if test_cfg is not None:
+                    if isinstance(test_cfg, dict):
+                        rcnn_test_cfg = test_cfg.get("rcnn", test_cfg.get("roi", None))
+                    else:
+                        rcnn_test_cfg = getattr(test_cfg, "rcnn", getattr(test_cfg, "roi", None))
+
                 roi_head.update(train_cfg=rcnn_train_cfg)
                 roi_head.update(test_cfg=rcnn_test_cfg)
                 self.roi_head = MODELS.build(roi_head)
@@ -143,7 +172,11 @@ class TwoStageDetector(BaseDetector):
         """
         x = self.backbone(batch_inputs)
         if self.with_neck:
-            x = self.neck(x)
+            if isinstance(self.neck, nn.ModuleList):
+                for neck in self.neck:
+                    x = neck(x)
+            else:
+                x = self.neck(x)
         return x
 
     def _forward(self, batch_inputs: Tensor, batch_data_samples: SampleList) -> tuple:
@@ -166,7 +199,7 @@ class TwoStageDetector(BaseDetector):
         if self.with_rpn:
             rpn_results_list = self.rpn_head.predict(x, batch_data_samples, rescale=False)
         else:
-            assert batch_data_samples[0].get("proposals", None) is not None
+            assert getattr(batch_data_samples[0], "proposals", None) is not None
             rpn_results_list = [data_sample.proposals for data_sample in batch_data_samples]
         roi_outs = self.roi_head.forward(x, rpn_results_list, batch_data_samples)
         results = (*results, roi_outs)
@@ -209,7 +242,7 @@ class TwoStageDetector(BaseDetector):
         # RPN forward and loss
         if self.with_rpn:
             logger.debug("[TwoStageDetector] Computing RPN losses...")
-            proposal_cfg = self.train_cfg.get("rpn_proposal", self.test_cfg.get("rpn", {}))
+            proposal_cfg = getattr(self.train_cfg, "rpn_proposal", getattr(self.test_cfg, "rpn", {}))
             rpn_data_samples = copy.deepcopy(batch_data_samples)
             # set cat_id of gt_labels to 0 in RPN
             for data_sample in rpn_data_samples:
@@ -236,7 +269,7 @@ class TwoStageDetector(BaseDetector):
                     rpn_losses[f"rpn_{key}"] = rpn_losses.pop(key)
             losses.update(rpn_losses)
         else:
-            assert batch_data_samples[0].get("proposals", None) is not None
+            assert getattr(batch_data_samples[0], "proposals", None) is not None
             # use pre-defined proposals in InstanceData for the second stage
             # to extract ROI features.
             rpn_results_list = [data_sample.proposals for data_sample in batch_data_samples]
@@ -291,7 +324,7 @@ class TwoStageDetector(BaseDetector):
         x = self.extract_feat(batch_inputs)
 
         # If there are no pre-defined proposals, use RPN to get proposals
-        if batch_data_samples[0].get("proposals", None) is None:
+        if getattr(batch_data_samples[0], "proposals", None) is None:
             rpn_results_list = self.rpn_head.predict(x, batch_data_samples, rescale=False)
         else:
             rpn_results_list = [data_sample.proposals for data_sample in batch_data_samples]

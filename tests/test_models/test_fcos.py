@@ -72,7 +72,7 @@ def test_fcos_forward_backward():
     assert "loss_centerness" in losses
 
     # Backward pass
-    total_loss = sum(l.sum() for l in losses.values())
+    total_loss = sum(loss_item.sum() for loss_item in losses.values())
     total_loss.backward()
     assert imgs.grad is not None
     print("Backward pass passed!")

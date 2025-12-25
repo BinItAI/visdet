@@ -3,13 +3,13 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from mmcv.cnn import ConvModule
-from mmcv.runner import BaseModule
+from mmengine.model import BaseModule
 from torch.utils.checkpoint import checkpoint
 
-from ..builder import NECKS
+from mmdet.registry import MODELS
 
 
-@NECKS.register_module()
+@MODELS.register_module()
 class HRFPN(BaseModule):
     """HRFPN (High Resolution Feature Pyramids)
 
@@ -30,18 +30,16 @@ class HRFPN(BaseModule):
         init_cfg (dict or list[dict], optional): Initialization config dict.
     """
 
-    def __init__(
-        self,
-        in_channels,
-        out_channels,
-        num_outs=5,
-        pooling_type="AVG",
-        conv_cfg=None,
-        norm_cfg=None,
-        with_cp=False,
-        stride=1,
-        init_cfg=dict(type="Caffe2Xavier", layer="Conv2d"),
-    ):
+    def __init__(self,
+                 in_channels,
+                 out_channels,
+                 num_outs=5,
+                 pooling_type='AVG',
+                 conv_cfg=None,
+                 norm_cfg=None,
+                 with_cp=False,
+                 stride=1,
+                 init_cfg=dict(type='Caffe2Xavier', layer='Conv2d')):
         super(HRFPN, self).__init__(init_cfg)
         assert isinstance(in_channels, list)
         self.in_channels = in_channels
@@ -57,8 +55,7 @@ class HRFPN(BaseModule):
             out_channels,
             kernel_size=1,
             conv_cfg=self.conv_cfg,
-            act_cfg=None,
-        )
+            act_cfg=None)
 
         self.fpn_convs = nn.ModuleList()
         for i in range(self.num_outs):
@@ -70,11 +67,9 @@ class HRFPN(BaseModule):
                     padding=1,
                     stride=stride,
                     conv_cfg=self.conv_cfg,
-                    act_cfg=None,
-                )
-            )
+                    act_cfg=None))
 
-        if pooling_type == "MAX":
+        if pooling_type == 'MAX':
             self.pooling = F.max_pool2d
         else:
             self.pooling = F.avg_pool2d
@@ -84,7 +79,8 @@ class HRFPN(BaseModule):
         assert len(inputs) == self.num_ins
         outs = [inputs[0]]
         for i in range(1, self.num_ins):
-            outs.append(F.interpolate(inputs[i], scale_factor=2**i, mode="bilinear"))
+            outs.append(
+                F.interpolate(inputs[i], scale_factor=2**i, mode='bilinear'))
         out = torch.cat(outs, dim=1)
         if out.requires_grad and self.with_cp:
             out = checkpoint(self.reduction_conv, out)

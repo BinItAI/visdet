@@ -3,21 +3,23 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from ..builder import LOSSES
+from mmdet.registry import MODELS
 from .utils import weight_reduce_loss
 
 
 def _expand_onehot_labels(labels, label_weights, label_channels):
     bin_labels = labels.new_full((labels.size(0), label_channels), 0)
-    inds = torch.nonzero((labels >= 0) & (labels < label_channels), as_tuple=False).squeeze()
+    inds = torch.nonzero(
+        (labels >= 0) & (labels < label_channels), as_tuple=False).squeeze()
     if inds.numel() > 0:
         bin_labels[inds, labels[inds]] = 1
-    bin_label_weights = label_weights.view(-1, 1).expand(label_weights.size(0), label_channels)
+    bin_label_weights = label_weights.view(-1, 1).expand(
+        label_weights.size(0), label_channels)
     return bin_labels, bin_label_weights
 
 
 # TODO: code refactoring to make it consistent with other losses
-@LOSSES.register_module()
+@MODELS.register_module()
 class GHMC(nn.Module):
     """GHM Classification Loss.
 
@@ -34,23 +36,33 @@ class GHMC(nn.Module):
             Defaults to "mean"
     """
 
-    def __init__(self, bins=10, momentum=0, use_sigmoid=True, loss_weight=1.0, reduction="mean"):
+    def __init__(self,
+                 bins=10,
+                 momentum=0,
+                 use_sigmoid=True,
+                 loss_weight=1.0,
+                 reduction='mean'):
         super(GHMC, self).__init__()
         self.bins = bins
         self.momentum = momentum
         edges = torch.arange(bins + 1).float() / bins
-        self.register_buffer("edges", edges)
+        self.register_buffer('edges', edges)
         self.edges[-1] += 1e-6
         if momentum > 0:
             acc_sum = torch.zeros(bins)
-            self.register_buffer("acc_sum", acc_sum)
+            self.register_buffer('acc_sum', acc_sum)
         self.use_sigmoid = use_sigmoid
         if not self.use_sigmoid:
             raise NotImplementedError
         self.loss_weight = loss_weight
         self.reduction = reduction
 
-    def forward(self, pred, target, label_weight, reduction_override=None, **kwargs):
+    def forward(self,
+                pred,
+                target,
+                label_weight,
+                reduction_override=None,
+                **kwargs):
         """Calculate the GHM-C loss.
 
         Args:
@@ -66,11 +78,13 @@ class GHMC(nn.Module):
         Returns:
             The gradient harmonized loss.
         """
-        assert reduction_override in (None, "none", "mean", "sum")
-        reduction = reduction_override if reduction_override else self.reduction
+        assert reduction_override in (None, 'none', 'mean', 'sum')
+        reduction = (
+            reduction_override if reduction_override else self.reduction)
         # the target should be binary class label
         if pred.dim() != target.dim():
-            target, label_weight = _expand_onehot_labels(target, label_weight, pred.size(-1))
+            target, label_weight = _expand_onehot_labels(
+                target, label_weight, pred.size(-1))
         target, label_weight = target.float(), label_weight.float()
         edges = self.edges
         mmt = self.momentum
@@ -87,7 +101,8 @@ class GHMC(nn.Module):
             num_in_bin = inds.sum().item()
             if num_in_bin > 0:
                 if mmt > 0:
-                    self.acc_sum[i] = mmt * self.acc_sum[i] + (1 - mmt) * num_in_bin
+                    self.acc_sum[i] = mmt * self.acc_sum[i] \
+                        + (1 - mmt) * num_in_bin
                     weights[inds] = tot / self.acc_sum[i]
                 else:
                     weights[inds] = tot / num_in_bin
@@ -95,13 +110,15 @@ class GHMC(nn.Module):
         if n > 0:
             weights = weights / n
 
-        loss = F.binary_cross_entropy_with_logits(pred, target, reduction="none")
-        loss = weight_reduce_loss(loss, weights, reduction=reduction, avg_factor=tot)
+        loss = F.binary_cross_entropy_with_logits(
+            pred, target, reduction='none')
+        loss = weight_reduce_loss(
+            loss, weights, reduction=reduction, avg_factor=tot)
         return loss * self.loss_weight
 
 
 # TODO: code refactoring to make it consistent with other losses
-@LOSSES.register_module()
+@MODELS.register_module()
 class GHMR(nn.Module):
     """GHM Regression Loss.
 
@@ -118,22 +135,32 @@ class GHMR(nn.Module):
             Defaults to "mean"
     """
 
-    def __init__(self, mu=0.02, bins=10, momentum=0, loss_weight=1.0, reduction="mean"):
+    def __init__(self,
+                 mu=0.02,
+                 bins=10,
+                 momentum=0,
+                 loss_weight=1.0,
+                 reduction='mean'):
         super(GHMR, self).__init__()
         self.mu = mu
         self.bins = bins
         edges = torch.arange(bins + 1).float() / bins
-        self.register_buffer("edges", edges)
+        self.register_buffer('edges', edges)
         self.edges[-1] = 1e3
         self.momentum = momentum
         if momentum > 0:
             acc_sum = torch.zeros(bins)
-            self.register_buffer("acc_sum", acc_sum)
+            self.register_buffer('acc_sum', acc_sum)
         self.loss_weight = loss_weight
         self.reduction = reduction
 
     # TODO: support reduction parameter
-    def forward(self, pred, target, label_weight, avg_factor=None, reduction_override=None):
+    def forward(self,
+                pred,
+                target,
+                label_weight,
+                avg_factor=None,
+                reduction_override=None):
         """Calculate the GHM-R loss.
 
         Args:
@@ -150,8 +177,9 @@ class GHMR(nn.Module):
         Returns:
             The gradient harmonized loss.
         """
-        assert reduction_override in (None, "none", "mean", "sum")
-        reduction = reduction_override if reduction_override else self.reduction
+        assert reduction_override in (None, 'none', 'mean', 'sum')
+        reduction = (
+            reduction_override if reduction_override else self.reduction)
         mu = self.mu
         edges = self.edges
         mmt = self.momentum
@@ -173,11 +201,13 @@ class GHMR(nn.Module):
             if num_in_bin > 0:
                 n += 1
                 if mmt > 0:
-                    self.acc_sum[i] = mmt * self.acc_sum[i] + (1 - mmt) * num_in_bin
+                    self.acc_sum[i] = mmt * self.acc_sum[i] \
+                        + (1 - mmt) * num_in_bin
                     weights[inds] = tot / self.acc_sum[i]
                 else:
                     weights[inds] = tot / num_in_bin
         if n > 0:
             weights /= n
-        loss = weight_reduce_loss(loss, weights, reduction=reduction, avg_factor=tot)
+        loss = weight_reduce_loss(
+            loss, weights, reduction=reduction, avg_factor=tot)
         return loss * self.loss_weight

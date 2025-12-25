@@ -155,7 +155,7 @@ class FCNMaskHead(BaseModule):
         """
         pos_proposals = [res.pos_priors for res in sampling_results]
         pos_assigned_gt_inds = [res.pos_assigned_gt_inds for res in sampling_results]
-        gt_masks = [res.masks for res in batch_gt_instances]
+        gt_masks = [getattr(res, "instance_masks", getattr(res, "masks", None)) for res in batch_gt_instances]
         mask_targets = mask_target(pos_proposals, pos_assigned_gt_inds, gt_masks, rcnn_train_cfg)
         return mask_targets
 

@@ -203,7 +203,6 @@ class FSAFHead(RetinaHead):
         """Get targets for FSAF head."""
         num_imgs = len(batch_img_metas)
         num_level_anchors = [anchors.size(0) for anchors in anchor_list[0]]
-        num_level_anchors_list = [num_level_anchors] * num_imgs
 
         for i in range(num_imgs):
             anchor_list[i] = torch.cat(anchor_list[i])

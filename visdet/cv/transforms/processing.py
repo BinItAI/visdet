@@ -151,15 +151,16 @@ class Resize(BaseTransform):
                 # Already a list, validate it
                 if img_scale:
                     first_elem = img_scale[0]
-                    # If first element is a tuple, all must be tuples (valid multi-scale)
-                    if isinstance(first_elem, tuple):
-                        assert is_list_of(img_scale, tuple), f"img_scale must be a list of tuples, got {img_scale}"
-                        self.img_scale = img_scale
+                    # If first element is a tuple or list, treat as multi-scale
+                    if isinstance(first_elem, (tuple, list)):
+                        # Convert any inner lists to tuples for consistency
+                        self.img_scale = [tuple(s) if isinstance(s, list) else s for s in img_scale]
                     elif isinstance(first_elem, (int, float)):
-                        raise AssertionError(
-                            f"img_scale must be a tuple or list of tuples, got {img_scale}. "
-                            f"If you meant a single scale, use ({img_scale[0]}, {img_scale[1]})."
-                        )
+                        # List of numbers like [1333, 800] - treat as single scale tuple
+                        # This supports YAML syntax: scale: [1333, 800]
+                        # TODO: Tech debt - if this conversion is always needed, remove
+                        # the tuple requirement entirely and just use lists internally
+                        self.img_scale = [tuple(img_scale)]
                     else:
                         raise AssertionError(f"img_scale must be a tuple or list of tuples, got {img_scale}")
                 else:
