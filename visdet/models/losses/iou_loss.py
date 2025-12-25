@@ -1,11 +1,13 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import warnings
+
 import torch
 import torch.nn as nn
 from torch import Tensor
 
-from visdet.structures.bbox import bbox_overlaps
 from visdet.registry import MODELS
+from visdet.structures.bbox import bbox_overlaps
+
 from .utils import weighted_loss
 
 

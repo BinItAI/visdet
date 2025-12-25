@@ -5,8 +5,8 @@ from .single_stage import SingleStageDetector
 
 
 @MODELS.register_module()
-class FCOS(SingleStageDetector):
-    """Implementation of `FCOS <https://arxiv.org/abs/1904.01355>`_"""
+class PAA(SingleStageDetector):
+    """Implementation of `PAA <https://arxiv.org/abs/2007.08103>`_"""
 
     def __init__(
         self,

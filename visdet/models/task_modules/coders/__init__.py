@@ -127,5 +127,11 @@ class DistancePointBBoxCoder:
 
 
 from visdet.models.task_modules.coders.yolo_coder import YOLOBBoxCoder
+from visdet.models.task_modules.coders.bucketing_bbox_coder import BucketingBBoxCoder
 
-__all__ = ["DeltaXYWHBBoxCoder", "DistancePointBBoxCoder", "YOLOBBoxCoder"]
+__all__ = [
+    "DeltaXYWHBBoxCoder",
+    "DistancePointBBoxCoder",
+    "YOLOBBoxCoder",
+    "BucketingBBoxCoder",
+]

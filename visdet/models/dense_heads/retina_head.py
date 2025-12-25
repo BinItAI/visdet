@@ -1,8 +1,9 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import torch.nn as nn
-from visdet.cv.cnn import ConvModule
 
+from visdet.cv.cnn import ConvModule
 from visdet.registry import MODELS
+
 from .anchor_head import AnchorHead
 
 

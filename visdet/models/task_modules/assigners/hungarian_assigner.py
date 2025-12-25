@@ -4,6 +4,7 @@ from scipy.optimize import linear_sum_assignment
 from torch import Tensor
 
 from visdet.registry import TASK_UTILS
+
 from .assign_result import AssignResult
 from .base_assigner import BaseAssigner
 from .match_costs import bbox_cxcywh_to_xyxy

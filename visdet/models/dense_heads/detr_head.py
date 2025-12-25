@@ -7,6 +7,7 @@ from torch import Tensor
 from visdet.models.utils.misc import multi_apply
 from visdet.registry import MODELS, TASK_UTILS
 from visdet.structures.bbox import bbox_cxcywh_to_xyxy, bbox_xyxy_to_cxcywh
+
 from .anchor_free_head import AnchorFreeHead
 
 
@@ -41,7 +42,6 @@ class DETRHead(AnchorFreeHead):
         bg_cls_weight: float = 0.1,
         loss_cls: dict = dict(
             type="CrossEntropyLoss",
-            bg_cls_weight=0.1,
             use_sigmoid=False,
             loss_weight=1.0,
             class_weight=1.0,
@@ -53,30 +53,29 @@ class DETRHead(AnchorFreeHead):
         init_cfg: dict | list[dict] | None = None,
         **kwargs,
     ) -> None:
-        super(DETRHead, self).__init__(num_classes, in_channels, init_cfg=init_cfg, **kwargs)
         self.bg_cls_weight = bg_cls_weight
         self.sync_cls_avg_factor = sync_cls_avg_factor
-
-        # In DETR, we don't use the standard loss_cls of AnchorFreeHead
-        # because we need to handle the background class weight specifically
-        # inside the cross entropy loss or manually.
-
         self.num_query = num_query
         self.num_reg_fcs = num_reg_fcs
         self.train_cfg = train_cfg
         self.test_cfg = test_cfg
         self.fp16_enabled = False
 
-        self.loss_cls = MODELS.build(loss_cls)
-        self.loss_bbox = MODELS.build(loss_bbox)
-        self.loss_iou = MODELS.build(loss_iou)
+        loss_cls = loss_cls.copy()
+        if loss_cls.get("class_weight", None) is None:
+            class_weight = [1.0] * num_classes + [bg_cls_weight]
+            loss_cls["class_weight"] = class_weight
+
+        if "bg_cls_weight" in loss_cls:
+            loss_cls.pop("bg_cls_weight")
+
+        super(DETRHead, self).__init__(num_classes, in_channels, loss_cls=loss_cls, init_cfg=init_cfg, **kwargs)
 
         if self.train_cfg:
             self.assigner = TASK_UTILS.build(self.train_cfg["assigner"])
             # DETR doesn't use sampler, but we can set a pseudo one
             self.sampler = TASK_UTILS.build(dict(type="PseudoSampler"), default_args=dict(context=self))
 
-        self._init_layers()
         self.transformer = MODELS.build(transformer)
         self.embed_dims = self.transformer.d_model
         self._init_transformer_weights()
@@ -121,7 +120,8 @@ class DETRHead(AnchorFreeHead):
         # construct binary masks which is the input to transformer
         masks = x.new_zeros((batch_size, height, width)).to(torch.bool)
         for img_id in range(batch_size):
-            img_h, img_w, _ = img_metas[img_id]["img_shape"]
+            img_shape = img_metas[img_id]["img_shape"]
+            img_h, img_w = img_shape[:2]
             pad_h, pad_w = img_metas[img_id]["pad_shape"][:2]
             # Since input images are padded, we want to mask out the padded area
             # We need to calculate the valid area in feature map
@@ -154,7 +154,7 @@ class DETRHead(AnchorFreeHead):
         outputs_class = self.fc_cls(hs)
         outputs_coord = self.reg_ffn(hs).sigmoid()
 
-        return outputs_class, outputs_coord
+        return outputs_class.unsqueeze(0), outputs_coord.unsqueeze(0)
 
     def positional_encoding(self, masks):
         # Implement sine positional encoding
@@ -180,6 +180,14 @@ class DETRHead(AnchorFreeHead):
         pos_y = torch.stack((pos_y[:, :, :, 0::2].sin(), pos_y[:, :, :, 1::2].cos()), dim=4).flatten(3)
         pos = torch.cat((pos_y, pos_x), dim=3).permute(0, 3, 1, 2)
         return pos
+
+    def loss_by_feat(self, **kwargs) -> dict:
+        """Dummy implementation to satisfy abstract base class."""
+        raise NotImplementedError("DETRHead uses loss() directly instead of loss_by_feat()")
+
+    def get_targets(self, **kwargs) -> tuple:
+        """Dummy implementation to satisfy abstract base class."""
+        raise NotImplementedError("DETRHead uses get_targets_single() directly instead of get_targets()")
 
     def loss(
         self,
@@ -222,7 +230,6 @@ class DETRHead(AnchorFreeHead):
         labels = torch.cat(labels_list, 0)
         label_weights = torch.cat(label_weights_list, 0)
         bbox_targets = torch.cat(bbox_targets_list, 0)
-        bbox_weights = torch.cat(bbox_weights_list, 0)
 
         # Classification loss
         cls_scores = cls_scores.reshape(-1, self.num_classes + 1)

@@ -4,14 +4,15 @@ import torch.nn as nn
 from torch import Tensor
 
 from visdet.models.utils import (
-    gen_gaussian_target,
     gaussian_radius,
+    gen_gaussian_target,
     get_local_maximum,
     get_topk_from_heatmap,
     transpose_and_gather_feat,
 )
 from visdet.models.utils.misc import multi_apply
 from visdet.registry import MODELS
+
 from .base_dense_head import BaseDenseHead
 
 
@@ -116,7 +117,6 @@ class CenterNetHead(BaseDenseHead):
         width_ratio = float(feat_w / img_w)
         height_ratio = float(feat_h / img_h)
 
-        device = batch_gt_instances[0].bboxes.device
         center_heatmap_target = batch_gt_instances[0].bboxes.new_zeros([bs, self.num_classes, feat_h, feat_w])
         wh_target = batch_gt_instances[0].bboxes.new_zeros([bs, 2, feat_h, feat_w])
         offset_target = batch_gt_instances[0].bboxes.new_zeros([bs, 2, feat_h, feat_w])

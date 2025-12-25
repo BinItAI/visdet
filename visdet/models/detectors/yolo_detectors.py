@@ -1,5 +1,6 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 from visdet.registry import MODELS
+
 from .single_stage import SingleStageDetector
 
 

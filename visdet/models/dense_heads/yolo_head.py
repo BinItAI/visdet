@@ -6,6 +6,7 @@ from torch import Tensor
 from visdet.cv.cnn import ConvModule
 from visdet.models.utils.misc import multi_apply
 from visdet.registry import MODELS, TASK_UTILS
+
 from .base_dense_head import BaseDenseHead
 
 
@@ -102,7 +103,6 @@ class YOLOV3Head(BaseDenseHead):
         # In a real implementation, we would need the responsible flags logic.
         # For now, I'll return a stub to pass forward/backward tests.
         num_levels = len(pred_maps[0])
-        device = pred_maps[0][0].device
 
         losses_cls = []
         losses_conf = []

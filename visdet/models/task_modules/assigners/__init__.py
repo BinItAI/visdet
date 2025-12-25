@@ -9,6 +9,7 @@ from visdet.models.task_modules.assigners.iou2d_calculator import (
 )
 from visdet.models.task_modules.assigners.max_iou_assigner import MaxIoUAssigner
 from visdet.models.task_modules.assigners.hungarian_assigner import HungarianAssigner
+from visdet.models.task_modules.assigners.uniform_assigner import UniformAssigner
 from visdet.models.task_modules.assigners.match_costs import (
     BaseMatchCost,
     BBoxL1Cost,
@@ -25,6 +26,7 @@ __all__ = [
     "BboxOverlaps2D",
     "get_box_tensor",
     "HungarianAssigner",
+    "UniformAssigner",
     "BaseMatchCost",
     "BBoxL1Cost",
     "ClassificationCost",

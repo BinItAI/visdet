@@ -5,8 +5,8 @@ from .single_stage import SingleStageDetector
 
 
 @MODELS.register_module()
-class FCOS(SingleStageDetector):
-    """Implementation of `FCOS <https://arxiv.org/abs/1904.01355>`_"""
+class YOLOF(SingleStageDetector):
+    """Implementation of `YOLOF <https://arxiv.org/abs/2103.09460>`_"""
 
     def __init__(
         self,

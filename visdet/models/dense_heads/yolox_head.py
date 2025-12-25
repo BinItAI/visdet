@@ -6,8 +6,9 @@ from torch import Tensor
 
 from visdet.cv.cnn import ConvModule, build_conv_layer
 from visdet.models.utils.misc import multi_apply
-from visdet.utils import reduce_mean
 from visdet.registry import MODELS, TASK_UTILS
+from visdet.utils import reduce_mean
+
 from .base_dense_head import BaseDenseHead
 
 

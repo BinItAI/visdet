@@ -13,7 +13,10 @@ from visdet.models.detectors.ssd import SSD
 from visdet.models.detectors.two_stage import TwoStageDetector
 from visdet.models.detectors.anchor_free_detectors import CenterNet, FSAF, FoveaBox
 from visdet.models.detectors.yolo_detectors import YOLOV3, YOLOX
+from visdet.models.detectors.autoassign import AutoAssign
 from visdet.models.detectors.detr import DETR
+from visdet.models.detectors.yolof import YOLOF
+from visdet.models.detectors.paa import PAA
 
 __all__ = [
     "BaseDetector",
@@ -32,4 +35,7 @@ __all__ = [
     "YOLOV3",
     "YOLOX",
     "DETR",
+    "YOLOF",
+    "PAA",
+    "AutoAssign",
 ]

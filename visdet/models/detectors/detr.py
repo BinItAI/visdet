@@ -3,6 +3,7 @@ from torch import Tensor
 
 from visdet.registry import MODELS
 from visdet.utils.typing_utils import ConfigType, OptConfigType, OptMultiConfig
+
 from .single_stage import SingleStageDetector
 
 

@@ -1,9 +1,12 @@
 # Copyright (c) OpenMMLab. All rights reserved.
-import math
 import copy
+import math
+
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 from torch import Tensor
+
 from visdet.registry import MODELS
 
 
