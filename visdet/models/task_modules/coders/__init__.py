@@ -126,4 +126,6 @@ class DistancePointBBoxCoder:
         return distance2bbox(points, pred_bboxes, max_shape)
 
 
-__all__ = ["DeltaXYWHBBoxCoder", "DistancePointBBoxCoder"]
+from visdet.models.task_modules.coders.yolo_coder import YOLOBBoxCoder
+
+__all__ = ["DeltaXYWHBBoxCoder", "DistancePointBBoxCoder", "YOLOBBoxCoder"]

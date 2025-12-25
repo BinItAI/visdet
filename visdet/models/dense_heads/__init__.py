@@ -8,6 +8,11 @@ from visdet.models.dense_heads.fcos_head import FCOSHead
 from visdet.models.dense_heads.ssd_head import SSDHead
 from visdet.models.dense_heads.atss_head import ATSSHead
 from visdet.models.dense_heads.gfl_head import GFLHead
+from visdet.models.dense_heads.fovea_head import FoveaHead
+from visdet.models.dense_heads.fsaf_head import FSAFHead
+from visdet.models.dense_heads.centernet_head import CenterNetHead
+from visdet.models.dense_heads.yolo_head import YOLOV3Head
+from visdet.models.dense_heads.yolox_head import YOLOXHead
 
 __all__ = [
     "BaseDenseHead",
@@ -19,4 +24,9 @@ __all__ = [
     "SSDHead",
     "ATSSHead",
     "GFLHead",
+    "FoveaHead",
+    "FSAFHead",
+    "CenterNetHead",
+    "YOLOV3Head",
+    "YOLOXHead",
 ]

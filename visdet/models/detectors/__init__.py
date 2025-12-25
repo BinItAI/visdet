@@ -11,6 +11,8 @@ from visdet.models.detectors.retinanet import RetinaNet
 from visdet.models.detectors.single_stage import SingleStageDetector
 from visdet.models.detectors.ssd import SSD
 from visdet.models.detectors.two_stage import TwoStageDetector
+from visdet.models.detectors.anchor_free_detectors import CenterNet, FSAF, FoveaBox
+from visdet.models.detectors.yolo_detectors import YOLOV3, YOLOX
 
 __all__ = [
     "BaseDetector",
@@ -23,4 +25,9 @@ __all__ = [
     "GFL",
     "MaskRCNN",
     "CascadeRCNN",
+    "FoveaBox",
+    "FSAF",
+    "CenterNet",
+    "YOLOV3",
+    "YOLOX",
 ]

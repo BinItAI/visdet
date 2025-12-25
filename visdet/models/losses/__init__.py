@@ -6,6 +6,7 @@ from visdet.models.losses.focal_loss import FocalLoss
 from visdet.models.losses.iou_loss import IoULoss, GIoULoss
 from visdet.models.losses.gfocal_loss import QualityFocalLoss, DistributionFocalLoss
 from visdet.models.losses.mse_loss import MSELoss
+from visdet.models.losses.gaussian_focal_loss import GaussianFocalLoss
 
 __all__ = [
     "CrossEntropyLoss",
@@ -18,4 +19,5 @@ __all__ = [
     "QualityFocalLoss",
     "DistributionFocalLoss",
     "MSELoss",
+    "GaussianFocalLoss",
 ]
