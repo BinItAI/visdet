@@ -1,8 +1,8 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import numpy as np
 import torch
-from torch.nn.modules.utils import _pair
 from torch import Tensor
+from torch.nn.modules.utils import _pair
 
 from visdet.registry import TASK_UTILS
 
