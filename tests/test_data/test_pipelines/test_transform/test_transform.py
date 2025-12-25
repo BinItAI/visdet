@@ -15,10 +15,11 @@ from .utils import create_full_masks, create_random_bboxes
 
 
 def test_resize():
-    # test assertion if img_scale is a list
-    with pytest.raises(AssertionError):
-        transform = dict(type="Resize", img_scale=[1333, 800], keep_ratio=True)
-        build_from_cfg(transform, PIPELINES)
+    # test that img_scale as a list of ints works (YAML compatibility)
+    # [1333, 800] gets converted to [(1333, 800)] internally
+    transform = dict(type="Resize", img_scale=[1333, 800], keep_ratio=True)
+    resize_module = build_from_cfg(transform, PIPELINES)
+    assert resize_module.img_scale == [(1333, 800)]
 
     # test assertion if len(img_scale) while ratio_range is not None
     with pytest.raises(AssertionError):
