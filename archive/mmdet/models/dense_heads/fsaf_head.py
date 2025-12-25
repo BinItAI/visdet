@@ -371,8 +371,8 @@ class FSAFHead(RetinaHead):
         # Default loss value is 1e6 for a layer where no anchor is positive
         #  to ensure it will not be chosen to back-propagate gradient
         losses_ = loss.new_full(labels_seq.shape, 1e6)
-        for i, l in enumerate(labels_seq):
-            match = assigned_gt_inds == l
+        for i, label in enumerate(labels_seq):
+            match = assigned_gt_inds == label
             if match.any():
                 losses_[i] = loss[match].mean()
         return (losses_,)
