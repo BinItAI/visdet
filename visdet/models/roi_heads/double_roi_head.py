@@ -1,5 +1,6 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 from visdet.registry import MODELS
+
 from .standard_roi_head import StandardRoIHead
 
 

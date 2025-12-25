@@ -1,6 +1,8 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import torch
+
 from visdet.registry import MODELS
+
 from .standard_roi_head import StandardRoIHead
 
 

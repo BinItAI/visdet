@@ -1,8 +1,9 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import torch.nn.functional as F
+from torch import Tensor, nn
+
 from visdet.cv.cnn import ConvModule
 from visdet.registry import MODELS
-from torch import nn, Tensor
 
 
 @MODELS.register_module()

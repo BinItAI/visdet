@@ -1,8 +1,10 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import torch.nn as nn
+
 from visdet.cv.cnn import ConvModule
 from visdet.models.backbones.resnet import Bottleneck
 from visdet.registry import MODELS
+
 from .bbox_head import BBoxHead
 
 

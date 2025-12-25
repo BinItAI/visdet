@@ -1,8 +1,9 @@
 # Copyright (c) OpenMMLab. All rights reserved.
-import torch
 import numpy as np
-from visdet.structures import DetDataSample, InstanceData
+import torch
+
 from visdet.registry import MODELS
+from visdet.structures import DetDataSample, InstanceData
 from visdet.structures.mask import BitmapMasks
 
 

@@ -1,7 +1,9 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import numpy as np
 import torch
+
 from visdet.registry import MODELS
+
 from .standard_roi_head import StandardRoIHead
 
 EPS = 1e-15

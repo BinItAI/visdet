@@ -1,10 +1,11 @@
 # Copyright (c) OpenMMLab. All rights reserved.
-import torch
 import numpy as np
-from visdet.models.necks.bfp import BFP
-from visdet.models.losses.balanced_l1_loss import BalancedL1Loss
-from visdet.models.task_modules.samplers import IoUBalancedNegSampler, InstanceBalancedPosSampler, SamplingResult
+import torch
+
 from visdet.engine.structures import InstanceData
+from visdet.models.losses.balanced_l1_loss import BalancedL1Loss
+from visdet.models.necks.bfp import BFP
+from visdet.models.task_modules.samplers import InstanceBalancedPosSampler, IoUBalancedNegSampler, SamplingResult
 
 
 def test_bfp_forward():
