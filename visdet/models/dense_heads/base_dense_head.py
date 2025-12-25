@@ -466,18 +466,19 @@ class BaseDenseHead(BaseModule, metaclass=ABCMeta):
         # filter small size bboxes
         if cfg.get("min_bbox_size", -1) >= 0:
             w, h = get_box_wh(results.bboxes)
-            valid_mask = (w > cfg.min_bbox_size) & (h > cfg.min_bbox_size)
+            min_bbox_size = cfg.get("min_bbox_size")
+            valid_mask = (w > min_bbox_size) & (h > min_bbox_size)
             if not valid_mask.all():
                 results = results[valid_mask]
 
         # TODO: deal with `with_nms` and `nms_cfg=None` in test_cfg
         if with_nms and results.bboxes.numel() > 0:
             bboxes = get_box_tensor(results.bboxes)
-            det_bboxes, keep_idxs = batched_nms(bboxes, results.scores, results.labels, cfg.nms)
+            det_bboxes, keep_idxs = batched_nms(bboxes, results.scores, results.labels, cfg.get("nms"))
             results = results[keep_idxs]
             # some nms would reweight the score, such as softnms
             results.scores = det_bboxes[:, -1]
-            results = results[: cfg.max_per_img]
+            results = results[: cfg.get("max_per_img")]
 
         return results
 

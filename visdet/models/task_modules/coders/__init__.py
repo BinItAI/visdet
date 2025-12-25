@@ -1,6 +1,7 @@
 # ruff: noqa
 import torch
 from visdet.registry import TASK_UTILS
+from visdet.structures.bbox import distance2bbox, bbox2distance
 
 
 @TASK_UTILS.register_module()
@@ -88,4 +89,43 @@ class DeltaXYWHBBoxCoder:
         return decoded_bboxes
 
 
-__all__ = ["DeltaXYWHBBoxCoder"]
+@TASK_UTILS.register_module()
+class DistancePointBBoxCoder:
+    """Distance Point BBox coder.
+
+    This coder encodes gt bboxes (x1, y1, x2, y2) into (top, bottom, left,
+    right) and decode it back to the original.
+
+    Args:
+        clip_border (bool, optional): Whether clip the objects outside the
+            border of the image. Defaults to True.
+    """
+
+    def __init__(self, clip_border=True):
+        self.clip_border = clip_border
+
+    @property
+    def encode_size(self):
+        """int: the encoded size"""
+        return 4
+
+    def encode(self, points, gt_bboxes, max_dis=None, eps=0.1):
+        """Encode bounding box to distances."""
+        assert points.size(0) == gt_bboxes.size(0)
+        assert points.size(-1) == 2
+        assert gt_bboxes.size(-1) == 4
+        return bbox2distance(points, gt_bboxes, max_dis, eps)
+
+    def decode(self, points, pred_bboxes, max_shape=None):
+        """Decode distance prediction to bounding box."""
+        assert points.size(0) == pred_bboxes.size(0)
+        assert points.size(-1) == 2
+        assert pred_bboxes.size(-1) == 4
+        if self.clip_border is False:
+            max_shape = None
+        return distance2bbox(points, pred_bboxes, max_shape)
+
+
+from visdet.models.task_modules.coders.yolo_coder import YOLOBBoxCoder
+
+__all__ = ["DeltaXYWHBBoxCoder", "DistancePointBBoxCoder", "YOLOBBoxCoder"]

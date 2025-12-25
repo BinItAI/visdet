@@ -1,8 +1,12 @@
 # ruff: noqa
 
 from visdet.models.task_modules.assigners.assign_result import AssignResult
+from visdet.models.task_modules.assigners.atss_assigner import ATSSAssigner
 from visdet.models.task_modules.assigners.base_assigner import BaseAssigner
-from visdet.models.task_modules.assigners.iou2d_calculator import BboxOverlaps2D, get_box_tensor
+from visdet.models.task_modules.assigners.iou2d_calculator import (
+    BboxOverlaps2D,
+    get_box_tensor,
+)
 from visdet.models.task_modules.assigners.max_iou_assigner import MaxIoUAssigner
 from visdet.models.task_modules.assigners.hungarian_assigner import HungarianAssigner
 from visdet.models.task_modules.assigners.match_costs import (
@@ -17,6 +21,7 @@ __all__ = [
     "AssignResult",
     "BaseAssigner",
     "MaxIoUAssigner",
+    "ATSSAssigner",
     "BboxOverlaps2D",
     "get_box_tensor",
     "HungarianAssigner",

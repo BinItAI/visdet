@@ -631,6 +631,8 @@ def test_inference_detector():
 
     model = build_detector(ConfigDict(model_dict))
     config = _get_config_module("retinanet/retinanet_r50_fpn_1x_coco.py")
+    # Add mock test_dataloader to avoid AttributeError in inference_detector
+    config.test_dataloader = ConfigDict(dataset=ConfigDict(pipeline=config.test_pipeline))
     model.cfg = config
     # test single image
     result = inference_detector(model, img1)
