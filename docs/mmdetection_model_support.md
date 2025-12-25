@@ -161,4 +161,4 @@ We plan to add support for:
 
 ## Contributing
 
-Want to help add support for a model? See our [contribution guide](../CONTRIBUTING.md) or open an issue to discuss!
+Want to help add support for a model? See our [contribution guide](about/contributing.md) or open an issue to discuss!
