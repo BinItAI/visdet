@@ -3,7 +3,6 @@ from __future__ import annotations
 import importlib
 import importlib.util
 
-
 _DEMO_EXT_SPEC = importlib.util.find_spec("visdet._ext_demo._demo_ext")
 HAS_EXT = _DEMO_EXT_SPEC is not None
 
