@@ -5,5 +5,14 @@ from visdet.models.dense_heads.rpn_head import RPNHead
 from visdet.models.dense_heads.retina_head import RetinaHead
 from visdet.models.dense_heads.anchor_free_head import AnchorFreeHead
 from visdet.models.dense_heads.fcos_head import FCOSHead
+from visdet.models.dense_heads.ssd_head import SSDHead
 
-__all__ = ["BaseDenseHead", "AnchorHead", "RPNHead", "RetinaHead", "AnchorFreeHead", "FCOSHead"]
+__all__ = [
+    "BaseDenseHead",
+    "AnchorHead",
+    "RPNHead",
+    "RetinaHead",
+    "AnchorFreeHead",
+    "FCOSHead",
+    "SSDHead",
+]
