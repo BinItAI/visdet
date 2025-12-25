@@ -5,8 +5,9 @@ from torch import Tensor
 
 from visdet.cv.cnn import Scale
 from visdet.models.utils import multi_apply
-from visdet.utils import reduce_mean
 from visdet.registry import MODELS
+from visdet.utils import reduce_mean
+
 from .anchor_free_head import AnchorFreeHead
 
 INF = 1e8
