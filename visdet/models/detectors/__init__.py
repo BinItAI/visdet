@@ -1,6 +1,7 @@
 # ruff: noqa
 # Copyright (c) OpenMMLab. All rights reserved.
 
+from visdet.models.detectors.atss import ATSS
 from visdet.models.detectors.base import BaseDetector
 from visdet.models.detectors.cascade_rcnn import CascadeRCNN
 from visdet.models.detectors.fcos import FCOS
@@ -17,6 +18,7 @@ __all__ = [
     "RetinaNet",
     "FCOS",
     "SSD",
+    "ATSS",
     "MaskRCNN",
     "CascadeRCNN",
 ]
