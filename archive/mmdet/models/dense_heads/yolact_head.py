@@ -860,8 +860,8 @@ class YOLACTProtonet(BaseModule):
         )
         mask_pred = mask_pred.cpu().numpy().astype(np.uint8)
 
-        for m, label in zip(mask_pred, label_pred):
-            cls_segms[label].append(m)
+        for mask, label in zip(mask_pred, label_pred):
+            cls_segms[label].append(mask)
         return cls_segms
 
     def crop(self, masks, boxes, padding=1):
