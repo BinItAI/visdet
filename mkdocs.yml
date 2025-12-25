@@ -98,6 +98,7 @@ nav:
   - User Guide:
       - Training: user-guide/training.md
       - Optimizers: user-guide/optimizers.md
+      - Losses: user-guide/losses.md
       - Inference: user-guide/inference.md
       - Configuration: user-guide/configuration.md
   - Tutorials:
