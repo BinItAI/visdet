@@ -1,15 +1,19 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import warnings
+from typing import Tuple
 
 import torch.nn as nn
 import torch.nn.functional as F
 from mmcv.cnn import ConvModule
-from mmcv.runner import BaseModule, auto_fp16, force_fp32
+from mmengine.config import ConfigDict
+from mmengine.model import BaseModule
+from torch import Tensor
 
-from mmdet.models.builder import HEADS, build_loss
+from mmdet.registry import MODELS
+from mmdet.utils import MultiConfig, OptConfigType
 
 
-@HEADS.register_module()
+@MODELS.register_module()
 class FusedSemanticHead(BaseModule):
     r"""Multi-level fused semantic segmentation head.
 
@@ -28,22 +32,26 @@ class FusedSemanticHead(BaseModule):
 
     def __init__(
         self,
-        num_ins,
-        fusion_level,
-        num_convs=4,
-        in_channels=256,
-        conv_out_channels=256,
-        num_classes=183,
-        conv_cfg=None,
-        norm_cfg=None,
-        ignore_label=None,
-        loss_weight=None,
-        loss_seg=dict(type="CrossEntropyLoss", ignore_index=255, loss_weight=0.2),
-        init_cfg=dict(type="Kaiming", override=dict(name="conv_logits")),
-    ):
-        super(FusedSemanticHead, self).__init__(init_cfg)
+        num_ins: int,
+        fusion_level: int,
+        seg_scale_factor=1 / 8,
+        num_convs: int = 4,
+        in_channels: int = 256,
+        conv_out_channels: int = 256,
+        num_classes: int = 183,
+        conv_cfg: OptConfigType = None,
+        norm_cfg: OptConfigType = None,
+        ignore_label: int = None,
+        loss_weight: float = None,
+        loss_seg: ConfigDict = dict(
+            type='CrossEntropyLoss', ignore_index=255, loss_weight=0.2),
+        init_cfg: MultiConfig = dict(
+            type='Kaiming', override=dict(name='conv_logits'))
+    ) -> None:
+        super().__init__(init_cfg=init_cfg)
         self.num_ins = num_ins
         self.fusion_level = fusion_level
+        self.seg_scale_factor = seg_scale_factor
         self.num_convs = num_convs
         self.in_channels = in_channels
         self.conv_out_channels = conv_out_channels
@@ -61,9 +69,7 @@ class FusedSemanticHead(BaseModule):
                     1,
                     conv_cfg=self.conv_cfg,
                     norm_cfg=self.norm_cfg,
-                    inplace=False,
-                )
-            )
+                    inplace=False))
 
         self.convs = nn.ModuleList()
         for i in range(self.num_convs):
@@ -75,48 +81,64 @@ class FusedSemanticHead(BaseModule):
                     3,
                     padding=1,
                     conv_cfg=self.conv_cfg,
-                    norm_cfg=self.norm_cfg,
-                )
-            )
+                    norm_cfg=self.norm_cfg))
         self.conv_embedding = ConvModule(
             conv_out_channels,
             conv_out_channels,
             1,
             conv_cfg=self.conv_cfg,
-            norm_cfg=self.norm_cfg,
-        )
+            norm_cfg=self.norm_cfg)
         self.conv_logits = nn.Conv2d(conv_out_channels, self.num_classes, 1)
         if ignore_label:
-            loss_seg["ignore_index"] = ignore_label
+            loss_seg['ignore_index'] = ignore_label
         if loss_weight:
-            loss_seg["loss_weight"] = loss_weight
+            loss_seg['loss_weight'] = loss_weight
         if ignore_label or loss_weight:
-            warnings.warn(
-                "``ignore_label`` and ``loss_weight`` would be "
-                "deprecated soon. Please set ``ingore_index`` and "
-                "``loss_weight`` in ``loss_seg`` instead."
-            )
-        self.criterion = build_loss(loss_seg)
+            warnings.warn('``ignore_label`` and ``loss_weight`` would be '
+                          'deprecated soon. Please set ``ingore_index`` and '
+                          '``loss_weight`` in ``loss_seg`` instead.')
+        self.criterion = MODELS.build(loss_seg)
 
-    @auto_fp16()
-    def forward(self, feats):
+    def forward(self, feats: Tuple[Tensor]) -> Tuple[Tensor]:
+        """Forward function.
+
+        Args:
+            feats (tuple[Tensor]): Multi scale feature maps.
+
+        Returns:
+            tuple[Tensor]:
+
+                - mask_preds (Tensor): Predicted mask logits.
+                - x (Tensor): Fused feature.
+        """
         x = self.lateral_convs[self.fusion_level](feats[self.fusion_level])
         fused_size = tuple(x.shape[-2:])
         for i, feat in enumerate(feats):
             if i != self.fusion_level:
-                feat = F.interpolate(feat, size=fused_size, mode="bilinear", align_corners=True)
+                feat = F.interpolate(
+                    feat, size=fused_size, mode='bilinear', align_corners=True)
                 # fix runtime error of "+=" inplace operation in PyTorch 1.10
                 x = x + self.lateral_convs[i](feat)
 
         for i in range(self.num_convs):
             x = self.convs[i](x)
 
-        mask_pred = self.conv_logits(x)
+        mask_preds = self.conv_logits(x)
         x = self.conv_embedding(x)
-        return mask_pred, x
+        return mask_preds, x
 
-    @force_fp32(apply_to=("mask_pred",))
-    def loss(self, mask_pred, labels):
+    def loss(self, mask_preds: Tensor, labels: Tensor) -> Tensor:
+        """Loss function.
+
+        Args:
+            mask_preds (Tensor): Predicted mask logits.
+            labels (Tensor): Ground truth.
+
+        Returns:
+            Tensor: Semantic segmentation loss.
+        """
+        labels = F.interpolate(
+            labels.float(), scale_factor=self.seg_scale_factor, mode='nearest')
         labels = labels.squeeze(1).long()
-        loss_semantic_seg = self.criterion(mask_pred, labels)
+        loss_semantic_seg = self.criterion(mask_preds, labels)
         return loss_semantic_seg

@@ -1,12 +1,18 @@
 # Copyright (c) OpenMMLab. All rights reserved.
+from typing import List, Optional, Tuple
+
 import numpy as np
 import torch
-from mmcv.runner import force_fp32
+from mmengine.structures import InstanceData
+from torch import Tensor
 
-from mmdet.core import multi_apply, multiclass_nms
-from mmdet.core.bbox.iou_calculators import bbox_overlaps
-from mmdet.models import HEADS
-from mmdet.models.dense_heads import ATSSHead
+from mmdet.registry import MODELS
+from mmdet.structures.bbox import bbox_overlaps
+from mmdet.utils import (ConfigType, InstanceList, OptConfigType,
+                         OptInstanceList)
+from ..layers import multiclass_nms
+from ..utils import levels_to_images, multi_apply
+from . import ATSSHead
 
 EPS = 1e-12
 try:
@@ -15,34 +21,7 @@ except ImportError:
     skm = None
 
 
-def levels_to_images(mlvl_tensor):
-    """Concat multi-level feature maps by image.
-
-    [feature_level0, feature_level1...] -> [feature_image0, feature_image1...]
-    Convert the shape of each element in mlvl_tensor from (N, C, H, W) to
-    (N, H*W , C), then split the element to N elements with shape (H*W, C), and
-    concat elements in same image of all level along first dimension.
-
-    Args:
-        mlvl_tensor (list[torch.Tensor]): list of Tensor which collect from
-            corresponding level. Each element is of shape (N, C, H, W)
-
-    Returns:
-        list[torch.Tensor]: A list that contains N tensors and each tensor is
-            of shape (num_elements, C)
-    """
-    batch_size = mlvl_tensor[0].size(0)
-    batch_list = [[] for _ in range(batch_size)]
-    channels = mlvl_tensor[0].size(1)
-    for t in mlvl_tensor:
-        t = t.permute(0, 2, 3, 1)
-        t = t.view(batch_size, -1, channels).contiguous()
-        for img in range(batch_size):
-            batch_list[img].append(t[img])
-    return [torch.cat(item, 0) for item in batch_list]
-
-
-@HEADS.register_module()
+@MODELS.register_module()
 class PAAHead(ATSSHead):
     """Head of PAAAssignment: Probabilistic Anchor Assignment with IoU
     Prediction for Object Detection.
@@ -71,25 +50,28 @@ class PAAHead(ATSSHead):
             cases, 'diag' should be a good choice.
     """
 
-    def __init__(self, *args, topk=9, score_voting=True, covariance_type="diag", **kwargs):
+    def __init__(self,
+                 *args,
+                 topk: int = 9,
+                 score_voting: bool = True,
+                 covariance_type: str = 'diag',
+                 **kwargs):
         # topk used in paa reassign process
         self.topk = topk
         self.with_score_voting = score_voting
         self.covariance_type = covariance_type
-        super(PAAHead, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
-    @force_fp32(apply_to=("cls_scores", "bbox_preds", "iou_preds"))
-    def loss(
-        self,
-        cls_scores,
-        bbox_preds,
-        iou_preds,
-        gt_bboxes,
-        gt_labels,
-        img_metas,
-        gt_bboxes_ignore=None,
-    ):
-        """Compute losses of the head.
+    def loss_by_feat(
+            self,
+            cls_scores: List[Tensor],
+            bbox_preds: List[Tensor],
+            iou_preds: List[Tensor],
+            batch_gt_instances: InstanceList,
+            batch_img_metas: List[dict],
+            batch_gt_instances_ignore: OptInstanceList = None) -> dict:
+        """Calculate the loss based on the features extracted by the detection
+        head.
 
         Args:
             cls_scores (list[Tensor]): Box scores for each scale level
@@ -98,13 +80,15 @@ class PAAHead(ATSSHead):
                 level with shape (N, num_anchors * 4, H, W)
             iou_preds (list[Tensor]): iou_preds for each scale
                 level with shape (N, num_anchors * 1, H, W)
-            gt_bboxes (list[Tensor]): Ground truth bboxes for each image with
-                shape (num_gts, 4) in [tl_x, tl_y, br_x, br_y] format.
-            gt_labels (list[Tensor]): class indices corresponding to each box
-            img_metas (list[dict]): Meta information of each image, e.g.,
+            batch_gt_instances (list[:obj:`InstanceData`]): Batch of
+                gt_instance.  It usually includes ``bboxes`` and ``labels``
+                attributes.
+            batch_img_metas (list[dict]): Meta information of each image, e.g.,
                 image size, scaling factor, etc.
-            gt_bboxes_ignore (list[Tensor] | None): Specify which bounding
-                boxes can be ignored when are computing the loss.
+            batch_gt_instances_ignore (list[:obj:`InstanceData`], optional):
+                Batch of gt_instances_ignore. It includes ``bboxes`` attribute
+                data that is ignored during training and testing.
+                Defaults to None.
 
         Returns:
             dict[str, Tensor]: A dictionary of loss gmm_assignment.
@@ -114,101 +98,89 @@ class PAAHead(ATSSHead):
         assert len(featmap_sizes) == self.prior_generator.num_levels
 
         device = cls_scores[0].device
-        anchor_list, valid_flag_list = self.get_anchors(featmap_sizes, img_metas, device=device)
-        label_channels = self.cls_out_channels if self.use_sigmoid_cls else 1
+        anchor_list, valid_flag_list = self.get_anchors(
+            featmap_sizes, batch_img_metas, device=device)
         cls_reg_targets = self.get_targets(
             anchor_list,
             valid_flag_list,
-            gt_bboxes,
-            img_metas,
-            gt_bboxes_ignore_list=gt_bboxes_ignore,
-            gt_labels_list=gt_labels,
-            label_channels=label_channels,
+            batch_gt_instances,
+            batch_img_metas,
+            batch_gt_instances_ignore=batch_gt_instances_ignore,
         )
-        (
-            labels,
-            labels_weight,
-            bboxes_target,
-            bboxes_weight,
-            pos_inds,
-            pos_gt_index,
-        ) = cls_reg_targets
+        (labels, labels_weight, bboxes_target, bboxes_weight, pos_inds,
+         pos_gt_index) = cls_reg_targets
         cls_scores = levels_to_images(cls_scores)
-        cls_scores = [item.reshape(-1, self.cls_out_channels) for item in cls_scores]
+        cls_scores = [
+            item.reshape(-1, self.cls_out_channels) for item in cls_scores
+        ]
         bbox_preds = levels_to_images(bbox_preds)
         bbox_preds = [item.reshape(-1, 4) for item in bbox_preds]
         iou_preds = levels_to_images(iou_preds)
         iou_preds = [item.reshape(-1, 1) for item in iou_preds]
-        (pos_losses_list,) = multi_apply(
-            self.get_pos_loss,
-            anchor_list,
-            cls_scores,
-            bbox_preds,
-            labels,
-            labels_weight,
-            bboxes_target,
-            bboxes_weight,
-            pos_inds,
-        )
+        pos_losses_list, = multi_apply(self.get_pos_loss, anchor_list,
+                                       cls_scores, bbox_preds, labels,
+                                       labels_weight, bboxes_target,
+                                       bboxes_weight, pos_inds)
 
         with torch.no_grad():
-            reassign_labels, reassign_label_weight, reassign_bbox_weights, num_pos = multi_apply(
-                self.paa_reassign,
-                pos_losses_list,
-                labels,
-                labels_weight,
-                bboxes_weight,
-                pos_inds,
-                pos_gt_index,
-                anchor_list,
-            )
+            reassign_labels, reassign_label_weight, \
+                reassign_bbox_weights, num_pos = multi_apply(
+                    self.paa_reassign,
+                    pos_losses_list,
+                    labels,
+                    labels_weight,
+                    bboxes_weight,
+                    pos_inds,
+                    pos_gt_index,
+                    anchor_list)
             num_pos = sum(num_pos)
         # convert all tensor list to a flatten tensor
         cls_scores = torch.cat(cls_scores, 0).view(-1, cls_scores[0].size(-1))
         bbox_preds = torch.cat(bbox_preds, 0).view(-1, bbox_preds[0].size(-1))
         iou_preds = torch.cat(iou_preds, 0).view(-1, iou_preds[0].size(-1))
         labels = torch.cat(reassign_labels, 0).view(-1)
-        flatten_anchors = torch.cat([torch.cat(item, 0) for item in anchor_list])
+        flatten_anchors = torch.cat(
+            [torch.cat(item, 0) for item in anchor_list])
         labels_weight = torch.cat(reassign_label_weight, 0).view(-1)
-        bboxes_target = torch.cat(bboxes_target, 0).view(-1, bboxes_target[0].size(-1))
+        bboxes_target = torch.cat(bboxes_target,
+                                  0).view(-1, bboxes_target[0].size(-1))
 
-        pos_inds_flatten = ((labels >= 0) & (labels < self.num_classes)).nonzero().reshape(-1)
+        pos_inds_flatten = ((labels >= 0)
+                            &
+                            (labels < self.num_classes)).nonzero().reshape(-1)
 
         losses_cls = self.loss_cls(
-            cls_scores, labels, labels_weight, avg_factor=max(num_pos, len(img_metas))
-        )  # avoid num_pos=0
+            cls_scores,
+            labels,
+            labels_weight,
+            avg_factor=max(num_pos, len(batch_img_metas)))  # avoid num_pos=0
         if num_pos:
-            pos_bbox_pred = self.bbox_coder.decode(flatten_anchors[pos_inds_flatten], bbox_preds[pos_inds_flatten])
+            pos_bbox_pred = self.bbox_coder.decode(
+                flatten_anchors[pos_inds_flatten],
+                bbox_preds[pos_inds_flatten])
             pos_bbox_target = bboxes_target[pos_inds_flatten]
-            iou_target = bbox_overlaps(pos_bbox_pred.detach(), pos_bbox_target, is_aligned=True)
+            iou_target = bbox_overlaps(
+                pos_bbox_pred.detach(), pos_bbox_target, is_aligned=True)
             losses_iou = self.loss_centerness(
                 iou_preds[pos_inds_flatten],
                 iou_target.unsqueeze(-1),
-                avg_factor=num_pos,
-            )
+                avg_factor=num_pos)
             losses_bbox = self.loss_bbox(
                 pos_bbox_pred,
                 pos_bbox_target,
                 iou_target.clamp(min=EPS),
-                avg_factor=iou_target.sum(),
-            )
+                avg_factor=iou_target.sum())
         else:
             losses_iou = iou_preds.sum() * 0
             losses_bbox = bbox_preds.sum() * 0
 
-        return dict(loss_cls=losses_cls, loss_bbox=losses_bbox, loss_iou=losses_iou)
+        return dict(
+            loss_cls=losses_cls, loss_bbox=losses_bbox, loss_iou=losses_iou)
 
-    def get_pos_loss(
-        self,
-        anchors,
-        cls_score,
-        bbox_pred,
-        label,
-        label_weight,
-        bbox_target,
-        bbox_weight,
-        pos_inds,
-    ):
+    def get_pos_loss(self, anchors: List[Tensor], cls_score: Tensor,
+                     bbox_pred: Tensor, label: Tensor, label_weight: Tensor,
+                     bbox_target: dict, bbox_weight: Tensor,
+                     pos_inds: Tensor) -> Tensor:
         """Calculate loss of all potential positive samples obtained from first
         match process.
 
@@ -233,7 +205,7 @@ class PAAHead(ATSSHead):
             Tensor: Losses of all positive samples in single image.
         """
         if not len(pos_inds):
-            return (cls_score.new([]),)
+            return cls_score.new([]),
         anchors_all_level = torch.cat(anchors, 0)
         pos_scores = cls_score[pos_inds]
         pos_bbox_pred = bbox_pred[pos_inds]
@@ -250,31 +222,23 @@ class PAAHead(ATSSHead):
             pos_label,
             pos_label_weight,
             avg_factor=1.0,
-            reduction_override="none",
-        )
+            reduction_override='none')
 
         loss_bbox = self.loss_bbox(
             pos_bbox_pred,
             pos_bbox_target,
             pos_bbox_weight,
             avg_factor=1.0,  # keep same loss weight before reassign
-            reduction_override="none",
-        )
+            reduction_override='none')
 
         loss_cls = loss_cls.sum(-1)
         pos_loss = loss_bbox + loss_cls
-        return (pos_loss,)
+        return pos_loss,
 
-    def paa_reassign(
-        self,
-        pos_losses,
-        label,
-        label_weight,
-        bbox_weight,
-        pos_inds,
-        pos_gt_inds,
-        anchors,
-    ):
+    def paa_reassign(self, pos_losses: Tensor, label: Tensor,
+                     label_weight: Tensor, bbox_weight: Tensor,
+                     pos_inds: Tensor, pos_gt_inds: Tensor,
+                     anchors: List[Tensor]) -> tuple:
         """Fit loss to GMM distribution and separate positive, ignore, negative
         samples again with GMM model.
 
@@ -317,7 +281,8 @@ class PAAHead(ATSSHead):
         inds_level_interval = np.cumsum(num_anchors_each_level)
         pos_level_mask = []
         for i in range(num_level):
-            mask = (pos_inds >= inds_level_interval[i]) & (pos_inds < inds_level_interval[i + 1])
+            mask = (pos_inds >= inds_level_interval[i]) & (
+                pos_inds < inds_level_interval[i + 1])
             pos_level_mask.append(mask)
         pos_inds_after_paa = [label.new_tensor([])]
         ignore_inds_after_paa = [label.new_tensor([])]
@@ -328,7 +293,8 @@ class PAAHead(ATSSHead):
             for level in range(num_level):
                 level_mask = pos_level_mask[level]
                 level_gt_mask = level_mask & gt_mask
-                value, topk_inds = pos_losses[level_gt_mask].topk(min(level_gt_mask.sum(), self.topk), largest=False)
+                value, topk_inds = pos_losses[level_gt_mask].topk(
+                    min(level_gt_mask.sum(), self.topk), largest=False)
                 pos_inds_gmm.append(pos_inds[level_gt_mask][topk_inds])
                 pos_loss_gmm.append(value)
             pos_inds_gmm = torch.cat(pos_inds_gmm)
@@ -344,28 +310,29 @@ class PAAHead(ATSSHead):
             means_init = np.array([min_loss, max_loss]).reshape(2, 1)
             weights_init = np.array([0.5, 0.5])
             precisions_init = np.array([1.0, 1.0]).reshape(2, 1, 1)  # full
-            if self.covariance_type == "spherical":
+            if self.covariance_type == 'spherical':
                 precisions_init = precisions_init.reshape(2)
-            elif self.covariance_type == "diag":
+            elif self.covariance_type == 'diag':
                 precisions_init = precisions_init.reshape(2, 1)
-            elif self.covariance_type == "tied":
+            elif self.covariance_type == 'tied':
                 precisions_init = np.array([[1.0]])
             if skm is None:
-                raise ImportError('Please run "pip install sklearn" to install sklearn first.')
+                raise ImportError('Please run "pip install sklearn" '
+                                  'to install sklearn first.')
             gmm = skm.GaussianMixture(
                 2,
                 weights_init=weights_init,
                 means_init=means_init,
                 precisions_init=precisions_init,
-                covariance_type=self.covariance_type,
-            )
+                covariance_type=self.covariance_type)
             gmm.fit(pos_loss_gmm)
             gmm_assignment = gmm.predict(pos_loss_gmm)
             scores = gmm.score_samples(pos_loss_gmm)
             gmm_assignment = torch.from_numpy(gmm_assignment).to(device)
             scores = torch.from_numpy(scores).to(device)
 
-            pos_inds_temp, ignore_inds_temp = self.gmm_separation_scheme(gmm_assignment, scores, pos_inds_gmm)
+            pos_inds_temp, ignore_inds_temp = self.gmm_separation_scheme(
+                gmm_assignment, scores, pos_inds_gmm)
             pos_inds_after_paa.append(pos_inds_temp)
             ignore_inds_after_paa.append(ignore_inds_temp)
 
@@ -379,7 +346,8 @@ class PAAHead(ATSSHead):
         num_pos = len(pos_inds_after_paa)
         return label, label_weight, bbox_weight, num_pos
 
-    def gmm_separation_scheme(self, gmm_assignment, scores, pos_inds_gmm):
+    def gmm_separation_scheme(self, gmm_assignment: Tensor, scores: Tensor,
+                              pos_inds_gmm: Tensor) -> Tuple[Tensor, Tensor]:
         """A general separation scheme for gmm model.
 
         It separates a GMM distribution of candidate samples into three
@@ -396,7 +364,7 @@ class PAAHead(ATSSHead):
                 to fit GMM model. The tensor is of shape (num_samples,)
 
         Returns:
-            tuple[Tensor]: The indices of positive and ignored samples.
+            tuple[Tensor, Tensor]: The indices of positive and ignored samples.
 
                 - pos_inds_temp (Tensor): Indices of positive samples.
                 - ignore_inds_temp (Tensor): Indices of ignore samples.
@@ -410,21 +378,17 @@ class PAAHead(ATSSHead):
         ignore_inds_temp = fgs.new_tensor([], dtype=torch.long)
         if fgs.nonzero().numel():
             _, pos_thr_ind = scores[fgs].topk(1)
-            pos_inds_temp = pos_inds_gmm[fgs][: pos_thr_ind + 1]
+            pos_inds_temp = pos_inds_gmm[fgs][:pos_thr_ind + 1]
             ignore_inds_temp = pos_inds_gmm.new_tensor([])
         return pos_inds_temp, ignore_inds_temp
 
-    def get_targets(
-        self,
-        anchor_list,
-        valid_flag_list,
-        gt_bboxes_list,
-        img_metas,
-        gt_bboxes_ignore_list=None,
-        gt_labels_list=None,
-        label_channels=1,
-        unmap_outputs=True,
-    ):
+    def get_targets(self,
+                    anchor_list: List[List[Tensor]],
+                    valid_flag_list: List[List[Tensor]],
+                    batch_gt_instances: InstanceList,
+                    batch_img_metas: List[dict],
+                    batch_gt_instances_ignore: OptInstanceList = None,
+                    unmap_outputs: bool = True) -> tuple:
         """Get targets for PAA head.
 
         This method is almost the same as `AnchorHead.get_targets()`. We direct
@@ -440,14 +404,17 @@ class PAAHead(ATSSHead):
                 each image. The outer list indicates images, and the inner list
                 corresponds to feature levels of the image. Each element of
                 the inner list is a tensor of shape (num_anchors, )
-            gt_bboxes_list (list[Tensor]): Ground truth bboxes of each image.
-            img_metas (list[dict]): Meta info of each image.
-            gt_bboxes_ignore_list (list[Tensor]): Ground truth bboxes to be
-                ignored.
-            gt_labels_list (list[Tensor]): Ground truth labels of each box.
-            label_channels (int): Channel of label.
+            batch_gt_instances (list[:obj:`InstanceData`]): Batch of
+                gt_instance. It usually includes ``bboxes`` and ``labels``
+                attributes.
+            batch_img_metas (list[dict]): Meta information of each image, e.g.,
+                image size, scaling factor, etc.
+            batch_gt_instances_ignore (list[:obj:`InstanceData`], optional):
+                Batch of gt_instances_ignore. It includes ``bboxes`` attribute
+                data that is ignored during training and testing.
+                Defaults to None.
             unmap_outputs (bool): Whether to map outputs back to the original
-                set of anchors.
+                set of anchors. Defaults to True.
 
         Returns:
             tuple: Usually returns a tuple containing learning targets.
@@ -466,7 +433,7 @@ class PAAHead(ATSSHead):
                     sample in all anchor.
         """
 
-        num_imgs = len(img_metas)
+        num_imgs = len(batch_img_metas)
         assert len(anchor_list) == len(valid_flag_list) == num_imgs
         concat_anchor_list = []
         concat_valid_flag_list = []
@@ -476,109 +443,90 @@ class PAAHead(ATSSHead):
             concat_valid_flag_list.append(torch.cat(valid_flag_list[i]))
 
         # compute targets for each image
-        if gt_bboxes_ignore_list is None:
-            gt_bboxes_ignore_list = [None for _ in range(num_imgs)]
-        if gt_labels_list is None:
-            gt_labels_list = [None for _ in range(num_imgs)]
+        if batch_gt_instances_ignore is None:
+            batch_gt_instances_ignore = [None] * num_imgs
         results = multi_apply(
             self._get_targets_single,
             concat_anchor_list,
             concat_valid_flag_list,
-            gt_bboxes_list,
-            gt_bboxes_ignore_list,
-            gt_labels_list,
-            img_metas,
-            label_channels=label_channels,
-            unmap_outputs=unmap_outputs,
-        )
+            batch_gt_instances,
+            batch_img_metas,
+            batch_gt_instances_ignore,
+            unmap_outputs=unmap_outputs)
 
-        (
-            labels,
-            label_weights,
-            bbox_targets,
-            bbox_weights,
-            valid_pos_inds,
-            valid_neg_inds,
-            sampling_result,
-        ) = results
+        (labels, label_weights, bbox_targets, bbox_weights, valid_pos_inds,
+         valid_neg_inds, sampling_result) = results
 
         # Due to valid flag of anchors, we have to calculate the real pos_inds
         # in origin anchor set.
         pos_inds = []
         for i, single_labels in enumerate(labels):
-            pos_mask = (0 <= single_labels) & (single_labels < self.num_classes)
+            pos_mask = (0 <= single_labels) & (
+                single_labels < self.num_classes)
             pos_inds.append(pos_mask.nonzero().view(-1))
 
         gt_inds = [item.pos_assigned_gt_inds for item in sampling_result]
-        return (labels, label_weights, bbox_targets, bbox_weights, pos_inds, gt_inds)
+        return (labels, label_weights, bbox_targets, bbox_weights, pos_inds,
+                gt_inds)
 
-    def _get_targets_single(
-        self,
-        flat_anchors,
-        valid_flags,
-        gt_bboxes,
-        gt_bboxes_ignore,
-        gt_labels,
-        img_meta,
-        label_channels=1,
-        unmap_outputs=True,
-    ):
+    def _get_targets_single(self,
+                            flat_anchors: Tensor,
+                            valid_flags: Tensor,
+                            gt_instances: InstanceData,
+                            img_meta: dict,
+                            gt_instances_ignore: Optional[InstanceData] = None,
+                            unmap_outputs: bool = True) -> tuple:
         """Compute regression and classification targets for anchors in a
         single image.
 
         This method is same as `AnchorHead._get_targets_single()`.
         """
-        assert unmap_outputs, "We must map outputs back to the originalset of anchors in PAAhead"
+        assert unmap_outputs, 'We must map outputs back to the original' \
+                              'set of anchors in PAAhead'
         return super(ATSSHead, self)._get_targets_single(
             flat_anchors,
             valid_flags,
-            gt_bboxes,
-            gt_bboxes_ignore,
-            gt_labels,
+            gt_instances,
             img_meta,
-            label_channels=1,
-            unmap_outputs=True,
-        )
+            gt_instances_ignore,
+            unmap_outputs=True)
 
-    @force_fp32(apply_to=("cls_scores", "bbox_preds"))
-    def get_bboxes(
-        self,
-        cls_scores,
-        bbox_preds,
-        score_factors=None,
-        img_metas=None,
-        cfg=None,
-        rescale=False,
-        with_nms=True,
-        **kwargs,
-    ):
-        assert with_nms, (
-            'PAA only supports "with_nms=True" now and it means PAAHead does not support test-time augmentation'
-        )
-        return super(ATSSHead, self).get_bboxes(
-            cls_scores,
-            bbox_preds,
-            score_factors,
-            img_metas,
-            cfg,
-            rescale,
-            with_nms,
-            **kwargs,
-        )
+    def predict_by_feat(self,
+                        cls_scores: List[Tensor],
+                        bbox_preds: List[Tensor],
+                        score_factors: Optional[List[Tensor]] = None,
+                        batch_img_metas: Optional[List[dict]] = None,
+                        cfg: OptConfigType = None,
+                        rescale: bool = False,
+                        with_nms: bool = True) -> InstanceList:
+        """Transform a batch of output features extracted from the head into
+        bbox results.
 
-    def _get_bboxes_single(
-        self,
-        cls_score_list,
-        bbox_pred_list,
-        score_factor_list,
-        mlvl_priors,
-        img_meta,
-        cfg,
-        rescale=False,
-        with_nms=True,
-        **kwargs,
-    ):
-        """Transform outputs of a single image into bbox predictions.
+        This method is same as `BaseDenseHead.get_results()`.
+        """
+        assert with_nms, 'PAA only supports "with_nms=True" now and it ' \
+                         'means PAAHead does not support ' \
+                         'test-time augmentation'
+        return super().predict_by_feat(
+            cls_scores=cls_scores,
+            bbox_preds=bbox_preds,
+            score_factors=score_factors,
+            batch_img_metas=batch_img_metas,
+            cfg=cfg,
+            rescale=rescale,
+            with_nms=with_nms)
+
+    def _predict_by_feat_single(self,
+                                cls_score_list: List[Tensor],
+                                bbox_pred_list: List[Tensor],
+                                score_factor_list: List[Tensor],
+                                mlvl_priors: List[Tensor],
+                                img_meta: dict,
+                                cfg: OptConfigType = None,
+                                rescale: bool = False,
+                                with_nms: bool = True) -> InstanceData:
+        """Transform a single image's features extracted from the head into
+        bbox results.
 
         Args:
             cls_score_list (list[Tensor]): Box scores from all scale
@@ -594,143 +542,130 @@ class PAAHead(ATSSHead):
                 the priors of a single level in feature pyramid, has shape
                 (num_priors, 4).
             img_meta (dict): Image meta info.
-            cfg (mmcv.Config): Test / postprocessing configuration,
-                if None, test_cfg would be used.
+            cfg (:obj:`ConfigDict` or dict, optional): Test / postprocessing
+                configuration, if None, test_cfg would be used.
             rescale (bool): If True, return boxes in original image space.
                 Default: False.
             with_nms (bool): If True, do nms before return boxes.
                 Default: True.
 
         Returns:
-            tuple[Tensor]: Results of detected bboxes and labels. If with_nms
-                is False and mlvl_score_factor is None, return mlvl_bboxes and
-                mlvl_scores, else return mlvl_bboxes, mlvl_scores and
-                mlvl_score_factor. Usually with_nms is False is used for aug
-                test. If with_nms is True, then return the following format
+            :obj:`InstanceData`: Detection results of each image
+            after the post process.
+            Each item usually contains following keys.
 
-                - det_bboxes (Tensor): Predicted bboxes with shape \
-                    [num_bboxes, 5], where the first 4 columns are bounding \
-                    box positions (tl_x, tl_y, br_x, br_y) and the 5-th \
-                    column are scores between 0 and 1.
-                - det_labels (Tensor): Predicted labels of the corresponding \
-                    box with shape [num_bboxes].
+                - scores (Tensor): Classification scores, has a shape
+                  (num_instance, )
+                - labels (Tensor): Labels of bboxes, has a shape
+                  (num_instances, ).
+                - bboxes (Tensor): Has a shape (num_instances, 4),
+                  the last dimension 4 arrange as (x1, y1, x2, y2).
         """
         cfg = self.test_cfg if cfg is None else cfg
-        img_shape = img_meta["img_shape"]
-        nms_pre = cfg.get("nms_pre", -1)
+        img_shape = img_meta['img_shape']
+        nms_pre = cfg.get('nms_pre', -1)
 
         mlvl_bboxes = []
         mlvl_scores = []
         mlvl_score_factors = []
-        for level_idx, (cls_score, bbox_pred, score_factor, priors) in enumerate(
-            zip(cls_score_list, bbox_pred_list, score_factor_list, mlvl_priors)
-        ):
+        for level_idx, (cls_score, bbox_pred, score_factor, priors) in \
+                enumerate(zip(cls_score_list, bbox_pred_list,
+                              score_factor_list, mlvl_priors)):
             assert cls_score.size()[-2:] == bbox_pred.size()[-2:]
 
-            scores = cls_score.permute(1, 2, 0).reshape(-1, self.cls_out_channels).sigmoid()
+            scores = cls_score.permute(1, 2, 0).reshape(
+                -1, self.cls_out_channels).sigmoid()
             bbox_pred = bbox_pred.permute(1, 2, 0).reshape(-1, 4)
             score_factor = score_factor.permute(1, 2, 0).reshape(-1).sigmoid()
 
             if 0 < nms_pre < scores.shape[0]:
-                max_scores, _ = (scores * score_factor[:, None]).sqrt().max(dim=1)
+                max_scores, _ = (scores *
+                                 score_factor[:, None]).sqrt().max(dim=1)
                 _, topk_inds = max_scores.topk(nms_pre)
                 priors = priors[topk_inds, :]
                 bbox_pred = bbox_pred[topk_inds, :]
                 scores = scores[topk_inds, :]
                 score_factor = score_factor[topk_inds]
 
-            bboxes = self.bbox_coder.decode(priors, bbox_pred, max_shape=img_shape)
+            bboxes = self.bbox_coder.decode(
+                priors, bbox_pred, max_shape=img_shape)
             mlvl_bboxes.append(bboxes)
             mlvl_scores.append(scores)
             mlvl_score_factors.append(score_factor)
 
-        return self._bbox_post_process(
-            mlvl_scores,
-            mlvl_bboxes,
-            img_meta["scale_factor"],
-            cfg,
-            rescale,
-            with_nms,
-            mlvl_score_factors,
-            **kwargs,
-        )
+        results = InstanceData()
+        results.bboxes = torch.cat(mlvl_bboxes)
+        results.scores = torch.cat(mlvl_scores)
+        results.score_factors = torch.cat(mlvl_score_factors)
 
-    def _bbox_post_process(
-        self,
-        mlvl_scores,
-        mlvl_bboxes,
-        scale_factor,
-        cfg,
-        rescale=False,
-        with_nms=True,
-        mlvl_score_factors=None,
-        **kwargs,
-    ):
+        return self._bbox_post_process(results, cfg, rescale, with_nms,
+                                       img_meta)
+
+    def _bbox_post_process(self,
+                           results: InstanceData,
+                           cfg: ConfigType,
+                           rescale: bool = False,
+                           with_nms: bool = True,
+                           img_meta: Optional[dict] = None):
         """bbox post-processing method.
 
         The boxes would be rescaled to the original image scale and do
         the nms operation. Usually with_nms is False is used for aug test.
 
         Args:
-            mlvl_scores (list[Tensor]): Box scores from all scale
-                levels of a single image, each item has shape
-                (num_bboxes, num_class).
-            mlvl_bboxes (list[Tensor]): Decoded bboxes from all scale
-                levels of a single image, each item has shape (num_bboxes, 4).
-            scale_factor (ndarray, optional): Scale factor of the image arange
-                as (w_scale, h_scale, w_scale, h_scale).
-            cfg (mmcv.Config): Test / postprocessing configuration,
-                if None, test_cfg would be used.
+            results (:obj:`InstaceData`): Detection instance results,
+                each item has shape (num_bboxes, ).
+            cfg (:obj:`ConfigDict` or dict): Test / postprocessing
+                configuration, if None, test_cfg would be used.
             rescale (bool): If True, return boxes in original image space.
                 Default: False.
             with_nms (bool): If True, do nms before return boxes.
                 Default: True.
-            mlvl_score_factors (list[Tensor], optional): Score factor from
-                all scale levels of a single image, each item has shape
-                (num_bboxes, ). Default: None.
+            img_meta (dict, optional): Image meta info. Defaults to None.
 
         Returns:
-            tuple[Tensor]: Results of detected bboxes and labels. If with_nms
-                is False and mlvl_score_factor is None, return mlvl_bboxes and
-                mlvl_scores, else return mlvl_bboxes, mlvl_scores and
-                mlvl_score_factor. Usually with_nms is False is used for aug
-                test. If with_nms is True, then return the following format
+            :obj:`InstanceData`: Detection results of each image
+            after the post process.
+            Each item usually contains following keys.
 
-                - det_bboxes (Tensor): Predicted bboxes with shape \
-                    [num_bboxes, 5], where the first 4 columns are bounding \
-                    box positions (tl_x, tl_y, br_x, br_y) and the 5-th \
-                    column are scores between 0 and 1.
-                - det_labels (Tensor): Predicted labels of the corresponding \
-                    box with shape [num_bboxes].
+                - scores (Tensor): Classification scores, has a shape
+                  (num_instance, )
+                - labels (Tensor): Labels of bboxes, has a shape
+                  (num_instances, ).
+                - bboxes (Tensor): Has a shape (num_instances, 4),
+                  the last dimension 4 arrange as (x1, y1, x2, y2).
         """
-        mlvl_bboxes = torch.cat(mlvl_bboxes)
         if rescale:
-            mlvl_bboxes /= mlvl_bboxes.new_tensor(scale_factor)
-        mlvl_scores = torch.cat(mlvl_scores)
+            results.bboxes /= results.bboxes.new_tensor(
+                img_meta['scale_factor']).repeat((1, 2))
         # Add a dummy background class to the backend when using sigmoid
         # remind that we set FG labels to [0, num_class-1] since mmdet v2.0
         # BG cat_id: num_class
-        padding = mlvl_scores.new_zeros(mlvl_scores.shape[0], 1)
-        mlvl_scores = torch.cat([mlvl_scores, padding], dim=1)
+        padding = results.scores.new_zeros(results.scores.shape[0], 1)
+        mlvl_scores = torch.cat([results.scores, padding], dim=1)
 
-        mlvl_iou_preds = torch.cat(mlvl_score_factors)
-        mlvl_nms_scores = (mlvl_scores * mlvl_iou_preds[:, None]).sqrt()
+        mlvl_nms_scores = (mlvl_scores * results.score_factors[:, None]).sqrt()
         det_bboxes, det_labels = multiclass_nms(
-            mlvl_bboxes,
+            results.bboxes,
             mlvl_nms_scores,
             cfg.score_thr,
             cfg.nms,
             cfg.max_per_img,
-            score_factors=None,
-        )
+            score_factors=None)
         if self.with_score_voting and len(det_bboxes) > 0:
-            det_bboxes, det_labels = self.score_voting(
-                det_bboxes, det_labels, mlvl_bboxes, mlvl_nms_scores, cfg.score_thr
-            )
+            det_bboxes, det_labels = self.score_voting(det_bboxes, det_labels,
+                                                       results.bboxes,
+                                                       mlvl_nms_scores,
+                                                       cfg.score_thr)
+        nms_results = InstanceData()
+        nms_results.bboxes = det_bboxes[:, :-1]
+        nms_results.scores = det_bboxes[:, -1]
+        nms_results.labels = det_labels
+        return nms_results
 
-        return det_bboxes, det_labels
-
-    def score_voting(self, det_bboxes, det_labels, mlvl_bboxes, mlvl_nms_scores, score_thr):
+    def score_voting(self, det_bboxes: Tensor, det_labels: Tensor,
+                     mlvl_bboxes: Tensor, mlvl_nms_scores: Tensor,
+                     score_thr: float) -> Tuple[Tensor, Tensor]:
         """Implementation of score voting method works on each remaining boxes
         after NMS procedure.
 
@@ -770,18 +705,24 @@ class PAAHead(ATSSHead):
             candidate_cls_scores = candidate_scores[candidate_cls_mask]
             candidate_cls_bboxes = candidate_bboxes[candidate_cls_mask]
             det_cls_mask = det_labels == cls
-            det_cls_bboxes = det_bboxes[det_cls_mask].view(-1, det_bboxes.size(-1))
-            det_candidate_ious = bbox_overlaps(det_cls_bboxes[:, :4], candidate_cls_bboxes)
+            det_cls_bboxes = det_bboxes[det_cls_mask].view(
+                -1, det_bboxes.size(-1))
+            det_candidate_ious = bbox_overlaps(det_cls_bboxes[:, :4],
+                                               candidate_cls_bboxes)
             for det_ind in range(len(det_cls_bboxes)):
                 single_det_ious = det_candidate_ious[det_ind]
                 pos_ious_mask = single_det_ious > 0.01
                 pos_ious = single_det_ious[pos_ious_mask]
                 pos_bboxes = candidate_cls_bboxes[pos_ious_mask]
                 pos_scores = candidate_cls_scores[pos_ious_mask]
-                pis = (torch.exp(-((1 - pos_ious) ** 2) / 0.025) * pos_scores)[:, None]
-                voted_box = torch.sum(pis * pos_bboxes, dim=0) / torch.sum(pis, dim=0)
+                pis = (torch.exp(-(1 - pos_ious)**2 / 0.025) *
+                       pos_scores)[:, None]
+                voted_box = torch.sum(
+                    pis * pos_bboxes, dim=0) / torch.sum(
+                        pis, dim=0)
                 voted_score = det_cls_bboxes[det_ind][-1:][None, :]
-                det_bboxes_voted.append(torch.cat((voted_box[None, :], voted_score), dim=1))
+                det_bboxes_voted.append(
+                    torch.cat((voted_box[None, :], voted_score), dim=1))
                 det_labels_voted.append(cls)
 
         det_bboxes_voted = torch.cat(det_bboxes_voted, dim=0)

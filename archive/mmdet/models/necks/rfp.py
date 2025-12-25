@@ -2,10 +2,9 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from mmcv.cnn import constant_init, xavier_init
-from mmcv.runner import BaseModule, ModuleList
+from mmengine.model import BaseModule, ModuleList, constant_init, xavier_init
 
-from ..builder import NECKS, build_backbone
+from mmdet.registry import MODELS
 from .fpn import FPN
 
 
@@ -23,13 +22,11 @@ class ASPP(BaseModule):
         init_cfg (dict or list[dict], optional): Initialization config dict.
     """
 
-    def __init__(
-        self,
-        in_channels,
-        out_channels,
-        dilations=(1, 3, 6, 1),
-        init_cfg=dict(type="Kaiming", layer="Conv2d"),
-    ):
+    def __init__(self,
+                 in_channels,
+                 out_channels,
+                 dilations=(1, 3, 6, 1),
+                 init_cfg=dict(type='Kaiming', layer='Conv2d')):
         super().__init__(init_cfg)
         assert dilations[-1] == 1
         self.aspp = nn.ModuleList()
@@ -43,8 +40,7 @@ class ASPP(BaseModule):
                 stride=1,
                 dilation=dilation,
                 padding=padding,
-                bias=True,
-            )
+                bias=True)
             self.aspp.append(conv)
         self.gap = nn.AdaptiveAvgPool2d(1)
 
@@ -59,7 +55,7 @@ class ASPP(BaseModule):
         return out
 
 
-@NECKS.register_module()
+@MODELS.register_module()
 class RFP(FPN):
     """RFP (Recursive Feature Pyramid)
 
@@ -78,26 +74,32 @@ class RFP(FPN):
             Default: None
     """
 
-    def __init__(
-        self,
-        rfp_steps,
-        rfp_backbone,
-        aspp_out_channels,
-        aspp_dilations=(1, 3, 6, 1),
-        init_cfg=None,
-        **kwargs,
-    ):
-        assert init_cfg is None, "To prevent abnormal initialization behavior, init_cfg is not allowed to be set"
+    def __init__(self,
+                 rfp_steps,
+                 rfp_backbone,
+                 aspp_out_channels,
+                 aspp_dilations=(1, 3, 6, 1),
+                 init_cfg=None,
+                 **kwargs):
+        assert init_cfg is None, 'To prevent abnormal initialization ' \
+                                 'behavior, init_cfg is not allowed to be set'
         super().__init__(init_cfg=init_cfg, **kwargs)
         self.rfp_steps = rfp_steps
         # Be careful! Pretrained weights cannot be loaded when use
         # nn.ModuleList
         self.rfp_modules = ModuleList()
         for rfp_idx in range(1, rfp_steps):
-            rfp_module = build_backbone(rfp_backbone)
+            rfp_module = MODELS.build(rfp_backbone)
             self.rfp_modules.append(rfp_module)
-        self.rfp_aspp = ASPP(self.out_channels, aspp_out_channels, aspp_dilations)
-        self.rfp_weight = nn.Conv2d(self.out_channels, 1, kernel_size=1, stride=1, padding=0, bias=True)
+        self.rfp_aspp = ASPP(self.out_channels, aspp_out_channels,
+                             aspp_dilations)
+        self.rfp_weight = nn.Conv2d(
+            self.out_channels,
+            1,
+            kernel_size=1,
+            stride=1,
+            padding=0,
+            bias=True)
 
     def init_weights(self):
         # Avoid using super().init_weights(), which may alter the default
@@ -106,7 +108,7 @@ class RFP(FPN):
         for convs in [self.lateral_convs, self.fpn_convs]:
             for m in convs.modules():
                 if isinstance(m, nn.Conv2d):
-                    xavier_init(m, distribution="uniform")
+                    xavier_init(m, distribution='uniform')
         for rfp_idx in range(self.rfp_steps - 1):
             self.rfp_modules[rfp_idx].init_weights()
         constant_init(self.rfp_weight, 0)
@@ -118,13 +120,15 @@ class RFP(FPN):
         # FPN forward
         x = super().forward(tuple(inputs))
         for rfp_idx in range(self.rfp_steps - 1):
-            rfp_feats = [x[0]] + list(self.rfp_aspp(x[i]) for i in range(1, len(x)))
+            rfp_feats = [x[0]] + list(
+                self.rfp_aspp(x[i]) for i in range(1, len(x)))
             x_idx = self.rfp_modules[rfp_idx].rfp_forward(img, rfp_feats)
             # FPN forward
             x_idx = super().forward(x_idx)
             x_new = []
             for ft_idx in range(len(x_idx)):
                 add_weight = torch.sigmoid(self.rfp_weight(x_idx[ft_idx]))
-                x_new.append(add_weight * x_idx[ft_idx] + (1 - add_weight) * x[ft_idx])
+                x_new.append(add_weight * x_idx[ft_idx] +
+                             (1 - add_weight) * x[ft_idx])
             x = x_new
         return x

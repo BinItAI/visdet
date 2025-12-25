@@ -1,11 +1,10 @@
 # Copyright (c) OpenMMLab. All rights reserved.
-from mmdet.models.builder import HEADS
-from mmdet.models.utils import ResLayer, SimplifiedBasicBlock
-
+from mmdet.models.layers import ResLayer, SimplifiedBasicBlock
+from mmdet.registry import MODELS
 from .fused_semantic_head import FusedSemanticHead
 
 
-@HEADS.register_module()
+@MODELS.register_module()
 class SCNetSemanticHead(FusedSemanticHead):
     """Mask head for `SCNet <https://arxiv.org/abs/2012.10150>`_.
 
@@ -14,8 +13,8 @@ class SCNetSemanticHead(FusedSemanticHead):
             ``SimplifiedBasicBlock``.
     """
 
-    def __init__(self, conv_to_res=True, **kwargs):
-        super(SCNetSemanticHead, self).__init__(**kwargs)
+    def __init__(self, conv_to_res: bool = True, **kwargs) -> None:
+        super().__init__(**kwargs)
         self.conv_to_res = conv_to_res
         if self.conv_to_res:
             num_res_blocks = self.num_convs // 2
@@ -25,6 +24,5 @@ class SCNetSemanticHead(FusedSemanticHead):
                 self.conv_out_channels,
                 num_res_blocks,
                 conv_cfg=self.conv_cfg,
-                norm_cfg=self.norm_cfg,
-            )
+                norm_cfg=self.norm_cfg)
             self.num_convs = num_res_blocks

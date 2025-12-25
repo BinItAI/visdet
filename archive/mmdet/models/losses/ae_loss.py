@@ -1,13 +1,11 @@
 # Copyright (c) OpenMMLab. All rights reserved.
-import mmcv
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from ..builder import LOSSES
+from mmdet.registry import MODELS
 
 
-@mmcv.jit(derivate=True, coderize=True)
 def ae_loss_per_image(tl_preds, br_preds, match):
     """Associative Embedding Loss in one image.
 
@@ -33,8 +31,8 @@ def ae_loss_per_image(tl_preds, br_preds, match):
 
     tl_list, br_list, me_list = [], [], []
     if len(match) == 0:  # no object in image
-        pull_loss = tl_preds.sum() * 0.0
-        push_loss = tl_preds.sum() * 0.0
+        pull_loss = tl_preds.sum() * 0.
+        push_loss = tl_preds.sum() * 0.
     else:
         for m in match:
             [tl_y, tl_x], [br_y, br_x] = m
@@ -66,12 +64,12 @@ def ae_loss_per_image(tl_preds, br_preds, match):
         if N > 1:  # more than one object in current image
             push_loss = F.relu(conf_mat).sum() / (N * (N - 1))
         else:
-            push_loss = tl_preds.sum() * 0.0
+            push_loss = tl_preds.sum() * 0.
 
     return pull_loss, push_loss
 
 
-@LOSSES.register_module()
+@MODELS.register_module()
 class AssociativeEmbeddingLoss(nn.Module):
     """Associative Embedding Loss.
 

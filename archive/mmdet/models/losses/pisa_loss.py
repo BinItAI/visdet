@@ -1,23 +1,25 @@
 # Copyright (c) OpenMMLab. All rights reserved.
-import mmcv
+from typing import List, Optional, Tuple
+
 import torch
+import torch.nn as nn
+from torch import Tensor
 
-from mmdet.core import bbox_overlaps
+from mmdet.structures.bbox import bbox_overlaps
+from ..task_modules.coders import BaseBBoxCoder
+from ..task_modules.samplers import SamplingResult
 
 
-@mmcv.jit(derivate=True, coderize=True)
-def isr_p(
-    cls_score,
-    bbox_pred,
-    bbox_targets,
-    rois,
-    sampling_results,
-    loss_cls,
-    bbox_coder,
-    k=2,
-    bias=0,
-    num_class=80,
-):
+def isr_p(cls_score: Tensor,
+          bbox_pred: Tensor,
+          bbox_targets: Tuple[Tensor],
+          rois: Tensor,
+          sampling_results: List[SamplingResult],
+          loss_cls: nn.Module,
+          bbox_coder: BaseBBoxCoder,
+          k: float = 2,
+          bias: float = 0,
+          num_class: int = 80) -> tuple:
     """Importance-based Sample Reweighting (ISR_P), positive part.
 
     Args:
@@ -27,12 +29,12 @@ def isr_p(
             labels, label_weights, bbox_targets, bbox_weights, respectively.
         rois (Tensor): Anchors (single_stage) in shape (n, 4) or RoIs
             (two_stage) in shape (n, 5).
-        sampling_results (obj): Sampling results.
-        loss_cls (func): Classification loss func of the head.
-        bbox_coder (obj): BBox coder of the head.
-        k (float): Power of the non-linear mapping.
-        bias (float): Shift of the non-linear mapping.
-        num_class (int): Number of classes, default: 80.
+        sampling_results (:obj:`SamplingResult`): Sampling results.
+        loss_cls (:obj:`nn.Module`): Classification loss func of the head.
+        bbox_coder (:obj:`BaseBBoxCoder`): BBox coder of the head.
+        k (float): Power of the non-linear mapping. Defaults to 2.
+        bias (float): Shift of the non-linear mapping. Defaults to 0.
+        num_class (int): Number of classes, defaults to 80.
 
     Return:
         tuple([Tensor]): labels, imp_based_label_weights, bbox_targets,
@@ -40,7 +42,8 @@ def isr_p(
     """
 
     labels, label_weights, bbox_targets, bbox_weights = bbox_targets
-    pos_label_inds = ((labels >= 0) & (labels < num_class)).nonzero().reshape(-1)
+    pos_label_inds = ((labels >= 0) &
+                      (labels < num_class)).nonzero().reshape(-1)
     pos_labels = labels[pos_label_inds]
 
     # if no positive samples, return the original targets
@@ -103,9 +106,11 @@ def isr_p(
     pos_imp_weights = (bias + pos_imp_weights * (1 - bias)).pow(k)
 
     # normalize to make the new weighted loss value equal to the original loss
-    pos_loss_cls = loss_cls(cls_score[pos_label_inds], pos_labels, reduction_override="none")
+    pos_loss_cls = loss_cls(
+        cls_score[pos_label_inds], pos_labels, reduction_override='none')
     if pos_loss_cls.dim() > 1:
-        ori_pos_loss_cls = pos_loss_cls * label_weights[pos_label_inds][:, None]
+        ori_pos_loss_cls = pos_loss_cls * label_weights[pos_label_inds][:,
+                                                                        None]
         new_pos_loss_cls = pos_loss_cls * pos_imp_weights[:, None]
     else:
         ori_pos_loss_cls = pos_loss_cls * label_weights[pos_label_inds]
@@ -118,19 +123,16 @@ def isr_p(
     return bbox_targets
 
 
-@mmcv.jit(derivate=True, coderize=True)
-def carl_loss(
-    cls_score,
-    labels,
-    bbox_pred,
-    bbox_targets,
-    loss_bbox,
-    k=1,
-    bias=0.2,
-    avg_factor=None,
-    sigmoid=False,
-    num_class=80,
-):
+def carl_loss(cls_score: Tensor,
+              labels: Tensor,
+              bbox_pred: Tensor,
+              bbox_targets: Tensor,
+              loss_bbox: nn.Module,
+              k: float = 1,
+              bias: float = 0.2,
+              avg_factor: Optional[int] = None,
+              sigmoid: bool = False,
+              num_class: int = 80) -> dict:
     """Classification-Aware Regression Loss (CARL).
 
     Args:
@@ -140,18 +142,19 @@ def carl_loss(
         bbox_targets (Tensor): Target of bbox regression.
         loss_bbox (func): Regression loss func of the head.
         bbox_coder (obj): BBox coder of the head.
-        k (float): Power of the non-linear mapping.
-        bias (float): Shift of the non-linear mapping.
-        avg_factor (int): Average factor used in regression loss.
+        k (float): Power of the non-linear mapping. Defaults to 1.
+        bias (float): Shift of the non-linear mapping. Defaults to 0.2.
+        avg_factor (int, optional): Average factor used in regression loss.
         sigmoid (bool): Activation of the classification score.
-        num_class (int): Number of classes, default: 80.
+        num_class (int): Number of classes, defaults to 80.
 
     Return:
         dict: CARL loss dict.
     """
-    pos_label_inds = ((labels >= 0) & (labels < num_class)).nonzero().reshape(-1)
+    pos_label_inds = ((labels >= 0) &
+                      (labels < num_class)).nonzero().reshape(-1)
     if pos_label_inds.numel() == 0:
-        return dict(loss_carl=cls_score.sum()[None] * 0.0)
+        return dict(loss_carl=cls_score.sum()[None] * 0.)
     pos_labels = labels[pos_label_inds]
 
     # multiply pos_cls_score with the corresponding bbox weight
@@ -176,6 +179,9 @@ def carl_loss(
         pos_bbox_preds = bbox_pred[pos_label_inds, pos_labels]
     else:
         pos_bbox_preds = bbox_pred[pos_label_inds]
-    ori_loss_reg = loss_bbox(pos_bbox_preds, bbox_targets[pos_label_inds], reduction_override="none") / avg_factor
+    ori_loss_reg = loss_bbox(
+        pos_bbox_preds,
+        bbox_targets[pos_label_inds],
+        reduction_override='none') / avg_factor
     loss_carl = (ori_loss_reg * carl_loss_weights[:, None]).sum()
     return dict(loss_carl=loss_carl[None])
