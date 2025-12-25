@@ -5,6 +5,7 @@ from visdet.models.detectors.atss import ATSS
 from visdet.models.detectors.base import BaseDetector
 from visdet.models.detectors.cascade_rcnn import CascadeRCNN
 from visdet.models.detectors.fcos import FCOS
+from visdet.models.detectors.gfl import GFL
 from visdet.models.detectors.mask_rcnn import MaskRCNN
 from visdet.models.detectors.retinanet import RetinaNet
 from visdet.models.detectors.single_stage import SingleStageDetector
@@ -19,6 +20,7 @@ __all__ = [
     "FCOS",
     "SSD",
     "ATSS",
+    "GFL",
     "MaskRCNN",
     "CascadeRCNN",
 ]

@@ -4,5 +4,16 @@ from visdet.models.losses.accuracy import accuracy
 from visdet.models.losses.cross_entropy_loss import CrossEntropyLoss
 from visdet.models.losses.focal_loss import FocalLoss
 from visdet.models.losses.iou_loss import IoULoss, GIoULoss
+from visdet.models.losses.gfocal_loss import QualityFocalLoss, DistributionFocalLoss
 
-__all__ = ["CrossEntropyLoss", "L1Loss", "SmoothL1Loss", "accuracy", "FocalLoss", "IoULoss", "GIoULoss"]
+__all__ = [
+    "CrossEntropyLoss",
+    "L1Loss",
+    "SmoothL1Loss",
+    "accuracy",
+    "FocalLoss",
+    "IoULoss",
+    "GIoULoss",
+    "QualityFocalLoss",
+    "DistributionFocalLoss",
+]
