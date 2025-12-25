@@ -87,8 +87,6 @@ class MaskScoringRoIHead(StandardRoIHead):
         for i in range(len(results_list)):
             if len(results_list[i]) > 0:
                 # Get mask scores from mask IoU head
-                self.mask_iou_head.get_mask_scores(
-                    mask_iou_preds[i], results_list[i].bboxes, results_list[i].labels
-                )
+                self.mask_iou_head.get_mask_scores(mask_iou_preds[i], results_list[i].bboxes, results_list[i].labels)
 
         return results_list

@@ -41,15 +41,16 @@ class DynamicRoIHead(StandardRoIHead):
             sampling_results.append(sampling_result)
 
             # record the `iou_topk`-th largest IoU in an image
+            dynamic_cfg = self.train_cfg.get("dynamic_rcnn", self.train_cfg)
             iou_topk = min(
-                self.train_cfg.dynamic_rcnn.iou_topk,
+                dynamic_cfg.get("iou_topk", 75),
                 len(assign_result.max_overlaps),
             )
             if iou_topk > 0:
                 ious, _ = torch.topk(assign_result.max_overlaps, iou_topk)
                 cur_iou.append(ious[-1].item())
             else:
-                cur_iou.append(self.train_cfg.dynamic_rcnn.initial_iou)
+                cur_iou.append(dynamic_cfg.get("initial_iou", 0.4))
 
         # average the current IoUs over images
         cur_iou = np.mean(cur_iou)
@@ -59,7 +60,8 @@ class DynamicRoIHead(StandardRoIHead):
         bbox_results = self.bbox_loss(x, sampling_results)
 
         # update IoU threshold and SmoothL1 beta
-        update_iter_interval = self.train_cfg.dynamic_rcnn.update_iter_interval
+        dynamic_cfg = self.train_cfg.get("dynamic_rcnn", self.train_cfg)
+        update_iter_interval = dynamic_cfg.get("update_iter_interval", 100)
         if len(self.iou_history) % update_iter_interval == 0:
             self.update_hyperparameters()
 
@@ -84,7 +86,8 @@ class DynamicRoIHead(StandardRoIHead):
         num_pos = len(pos_inds)
         if num_pos > 0:
             cur_target = bbox_targets_vals[pos_inds, :2].abs().mean(dim=1)
-            beta_topk = min(self.train_cfg.dynamic_rcnn.beta_topk * len(sampling_results), num_pos)
+            dynamic_cfg = self.train_cfg.get("dynamic_rcnn", self.train_cfg)
+            beta_topk = min(dynamic_cfg.get("beta_topk", 10) * len(sampling_results), num_pos)
             cur_target = torch.kthvalue(cur_target, beta_topk)[0].item()
             self.beta_history.append(cur_target)
 
@@ -93,7 +96,8 @@ class DynamicRoIHead(StandardRoIHead):
 
     def update_hyperparameters(self):
         """Update hyperparameters."""
-        new_iou_thr = max(self.train_cfg.dynamic_rcnn.initial_iou, np.mean(self.iou_history))
+        dynamic_cfg = self.train_cfg.get("dynamic_rcnn", self.train_cfg)
+        new_iou_thr = max(dynamic_cfg.get("initial_iou", 0.4), np.mean(self.iou_history))
         self.iou_history = []
         self.bbox_assigner.pos_iou_thr = new_iou_thr
         self.bbox_assigner.neg_iou_thr = new_iou_thr
@@ -103,7 +107,7 @@ class DynamicRoIHead(StandardRoIHead):
             if np.median(self.beta_history) < EPS:
                 new_beta = self.bbox_head.loss_bbox.beta
             else:
-                new_beta = min(self.train_cfg.dynamic_rcnn.initial_beta, np.median(self.beta_history))
+                new_beta = min(dynamic_cfg.get("initial_beta", 1.0), np.median(self.beta_history))
             self.beta_history = []
             if hasattr(self.bbox_head.loss_bbox, "beta"):
                 self.bbox_head.loss_bbox.beta = new_beta

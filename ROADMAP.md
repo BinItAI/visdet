@@ -70,7 +70,7 @@ This roadmap outlines the planned development trajectory for visdet based on com
 ### Phase 2: Core Feature Parity (Short-Term)
 - [ ] Complete namespace refactoring (visdet.cv and visdet.engine)
 - [ ] Migrate remaining backbone tests
-- [ ] Add ROI Head variant tests 
+- [ ] Add ROI Head variant tests
 - [ ] Implement data augmentation pipeline tests
 - [ ] Develop utility/helper function tests
 - [ ] Add ONNX export validation tests

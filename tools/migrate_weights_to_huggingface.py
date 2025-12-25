@@ -113,9 +113,9 @@ def migrate_weights(
             print(f"Skipping {zoo_name}: {json_path} not found")
             continue
 
-        print(f"\n{'='*60}")
+        print(f"\n{'=' * 60}")
         print(f"Processing {zoo_name} ({json_path})")
-        print(f"{'='*60}")
+        print(f"{'=' * 60}")
 
         urls = load_model_urls(json_path)
         hf_mappings[zoo_name] = {}
@@ -184,7 +184,7 @@ def migrate_weights(
     if not dry_run:
         with open(hf_json_path, "w") as f:
             json.dump(combined_mapping, f, indent=2)
-        print(f"\n{'='*60}")
+        print(f"\n{'=' * 60}")
         print(f"Generated HuggingFace mapping: {hf_json_path}")
         print(f"Total models: {len(combined_mapping)}")
     else:
@@ -259,9 +259,7 @@ These weights are provided under the Apache 2.0 license, consistent with their o
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Migrate model weights to Hugging Face Hub"
-    )
+    parser = argparse.ArgumentParser(description="Migrate model weights to Hugging Face Hub")
     parser.add_argument(
         "--repo-id",
         type=str,
