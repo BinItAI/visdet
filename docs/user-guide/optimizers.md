@@ -8,76 +8,288 @@ optimizer = dict(type="AdamW", lr=1e-4, weight_decay=0.05)
 
 In MMEngine-style configs you can also place this under `optim_wrapper.optimizer`.
 
-## Built-in (PyTorch)
+## Core Optimizers
 
-visdet automatically registers optimizers from `torch.optim`. The exact set depends on your PyTorch version, but the following are commonly available.
+### SGD (Stochastic Gradient Descent)
 
-| `type` | Developed | Summary |
-| --- | ---: | --- |
-| `SGD` | 1951[^sgd] | Classic stochastic gradient descent; supports momentum and Nesterov momentum via configuration. |
-| `ASGD` | 1992[^asgd] | SGD variant that maintains an average of parameters, which can improve convergence on some problems. |
-| `Rprop` | 1993[^rprop] | Uses only the sign of gradients and adapts per-parameter step sizes; mainly used in smaller/older setups. |
-| `LBFGS` | 1989[^lbfgs] | Limited-memory quasi-Newton optimizer; most useful for small problems or near-convex objectives. |
-| `Adagrad` | 2011[^adagrad] | Per-parameter adaptive learning rates; often helpful for sparse features but can decay learning rates aggressively. |
-| `Adadelta` | 2012[^adadelta] | Adagrad-like method using running averages to reduce sensitivity to the initial learning rate. |
-| `RMSprop` | 2012[^rmsprop] | Adaptive learning rates using an EMA of squared gradients; commonly effective for non-stationary objectives. |
-| `Adam` | 2014[^adam] | Adaptive moment estimation using EMAs of gradients and squared gradients; a common default. |
-| `Adamax` | 2014[^adam] | Adam variant based on the infinity norm of past gradients; can be more stable in some regimes. |
-| `SparseAdam` | 2014[^adam] | Adam variant intended for sparse gradients (e.g., embeddings); not suitable for dense parameters. |
-| `NAdam` | 2016[^nadam] | Adam with Nesterov-style momentum; can sometimes improve early training dynamics. |
-| `AdamW` | 2017[^adamw] | Adam with decoupled weight decay; often yields better generalization than L2-style weight decay in Adam. |
-| `TorchAdafactor` | 2018[^adafactor] | PyTorch’s Adafactor implementation (registered as `TorchAdafactor` when available). |
-| `RAdam` | 2019[^radam] | Rectified Adam; adds variance rectification to reduce warmup sensitivity. |
-| `Muon` | 2024[^muon] | Optimizer designed for 2D weight matrices using Newton–Schulz orthogonalization; typically applied selectively. |
+The simplest optimization algorithm that updates parameters in the direction of the negative gradient.[^sgd]
 
-## Optional integrations
+```
+params = params - learning_rate * gradients
+```
 
-These optimizers are registered only if their dependencies are installed.
+With momentum, SGD maintains a velocity term that accumulates past gradients:
 
-### Hugging Face Transformers
+```
+velocity = momentum * velocity - learning_rate * gradients
+params = params + velocity
+```
 
-| `type` | Developed | Summary |
-| --- | ---: | --- |
-| `Adafactor` | 2018[^adafactor] | Transformers’ Adafactor implementation (registered as `Adafactor`). |
+**Key Hyperparameters:**
 
-### bitsandbytes (8-bit optimizers)
+- Learning rate (typically 0.01-0.1)
+- Momentum (typically 0.9 when used)
+- Weight decay (typically 1e-4 to 1e-5)
 
-| `type` | Developed | Summary |
-| --- | ---: | --- |
-| *(varies)* | 2021[^bnb8bit] | visdet registers all optimizer classes exposed by `bitsandbytes.optim`; name collisions are prefixed with `bnb_`. |
+**Characteristics:**
 
-### D-Adaptation
+- Simple implementation
+- Often requires manual learning rate scheduling
+- Can struggle with saddle points and ravines in the loss landscape
+- With momentum, can achieve good performance but requires careful tuning
 
-| `type` | Developed | Summary |
-| --- | ---: | --- |
-| `DAdaptAdam` | 2023[^dadapt] | Learning-rate-free variant of Adam that adapts the step size automatically. |
-| `DAdaptAdaGrad` | 2023[^dadapt] | Learning-rate-free variant of Adagrad. |
-| `DAdaptSGD` | 2023[^dadapt] | Learning-rate-free variant of SGD. |
+### Adam (Adaptive Moment Estimation)
 
-### Lion
+Adam adapts learning rates for each parameter based on first and second moments of gradients.[^adam]
 
-| `type` | Developed | Summary |
-| --- | ---: | --- |
-| `Lion` | 2023[^lion] | Sign-based optimizer discovered via symbolic search; often competitive with AdamW at lower compute overhead. |
+```
+m = beta1 * m + (1 - beta1) * gradients           # First moment estimate
+v = beta2 * v + (1 - beta2) * gradients^2         # Second moment estimate
+m_hat = m / (1 - beta1^t)                         # Bias correction
+v_hat = v / (1 - beta2^t)                         # Bias correction
+params = params - learning_rate * m_hat / (sqrt(v_hat) + epsilon)
+```
 
-### Sophia
+**Key Hyperparameters:**
 
-| `type` | Developed | Summary |
-| --- | ---: | --- |
-| *(varies)* | 2023[^sophia] | visdet registers any Sophia optimizer classes found in the installed `Sophia` package (commonly `SophiaG`). |
+- Learning rate (typically 0.001)
+- Beta1: Exponential decay rate for first moment (typically 0.9)
+- Beta2: Exponential decay rate for second moment (typically 0.999)
+- Epsilon: Small value for numerical stability (typically 1e-8)
 
-### DeepSpeed
+**Characteristics:**
 
-| `type` | Developed | Summary |
-| --- | ---: | --- |
-| `DeepSpeedCPUAdam` | 2014[^adam] | DeepSpeed CPU-optimized Adam implementation for large-scale training. |
-| `FusedAdam` | 2014[^adam] | Fused GPU Adam implementation to reduce optimizer overhead. |
-| `FusedLamb` | 2019[^lamb] | Fused LAMB implementation for very large-batch training. |
-| `OnebitAdam` | 2014[^adam] | Communication-efficient Adam variant for distributed training. |
-| `OnebitLamb` | 2019[^lamb] | Communication-efficient LAMB variant for distributed training. |
-| `ZeroOneAdam` | 2014[^adam] | DeepSpeed optimizer variant used with ZeRO-style training setups. |
+- Adaptive learning rates for each parameter
+- Works well on a wide range of problems
+- Less sensitive to hyperparameter choices than SGD
+- Can converge quickly but sometimes generalization is not as good as SGD with momentum
 
-## Listing available optimizers
+### AdamW
+
+A variant of Adam that decouples weight decay from the gradient update, implementing weight decay correctly.[^adamw]
+
+```
+m = beta1 * m + (1 - beta1) * gradients
+v = beta2 * v + (1 - beta2) * gradients^2
+m_hat = m / (1 - beta1^t)
+v_hat = v / (1 - beta2^t)
+params = params - learning_rate * (m_hat / (sqrt(v_hat) + epsilon) + weight_decay * params)
+```
+
+**Key Hyperparameters:**
+
+- Same as Adam
+- Weight decay is applied separately from the gradient update (typically 0.01-0.1)
+
+**Characteristics:**
+
+- Better generalization than standard Adam
+- Properly decouples weight decay from adaptive learning rate
+- Combines the benefits of Adam's adaptivity with proper regularization
+- Currently considered state-of-the-art for many deep learning tasks
+
+### Adagrad/AdaDelta/RMSprop
+
+These are adaptive gradient methods that adjust learning rates based on historical gradient information.[^adagrad][^adadelta][^rmsprop]
+
+**RMSprop update:**
+```
+v = decay * v + (1 - decay) * gradients^2
+params = params - learning_rate * gradients / (sqrt(v) + epsilon)
+```
+
+**Key Characteristics:**
+
+- Adagrad accumulates squared gradients, which can lead to premature stopping for deep networks
+- AdaDelta and RMSprop address this by using a moving average of squared gradients
+- Generally superseded by Adam in most applications
+
+---
+
+## Our Standard: AdamW
+
+We exclusively use AdamW across all our training tasks for the following reasons:
+
+**Better Generalization:** AdamW implements weight decay correctly, leading to better model generalization.
+
+**Convergence Speed:** Maintains Adam's fast convergence properties while improving final model quality.
+
+**Robustness:** Works well across a variety of network architectures and tasks without extensive tuning.
+
+**State-of-the-Art:** Consistently delivers strong performance on modern deep learning tasks.
+
+### Typical Configuration
+
+Our standard AdamW configuration:
+
+```python
+optimizer = dict(
+    type="AdamW",
+    lr=1e-4,
+    betas=(0.9, 0.999),
+    eps=1e-8,
+    weight_decay=0.01,
+)
+```
+
+We pair this with a learning rate scheduler (typically cosine with warmup) for optimal performance across our training regimes.
+
+---
+
+## Modern Optimizers (2023-2024)
+
+In addition to AdamW, we support several modern optimizers that offer different trade-offs. These are available via the optimizer registry and can be configured through the training config.
+
+### Lion (2023)
+
+Lion (EvoLved Sign Momentum) is an optimizer discovered through program search by Google Research.[^lion] It uses sign-based updates, resulting in uniform magnitude updates and significant memory savings.
+
+```
+update = beta1 * m + (1 - beta1) * gradients
+m = beta2 * m + (1 - beta2) * gradients
+params = params - learning_rate * (sign(update) + weight_decay * params)
+```
+
+**Key Characteristics:**
+
+- Uses sign of momentum for updates (uniform magnitude)
+- Requires 3-10x smaller learning rate than AdamW (e.g., 1e-4 vs 3e-4)
+- Requires 3-10x larger weight decay than AdamW
+- Best for batch sizes >= 64
+- 50% less memory than Adam (only one momentum buffer)
+
+```python
+optimizer = dict(
+    type="Lion",
+    lr=1e-4,  # 3-10x smaller than AdamW
+    betas=(0.9, 0.99),
+    weight_decay=0.1,  # 3-10x larger than AdamW
+)
+```
+
+### RAdam (Rectified Adam)
+
+Rectified Adam adds variance rectification to reduce warmup sensitivity.[^radam]
+
+**Key Characteristics:**
+
+- Reduces the need for warmup in many cases
+- Automatically adjusts the adaptive learning rate to handle high variance in early training
+- Drop-in replacement for Adam with improved stability
+
+### NAdam (Nesterov Adam)
+
+Adam with Nesterov-style momentum for improved early training dynamics.[^nadam]
+
+**Key Characteristics:**
+
+- Incorporates look-ahead gradient calculation
+- Can sometimes converge faster than standard Adam
+- Useful when faster initial convergence is desired
+
+### Muon (2024)
+
+Optimizer designed for 2D weight matrices using Newton–Schulz orthogonalization.[^muon]
+
+**Key Characteristics:**
+
+- Typically applied selectively to specific layer types
+- Uses orthogonalization for more stable updates
+- Experimental but shows promise for certain architectures
+
+---
+
+## Learning-Rate-Free Optimizers
+
+### D-Adaptation (2023)
+
+D-Adaptation optimizers automatically adapt the step size, removing the need to tune learning rates.[^dadapt]
+
+**Available variants:**
+
+- `DAdaptAdam` - Learning-rate-free variant of Adam
+- `DAdaptAdaGrad` - Learning-rate-free variant of Adagrad
+- `DAdaptSGD` - Learning-rate-free variant of SGD
+
+**Key Characteristics:**
+
+- Automatically determines an appropriate learning rate
+- Reduces hyperparameter search burden
+- May require longer to converge initially while it determines the scale
+
+---
+
+## Memory-Efficient Optimizers
+
+### Adafactor (2018)
+
+Adafactor uses factored second moment estimation to dramatically reduce memory overhead.[^adafactor]
+
+```
+# Instead of storing full v matrix:
+v_row = mean(v, axis=1)    # Row-wise statistics
+v_col = mean(v, axis=0)    # Column-wise statistics
+v ≈ outer(v_row, v_col)    # Reconstructed from factors
+```
+
+**Key Characteristics:**
+
+- Sublinear memory cost (O(n + m) instead of O(n × m) for weight matrices)
+- Particularly useful for large language models
+- Available via both PyTorch (`TorchAdafactor`) and Hugging Face Transformers (`Adafactor`)
+
+### 8-bit Optimizers (bitsandbytes)
+
+bitsandbytes provides 8-bit quantized versions of common optimizers.[^bnb8bit]
+
+**Key Characteristics:**
+
+- Reduces optimizer state memory by ~4x
+- Minimal impact on convergence for most tasks
+- Automatically registered when `bitsandbytes` is installed
+- Name collisions are prefixed with `bnb_`
+
+---
+
+## Distributed Training Optimizers
+
+### DeepSpeed Optimizers
+
+DeepSpeed provides specialized optimizers for large-scale distributed training.
+
+**FusedAdam:** Fused GPU Adam implementation to reduce optimizer overhead.[^adam]
+
+**DeepSpeedCPUAdam:** CPU-optimized Adam implementation for ZeRO-Offload training.[^adam]
+
+**FusedLamb / LAMB:** Layer-wise Adaptive Moments optimizer for very large-batch training.[^lamb]
+
+```
+# LAMB scales the trust ratio per-layer:
+trust_ratio = norm(params) / norm(adam_update)
+params = params - learning_rate * trust_ratio * adam_update
+```
+
+**Key Characteristics:**
+
+- LAMB enables training with batch sizes up to 64k without degradation
+- Originally developed for BERT pre-training
+- Communication-efficient variants (`OnebitAdam`, `OnebitLamb`) reduce distributed overhead
+
+---
+
+## Other Built-in Optimizers
+
+The following optimizers are available from PyTorch's `torch.optim`:
+
+- **ASGD:** SGD variant that maintains an average of parameters[^asgd]
+- **Rprop:** Uses only the sign of gradients with per-parameter step sizes[^rprop]
+- **LBFGS:** Limited-memory quasi-Newton optimizer for small/convex problems[^lbfgs]
+- **Adamax:** Adam variant based on the infinity norm[^adam]
+- **SparseAdam:** Adam variant for sparse gradients (e.g., embeddings)[^adam]
+
+---
+
+## Listing Available Optimizers
 
 Because the available set can change depending on installed optional dependencies, you can list what your environment has registered:
 
