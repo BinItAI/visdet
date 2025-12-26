@@ -2,6 +2,7 @@
 from visdet.cv.cnn.bricks.activation import HSigmoid, HSwish, Swish, build_activation_layer
 from visdet.cv.cnn.bricks.conv import build_conv_layer
 from visdet.cv.cnn.bricks.conv_module import ConvModule
+from visdet.cv.cnn.bricks.depthwise_separable_conv_module import DepthwiseSeparableConvModule
 from visdet.cv.cnn.bricks.drop import build_dropout
 from visdet.cv.cnn.bricks.norm import build_norm_layer
 from visdet.cv.cnn.bricks.padding import build_padding_layer
@@ -25,6 +26,7 @@ __all__ = [
     "Conv2d",
     "Conv3d",
     "ConvModule",
+    "DepthwiseSeparableConvModule",
     "ConvTranspose2d",
     "ConvTranspose3d",
     "HSigmoid",

@@ -1,0 +1,19 @@
+# RTMDet-Ins-Tiny (COCO)
+
+preset_meta:
+  aliases: [rtmdet-ins-t, rtmdet-ins-tiny]
+  weights: https://download.openmmlab.com/mmdetection/v3.0/rtmdet/rtmdet-ins_tiny_8xb32-300e_coco/rtmdet-ins_tiny_8xb32-300e_coco_20221130_151727-ec670f7e.pth
+
+_base_: ./rtmdet_ins_s.yaml
+
+backbone:
+  deepen_factor: 0.167
+  widen_factor: 0.375
+
+neck:
+  in_channels: [96, 192, 384]
+  out_channels: 96
+
+bbox_head:
+  in_channels: 96
+  feat_channels: 96

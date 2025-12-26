@@ -1,0 +1,20 @@
+# RTMDet-X (COCO)
+
+preset_meta:
+  aliases: [rtmdet-x]
+  weights: https://download.openmmlab.com/mmdetection/v3.0/rtmdet/rtmdet_x_8xb32-300e_coco/rtmdet_x_8xb32-300e_coco_20220715_230555-cc79b9ae.pth
+
+_base_: ./rtmdet_l.yaml
+
+backbone:
+  deepen_factor: 1.33
+  widen_factor: 1.25
+
+neck:
+  in_channels: [320, 640, 1280]
+  out_channels: 320
+  num_csp_blocks: 4
+
+bbox_head:
+  in_channels: 320
+  feat_channels: 320

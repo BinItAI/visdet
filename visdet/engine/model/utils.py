@@ -230,7 +230,9 @@ def convert_sync_batchnorm(module: nn.Module, implementation="torch") -> nn.Modu
         if implementation == "torch":
             SyncBatchNorm = torch.nn.modules.batchnorm.SyncBatchNorm
         elif implementation == "mmcv":
-            from mmcv.ops import SyncBatchNorm  # type: ignore
+            # MMCV is not a dependency in visdet; keep this option as an alias
+            # for backwards compatibility with upstream configs.
+            SyncBatchNorm = torch.nn.modules.batchnorm.SyncBatchNorm
         else:
             raise ValueError(f'sync_bn should be "torch" or "mmcv", but got {implementation}')
 

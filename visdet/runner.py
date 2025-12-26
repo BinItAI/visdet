@@ -101,6 +101,9 @@ class SimpleRunner:
         """
         # Resolve all presets to configs
         self.model_cfg = self._resolve_preset(model, MODEL_PRESETS, "model")
+        # Remove metadata fields (used by inferencers / discovery)
+        if isinstance(self.model_cfg, dict):
+            self.model_cfg.pop("preset_meta", None)
         self.dataset_cfg = self._resolve_preset(dataset, DATASET_PRESETS, "dataset")
         self.optimizer_cfg = self._resolve_preset(optimizer, OPTIMIZER_PRESETS, "optimizer")
 
@@ -531,6 +534,7 @@ class SimpleRunner:
             logger.info(f"Auto-detected {num_classes} classes from {source}")
 
         # Apply num_classes to model config
+        # Two-stage detectors
         if "roi_head" in self.model_cfg:
             roi_head = self.model_cfg["roi_head"]
 
@@ -543,12 +547,27 @@ class SimpleRunner:
 
             # Handle CascadeRoIHead: bbox_head is a list of dicts (one per refinement stage)
             elif "bbox_head" in roi_head and isinstance(roi_head["bbox_head"], list):
-                for stage_idx, bbox_head in enumerate(roi_head["bbox_head"]):
+                for bbox_head in roi_head["bbox_head"]:
                     bbox_head["num_classes"] = num_classes
                 logger.info(
                     f"Automatically set CascadeRoIHead num_classes to {num_classes} "
                     f"across {len(roi_head['bbox_head'])} stages (from {source})"
                 )
+
+        # Single-stage detectors
+        elif "bbox_head" in self.model_cfg:
+            bbox_head = self.model_cfg["bbox_head"]
+            if isinstance(bbox_head, dict) and "num_classes" in bbox_head:
+                bbox_head["num_classes"] = num_classes
+                logger.info(f"Automatically set model num_classes to {num_classes} (from {source})")
+            elif isinstance(bbox_head, list):
+                updated = False
+                for head in bbox_head:
+                    if isinstance(head, dict) and "num_classes" in head:
+                        head["num_classes"] = num_classes
+                        updated = True
+                if updated:
+                    logger.info(f"Automatically set model num_classes to {num_classes} (from {source})")
 
     def train(self) -> None:
         """Start training using the assembled configuration.
