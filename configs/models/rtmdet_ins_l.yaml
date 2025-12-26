@@ -44,7 +44,6 @@ neck:
 
 bbox_head:
   type: RTMDetInsSepBNHead
-  num_classes: 80
   in_channels: 256
   stacked_convs: 2
   share_conv: true

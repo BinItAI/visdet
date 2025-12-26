@@ -43,7 +43,6 @@ neck:
 
 bbox_head:
   type: RTMDetSepBNHead
-  num_classes: 80
   in_channels: 256
   stacked_convs: 2
   feat_channels: 256

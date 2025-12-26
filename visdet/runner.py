@@ -261,9 +261,13 @@ class SimpleRunner:
 
         Validates:
         - Category ID conflicts (same ID with different names across train/val)
-        - Non-contiguous category IDs (e.g., [1, 2, 5] instead of [1, 2, 3])
         - Warns when validation-only classes exist (HIGH severity - model won't learn them)
         - Warns when training-only classes exist (MEDIUM severity - no validation metrics)
+
+        Note:
+            Non-contiguous category IDs are supported (e.g., COCO uses 80 classes with
+            IDs 1-90, skipping some). The model uses internal indices 0 to N-1 which
+            are mapped from the sorted category IDs.
 
         Args:
             train_ids: Sorted list of category IDs from training annotation file.
@@ -273,11 +277,11 @@ class SimpleRunner:
 
         Returns:
             Tuple of:
-            - num_classes: Number of unique classes (max ID + 1 for contiguous IDs)
-            - class_names: List of class names indexed by category ID (None for missing IDs)
+            - num_classes: Number of unique classes
+            - class_names: List of class names in sorted category ID order
 
         Raises:
-            ValueError: If category IDs are not contiguous or if there are ID conflicts.
+            ValueError: If there are category ID conflicts (same ID, different names).
         """
         # Start with training classes
         all_ids = set(train_ids)
@@ -332,28 +336,12 @@ class SimpleRunner:
                 stacklevel=2,
             )
 
-        # Validate contiguous category IDs
-        sorted_ids = sorted(all_ids)
-        if sorted_ids and sorted_ids != list(range(min(sorted_ids), max(sorted_ids) + 1)):
-            raise ValueError(
-                f"Category IDs are not contiguous: {sorted_ids}. "
-                f"Category IDs must be consecutive integers starting from the minimum ID. "
-                f"For example, [1, 2, 3, 4] is valid, but [1, 2, 4, 5] is not."
-            )
-
         # Build class names list with proper indexing
-        # For non-contiguous IDs starting at 0, use all IDs as-is
-        # For IDs starting at 1, create list where index 0 is unused
+        # Category IDs may be non-contiguous (e.g., COCO uses 80 classes with IDs 1-90, skipping some)
+        # Models use internal indices 0 to N-1, so we map sorted category IDs to sequential indices
+        sorted_ids = sorted(all_ids)
         num_classes = len(all_ids)
-        class_names: list[str | None] = [None] * len(all_ids)
-
-        if sorted_ids:
-            min_id = min(sorted_ids)
-            for cat_id in sorted_ids:
-                # If IDs start at 0, use cat_id as index directly
-                # If IDs start at 1, shift index by -1
-                index = cat_id if min_id == 0 else cat_id - min_id
-                class_names[index] = all_dict[cat_id]
+        class_names: list[str] = [all_dict[cat_id] for cat_id in sorted_ids]
 
         return num_classes, class_names
 
@@ -491,47 +479,76 @@ class SimpleRunner:
         """Automatically sync num_classes from annotation files or dataset metainfo.
 
         Priority hierarchy:
-        1. Annotation files (train_ann_file, val_ann_file) - parsed at runtime
-        2. Dataset metainfo (from preset) - fallback if no annotation files provided
+        1. Annotation files (train/val) - parsed at runtime
+        2. Dataset metainfo (from preset) - fallback
         3. Skip if no classes found - preserve existing model config
 
-        When both train and val annotation files are provided, uses UNION of classes
-        to ensure the model can predict any class that appears in either split.
+        When both train and val annotation files are available, uses UNION of
+        classes to ensure the model can predict any class that appears in either
+        split.
 
         Supports both StandardRoIHead (single bbox_head dict) and CascadeRoIHead
         (multiple bbox_head stages as list).
         """
-        num_classes = None
-        source = None
 
-        # Priority 1: Extract classes from annotation files if provided
-        if self.train_ann_file is not None:
-            train_ids, train_dict = self._extract_classes_from_annotation(self.train_ann_file)
-            source = "training annotation file"
+        def _try_extract(ann_file: str) -> tuple[list[int], dict[int, str]] | None:
+            try:
+                return self._extract_classes_from_annotation(ann_file)
+            except FileNotFoundError:
+                # Common during quick config checks or when using preset paths
+                # before the dataset is downloaded.
+                logger.warning(
+                    f"Annotation file not found for auto class detection: {ann_file}. Skipping num_classes auto-sync."
+                )
+                return None
 
-            # If validation annotation file is also provided, merge classes
-            if self.val_ann_file is not None:
-                val_ids, val_dict = self._extract_classes_from_annotation(self.val_ann_file)
+        num_classes: int | None = None
+        class_names: list[str | None] | None = None
+        source: str | None = None
+
+        # Prefer explicit overrides, otherwise use dataset preset paths.
+        train_ann_file = self.train_ann_file or self.dataset_cfg.get("ann_file")
+        val_ann_file = self.val_ann_file or self.dataset_cfg.get("val_ann_file")
+
+        train_source = "training annotation file override" if self.train_ann_file else "dataset ann_file (preset)"
+        val_source = "validation annotation file override" if self.val_ann_file else "dataset val_ann_file (preset)"
+
+        # Priority 1: Extract classes from annotation files if available
+        train_extracted = _try_extract(train_ann_file) if train_ann_file else None
+        val_extracted = _try_extract(val_ann_file) if val_ann_file else None
+
+        if train_extracted is not None:
+            train_ids, train_dict = train_extracted
+
+            if val_extracted is not None:
+                val_ids, val_dict = val_extracted
                 num_classes, class_names = self._merge_and_validate_classes(train_ids, train_dict, val_ids, val_dict)
-                source = "training + validation annotation files (UNION)"
+                source = f"{train_source} + {val_source} (UNION)"
             else:
-                # Only training file provided
                 num_classes = len(train_ids)
                 class_names = [train_dict[cid] for cid in sorted(train_ids)]
+                source = train_source
 
+        elif val_extracted is not None:
+            val_ids, val_dict = val_extracted
+            num_classes = len(val_ids)
+            class_names = [val_dict[cid] for cid in sorted(val_ids)]
+            source = val_source
+
+        if num_classes is not None:
             logger.info(f"Auto-detected {num_classes} classes from {source}: {class_names}")
 
-        # Priority 2: Fallback to dataset metainfo if no annotation files provided
+        # Priority 2: Fallback to dataset metainfo if we couldn't parse annotations
         if num_classes is None:
             metainfo = self.dataset_cfg.get("metainfo", {})
             classes = metainfo.get("classes")
-
             if not classes:
                 return
 
             num_classes = len(classes)
+            class_names = list(classes)
             source = "dataset metainfo (preset)"
-            logger.info(f"Auto-detected {num_classes} classes from {source}")
+            logger.info(f"Auto-detected {num_classes} classes from {source}: {class_names}")
 
         # Apply num_classes to model config
         # Two-stage detectors
@@ -557,17 +574,14 @@ class SimpleRunner:
         # Single-stage detectors
         elif "bbox_head" in self.model_cfg:
             bbox_head = self.model_cfg["bbox_head"]
-            if isinstance(bbox_head, dict) and "num_classes" in bbox_head:
+            if isinstance(bbox_head, dict):
                 bbox_head["num_classes"] = num_classes
                 logger.info(f"Automatically set model num_classes to {num_classes} (from {source})")
             elif isinstance(bbox_head, list):
-                updated = False
                 for head in bbox_head:
-                    if isinstance(head, dict) and "num_classes" in head:
+                    if isinstance(head, dict):
                         head["num_classes"] = num_classes
-                        updated = True
-                if updated:
-                    logger.info(f"Automatically set model num_classes to {num_classes} (from {source})")
+                logger.info(f"Automatically set model num_classes to {num_classes} (from {source})")
 
     def train(self) -> None:
         """Start training using the assembled configuration.
