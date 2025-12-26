@@ -261,9 +261,13 @@ class SimpleRunner:
 
         Validates:
         - Category ID conflicts (same ID with different names across train/val)
-        - Non-contiguous category IDs (e.g., [1, 2, 5] instead of [1, 2, 3])
         - Warns when validation-only classes exist (HIGH severity - model won't learn them)
         - Warns when training-only classes exist (MEDIUM severity - no validation metrics)
+
+        Note:
+            Non-contiguous category IDs are supported (e.g., COCO uses 80 classes with
+            IDs 1-90, skipping some). The model uses internal indices 0 to N-1 which
+            are mapped from the sorted category IDs.
 
         Args:
             train_ids: Sorted list of category IDs from training annotation file.
@@ -273,11 +277,11 @@ class SimpleRunner:
 
         Returns:
             Tuple of:
-            - num_classes: Number of unique classes (max ID + 1 for contiguous IDs)
-            - class_names: List of class names indexed by category ID (None for missing IDs)
+            - num_classes: Number of unique classes
+            - class_names: List of class names in sorted category ID order
 
         Raises:
-            ValueError: If category IDs are not contiguous or if there are ID conflicts.
+            ValueError: If there are category ID conflicts (same ID, different names).
         """
         # Start with training classes
         all_ids = set(train_ids)
@@ -332,28 +336,12 @@ class SimpleRunner:
                 stacklevel=2,
             )
 
-        # Validate contiguous category IDs
-        sorted_ids = sorted(all_ids)
-        if sorted_ids and sorted_ids != list(range(min(sorted_ids), max(sorted_ids) + 1)):
-            raise ValueError(
-                f"Category IDs are not contiguous: {sorted_ids}. "
-                f"Category IDs must be consecutive integers starting from the minimum ID. "
-                f"For example, [1, 2, 3, 4] is valid, but [1, 2, 4, 5] is not."
-            )
-
         # Build class names list with proper indexing
-        # For non-contiguous IDs starting at 0, use all IDs as-is
-        # For IDs starting at 1, create list where index 0 is unused
+        # Category IDs may be non-contiguous (e.g., COCO uses 80 classes with IDs 1-90, skipping some)
+        # Models use internal indices 0 to N-1, so we map sorted category IDs to sequential indices
+        sorted_ids = sorted(all_ids)
         num_classes = len(all_ids)
-        class_names: list[str | None] = [None] * len(all_ids)
-
-        if sorted_ids:
-            min_id = min(sorted_ids)
-            for cat_id in sorted_ids:
-                # If IDs start at 0, use cat_id as index directly
-                # If IDs start at 1, shift index by -1
-                index = cat_id if min_id == 0 else cat_id - min_id
-                class_names[index] = all_dict[cat_id]
+        class_names: list[str] = [all_dict[cat_id] for cat_id in sorted_ids]
 
         return num_classes, class_names
 

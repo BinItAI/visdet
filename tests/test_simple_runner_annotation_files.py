@@ -579,8 +579,12 @@ class TestAnnotationClassDetection(unittest.TestCase):
         assert "dog" in error_msg
         assert "canine" in error_msg
 
-    def test_non_contiguous_ids_error(self) -> None:
-        """Test that non-contiguous category IDs raise ValueError."""
+    def test_non_contiguous_ids_handled_correctly(self) -> None:
+        """Test that non-contiguous category IDs are handled correctly.
+
+        COCO uses 80 classes with IDs 1-90 (with gaps). The model should use
+        internal indices 0 to N-1 mapped from sorted category IDs.
+        """
         # Create minimal runner
         with patch("visdet.runner.SimpleRunner._resolve_preset"):
             with patch("visdet.runner.SimpleRunner._validate_annotation_files"):
@@ -590,14 +594,15 @@ class TestAnnotationClassDetection(unittest.TestCase):
                         dataset="test_dataset",
                     )
 
-        train_ids = [1, 2, 5]  # Missing 3 and 4
+        train_ids = [1, 2, 5]  # Non-contiguous: missing 3 and 4
         train_dict = {1: "cat", 2: "dog", 5: "bird"}
 
-        with self.assertRaises(ValueError) as context:
-            runner._merge_and_validate_classes(train_ids, train_dict)
+        num_classes, class_names = runner._merge_and_validate_classes(train_ids, train_dict)
 
-        error_msg = str(context.exception)
-        assert "not contiguous" in error_msg
+        # Should have 3 classes, not 5
+        assert num_classes == 3
+        # Class names should be in sorted ID order
+        assert class_names == ["cat", "dog", "bird"]
 
     def test_cascade_roi_head_all_stages_updated(self) -> None:
         """Test that CascadeRoIHead updates num_classes in all stages."""
