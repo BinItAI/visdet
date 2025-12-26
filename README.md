@@ -6,6 +6,7 @@
     <a href="https://pypi.org/project/visdet"><img src="https://img.shields.io/pypi/v/visdet?style=flat-square&color=blue" alt="PyPI"/></a>
     <a href="https://github.com/BinItAI/visdet/actions/workflows/test.yml"><img src="https://img.shields.io/github/actions/workflow/status/BinItAI/visdet/test.yml?branch=main&style=flat-square" alt="Tests"/></a>
     <a href="https://binitai.github.io/visdet/"><img src="https://img.shields.io/badge/docs-latest-brightgreen?style=flat-square" alt="Documentation"/></a>
+    <a href="https://deepwiki.com/BinItAI/visdet"><img src="https://deepwiki.com/badge.svg" alt="Ask DeepWiki"/></a>
   </p>
 
   <!-- Navigation -->
