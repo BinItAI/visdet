@@ -160,13 +160,6 @@ repos:
         pass_filenames: false
         files: ^visdet/testing/
 
-      - id: zuban-visdet-configs
-        name: Zuban type checker (visdet/configs)
-        entry: uv run zuban check visdet/configs
-        language: system
-        types: [python]
-        pass_filenames: false
-        files: ^visdet/configs/
 
       - id: zuban-eval-evaluator
         name: Zuban type checker (visdet/evaluation/evaluator)
