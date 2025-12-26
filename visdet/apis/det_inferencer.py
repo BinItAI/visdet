@@ -20,7 +20,7 @@ from visdet.engine.model.utils import revert_sync_batchnorm
 from visdet.engine.registry import init_default_scope
 from visdet.engine.runner.checkpoint import _load_checkpoint_to_model
 from visdet.engine.visualization import Visualizer
-from rich.progress import track
+from rich.progress import Progress, SpinnerColumn, BarColumn, TextColumn, TimeElapsedColumn, TimeRemainingColumn
 
 from visdet.evaluation import INSTANCE_OFFSET, get_classes
 from visdet.registry import DATASETS
@@ -398,35 +398,83 @@ class DetInferencer(BaseInferencer):
 
         inputs = self.preprocess(ori_inputs, batch_size=batch_size, **preprocess_kwargs)
 
+        # Calculate total number of batches for progress bar
+        total_images = len(ori_inputs)
+        total_batches = (total_images + batch_size - 1) // batch_size
+
         results_dict = {"predictions": [], "visualization": []}
-        for ori_imgs, data in (
-            track(inputs, description="Inference") if self.show_progress else inputs
-        ):
-            preds = self.forward(data, **forward_kwargs)
-            visualization = self.visualize(
-                ori_imgs,
-                preds,
-                return_vis=return_vis,
-                show=show,
-                wait_time=wait_time,
-                draw_pred=draw_pred,
-                pred_score_thr=pred_score_thr,
-                no_save_vis=no_save_vis,
-                img_out_dir=out_dir,
-                **visualize_kwargs,
-            )
-            results = self.postprocess(
-                preds,
-                visualization,
-                return_datasamples=return_datasamples,
-                print_result=print_result,
-                no_save_pred=no_save_pred,
-                pred_out_dir=out_dir,
-                **postprocess_kwargs,
-            )
-            results_dict["predictions"].extend(results["predictions"])
-            if results["visualization"] is not None:
-                results_dict["visualization"].extend(results["visualization"])
+
+        if self.show_progress:
+            with Progress(
+                SpinnerColumn(),
+                TextColumn("[progress.description]{task.description}"),
+                BarColumn(),
+                TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
+                TextColumn("•"),
+                TextColumn("{task.completed}/{task.total} batches"),
+                TextColumn("•"),
+                TimeElapsedColumn(),
+                TextColumn("•"),
+                TimeRemainingColumn(),
+            ) as progress:
+                task = progress.add_task(
+                    f"[cyan]Processing {total_images} images...",
+                    total=total_batches
+                )
+                for ori_imgs, data in inputs:
+                    preds = self.forward(data, **forward_kwargs)
+                    visualization = self.visualize(
+                        ori_imgs,
+                        preds,
+                        return_vis=return_vis,
+                        show=show,
+                        wait_time=wait_time,
+                        draw_pred=draw_pred,
+                        pred_score_thr=pred_score_thr,
+                        no_save_vis=no_save_vis,
+                        img_out_dir=out_dir,
+                        **visualize_kwargs,
+                    )
+                    results = self.postprocess(
+                        preds,
+                        visualization,
+                        return_datasamples=return_datasamples,
+                        print_result=print_result,
+                        no_save_pred=no_save_pred,
+                        pred_out_dir=out_dir,
+                        **postprocess_kwargs,
+                    )
+                    results_dict["predictions"].extend(results["predictions"])
+                    if results["visualization"] is not None:
+                        results_dict["visualization"].extend(results["visualization"])
+                    progress.update(task, advance=1)
+        else:
+            for ori_imgs, data in inputs:
+                preds = self.forward(data, **forward_kwargs)
+                visualization = self.visualize(
+                    ori_imgs,
+                    preds,
+                    return_vis=return_vis,
+                    show=show,
+                    wait_time=wait_time,
+                    draw_pred=draw_pred,
+                    pred_score_thr=pred_score_thr,
+                    no_save_vis=no_save_vis,
+                    img_out_dir=out_dir,
+                    **visualize_kwargs,
+                )
+                results = self.postprocess(
+                    preds,
+                    visualization,
+                    return_datasamples=return_datasamples,
+                    print_result=print_result,
+                    no_save_pred=no_save_pred,
+                    pred_out_dir=out_dir,
+                    **postprocess_kwargs,
+                )
+                results_dict["predictions"].extend(results["predictions"])
+                if results["visualization"] is not None:
+                    results_dict["visualization"].extend(results["visualization"])
         return results_dict
 
     def visualize(
