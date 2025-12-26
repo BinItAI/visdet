@@ -714,7 +714,7 @@ def test_multi_scale_flip_aug():
     # test pipeline of coco_detection (YAML preset)
     from visdet.engine.fileio import load as file_load
 
-    preset = file_load("configs/presets/datasets/coco_detection.yaml")
+    preset = file_load("configs/datasets/coco_detection.yaml")
     assert "test_pipeline" in preset
 
 

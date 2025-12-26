@@ -81,4 +81,4 @@ def test_aug_test_size():
 
 
 def test_faster_rcnn_preset_builds():
-    _model_aug_test_template("configs/presets/models/faster_rcnn_r50.yaml")
+    _model_aug_test_template("configs/models/faster_rcnn_r50.yaml")
