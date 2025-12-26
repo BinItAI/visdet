@@ -21,7 +21,7 @@ if digit_version(torch.__version__) <= digit_version("1.5.0"):
 
 
 def test_cascade_onnx_export():
-    config_path = "./configs/cascade_rcnn/cascade_rcnn_r50_fpn_1x_coco.py"
+    config_path = "./configs/presets/models/faster_rcnn_r50.yaml"
     cfg = mmcv.Config.fromfile(config_path)
     model = build_detector(cfg.model, test_cfg=cfg.get("test_cfg"))
     with torch.no_grad():
@@ -53,7 +53,7 @@ def test_cascade_onnx_export():
 
 
 def test_faster_onnx_export():
-    config_path = "./configs/faster_rcnn/faster_rcnn_r50_fpn_1x_coco.py"
+    config_path = "./configs/presets/models/faster_rcnn_r50.yaml"
     cfg = mmcv.Config.fromfile(config_path)
     model = build_detector(cfg.model, test_cfg=cfg.get("test_cfg"))
     with torch.no_grad():

@@ -6,7 +6,7 @@ This script demonstrates the recommended way to train models using visdet,
 following the MMEngine tutorial pattern with explicit Runner initialization.
 
 Usage:
-    python scripts/train.py configs/your_config.py
+    python scripts/train.py path/to/your_config.yaml
 
 For distributed training or advanced options, use tools/train.py instead.
 """

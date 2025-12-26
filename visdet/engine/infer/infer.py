@@ -159,6 +159,15 @@ class BaseInferencer(metaclass=InferencerMeta):
             if osp.isfile(model):
                 cfg = Config.fromfile(model)
             else:
+                if self.scope == "visdet":
+                    repo_dir = BaseInferencer._get_repo_or_mim_dir(self.scope)
+                    if not osp.exists(osp.join(repo_dir, "model-index.yml")):
+                        raise ValueError(
+                            "Model-name resolution via model-index/metafiles is disabled in visdet. "
+                            "Pass an explicit config filepath, or use task-specific inferencers with YAML presets "
+                            "(e.g. `DetInferencer(model='rtmdet-s')`)."
+                        )
+
                 # Load config and weights from metafile. If `weights` is
                 # assigned, the weights defined in metafile will be ignored.
                 cfg, _weights = self._load_model_from_metafile(model)
@@ -616,17 +625,18 @@ class BaseInferencer(metaclass=InferencerMeta):
 
     @staticmethod
     def _get_models_from_metafile(dir: str):
-        """Load model config defined in metafile from package path.
+        """Load model config defined in legacy OpenMMLab metafiles.
 
-        Args:
-            dir (str): Path to the directory of Config. It requires the
-                directory ``Config``, file ``model-index.yml`` exists in the
-                ``dir``.
-
-        Yields:
-            dict: Model config defined in metafile.
+        visdet is migrating away from `model-index.yml` + `configs/**/metafile.yml`
+        in favor of YAML presets.
         """
-        meta_indexes = load(osp.join(dir, "model-index.yml"))
+        meta_index_path = osp.join(dir, "model-index.yml")
+        if not osp.exists(meta_index_path):
+            raise FileNotFoundError(
+                f"Cannot find {meta_index_path}. The model-index/metafile system has been removed in this repo; "
+                "use YAML presets (e.g. `DetInferencer(model='rtmdet-s')`) or pass an explicit config file."
+            )
+        meta_indexes = load(meta_index_path)
         for meta_path in meta_indexes["Import"]:
             # meta_path example: mmcls/.mim/configs/conformer/metafile.yml
             meta_path = osp.join(dir, meta_path)
@@ -654,6 +664,16 @@ class BaseInferencer(metaclass=InferencerMeta):
             assert default_scope is not None, "scope should be initialized if you want to load config from metafile."
         assert scope in MODULE2PACKAGE, f"{scope} not in {MODULE2PACKAGE}!, please make pass a valid scope."
         root_or_mim_dir = BaseInferencer._get_repo_or_mim_dir(scope)
+        meta_index_path = osp.join(root_or_mim_dir, "model-index.yml")
+        if not osp.exists(meta_index_path):
+            if scope == "visdet":
+                print_log(
+                    "model-index/metafile model discovery is disabled in visdet; use YAML presets instead.",
+                    logger="current",
+                )
+                return []
+            raise FileNotFoundError(f"Cannot find {meta_index_path}")
+
         for model_cfg in BaseInferencer._get_models_from_metafile(root_or_mim_dir):
             model_name = [model_cfg["Name"]]
             model_name.extend(model_cfg.get("Alias", []))

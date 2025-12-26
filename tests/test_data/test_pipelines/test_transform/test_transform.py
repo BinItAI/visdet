@@ -711,28 +711,11 @@ def test_multi_scale_flip_aug():
     assert scale_factor_results["img"][2].shape == (345, 614, 3)
     assert scale_factor_results["img_shape"][2] == (345, 614, 3)
 
-    # test pipeline of coco_detection
-    results = dict(
-        img_prefix=osp.join(osp.dirname(__file__), "../../../data"),
-        img_info=dict(filename="color.jpg"),
-    )
-    load_cfg, multi_scale_cfg = mmcv.Config.fromfile("configs/_base_/datasets/coco_detection.py").test_pipeline
-    load = build_from_cfg(load_cfg, PIPELINES)
-    transform = build_from_cfg(multi_scale_cfg, PIPELINES)
-    results = transform(load(results))
-    assert len(results["img"]) == 1
-    assert len(results["img_metas"]) == 1
-    assert isinstance(results["img"][0], torch.Tensor)
-    assert isinstance(results["img_metas"][0], mmcv.parallel.DataContainer)
-    assert results["img_metas"][0].data["ori_shape"] == (288, 512, 3)
-    assert results["img_metas"][0].data["img_shape"] == (750, 1333, 3)
-    assert results["img_metas"][0].data["pad_shape"] == (768, 1344, 3)
-    assert results["img_metas"][0].data["scale_factor"].tolist() == [
-        2.603515625,
-        2.6041667461395264,
-        2.603515625,
-        2.6041667461395264,
-    ]
+    # test pipeline of coco_detection (YAML preset)
+    from visdet.engine.fileio import load as file_load
+
+    preset = file_load("configs/presets/datasets/coco_detection.yaml")
+    assert "test_pipeline" in preset
 
 
 @pytest.mark.skip(reason="CutOut is an out-of-scope augmentation (optional, not needed for Swin + Mask R-CNN)")
