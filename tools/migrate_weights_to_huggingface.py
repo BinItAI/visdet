@@ -219,7 +219,7 @@ from visdet.apis import init_detector
 
 # Use HuggingFace-hosted weights
 model = init_detector(
-    config="configs/presets/models/mask_rcnn_r50.yaml",
+    config="configs/models/mask_rcnn_r50.yaml",
     checkpoint="hf://{repo_id}/openmmlab/resnet50_msra-5891d200.pth"
 )
 ```

@@ -159,7 +159,7 @@ def test_lazy_loading():
     from presets.registry import PresetRegistry
 
     # Create a test registry
-    preset_dir = repo_root / "configs/presets/models"
+    preset_dir = repo_root / "configs/models"
     registry = PresetRegistry(preset_dir)
 
     print("\n" + "-" * 80)

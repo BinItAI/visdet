@@ -19,7 +19,7 @@ class PresetRegistry:
     discoverability.
 
     Example:
-        >>> registry = PresetRegistry(Path('configs/presets/models'))
+        >>> registry = PresetRegistry(Path('configs/models'))
         >>> registry.list()  # Fast - just returns names
         ['mask_rcnn_swin_s', 'faster_rcnn_r50']
         >>> config = registry.get('mask_rcnn_swin_s')  # Loads YAML on first access
@@ -140,9 +140,9 @@ class PresetRegistry:
 
 
 def _get_preset_root() -> Path:
-    """Get the root configs/presets directory."""
-    # visdet/presets/registry.py → . (repo root) → configs/presets
-    return Path(__file__).parent.parent.parent / "configs" / "presets"
+    """Get the root configs directory (YAML-only)."""
+    # visdet/presets/registry.py → . (repo root) → configs
+    return Path(__file__).parent.parent.parent / "configs"
 
 
 _PRESET_ROOT = _get_preset_root()
