@@ -1,19 +1,16 @@
 # Copyright (c) OpenMMLab. All rights reserved.
-"""Tests for async interface."""
+"""Tests for async interface using YAML preset configs."""
 
-import pytest
-
-pytest.skip(
-    "Async inference tests rely on removed Python configs under `configs/`. visdet now uses YAML presets.",
-    allow_module_level=True,
-)
+from __future__ import annotations
 
 import asyncio
 import os
 import sys
 
-import asynctest
+import pytest
 import torch
+
+asynctest = pytest.importorskip("asynctest")
 
 import visdet.cv as mmcv
 from visdet.apis import async_inference_detector, init_detector
@@ -38,8 +35,7 @@ class MaskRCNNDetector:
     def __init__(self, model_config, checkpoint=None, streamqueue_size=3, device="cuda:0"):
         self.streamqueue_size = streamqueue_size
         self.device = device
-        # build the model and load checkpoint
-        self.model = init_detector(model_config, checkpoint=None, device=self.device)
+        self.model = init_detector(model_config, checkpoint=checkpoint, device=self.device)
         self.streamqueue = None
 
     async def init(self):
@@ -69,12 +65,10 @@ class AsyncInferenceTestCase(AsyncTestCase):
 
             ori_grad_enabled = torch.is_grad_enabled()
             root_dir = os.path.dirname(os.path.dirname(__name__))
-            model_config = os.path.join(root_dir, "configs/mask_rcnn/mask_rcnn_r50_fpn_1x_coco.py")
+            model_config = os.path.join(root_dir, "configs/presets/models/mask_rcnn_r50.yaml")
             detector = MaskRCNNDetector(model_config)
             await detector.init()
             img_path = os.path.join(root_dir, "demo/demo.jpg")
             bboxes, _ = await detector.apredict(img_path)
             self.assertTrue(bboxes)
-            # asy inference detector will hack grad_enabled,
-            # so restore here to avoid it to influence other tests
             torch.set_grad_enabled(ori_grad_enabled)

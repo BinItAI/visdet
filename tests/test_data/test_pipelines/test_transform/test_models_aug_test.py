@@ -1,54 +1,19 @@
 # Copyright (c) OpenMMLab. All rights reserved.
-import pytest
 
-pytest.skip(
-    "Legacy aug-test suite relies on removed Python configs under `configs/`. visdet now uses YAML presets.",
-    allow_module_level=True,
-)
+"""Multi-scale augmentation tests without Python configs.
+
+The previous version of this test module loaded full experiment configs from
+`configs/**/*.py`. Those have been removed in favor of YAML presets.
+
+This file now focuses on validating `MultiScaleFlipAug` behavior directly.
+"""
+
+from __future__ import annotations
 
 import os.path as osp
 
-import torch
-
-import visdet.cv as mmcv
 from visdet.cv import build_from_cfg
-from visdet.cv.parallel import collate
 from visdet.datasets.builder import PIPELINES
-from visdet.models import build_detector
-
-
-def model_aug_test_template(cfg_file):
-    # get config
-    cfg = mmcv.Config.fromfile(cfg_file)
-    # init model
-    cfg.model.pretrained = None
-    cfg.model.train_cfg = None
-    model = build_detector(cfg.model)
-
-    # init test pipeline and set aug test
-    load_cfg, multi_scale_cfg = cfg.test_pipeline
-    multi_scale_cfg["flip"] = True
-    multi_scale_cfg["flip_direction"] = ["horizontal", "vertical", "diagonal"]
-    multi_scale_cfg["img_scale"] = [(1333, 800), (800, 600), (640, 480)]
-
-    load = build_from_cfg(load_cfg, PIPELINES)
-    transform = build_from_cfg(multi_scale_cfg, PIPELINES)
-
-    results = dict(
-        img_prefix=osp.join(osp.dirname(__file__), "../../../data"),
-        img_info=dict(filename="color.jpg"),
-    )
-    results = transform(load(results))
-    assert len(results["img"]) == 12
-    assert len(results["img_metas"]) == 12
-
-    results["img"] = [collate([x]) for x in results["img"]]
-    results["img_metas"] = [collate([x]).data[0] for x in results["img_metas"]]
-    # aug test the model
-    model.eval()
-    with torch.no_grad():
-        aug_result = model(return_loss=False, rescale=True, **results)
-    return aug_result
 
 
 def test_aug_test_size():
@@ -57,11 +22,11 @@ def test_aug_test_size():
         img_info=dict(filename="color.jpg"),
     )
 
-    # Define simple pipeline
+    # Define simple load pipeline
     load = dict(type="LoadImageFromFile")
     load = build_from_cfg(load, PIPELINES)
 
-    # get config
+    # Multi-scale + flip augmentation
     transform = dict(
         type="MultiScaleFlipAug",
         transforms=[],
@@ -73,66 +38,6 @@ def test_aug_test_size():
 
     results = load(results)
     results = multi_aug_test_module(load(results))
-    # len(["original", "horizontal", "vertical", "diagonal"]) *
-    # len([(1333, 800), (800, 600), (640, 480)])
+
+    # len([original, h, v, d]) * len(scales)
     assert len(results["img"]) == 12
-
-
-def test_cascade_rcnn_aug_test():
-    aug_result = model_aug_test_template("configs/cascade_rcnn/cascade_rcnn_r50_fpn_1x_coco.py")
-    assert len(aug_result[0]) == 80
-
-
-def test_mask_rcnn_aug_test():
-    aug_result = model_aug_test_template("configs/mask_rcnn/mask_rcnn_r50_fpn_1x_coco.py")
-    assert len(aug_result[0]) == 2
-    assert len(aug_result[0][0]) == 80
-    assert len(aug_result[0][1]) == 80
-
-
-def test_htc_aug_test():
-    aug_result = model_aug_test_template("configs/htc/htc_r50_fpn_1x_coco.py")
-    assert len(aug_result[0]) == 2
-    assert len(aug_result[0][0]) == 80
-    assert len(aug_result[0][1]) == 80
-
-
-def test_scnet_aug_test():
-    aug_result = model_aug_test_template("configs/scnet/scnet_r50_fpn_1x_coco.py")
-    assert len(aug_result[0]) == 2
-    assert len(aug_result[0][0]) == 80
-    assert len(aug_result[0][1]) == 80
-
-
-def test_cornernet_aug_test():
-    # get config
-    cfg = mmcv.Config.fromfile("configs/cornernet/cornernet_hourglass104_mstest_10x5_210e_coco.py")
-    # init model
-    cfg.model.pretrained = None
-    cfg.model.train_cfg = None
-    model = build_detector(cfg.model)
-
-    # init test pipeline and set aug test
-    load_cfg, multi_scale_cfg = cfg.test_pipeline
-    multi_scale_cfg["flip"] = True
-    multi_scale_cfg["flip_direction"] = ["horizontal", "vertical", "diagonal"]
-    multi_scale_cfg["scale_factor"] = [0.5, 1.0, 2.0]
-
-    load = build_from_cfg(load_cfg, PIPELINES)
-    transform = build_from_cfg(multi_scale_cfg, PIPELINES)
-
-    results = dict(
-        img_prefix=osp.join(osp.dirname(__file__), "../../../data"),
-        img_info=dict(filename="color.jpg"),
-    )
-    results = transform(load(results))
-    assert len(results["img"]) == 12
-    assert len(results["img_metas"]) == 12
-
-    results["img"] = [collate([x]) for x in results["img"]]
-    results["img_metas"] = [collate([x]).data[0] for x in results["img_metas"]]
-    # aug test the model
-    model.eval()
-    with torch.no_grad():
-        aug_result = model(return_loss=False, rescale=True, **results)
-    assert len(aug_result[0]) == 80
