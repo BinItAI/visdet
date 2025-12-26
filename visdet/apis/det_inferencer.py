@@ -20,6 +20,7 @@ from visdet.engine.model.utils import revert_sync_batchnorm
 from visdet.engine.registry import init_default_scope
 from visdet.engine.runner.checkpoint import _load_checkpoint_to_model
 from visdet.engine.visualization import Visualizer
+from visdet.presets import MODEL_PRESETS
 from rich.progress import Progress, SpinnerColumn, BarColumn, TextColumn, TimeElapsedColumn, TimeRemainingColumn
 
 from visdet.evaluation import INSTANCE_OFFSET, get_classes
@@ -47,10 +48,9 @@ class DetInferencer(BaseInferencer):
     """Object Detection Inferencer.
 
     Args:
-        model (str, optional): Path to the config file or the model name
-            defined in metafile. For example, it could be
-            "rtmdet-s" or 'rtmdet_s_8xb32-300e_coco' or
-            "configs/rtmdet/rtmdet_s_8xb32-300e_coco.py".
+        model (str, optional): Path to a YAML config file, or a model preset
+            name/alias. For example: "rtmdet-s" or "rtmdet_ins_s".
+            (visdet prefers YAML presets and does not require Python configs.)
             If model is not specified, user must provide the
             `weights` saved by MMEngine which contains the config string.
             Defaults to None.
@@ -84,6 +84,70 @@ class DetInferencer(BaseInferencer):
         "no_save_pred",
     }
 
+    _alias_to_preset: dict[str, str] | None = None
+
+    @classmethod
+    def _build_alias_to_preset(cls) -> dict[str, str]:
+        if cls._alias_to_preset is None:
+            mapping: dict[str, str] = {}
+            for preset_name in MODEL_PRESETS.list():
+                mapping[preset_name.lower()] = preset_name
+                cfg = MODEL_PRESETS.get(preset_name)
+                meta = cfg.get("preset_meta", {}) or {}
+                for alias in meta.get("aliases", []) or []:
+                    mapping[str(alias).lower()] = preset_name
+            cls._alias_to_preset = mapping
+        return cls._alias_to_preset
+
+    @classmethod
+    def _resolve_model_preset(cls, name: str) -> str | None:
+        key = name.lower()
+        mapping = cls._build_alias_to_preset()
+        if key in mapping:
+            return mapping[key]
+        if key.replace("-", "_") in mapping:
+            return mapping[key.replace("-", "_")]
+        if key.replace("_", "-") in mapping:
+            return mapping[key.replace("_", "-")]
+        return None
+
+    @staticmethod
+    def _build_infer_cfg_from_preset(preset_cfg: dict) -> tuple[dict, str | None]:
+        cfg = copy.deepcopy(preset_cfg)
+        meta = cfg.pop("preset_meta", {}) or {}
+        weights = meta.get("weights")
+        img_scale = meta.get("img_scale", [640, 640])
+
+        infer_cfg = {
+            "model": cfg,
+            "test_pipeline": [
+                {"type": "visdet.InferencerLoader"},
+                {"type": "Resize", "scale": img_scale, "keep_ratio": True},
+                {"type": "PackDetInputs"},
+            ],
+            "visualizer": {
+                "type": "DetLocalVisualizer",
+                "vis_backends": [{"type": "LocalVisBackend"}],
+                "name": "visualizer",
+            },
+        }
+        return infer_cfg, weights
+
+    @classmethod
+    def list_models(cls, scope: str | None = None, patterns: str = r".*") -> list[str]:
+        import re
+
+        matched: set[str] = set()
+        for preset_name in MODEL_PRESETS.list():
+            cfg = MODEL_PRESETS.get(preset_name)
+            meta = cfg.get("preset_meta", {}) or {}
+            names = [preset_name]
+            names.extend([str(a) for a in meta.get("aliases", []) or []])
+            for name in names:
+                if re.match(patterns, name) is not None:
+                    matched.add(name)
+        return sorted(matched)
+
     def __init__(
         self,
         model: ModelType | str | None = None,
@@ -99,6 +163,21 @@ class DetInferencer(BaseInferencer):
         self.num_predicted_imgs = 0
         self.palette = palette
         init_default_scope(scope)
+
+        if isinstance(model, str) and not osp.isfile(model):
+            preset_name = self._resolve_model_preset(model)
+            if preset_name is None:
+                available = ", ".join(MODEL_PRESETS.list())
+                raise ValueError(
+                    f"Unknown model preset/alias: {model}. "
+                    f"Expected one of: {available}."
+                )
+            preset_cfg = MODEL_PRESETS.get(preset_name)
+            infer_cfg, preset_weights = self._build_infer_cfg_from_preset(preset_cfg)
+            if weights is None:
+                weights = preset_weights
+            model = infer_cfg
+
         super().__init__(model=model, weights=weights, device=device, scope=scope)
         self.model = revert_sync_batchnorm(self.model)
         self.show_progress = show_progress
@@ -146,37 +225,45 @@ class DetInferencer(BaseInferencer):
         if self.palette != "none":
             model.dataset_meta["palette"] = self.palette
         else:
-            test_dataset_cfg = copy.deepcopy(cfg.test_dataloader.dataset)
-            # lazy init. We only need the metainfo.
-            test_dataset_cfg["lazy_init"] = True
-            metainfo = DATASETS.build(test_dataset_cfg).metainfo
-            cfg_palette = metainfo.get("palette", None)
+            cfg_palette = None
+            if cfg is not None and hasattr(cfg, "test_dataloader"):
+                test_dataset_cfg = copy.deepcopy(cfg.test_dataloader.dataset)
+                # lazy init. We only need the metainfo.
+                test_dataset_cfg["lazy_init"] = True
+                metainfo = DATASETS.build(test_dataset_cfg).metainfo
+                cfg_palette = metainfo.get("palette", None)
+
             if cfg_palette is not None:
                 model.dataset_meta["palette"] = cfg_palette
-            else:
-                if "palette" not in model.dataset_meta:
-                    warnings.warn(
-                        "palette does not exist, random is used by default. "
-                        "You can also set the palette to customize.", stacklevel=2
-                    )
-                    model.dataset_meta["palette"] = "random"
+            elif "palette" not in model.dataset_meta:
+                warnings.warn(
+                    "palette does not exist, random is used by default. "
+                    "You can also set the palette to customize.",
+                    stacklevel=2,
+                )
+                model.dataset_meta["palette"] = "random"
 
     def _init_pipeline(self, cfg: ConfigType) -> Compose:
         """Initialize the test pipeline."""
-        pipeline_cfg = cfg.test_dataloader.dataset.pipeline
+        if "test_pipeline" in cfg:
+            pipeline_cfg = copy.deepcopy(cfg["test_pipeline"])
+        else:
+            pipeline_cfg = cfg.test_dataloader.dataset.pipeline
 
         # For inference, the key of ``img_id`` is not used.
-        if "meta_keys" in pipeline_cfg[-1]:
+        if pipeline_cfg and "meta_keys" in pipeline_cfg[-1]:
             pipeline_cfg[-1]["meta_keys"] = tuple(
                 meta_key for meta_key in pipeline_cfg[-1]["meta_keys"] if meta_key != "img_id"
             )
 
-        load_img_idx = self._get_transform_idx(
-            pipeline_cfg, ("LoadImageFromFile", LoadImageFromFile)
-        )
-        if load_img_idx == -1:
-            raise ValueError("LoadImageFromFile is not found in the test pipeline")
-        pipeline_cfg[load_img_idx]["type"] = "visdet.InferencerLoader"
+        # Replace the first image loader with InferencerLoader so we can accept
+        # both file paths and already-loaded numpy arrays.
+        load_img_idx = self._get_transform_idx(pipeline_cfg, ("LoadImageFromFile", LoadImageFromFile))
+        if load_img_idx != -1:
+            pipeline_cfg[load_img_idx]["type"] = "visdet.InferencerLoader"
+        elif pipeline_cfg and pipeline_cfg[0].get("type") not in ("visdet.InferencerLoader", "InferencerLoader"):
+            raise ValueError("Cannot find an image loading transform in the test pipeline")
+
         return Compose(pipeline_cfg)
 
     def _get_transform_idx(

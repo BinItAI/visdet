@@ -101,6 +101,9 @@ class SimpleRunner:
         """
         # Resolve all presets to configs
         self.model_cfg = self._resolve_preset(model, MODEL_PRESETS, "model")
+        # Remove metadata fields (used by inferencers / discovery)
+        if isinstance(self.model_cfg, dict):
+            self.model_cfg.pop("preset_meta", None)
         self.dataset_cfg = self._resolve_preset(dataset, DATASET_PRESETS, "dataset")
         self.optimizer_cfg = self._resolve_preset(optimizer, OPTIMIZER_PRESETS, "optimizer")
 

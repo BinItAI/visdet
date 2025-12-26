@@ -1,5 +1,10 @@
 # RTMDet-Ins-L (COCO)
 
+preset_meta:
+  aliases: [rtmdet-ins-l]
+  weights: https://download.openmmlab.com/mmdetection/v3.0/rtmdet/rtmdet-ins_l_8xb32-300e_coco/rtmdet-ins_l_8xb32-300e_coco_20221124_103237-78d1d652.pth
+  img_scale: [640, 640]
+
 type: RTMDet
 
 data_preprocessor:
@@ -7,6 +12,8 @@ data_preprocessor:
   mean: [103.53, 116.28, 123.675]
   std: [57.375, 57.12, 58.395]
   bgr_to_rgb: false
+  pad_size_divisor: 32
+  pad_mask: true
 
 backbone:
   type: CSPNeXt

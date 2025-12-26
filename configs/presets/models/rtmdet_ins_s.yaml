@@ -1,5 +1,9 @@
 # RTMDet-Ins-S (COCO)
 
+preset_meta:
+  aliases: [rtmdet-ins-s]
+  weights: https://download.openmmlab.com/mmdetection/v3.0/rtmdet/rtmdet-ins_s_8xb32-300e_coco/rtmdet-ins_s_8xb32-300e_coco_20221121_212604-fdc5d7ec.pth
+
 _base_: ./rtmdet_ins_l.yaml
 
 backbone:
