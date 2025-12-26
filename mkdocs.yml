@@ -115,6 +115,7 @@ nav:
   - Development:
       - Contributing: development/contributing.md
       - Architecture: development/architecture.md
+      - Model Coverage: development/model-coverage.md
   - About:
       - Changelog: about/changelog.md
       - License: about/license.md
