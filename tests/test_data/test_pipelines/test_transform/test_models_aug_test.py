@@ -11,7 +11,6 @@ from __future__ import annotations
 import copy
 import os.path as osp
 
-
 from visdet.cv import build_from_cfg
 from visdet.datasets.builder import PIPELINES
 from visdet.engine.fileio import load
