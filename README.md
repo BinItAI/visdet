@@ -14,6 +14,7 @@
     <a href="https://binitai.github.io/visdet/">📘 Documentation</a> •
     <a href="https://binitai.github.io/visdet/getting-started/installation/">🛠️ Installation</a> •
     <a href="https://binitai.github.io/visdet/model-zoo/">👀 Model Zoo</a> •
+    <a href="https://visdet-mlflow-server-a7eq2wihnq-uc.a.run.app/">📊 Experiment Logs</a> •
     <a href="https://binitai.github.io/visdet/about/changelog/">🆕 Changelog</a>
   </h3>
 
