@@ -7,6 +7,7 @@ from visdet.models.task_modules.assigners.iou2d_calculator import (
     BboxOverlaps2D,
     get_box_tensor,
 )
+from visdet.models.task_modules.assigners.dynamic_soft_label_assigner import DynamicSoftLabelAssigner
 from visdet.models.task_modules.assigners.max_iou_assigner import MaxIoUAssigner
 
 __all__ = [
@@ -16,4 +17,5 @@ __all__ = [
     "ATSSAssigner",
     "BboxOverlaps2D",
     "get_box_tensor",
+    "DynamicSoftLabelAssigner",
 ]

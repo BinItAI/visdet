@@ -867,6 +867,9 @@ class YOLOAnchorGenerator(AnchorGenerator):
 
 def anchor_inside_flags(flat_anchors, valid_flags, img_shape, allowed_border=0):
     """Check whether anchors are inside the image boundary."""
+    if allowed_border < 0:
+        return valid_flags
+
     img_h, img_w = img_shape[:2]
     inside_flags = (
         (flat_anchors[:, 0] >= -allowed_border)

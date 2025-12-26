@@ -63,6 +63,7 @@ Import:
   - configs/solo/metafile.yml
   - configs/ssd/metafile.yml
   - configs/swin/metafile.yml
+  - configs/rtmdet/metafile.yml
   - configs/tridentnet/metafile.yml
   - configs/tood/metafile.yml
   - configs/vfnet/metafile.yml

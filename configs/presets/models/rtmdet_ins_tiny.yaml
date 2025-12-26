@@ -1,0 +1,15 @@
+# RTMDet-Ins-Tiny (COCO)
+
+_base_: ./rtmdet_ins_s.yaml
+
+backbone:
+  deepen_factor: 0.167
+  widen_factor: 0.375
+
+neck:
+  in_channels: [96, 192, 384]
+  out_channels: 96
+
+bbox_head:
+  in_channels: 96
+  feat_channels: 96
