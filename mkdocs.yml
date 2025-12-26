@@ -94,19 +94,33 @@ nav:
   - Getting Started:
       - Installation: getting-started/installation.md
       - Quick Start: getting-started/quick-start.md
-  - Model Zoo: model-zoo.md
+  - Model Zoo:
+      - Overview: model-zoo.md
+      - MMDetection Support: mmdetection_model_support.md
   - User Guide:
       - Training: user-guide/training.md
       - Optimizers: user-guide/optimizers.md
       - Losses: user-guide/losses.md
       - Inference: user-guide/inference.md
       - Configuration: user-guide/configuration.md
+      - YAML Config System: yaml_config_system.md
       - Assigners: user-guide/assigners.md
   - Tutorials:
       - Configuration: tutorials/config.md
+      - Data Pipeline: tutorials/data_pipeline.md
       - Datasets: tutorials/customize_dataset.md
       - Models: tutorials/customize_models.md
+      - Losses: tutorials/customize_losses.md
+      - Runtime: tutorials/customize_runtime.md
       - Training: tutorials/training.md
+      - Finetune: tutorials/finetune.md
+      - Useful Hooks: tutorials/useful_hooks.md
+      - How To: tutorials/how_to.md
+      - Init Cfg: tutorials/init_cfg.md
+      - Threshold Optimization: tutorials/threshold_optimization.md
+      - PyTorch to ONNX: tutorials/pytorch2onnx.md
+      - ONNX to TensorRT: tutorials/onnx2tensorrt.md
+      - Test Results Submission: tutorials/test_results_submission.md
   - API Reference:
       - Overview: api-reference/index.md
       - Core: api/core.md
@@ -117,6 +131,8 @@ nav:
       - Architecture: development/architecture.md
       - Model Coverage: development/model-coverage.md
   - About:
+      - Roadmap: roadmap.md
+      - Contributing (Legacy): about/contributing.md
       - Changelog: about/changelog.md
       - License: about/license.md
 
