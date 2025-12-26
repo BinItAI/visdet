@@ -397,13 +397,13 @@ class DetInferencer(BaseInferencer):
                 ori_inputs[i]["stuff_text"] = stuff_texts[i]
 
         inputs = self.preprocess(ori_inputs, batch_size=batch_size, **preprocess_kwargs)
-        
+
         # Calculate total number of batches for progress bar
         total_images = len(ori_inputs)
         total_batches = (total_images + batch_size - 1) // batch_size
 
         results_dict = {"predictions": [], "visualization": []}
-        
+
         if self.show_progress:
             with Progress(
                 SpinnerColumn(),
@@ -418,7 +418,7 @@ class DetInferencer(BaseInferencer):
                 TimeRemainingColumn(),
             ) as progress:
                 task = progress.add_task(
-                    f"[cyan]Processing {total_images} images...", 
+                    f"[cyan]Processing {total_images} images...",
                     total=total_batches
                 )
                 for ori_imgs, data in inputs:
