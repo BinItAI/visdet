@@ -4,6 +4,11 @@ from unittest.mock import Mock
 
 import pytest
 
+pytest.skip(
+    "Legacy config tests rely on removed Python configs under `configs/`. visdet now uses YAML presets.",
+    allow_module_level=True,
+)
+
 from visdet.core import BitmapMasks, PolygonMasks
 from visdet.datasets.builder import DATASETS
 from visdet.datasets.utils import NumClassCheckHook

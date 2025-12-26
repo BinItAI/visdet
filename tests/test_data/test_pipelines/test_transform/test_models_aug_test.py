@@ -1,4 +1,11 @@
 # Copyright (c) OpenMMLab. All rights reserved.
+import pytest
+
+pytest.skip(
+    "Legacy aug-test suite relies on removed Python configs under `configs/`. visdet now uses YAML presets.",
+    allow_module_level=True,
+)
+
 import os.path as osp
 
 import torch

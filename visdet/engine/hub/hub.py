@@ -39,9 +39,8 @@ def get_config(cfg_path: str, pretrained: bool = False) -> Config:
     """
     # Get package name and relative config path.
     package, cfg_path = _get_package_and_cfg_path(cfg_path)
-    # Handle the renaming from mmdet to visdet
-    if package == "mmdet":
-        package = "visdet"
+    # NOTE: visdet no longer mirrors mmdet's Python config zoo.
+    # Keep the requested package name as-is.
     package_path = osp.join(osp.dirname(osp.abspath(importlib.import_module(package).__file__)))
     try:
         # Use `cfg_path` to search target config file.

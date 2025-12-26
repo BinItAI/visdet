@@ -1,0 +1,217 @@
+# Cascade R-CNN (bbox) with Swin Transformer Small Backbone
+#
+# Complete, runnable model configuration preset.
+
+type: CascadeRCNN
+
+data_preprocessor:
+  type: DetDataPreprocessor
+  mean: [123.675, 116.28, 103.53]
+  std: [58.395, 57.12, 57.375]
+  bgr_to_rgb: true
+  pad_mask: true
+  pad_size_divisor: 32
+
+backbone:
+  type: SwinTransformer
+  embed_dims: 96
+  depths: [2, 2, 18, 2]
+  num_heads: [3, 6, 12, 24]
+  window_size: 7
+  mlp_ratio: 4
+  qkv_bias: true
+  qk_scale: null
+  drop_rate: 0.0
+  attn_drop_rate: 0.0
+  drop_path_rate: 0.2
+  patch_norm: true
+  out_indices: [0, 1, 2, 3]
+  with_cp: false
+  convert_weights: true
+  frozen_stages: -1
+  init_cfg:
+    type: Pretrained
+    checkpoint: https://github.com/SwinTransformer/storage/releases/download/v1.0.0/swin_small_patch4_window7_224.pth
+
+neck:
+  type: FPN
+  in_channels: [96, 192, 384, 768]
+  out_channels: 256
+  num_outs: 5
+
+rpn_head:
+  type: RPNHead
+  in_channels: 256
+  feat_channels: 256
+  anchor_generator:
+    type: AnchorGenerator
+    scales: [8]
+    ratios: [0.5, 1.0, 2.0]
+    strides: [4, 8, 16, 32, 64]
+  bbox_coder:
+    type: DeltaXYWHBBoxCoder
+    target_means: [0.0, 0.0, 0.0, 0.0]
+    target_stds: [1.0, 1.0, 1.0, 1.0]
+  loss_cls:
+    type: CrossEntropyLoss
+    use_sigmoid: true
+    loss_weight: 1.0
+  loss_bbox:
+    type: SmoothL1Loss
+    beta: 1.0
+    loss_weight: 1.0
+
+roi_head:
+  type: CascadeRoIHead
+  num_stages: 3
+  stage_loss_weights: [1.0, 0.5, 0.25]
+  bbox_roi_extractor:
+    type: SingleRoIExtractor
+    roi_layer:
+      type: RoIAlign
+      output_size: 7
+      sampling_ratio: 0
+    out_channels: 256
+    featmap_strides: [4, 8, 16, 32]
+  bbox_head:
+    - type: Shared2FCBBoxHead
+      in_channels: 256
+      fc_out_channels: 1024
+      roi_feat_size: 7
+      num_classes: 80
+      bbox_coder:
+        type: DeltaXYWHBBoxCoder
+        target_means: [0.0, 0.0, 0.0, 0.0]
+        target_stds: [0.1, 0.1, 0.2, 0.2]
+      reg_class_agnostic: true
+      loss_cls:
+        type: CrossEntropyLoss
+        use_sigmoid: false
+        loss_weight: 1.0
+      loss_bbox:
+        type: SmoothL1Loss
+        beta: 1.0
+        loss_weight: 1.0
+    - type: Shared2FCBBoxHead
+      in_channels: 256
+      fc_out_channels: 1024
+      roi_feat_size: 7
+      num_classes: 80
+      bbox_coder:
+        type: DeltaXYWHBBoxCoder
+        target_means: [0.0, 0.0, 0.0, 0.0]
+        target_stds: [0.05, 0.05, 0.1, 0.1]
+      reg_class_agnostic: true
+      loss_cls:
+        type: CrossEntropyLoss
+        use_sigmoid: false
+        loss_weight: 1.0
+      loss_bbox:
+        type: SmoothL1Loss
+        beta: 1.0
+        loss_weight: 1.0
+    - type: Shared2FCBBoxHead
+      in_channels: 256
+      fc_out_channels: 1024
+      roi_feat_size: 7
+      num_classes: 80
+      bbox_coder:
+        type: DeltaXYWHBBoxCoder
+        target_means: [0.0, 0.0, 0.0, 0.0]
+        target_stds: [0.033, 0.033, 0.067, 0.067]
+      reg_class_agnostic: true
+      loss_cls:
+        type: CrossEntropyLoss
+        use_sigmoid: false
+        loss_weight: 1.0
+      loss_bbox:
+        type: SmoothL1Loss
+        beta: 1.0
+        loss_weight: 1.0
+
+train_cfg:
+  rpn:
+    assigner:
+      type: MaxIoUAssigner
+      pos_iou_thr: 0.7
+      neg_iou_thr: 0.3
+      min_pos_iou: 0.3
+      match_low_quality: true
+      ignore_iof_thr: -1
+    sampler:
+      type: RandomSampler
+      num: 256
+      pos_fraction: 0.5
+      neg_pos_ub: -1
+      add_gt_as_proposals: false
+    allowed_border: 0
+    pos_weight: -1
+    debug: false
+  rpn_proposal:
+    nms_pre: 2000
+    max_per_img: 2000
+    nms:
+      type: nms
+      iou_threshold: 0.7
+    min_bbox_size: 0
+  rcnn:
+    - assigner:
+        type: MaxIoUAssigner
+        pos_iou_thr: 0.5
+        neg_iou_thr: 0.5
+        min_pos_iou: 0.5
+        match_low_quality: false
+        ignore_iof_thr: -1
+      sampler:
+        type: RandomSampler
+        num: 512
+        pos_fraction: 0.25
+        neg_pos_ub: -1
+        add_gt_as_proposals: true
+      pos_weight: -1
+      debug: false
+    - assigner:
+        type: MaxIoUAssigner
+        pos_iou_thr: 0.6
+        neg_iou_thr: 0.6
+        min_pos_iou: 0.6
+        match_low_quality: false
+        ignore_iof_thr: -1
+      sampler:
+        type: RandomSampler
+        num: 512
+        pos_fraction: 0.25
+        neg_pos_ub: -1
+        add_gt_as_proposals: true
+      pos_weight: -1
+      debug: false
+    - assigner:
+        type: MaxIoUAssigner
+        pos_iou_thr: 0.7
+        neg_iou_thr: 0.7
+        min_pos_iou: 0.7
+        match_low_quality: false
+        ignore_iof_thr: -1
+      sampler:
+        type: RandomSampler
+        num: 512
+        pos_fraction: 0.25
+        neg_pos_ub: -1
+        add_gt_as_proposals: true
+      pos_weight: -1
+      debug: false
+
+test_cfg:
+  rpn:
+    nms_pre: 1000
+    max_per_img: 1000
+    nms:
+      type: nms
+      iou_threshold: 0.7
+    min_bbox_size: 0
+  rcnn:
+    score_thr: 0.05
+    nms:
+      type: nms
+      iou_threshold: 0.5
+    max_per_img: 100

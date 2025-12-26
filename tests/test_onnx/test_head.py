@@ -1,9 +1,15 @@
 # Copyright (c) OpenMMLab. All rights reserved.
+import pytest
+
+pytest.skip(
+    "ONNX export tests rely on removed Python configs under `configs/`. visdet now uses YAML presets.",
+    allow_module_level=True,
+)
+
 import os.path as osp
 from functools import partial
 
 import numpy as np
-import pytest
 import torch
 
 import visdet.cv as mmcv

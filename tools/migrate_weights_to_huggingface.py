@@ -219,8 +219,9 @@ from visdet.apis import init_detector
 
 # Use HuggingFace-hosted weights
 model = init_detector(
-    config="configs/mask_rcnn/mask_rcnn_r50_fpn_1x_coco.py",
-    checkpoint="hf://{repo_id}/openmmlab/resnet50_msra-5891d200.pth"
+    # visdet prefers YAML presets / YAML configs
+    config="configs/presets/models/mask_rcnn_r50.yaml",
+    checkpoint="hf://{repo_id}/openmmlab/resnet50_msra-5891d200.pth",
 )
 ```
 

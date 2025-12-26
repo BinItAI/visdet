@@ -1,9 +1,16 @@
 # Copyright (c) OpenMMLab. All rights reserved.
+import pytest
+
+pytest.skip(
+    "Downstream mmtrack tests rely on Python config inheritance via `configs/_base_/*`. "
+    "visdet has removed the Python config zoo in favor of YAML presets.",
+    allow_module_level=True,
+)
+
 import copy
 from collections import defaultdict
 
 import numpy as np
-import pytest
 import torch
 
 from visdet.engine.config import Config
