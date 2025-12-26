@@ -2,6 +2,7 @@
 # type: ignore
 # Copyright (c) OpenMMLab. All rights reserved.
 import importlib
+import json
 import os.path as osp
 
 from visdet.engine.config import Config
@@ -94,3 +95,42 @@ def get_model(cfg_path: str, pretrained: bool = False, **kwargs):
             # `model.init_weights()` to overwrite the pretrained model.
             model._is_init = True
         return model
+
+
+def _load_huggingface_mapping() -> dict[str, str]:
+    """Load the HuggingFace model URL mapping."""
+    hub_dir = osp.dirname(osp.abspath(__file__))
+    hf_json_path = osp.join(hub_dir, "huggingface.json")
+    if osp.exists(hf_json_path):
+        with open(hf_json_path) as f:
+            return json.load(f)
+    return {}
+
+
+def get_huggingface_url(model_key: str) -> str | None:
+    """Get the HuggingFace URL for a model key.
+
+    Args:
+        model_key: Key from huggingface.json (e.g., "resnet50", "swin_tiny")
+
+    Returns:
+        HuggingFace URL string (e.g., "hf://GeorgePearse/visdet-weights/...")
+        or None if not found.
+
+    Examples:
+        >>> url = get_huggingface_url("resnet50")
+        >>> print(url)
+        hf://GeorgePearse/visdet-weights/mmcls/resnet50_8xb32_in1k_20210831-ea4938fc.pth
+    """
+    mapping = _load_huggingface_mapping()
+    return mapping.get(model_key)
+
+
+def list_huggingface_models() -> list[str]:
+    """List all available model keys in the HuggingFace mapping.
+
+    Returns:
+        List of model key strings.
+    """
+    mapping = _load_huggingface_mapping()
+    return list(mapping.keys())

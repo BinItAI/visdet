@@ -15,6 +15,15 @@ from visdet.utils.typing_utils import (
 )
 from visdet.utils.setup_env import register_all_modules
 
+# FiftyOne utilities (optional - fiftyone must be installed)
+from visdet.utils.fiftyone_utils import (
+    detections_to_fiftyone,
+    load_inference_results,
+    add_predictions_to_dataset,
+    create_coco_dataset,
+    visualize_results,
+)
+
 __all__ = [
     "ConfigType",
     "get_test_pipeline_cfg",
@@ -25,4 +34,10 @@ __all__ = [
     "OptConfigType",
     "MultiConfig",
     "register_all_modules",
+    # FiftyOne utilities
+    "detections_to_fiftyone",
+    "load_inference_results",
+    "add_predictions_to_dataset",
+    "create_coco_dataset",
+    "visualize_results",
 ]
