@@ -5,8 +5,8 @@ from __future__ import annotations
 import torch
 import torch.nn as nn
 
-from visdet.registry import MODELS
 from visdet.models.losses.utils import weight_reduce_loss
+from visdet.registry import MODELS
 
 
 def dice_loss(

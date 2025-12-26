@@ -12,9 +12,9 @@ from torch.nn.modules.batchnorm import _BatchNorm
 from visdet.cv.cnn import ConvModule
 from visdet.cv.cnn.bricks.depthwise_separable_conv_module import DepthwiseSeparableConvModule
 from visdet.engine.model import BaseModule
+from visdet.models.layers import CSPLayer, SPPBottleneck
 from visdet.registry import MODELS
 from visdet.utils.typing_utils import ConfigType, OptConfigType, OptMultiConfig
-from visdet.models.layers import CSPLayer, SPPBottleneck
 
 
 @MODELS.register_module()

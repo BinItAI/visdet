@@ -4,9 +4,9 @@ import torch
 
 from visdet.engine.dist import get_world_size
 from visdet.engine.logging import print_log
+from visdet.models.detectors.single_stage import SingleStageDetector
 from visdet.registry import MODELS
 from visdet.utils.typing_utils import ConfigType, OptConfigType, OptMultiConfig
-from visdet.models.detectors.single_stage import SingleStageDetector
 
 
 @MODELS.register_module()

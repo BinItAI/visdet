@@ -12,9 +12,9 @@ from torch import Tensor
 from visdet.cv.cnn import ConvModule
 from visdet.cv.cnn.bricks.depthwise_separable_conv_module import DepthwiseSeparableConvModule
 from visdet.engine.model import BaseModule
+from visdet.models.layers import CSPLayer
 from visdet.registry import MODELS
 from visdet.utils.typing_utils import ConfigType, OptMultiConfig
-from visdet.models.layers import CSPLayer
 
 
 @MODELS.register_module()
