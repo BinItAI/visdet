@@ -101,6 +101,7 @@ nav:
       - Losses: user-guide/losses.md
       - Inference: user-guide/inference.md
       - Configuration: user-guide/configuration.md
+      - Assigners: user-guide/assigners.md
   - Tutorials:
       - Configuration: tutorials/config.md
       - Datasets: tutorials/customize_dataset.md

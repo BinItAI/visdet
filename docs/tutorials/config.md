@@ -185,7 +185,7 @@ model = dict(
     train_cfg = dict(  # Config of training hyperparameters for rpn and rcnn
         rpn=dict(  # Training config of rpn
             assigner=dict(  # Config of assigner
-                type='MaxIoUAssigner',  # Type of assigner, MaxIoUAssigner is used for many common detectors. Refer to
+                type='MaxIoUAssigner',  # Type of assigner, MaxIoUAssigner is used for many common detectors. Refer to [Assigners](../user-guide/assigners.md).
                 pos_iou_thr=0.7,  # IoU >= threshold 0.7 will be taken as positive samples
                 neg_iou_thr=0.3,  # IoU < threshold 0.3 will be taken as negative samples
                 min_pos_iou=0.3,  # The minimal IoU threshold to take boxes as positive samples
@@ -212,7 +212,7 @@ model = dict(
             min_bbox_size=0),  # The allowed minimal box size
         rcnn=dict(  # The config for the roi heads.
             assigner=dict(  # Config of assigner for second stage, this is different for that in rpn
-                type='MaxIoUAssigner',  # Type of assigner, MaxIoUAssigner is used for all roi_heads for now. Refer to
+                type='MaxIoUAssigner',  # Type of assigner, MaxIoUAssigner is used for all roi_heads for now. Refer to [Assigners](../user-guide/assigners.md).
                 pos_iou_thr=0.5,  # IoU >= threshold 0.5 will be taken as positive samples
                 neg_iou_thr=0.5,  # IoU < threshold 0.5 will be taken as negative samples
                 min_pos_iou=0.5,  # The minimal IoU threshold to take boxes as positive samples
