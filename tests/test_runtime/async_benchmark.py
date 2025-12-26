@@ -29,7 +29,7 @@ async def main():
     project_dir = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
     project_dir = os.path.join(project_dir, "..")
 
-    config_file = os.path.join(project_dir, "configs/mask_rcnn/mask_rcnn_r50_fpn_1x_coco.py")
+    config_file = os.path.join(project_dir, "configs/presets/models/mask_rcnn_r50.yaml")
     checkpoint_file = os.path.join(project_dir, "checkpoints/mask_rcnn_r50_fpn_1x_coco_20200205-d4b0c5d6.pth")
 
     if not os.path.exists(checkpoint_file):

@@ -62,7 +62,7 @@ class AsyncInferenceTestCase(AsyncTestCase):
 
             ori_grad_enabled = torch.is_grad_enabled()
             root_dir = os.path.dirname(os.path.dirname(__name__))
-            model_config = os.path.join(root_dir, "configs/mask_rcnn/mask_rcnn_r50_fpn_1x_coco.py")
+            model_config = os.path.join(root_dir, "configs/presets/models/mask_rcnn_r50.yaml")
             detector = MaskRCNNDetector(model_config)
             await detector.init()
             img_path = os.path.join(root_dir, "demo/demo.jpg")

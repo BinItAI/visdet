@@ -62,6 +62,11 @@ def _get_cfg_metainfo(package_path: str, cfg_path: str) -> dict:
         dict: Meta information of target experiment.
     """
     meta_index_path = osp.join(package_path, ".mim", "model-index.yml")
+    if not osp.exists(meta_index_path):
+        raise FileNotFoundError(
+            f"Cannot find {meta_index_path}. This repository has removed the legacy python config zoo; "
+            "use YAML presets or pass an explicit config file."
+        )
     meta_index = load(meta_index_path)
     cfg_dict = dict()
     for meta_path in meta_index["Import"]:
