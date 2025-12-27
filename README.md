@@ -26,6 +26,7 @@
 
 A dedicated hosted instance of MLFlow (more or less) is here https://visdet-mlflow-server-a7eq2wihnq-uc.a.run.app/
 
+Without access full training logs (loss functions etc.), it can be impossible to know if you have your own implementation wrong or not. 
 ---
 
 ## ✨ Why visdet?
