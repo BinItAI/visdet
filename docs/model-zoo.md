@@ -1,62 +1,73 @@
 # Model Zoo
 
-visdet is a minimal version of MMDetection focusing on a single, high-performance configuration: **Swin Transformer + Mask R-CNN**.
+visdet’s “supported models” are the YAML model presets under `configs/models/`.
 
-## Supported Models
+At runtime these are discovered automatically (via `MODEL_PRESETS`), so adding a new YAML file under `configs/models/` makes it available everywhere that accepts a model preset name (e.g. `SimpleRunner(model=...)`, `DetInferencer(model=...)`).
 
-### Mask R-CNN with Swin Transformer
+## Using A Model Preset
 
-**Paper:** [Swin Transformer](https://arxiv.org/abs/2103.14030)
-
-This combination provides state-of-the-art performance for instance segmentation using the Swin Transformer backbone with Mask R-CNN detection head.
-
-#### Architecture Details
-
-- **Backbone**: Swin Transformer (window-based shifted attention)
-- **Detector**: Mask R-CNN (two-stage detector with RPN)
-- **Neck**: Feature Pyramid Network (FPN)
-- **Head**: Box head + Mask head
-- **Dataset**: COCO (80 classes)
-
-#### Quick Start
+### Inference
 
 ```python
-from visdet.apis import init_detector
+from visdet.apis import DetInferencer
 
-# Initialize model
-config_file = 'configs/mask_rcnn/mask_rcnn_swin_tiny_fpn_1x_coco.py'
-checkpoint = 'path/to/checkpoint.pth'
+# Either use the preset name…
+infer = DetInferencer(model="rtmdet_s")
 
-model = init_detector(config_file, checkpoint, device='cuda:0')
+# …or (when present) an alias from `preset_meta.aliases`
+infer = DetInferencer(model="rtmdet-s")
 
-# Run inference
-from visdet.apis import inference_detector
-result = inference_detector(model, 'image.jpg')
+result = infer("image.jpg")
 ```
 
-## Configuration Files
+### Training
 
-Available configurations in `configs/mask_rcnn/`:
+```python
+from visdet import SimpleRunner
 
-- `mask_rcnn_swin_tiny_fpn_1x_coco.py` - Swin Tiny backbone
-- `mask_rcnn_swin_small_fpn_1x_coco.py` - Swin Small backbone
-- `mask_rcnn_swin_base_fpn_1x_coco.py` - Swin Base backbone
+runner = SimpleRunner(
+    model="rtmdet_s",
+    dataset="coco_detection",
+    optimizer="adamw_default",
+    scheduler="1cycle",
+)
+runner.train()
+```
 
-## Training
+## Supported Models (from `configs/models`)
 
-To train a model, see the [Training Guide](user-guide/training.md) for detailed instructions.
+### Two-Stage Detectors
 
-## Performance
+- `faster_rcnn_r50`
+- `mask_rcnn_r50`
+- `mask_rcnn_swin_s`
 
-The Swin Transformer backbone has shown excellent performance on COCO:
+### RTMDet (Object Detection)
 
-- High accuracy for instance segmentation
-- Efficient computation with window-based attention
-- Strong transfer learning capabilities
+- `rtmdet_tiny` (aliases: `rtmdet-t`, `rtmdet-tiny`)
+- `rtmdet_s` (alias: `rtmdet-s`)
+- `rtmdet_m` (alias: `rtmdet-m`)
+- `rtmdet_l` (alias: `rtmdet-l`)
+- `rtmdet_x` (alias: `rtmdet-x`)
 
-## See Also
+### RTMDet-Ins (Instance Segmentation)
 
-- [Swin Transformer Paper](https://arxiv.org/abs/2103.14030)
-- [Mask R-CNN Paper](https://arxiv.org/abs/1703.06870)
-- [Training Guide](user-guide/training.md)
-- [Configuration System](user-guide/configuration.md)
+- `rtmdet_ins_tiny` (aliases: `rtmdet-ins-t`, `rtmdet-ins-tiny`)
+- `rtmdet_ins_s` (alias: `rtmdet-ins-s`)
+- `rtmdet_ins_m` (alias: `rtmdet-ins-m`)
+- `rtmdet_ins_l` (alias: `rtmdet-ins-l`)
+- `rtmdet_ins_x` (alias: `rtmdet-ins-x`)
+
+## Discoverability
+
+```python
+from visdet import SimpleRunner
+
+print(SimpleRunner.list_models())
+```
+
+```python
+from visdet.apis import DetInferencer
+
+print(DetInferencer.list_models())
+```

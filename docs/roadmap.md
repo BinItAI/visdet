@@ -1,304 +1,263 @@
-# Roadmap
-
-This document outlines the development roadmap for visdet, with a focus on performance improvements, modern integrations, and developer experience enhancements.
-
----
-
-## SPDL Integration Plan
-
-### Overview
-
-SPDL (Scalable and Performant Data Loading) is Meta's thread-based data loading library that dramatically outperforms PyTorch's process-based `DataLoader`. Integrating SPDL into visdet will provide:
-
-- **74% faster iteration** through datasets like ImageNet
-- **38% less CPU usage** during training
-- **50GB less memory** footprint compared to PyTorch DataLoader
-- **Additional 33% speedup** with Free-Threaded Python 3.13t (no code changes needed)
-
-### Why SPDL?
-
-PyTorch's `DataLoader` uses multiprocessing, which has fundamental limitations:
-
-| Aspect | PyTorch DataLoader | SPDL |
-|--------|-------------------|------|
-| Execution Model | Process-based (multiprocessing) | Thread-based |
-| Memory | Copies batch tensors at least twice | Direct memory sharing |
-| Scaling | Degrades beyond 8-16 workers | Scales linearly |
-| Large Batches | Performance drops | Sustains/improves throughput |
-| GIL Impact | N/A (separate processes) | Minimal (I/O bound), eliminated with Python 3.13t |
-
-SPDL's explicit pipeline architecture also enables independent optimization of each stage:
-- **Source**: Index/key generation
-- **I/O**: File reading and decoding
-- **Transform**: Preprocessing and augmentation
-- **Batch**: Collation
-- **Prefetch**: GPU transfer
-
-### Current Architecture
-
-visdet currently uses PyTorch's standard DataLoader in:
-
-```
-visdet/datasets/builder.py          # build_dataloader() function
-visdet/engine/runner/runner.py      # Runner dataloader construction
-visdet/runner.py                    # SimpleRunner dataloader config
-```
-
-Key components:
-- `torch.utils.data.DataLoader` with multiprocessing workers
-- Group samplers for aspect ratio grouping (`GroupSampler`, `DistributedGroupSampler`)
-- Custom collate functions for detection data structures
-- Worker initialization for reproducible seeding
-
-### Integration Phases
-
-#### Phase 1: Foundation (Target: Q1 2025)
-
-**Goal**: Create SPDL adapter layer without breaking existing API
-
-1. **Add SPDL as optional dependency**
-   ```toml
-   # pyproject.toml
-   [project.optional-dependencies]
-   spdl = ["spdl>=0.1.6"]
-   ```
-
-2. **Create `SPDLDataLoader` wrapper class**
-   ```python
-   # visdet/datasets/spdl_loader.py
-   from spdl.dataloader import PipelineBuilder
-
-   class SPDLDataLoader:
-       """Drop-in replacement for PyTorch DataLoader using SPDL."""
-
-       def __init__(
-           self,
-           dataset,
-           batch_size: int,
-           num_workers: int = 4,
-           shuffle: bool = True,
-           collate_fn = None,
-           prefetch_factor: int = 2,
-       ):
-           self.dataset = dataset
-           self.batch_size = batch_size
-           self.num_workers = num_workers
-           self.collate_fn = collate_fn or default_collate
-           self.prefetch_factor = prefetch_factor
-           self._build_pipeline(shuffle)
-
-       def _build_pipeline(self, shuffle: bool):
-           indices = list(range(len(self.dataset)))
-           if shuffle:
-               random.shuffle(indices)
-
-           self.pipeline = (
-               PipelineBuilder()
-               .add_source(indices)
-               .pipe(
-                   self.dataset.__getitem__,
-                   concurrency=self.num_workers,
-                   output_order="input"  # Preserve order for reproducibility
-               )
-               .aggregate(self.batch_size)
-               .pipe(self.collate_fn)
-               .add_sink(self.prefetch_factor)
-               .build(num_threads=self.num_workers)
-           )
-
-       def __iter__(self):
-           return iter(self.pipeline)
-
-       def __len__(self):
-           return (len(self.dataset) + self.batch_size - 1) // self.batch_size
-   ```
-
-3. **Add configuration flag**
-   ```python
-   # In SimpleRunner
-   runner = SimpleRunner(
-       model='mask_rcnn_swin_s',
-       dataset='coco_instance_segmentation',
-       dataloader_backend='spdl',  # or 'pytorch' (default)
-   )
-   ```
-
-#### Phase 2: Detection-Specific Optimizations (Target: Q2 2025)
-
-**Goal**: Optimize SPDL pipeline for object detection workloads
-
-1. **Aspect Ratio Grouping**
-   - Implement group-aware batching in SPDL pipeline
-   - Minimize padding waste by grouping similar aspect ratios
-
-   ```python
-   def aspect_ratio_group_source(dataset, batch_size):
-       """Generate indices grouped by aspect ratio."""
-       # Group images by aspect ratio buckets
-       groups = defaultdict(list)
-       for idx in range(len(dataset)):
-           ar = dataset.get_aspect_ratio(idx)
-           bucket = round(ar, 1)
-           groups[bucket].append(idx)
-
-       # Yield batches from same group
-       for bucket, indices in groups.items():
-           random.shuffle(indices)
-           for i in range(0, len(indices), batch_size):
-               yield indices[i:i + batch_size]
-   ```
-
-2. **Optimized Image Decoding**
-   - Use SPDL's I/O utilities for efficient image loading
-   - Avoid premature YUV→RGB conversion (~20MB savings per batch)
-   - Leverage hardware decoders when available
-
-3. **Transform Pipeline Optimization**
-   - Profile transform bottlenecks
-   - Parallelize independent transforms
-   - Consider Kornia integration for GPU-accelerated augmentation
-
-#### Phase 3: Distributed Training Support (Target: Q3 2025)
-
-**Goal**: Full distributed training compatibility
-
-1. **Distributed Sampling**
-   - Implement SPDL-native distributed sampling
-   - Ensure proper sharding across ranks
-   - Support for `DistributedGroupSampler` equivalent
-
-2. **Gradient Accumulation Compatibility**
-   - Handle micro-batching for large effective batch sizes
-   - Ensure correct behavior with mixed precision training
-
-3. **Checkpoint/Resume Support**
-   - Track pipeline state for training resume
-   - Deterministic iteration with seed support
-
-#### Phase 4: Advanced Features (Target: Q4 2025)
-
-**Goal**: Leverage SPDL's full capabilities
-
-1. **Python 3.13t Support**
-   - Test with Free-Threaded Python
-   - Document performance improvements
-   - Add CI testing for nogil Python
-
-2. **Dynamic Batching**
-   - Variable batch sizes based on image complexity
-   - Memory-aware batching to prevent OOM
-
-3. **Streaming Datasets**
-   - Support for datasets that don't fit in memory
-   - Integration with cloud storage (S3, GCS)
-
-4. **Performance Monitoring**
-   - Built-in pipeline profiling
-   - Bottleneck identification tools
-   - Integration with training dashboards
-
-### Migration Guide
-
-For users migrating from PyTorch DataLoader:
-
-```python
-# Before (PyTorch DataLoader)
-train_dataloader = dict(
-    batch_size=2,
-    num_workers=4,
-    persistent_workers=True,
-    sampler=dict(type='DefaultSampler', shuffle=True),
-    dataset=dict(type='CocoDataset', ...),
-)
-
-# After (SPDL)
-train_dataloader = dict(
-    batch_size=2,
-    num_workers=4,
-    backend='spdl',  # New flag
-    prefetch_factor=2,
-    sampler=dict(type='DefaultSampler', shuffle=True),
-    dataset=dict(type='CocoDataset', ...),
-)
-```
-
-### Benchmarking Plan
-
-We will benchmark SPDL integration against PyTorch DataLoader on:
-
-| Metric | Measurement |
-|--------|-------------|
-| Throughput | Images/second during training |
-| CPU Usage | Average CPU utilization |
-| Memory | Peak and average RAM usage |
-| GPU Utilization | Percentage of time GPU is active |
-| Time to First Batch | Cold start latency |
-| Scaling | Performance vs. num_workers |
-
-Test configurations:
-- Single GPU (RTX 3090, A100)
-- Multi-GPU (4x, 8x A100)
-- Various batch sizes (2, 4, 8, 16, 32)
-- Dataset sizes (COCO, Objects365, custom)
-
-### References
-
-- SPDL GitHub Repository
-- [SPDL Documentation](https://facebookresearch.github.io/spdl/main/)
-- [Migration from PyTorch DataLoader](https://facebookresearch.github.io/spdl/main/migration/pytorch.html)
-- [Meta AI Blog: Introducing SPDL](https://ai.meta.com/blog/spdl-faster-ai-model-training-with-thread-based-data-loading-reality-labs/)
-- [SPDL Paper (arXiv:2504.20067)](https://arxiv.org/pdf/2504.20067)
-
----
-
-## Other Planned Integrations
-
-### Kornia (GPU-Accelerated Augmentations)
-
-**Status**: Under evaluation
-
-Differentiable augmentation pipelines that run on GPU, reducing CPU bottlenecks:
-- Geometric transforms (rotation, affine, perspective)
-- Color augmentations with gradient support
-- Mosaic and mixup augmentations
-
-### Triton (Custom Kernels)
-
-**Status**: Research phase
-
-Python-like GPU programming for custom operators:
-- NMS acceleration
-- RoI pooling/align optimization
-- Attention mechanisms
-
-### DALI (NVIDIA Data Loading)
-
-**Status**: Evaluating alongside SPDL
-
-GPU-accelerated preprocessing for NVIDIA hardware:
-- Decode-on-GPU for reduced PCIe bandwidth
-- Pipeline-parallel execution
-- Best for high GPU:CPU ratio systems
-
----
-
-## Timeline Summary
-
-| Quarter | Milestone |
-|---------|-----------|
-| Q1 2025 | SPDL adapter layer, optional dependency |
-| Q2 2025 | Detection-specific optimizations, aspect ratio grouping |
-| Q3 2025 | Full distributed training support |
-| Q4 2025 | Python 3.13t support, advanced features |
-| 2026 | Kornia integration, Triton kernels |
-
----
-
-## Contributing
-
-We welcome contributions to any roadmap item! Please see the [Contributing Guide](development/contributing.md) for details on how to get involved.
-
-Priority areas for contribution:
-- SPDL integration testing and benchmarking
-- Distributed training validation
-- Documentation and examples
+# visdet Roadmap
+
+This roadmap outlines the planned development trajectory for visdet based on comprehensive analysis of the current codebase, identified gaps, and future goals.
+
+## 1. Component Benchmarking System
+
+### Phase 1: Core Benchmarking Framework (Immediate Priority)
+- [ ] Implement component-level benchmarking system
+  - [ ] Create standardized benchmarking protocols for all neural network components
+  - [ ] Implement instrumentation for measuring forward/backward pass times
+  - [ ] Develop memory usage tracking for each component
+  - [ ] Build FLOPS and parameter counting utilities
+  - [ ] Create JSON export functionality for benchmark results
+- [ ] Benchmark core components
+  - [ ] Backbone networks (ResNet, Swin, etc.)
+  - [ ] Necks (FPN, PAN, etc.)
+  - [ ] Detection/segmentation heads
+  - [ ] ROI extractors and attention mechanisms
+  - [ ] Post-processing operations (NMS variants)
+- [ ] Develop visualization and reporting tools
+  - [ ] Interactive dashboard for benchmark results
+  - [ ] Comparative analysis between component variants
+  - [ ] Historical performance tracking
+
+### Phase 2: Advanced Benchmarking (Short-Term)
+- [ ] Extend benchmarking to specialized components
+  - [ ] Activation functions
+  - [ ] Normalization layers
+  - [ ] Loss functions
+  - [ ] Custom CUDA vs. PyTorch implementations
+- [ ] Implement system-level benchmarks
+  - [ ] End-to-end model training throughput
+  - [ ] Inference latency at different batch sizes
+  - [ ] GPU memory utilization over time
+  - [ ] CPU/GPU workload balance analysis
+- [ ] Create CI/CD integration
+  - [ ] Automated benchmarking for PRs
+  - [ ] Performance regression detection
+  - [ ] Hardware-normalized comparisons
+
+### Phase 3: Production Benchmarking (Medium-Term)
+- [ ] Develop deployment target benchmarking
+  - [ ] Cloud inference performance (various instance types)
+  - [ ] Edge device benchmarks (mobile GPUs, embedded systems)
+  - [ ] CPU-only performance profiling
+- [ ] Add benchmark-driven optimization suggestions
+  - [ ] Automated bottleneck identification
+  - [ ] Component replacement recommendations
+  - [ ] Model architecture optimization hints
+- [ ] Create public benchmark database
+  - [ ] Comparative benchmarks across hardware
+  - [ ] Standard test suites for reproducibility
+  - [ ] API for querying benchmark data
+
+## 2. Test Coverage & Core Stability
+
+### Phase 1: Critical Test Migration (Immediate Priority)
+- [ ] Migrate core detector tests from MMDetection
+  - [ ] `test_models/test_detectors/test_faster_rcnn.py` (Core architecture)
+  - [ ] `test_models/test_roi_heads/test_standard_roi_head.py` (RPN & classification)
+  - [ ] `test_models/test_dense_heads/test_anchor_head.py` (Base architecture)
+  - [ ] `test_data/test_datasets/test_coco_dataset.py` (Data correctness)
+  - [ ] `test_utils/test_nms.py` (Post-processing critical op)
+  - [ ] `test_utils/test_anchor.py` (Anchor generation)
+  - [ ] `test_runtime/test_apis.py` (Public API validation)
+- [ ] Integrate codediff into CI/CD for test coverage tracking
+- [ ] Implement critical data pipeline tests for training stability
+- [ ] Create test documentation for future test contributors
+
+### Phase 2: Core Feature Parity (Short-Term)
+- [ ] Complete namespace refactoring (visdet.cv and visdet.engine)
+- [ ] Migrate remaining backbone tests
+- [ ] Add ROI Head variant tests
+- [ ] Implement data augmentation pipeline tests
+- [ ] Develop utility/helper function tests
+- [ ] Add ONNX export validation tests
+
+### Phase 3: Complete Test Coverage (Medium-Term)
+- [ ] Migrate all remaining dense head implementation tests
+- [ ] Implement data loading edge case tests
+- [ ] Add config file compatibility tests
+- [ ] Develop tracking integration tests
+- [ ] Implement downstream use case validation tests
+
+## 2. Modern Training Features
+
+### Phase 1: Core Training Improvements (Short-Term)
+- [ ] Implement progressive image resizing training
+  - [ ] Configurable multi-stage training with increasing resolution
+  - [ ] Auto-detection of optimal starting size
+  - [ ] Memory monitoring and adaptation
+- [ ] Develop learning rate finder
+  - [ ] Integration with SimpleRunner API
+  - [ ] Automated hyperparameter recommendation
+  - [ ] Visual reporting of LR exploration
+- [ ] Implement discriminative learning rates
+  - [ ] Layer-wise rate configuration
+  - [ ] Backbone/head separate optimization
+  - [ ] Integration with all optimizer types
+
+### Phase 2: Advanced Training Features (Medium-Term)
+- [ ] Implement 1cycle learning rate schedules
+  - [ ] Automated schedule creation
+  - [ ] Visual debugging tools
+  - [ ] Integration with all optimizer types
+- [ ] Develop modern fine-tuning techniques
+  - [ ] LoRA-style parameter-efficient fine-tuning
+  - [ ] Adaptation for object detection
+  - [ ] Performance benchmarks vs. full fine-tuning
+- [ ] Add auto-augmentation capabilities
+  - [ ] Policy search for optimal augmentations
+  - [ ] Domain-specific augmentation strategies
+  - [ ] Performance impact analysis
+
+## 3. Data Pipeline Optimization
+
+### Phase 1: Core Pipeline Improvements (Short-Term)
+- [ ] Integrate Kornia for differentiable augmentations
+  - [ ] Replace non-differentiable operations
+  - [ ] End-to-end gradient flow for data pipeline
+  - [ ] Performance benchmarking vs. current approach
+- [ ] Implement efficient data loading enhancements
+  - [ ] Memory mapping for large datasets
+  - [ ] Prefetching optimizations
+  - [ ] Memory usage monitoring and reporting
+- [ ] Develop better data visualization tools
+  - [ ] Interactive pipeline debugging
+  - [ ] Augmentation inspection utilities
+  - [ ] Dataset statistics and quality metrics
+
+### Phase 2: Advanced Data Features (Medium-Term)
+- [ ] Evaluate and implement GPU-accelerated data processing
+  - [ ] DALI integration feasibility assessment
+  - [ ] Performance benchmarking vs. CPU processing
+  - [ ] Mixed CPU/GPU pipeline optimization
+- [ ] Implement data quality assurance tools
+  - [ ] Anomaly detection in training data
+  - [ ] Annotation quality assessment
+  - [ ] Dataset bias detection and reporting
+- [ ] Add streaming dataset support
+  - [ ] On-the-fly downloading capabilities
+  - [ ] Cloud storage integration (S3, GCS)
+  - [ ] Caching and versioning strategies
+
+## 4. YAML Configuration System
+
+### Phase 1: Complete Implementation (Short-Term)
+- [ ] Develop Python-to-YAML migration tool
+- [ ] Create Pydantic schemas for all core components
+- [ ] Add config visualization and dependency graphs
+- [ ] Implement IDE support (autocomplete, validation)
+- [ ] Develop config inheritance from remote URLs
+
+### Phase 2: Advanced Configuration (Medium-Term)
+- [ ] Create visual configuration editor
+- [ ] Implement experiment tracking integration
+- [ ] Develop parameter sensitivity analysis tools
+- [ ] Add configuration recommendation system
+- [ ] Build configuration version control
+
+## 5. Integration with Modern Libraries
+
+### Phase 1: Core Integrations (Medium-Term)
+- [ ] Triton integration for custom operators
+  - [ ] Feasibility assessment
+  - [ ] Initial implementation for key operators
+  - [ ] Performance benchmarking
+- [ ] Evaluate and implement SPDL for data loading
+  - [ ] Performance testing
+  - [ ] Integration with existing pipeline
+  - [ ] Observability enhancements
+- [ ] Modal integration for cloud training
+  - [ ] Proof of concept
+  - [ ] Documentation and examples
+  - [ ] Performance evaluation
+
+### Phase 2: Advanced Integrations (Long-Term)
+- [ ] Tutel integration for Mixture of Experts
+  - [ ] Architecture exploration
+  - [ ] Performance testing
+  - [ ] Training recipes and documentation
+- [ ] DeepSpeed integration for large model training
+  - [ ] ZeRO optimizer implementation
+  - [ ] Distributed training capabilities
+  - [ ] Model compression techniques
+
+## 6. Documentation & User Experience
+
+### Phase 1: Core Documentation (Short-Term)
+- [ ] Update SimpleRunner documentation with examples
+- [ ] Create comprehensive YAML configuration guide
+- [ ] Develop migration guide from MMDetection
+- [ ] Add more tutorials for common tasks
+- [ ] Document modern training approaches
+
+### Phase 2: Advanced Documentation (Medium-Term)
+- [ ] Create interactive notebook tutorials
+- [ ] Develop performance tuning guides
+- [ ] Add advanced configuration recipes
+- [ ] Create model debugging guides
+- [ ] Document custom model development
+
+## 7. Performance Optimization
+
+### Phase 1: Core Optimizations (Medium-Term)
+- [ ] Implement memory optimization techniques
+  - [ ] Gradient checkpointing
+  - [ ] Precision control
+  - [ ] Memory profiling tools
+- [ ] Add training throughput improvements
+  - [ ] Better batch size optimization
+  - [ ] Pipeline parallelism options
+  - [ ] Distributed training enhancements
+- [ ] Develop inference optimization capabilities
+  - [ ] Model quantization
+  - [ ] Pruning and compression
+  - [ ] Batch inference optimization
+
+### Phase 2: Advanced Performance Features (Long-Term)
+- [ ] Implement model distillation framework
+- [ ] Add advanced compression techniques
+- [ ] Develop hardware-specific optimizations
+- [ ] Create automated performance tuning tools
+- [ ] Implement low-resource training capabilities
+
+## Timeline and Prioritization
+
+### Immediate Focus (0-3 months)
+1. Core benchmarking framework implementation
+2. Critical test migration (Phase 1)
+3. Core namespace refactoring completion
+4. Core training improvements (LR finder, discriminative rates)
+5. YAML configuration system completion
+
+### Short-Term (3-6 months)
+1. Progressive image resizing implementation
+2. Kornia integration for differentiable augmentations
+3. Complete test coverage (Phase 2)
+4. Core documentation updates
+
+### Medium-Term (6-12 months)
+1. Advanced training features (1cycle, LoRA fine-tuning)
+2. Data pipeline optimization
+3. Initial modern library integrations
+4. Performance optimization techniques
+
+### Long-Term (12+ months)
+1. Advanced integrations (Tutel, DeepSpeed)
+2. Advanced performance features
+3. Complete test parity with MMDetection
+4. Advanced configuration and tooling
+
+## Conclusion
+
+This roadmap prioritizes:
+
+1. **Component benchmarking** - Creating a comprehensive system to measure and optimize performance of every neural network component
+2. **Stability through test coverage** - Ensuring visdet maintains feature parity with MMDetection while allowing safe evolution
+3. **Modern training techniques** - Bringing proven approaches from image classification and LLMs to object detection
+4. **Developer experience** - Making visdet more accessible through better configuration, documentation, and interfaces
+5. **Performance optimization** - Ensuring visdet can scale from small experiments to production workloads
+
+The roadmap is designed to be modular, allowing parallel work on different components while maintaining a clear sense of priority. Key early milestones focus on test coverage and core stability, providing a solid foundation for more innovative features in later phases.
