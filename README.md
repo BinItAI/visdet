@@ -54,6 +54,10 @@ This makes visdet significantly easier to install and deploy compared to the ori
 
 Without access full training logs (loss plots etc.), it can be impossible to know if you have your own implementation wrong or not. Ideally, eventually we integrate the docs, and the experiment results into the same one living documentation. We run hyperparameter search, you get the new best hyperparameters.
 
+Goals of the repo: 
+- Even more open than your typical open-source project, logs available, roadmap available.
+- Emphasis on all of DevEx, educating new users, production deployments and research.2
+
 ---
 
 ## 🧠 Modern Training Philosophy
