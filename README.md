@@ -23,8 +23,6 @@
 <br>
 
 > **Note**: This is a fork of the MMDetection library, customized for [Visia](https://www.visia.ai/). The original project: [open-mmlab/mmdetection](https://github.com/open-mmlab/mmdetection)
-
-A dedicated hosted instance of MLFlow (more or less) is here https://visdet-mlflow-server-a7eq2wihnq-uc.a.run.app/
 ---
 
 ## ✨ Why visdet?
@@ -32,6 +30,8 @@ A dedicated hosted instance of MLFlow (more or less) is here https://visdet-mlfl
 <div align="center">
 
 **Simplified installation • No CUDA compilation • Pure Python/PyTorch**
+
+A dedicated hosted instance of MLFlow (more or less) is here https://visdet-mlflow-server-a7eq2wihnq-uc.a.run.app/
 
 </div>
 
