@@ -4,6 +4,9 @@
 
 </div>
 
+!!! warning "Here Be Dragons"
+    Beware, here be dragons! This is very very unstable right now, and probably will be until early Jan.
+
 ## Introduction
 
 VisDet is an open source object detection toolbox based on PyTorch. This project is a fork of the original MMDetection project, providing an enhanced and modernized detection framework for research and production use.
