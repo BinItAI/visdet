@@ -25,8 +25,6 @@
 > **Note**: This is a fork of the MMDetection library, customized for [Visia](https://www.visia.ai/). The original project: [open-mmlab/mmdetection](https://github.com/open-mmlab/mmdetection)
 
 A dedicated hosted instance of MLFlow (more or less) is here https://visdet-mlflow-server-a7eq2wihnq-uc.a.run.app/
-
-Without access full training logs (loss functions etc.), it can be impossible to know if you have your own implementation wrong or not. Ideally, eventually we integrate the docs, and the experiment results into the same one living documentation. We run hyperparameter search, you get the new best hyperparameters.
 ---
 
 ## ✨ Why visdet?
@@ -50,6 +48,7 @@ If you've ever wondered **"does THIS with THAT work?"**, visdet is designed to h
 - **Unified Namespace**: All functionality accessible through a single coherent API (`visdet.cv` for computer vision ops, `visdet.engine` for training infrastructure)
 
 This makes visdet significantly easier to install and deploy compared to the original MMDetection, which required careful coordination of multiple packages and custom CUDA compilation.
+
 
 > **What happened to MMCV and MMEngine?** They've been integrated into visdet under the `visdet.cv` and `visdet.engine` namespaces respectively. Instead of managing separate `mmcv`, `mmengine`, and `mmdet` packages, everything you need is now in one place.
 
