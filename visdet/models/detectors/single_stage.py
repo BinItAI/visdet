@@ -1,4 +1,6 @@
 # Copyright (c) OpenMMLab. All rights reserved.
+from typing import Any
+
 from torch import Tensor
 
 from visdet.registry import MODELS
@@ -26,12 +28,34 @@ class SingleStageDetector(BaseDetector):
         init_cfg: OptMultiConfig = None,
     ) -> None:
         super().__init__(data_preprocessor=data_preprocessor, init_cfg=init_cfg)
-        self.backbone = MODELS.build(backbone)
+
+        backbone_cfg: dict[Any, Any]
+        if isinstance(backbone, dict):
+            backbone_cfg = backbone
+        else:
+            backbone_cfg = {"type": backbone}
+        self.backbone = MODELS.build(backbone_cfg)
+
         if neck is not None:
-            self.neck = MODELS.build(neck)
-        bbox_head.update(train_cfg=train_cfg)
-        bbox_head.update(test_cfg=test_cfg)
-        self.bbox_head = MODELS.build(bbox_head)
+            neck_cfg: dict[Any, Any]
+            if isinstance(neck, dict):
+                neck_cfg = neck
+            else:
+                neck_cfg = {"type": neck}
+            self.neck = MODELS.build(neck_cfg)
+
+        if bbox_head is None:
+            raise ValueError("SingleStageDetector requires a bbox_head")
+
+        bbox_head_cfg: dict[Any, Any]
+        if isinstance(bbox_head, dict):
+            bbox_head_cfg = bbox_head.copy()
+        else:
+            bbox_head_cfg = {"type": bbox_head}
+
+        bbox_head_cfg.update(train_cfg=train_cfg)
+        bbox_head_cfg.update(test_cfg=test_cfg)
+        self.bbox_head = MODELS.build(bbox_head_cfg)
         self.train_cfg = train_cfg
         self.test_cfg = test_cfg
 

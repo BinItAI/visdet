@@ -1,3 +1,5 @@
+from typing import cast
+
 import numpy as np
 import torch
 from torch import Tensor
@@ -20,7 +22,7 @@ def imrenormalize(img: Tensor | np.ndarray, img_norm_cfg: dict, new_img_norm_cfg
     if isinstance(img, torch.Tensor):
         assert img.ndim == 4 and img.shape[0] == 1
         new_img = img.squeeze(0).cpu().numpy().transpose(1, 2, 0)
-        new_img = _imrenormalize(new_img, img_norm_cfg, new_img_norm_cfg)
+        new_img = cast(np.ndarray, _imrenormalize(new_img, img_norm_cfg, new_img_norm_cfg))
         new_img = new_img.transpose(2, 0, 1)[None]
         return torch.from_numpy(new_img).to(img)
     else:
@@ -31,16 +33,18 @@ def _imrenormalize(img: Tensor | np.ndarray, img_norm_cfg: dict, new_img_norm_cf
     """Re-normalize the image."""
     img_norm_cfg = img_norm_cfg.copy()
     new_img_norm_cfg = new_img_norm_cfg.copy()
-    for k, v in img_norm_cfg.items():
-        if (k == "mean" or k == "std") and not isinstance(v, np.ndarray):
-            img_norm_cfg[k] = np.array(v, dtype=img.dtype)
+    if isinstance(img, np.ndarray):
+        for k, v in img_norm_cfg.items():
+            if (k == "mean" or k == "std") and not isinstance(v, np.ndarray):
+                img_norm_cfg[k] = np.array(v, dtype=img.dtype)
     # reverse cfg
     if "bgr_to_rgb" in img_norm_cfg:
         img_norm_cfg["rgb_to_bgr"] = img_norm_cfg["bgr_to_rgb"]
         img_norm_cfg.pop("bgr_to_rgb")
-    for k, v in new_img_norm_cfg.items():
-        if (k == "mean" or k == "std") and not isinstance(v, np.ndarray):
-            new_img_norm_cfg[k] = np.array(v, dtype=img.dtype)
+    if isinstance(img, np.ndarray):
+        for k, v in new_img_norm_cfg.items():
+            if (k == "mean" or k == "std") and not isinstance(v, np.ndarray):
+                new_img_norm_cfg[k] = np.array(v, dtype=img.dtype)
     # Denormalize
     mean = img_norm_cfg.get("mean", [0, 0, 0])
     std = img_norm_cfg.get("std", [1, 1, 1])

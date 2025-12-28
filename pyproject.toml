@@ -127,13 +127,6 @@ known-first-party = ["visdet"]
 split-on-trailing-comma = true
 force-single-line = false
 
-[tool.pyright]
-typeCheckingMode = "basic"
-pythonVersion = "3.10"
-reportMissingImports = true
-reportMissingTypeStubs = false
-include = ["visdet"]
-exclude = ["visdet/tests", "tests", "archive", "configs"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

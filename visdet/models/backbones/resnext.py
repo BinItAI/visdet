@@ -1,5 +1,6 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import math
+from typing import Any
 
 from visdet.cv.cnn import build_conv_layer, build_norm_layer
 from visdet.models.backbones.resnet import Bottleneck as _Bottleneck
@@ -17,7 +18,15 @@ class Bottleneck(_Bottleneck):
 
     expansion = 4
 
-    def __init__(self, inplanes, planes, groups=1, base_width=4, base_channels=64, **kwargs):
+    def __init__(
+        self,
+        inplanes: int,
+        planes: int,
+        groups: int = 1,
+        base_width: int = 4,
+        base_channels: int = 64,
+        **kwargs: Any,
+    ) -> None:
         # Extract groups and base_width before calling parent
         self.groups = groups
         self.base_width = base_width

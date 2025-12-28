@@ -1,5 +1,7 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 
+from typing import cast
+
 import torch
 from torch import Tensor
 
@@ -33,7 +35,7 @@ class SingleRoIExtractor(BaseRoIExtractor):
         out_channels: int,
         featmap_strides: list[int],
         finest_scale: int = 56,
-        init_cfg: OptMultiConfig = None,
+        init_cfg: dict | list[dict] | None = None,
     ) -> None:
         super().__init__(
             roi_layer=roi_layer,
@@ -78,9 +80,12 @@ class SingleRoIExtractor(BaseRoIExtractor):
         """
         # convert fp32 to fp16 when amp is on
         rois = rois.type_as(feats[0])
-        out_size = self.roi_layers[0].output_size
+        out_size = cast(tuple[int, int], self.roi_layers[0].output_size)
+        out_h = int(out_size[0])
+        out_w = int(out_size[1])
+
         num_levels = len(feats)
-        roi_feats = feats[0].new_zeros(rois.size(0), self.out_channels, *out_size)
+        roi_feats = feats[0].new_zeros((rois.size(0), self.out_channels, out_h, out_w))
 
         # TODO: remove this when parrots supports
         if torch.__version__ == "parrots":

@@ -10,10 +10,10 @@ class DeltaXYWHBBoxCoder:
 
     def __init__(
         self,
-        target_means=(0.0, 0.0, 0.0, 0.0),
-        target_stds=(1.0, 1.0, 1.0, 1.0),
-        clip_border=True,
-    ):
+        target_means: tuple[float, float, float, float] = (0.0, 0.0, 0.0, 0.0),
+        target_stds: tuple[float, float, float, float] = (1.0, 1.0, 1.0, 1.0),
+        clip_border: bool = True,
+    ) -> None:
         self.means = target_means
         self.stds = target_stds
         self.clip_border = clip_border
@@ -101,7 +101,7 @@ class DistancePointBBoxCoder:
             border of the image. Defaults to True.
     """
 
-    def __init__(self, clip_border=True):
+    def __init__(self, clip_border: bool = True) -> None:
         self.clip_border = clip_border
 
     @property
@@ -121,7 +121,7 @@ class DistancePointBBoxCoder:
         assert points.size(0) == pred_bboxes.size(0)
         assert points.size(-1) == 2
         assert pred_bboxes.size(-1) == 4
-        if self.clip_border is False:
+        if not self.clip_border:
             max_shape = None
         return distance2bbox(points, pred_bboxes, max_shape)
 

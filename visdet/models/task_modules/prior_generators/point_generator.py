@@ -1,4 +1,6 @@
 # Copyright (c) OpenMMLab. All rights reserved.
+from typing import cast
+
 import numpy as np
 import torch
 from torch import Tensor
@@ -57,7 +59,7 @@ class MlvlPointGenerator:
     """
 
     def __init__(self, strides: list[int] | list[tuple[int, int]], offset: float = 0.5) -> None:
-        self.strides = [_pair(stride) for stride in strides]
+        self.strides: list[tuple[int, int]] = [cast(tuple[int, int], _pair(stride)) for stride in strides]
         self.offset = offset
 
     @property
@@ -87,7 +89,7 @@ class MlvlPointGenerator:
     ) -> list[Tensor]:
         """Generate grid points of multiple feature levels."""
         assert self.num_levels == len(featmap_sizes)
-        multi_level_priors = []
+        multi_level_priors: list[Tensor] = []
         for i in range(self.num_levels):
             priors = self.single_level_grid_priors(
                 featmap_sizes[i],
@@ -130,7 +132,7 @@ class MlvlPointGenerator:
     ) -> list[Tensor]:
         """Generate valid flags of points of multiple feature levels."""
         assert self.num_levels == len(featmap_sizes)
-        multi_level_flags = []
+        multi_level_flags: list[Tensor] = []
         for i in range(self.num_levels):
             point_stride = self.strides[i]
             feat_h, feat_w = featmap_sizes[i]

@@ -22,30 +22,39 @@ runner.train()
 
 ## Inference with Pre-trained Models
 
-### Using High-level APIs
+### Using YAML model presets (no repo clone)
 
-You can use high-level APIs to perform inference on images:
+VisDet ships with YAML model presets, so you can run inference without needing this repository’s Python config files.
 
 ```python
-from visdet.apis import init_detector, inference_detector
+from visdet.apis import DetInferencer
 
-# Specify the config file and checkpoint file
-config_file = 'configs/faster_rcnn/faster_rcnn_r50_fpn_1x_coco.py'
-checkpoint_file = 'checkpoints/faster_rcnn_r50_fpn_1x_coco.pth'
+# Uses a built-in preset name/alias; may download weights on first use
+inferencer = DetInferencer(model="rtmdet-s", device="cuda:0")
+result = inferencer("path/to/image.jpg")
+print(result)
+```
 
-# Build the model from a config file and a checkpoint file
-model = init_detector(config_file, checkpoint_file, device='cuda:0')
+### Using explicit config + checkpoint (repo-style)
 
-# Test a single image
-img = 'demo/demo.jpg'
+If you *are* working from a cloned repo (or you have your own configs/checkpoints), you can still use the classic APIs:
+
+```python
+from visdet.apis import init_detector, inference_detector, show_result_pyplot
+
+config_file = "path/to/config.py"
+checkpoint_file = "path/to/checkpoint.pth"
+
+model = init_detector(config_file, checkpoint_file, device="cuda:0")
+img = "path/to/image.jpg"
 result = inference_detector(model, img)
-
-# Show the results
-from visdet.apis import show_result_pyplot
 show_result_pyplot(model, img, result)
 ```
 
 ## Training a Model
+
+The training / testing entrypoints under `tools/` are part of this repository.
+If you want to use them, clone the repo and run from the repo root.
 
 ### Train with a Single GPU
 

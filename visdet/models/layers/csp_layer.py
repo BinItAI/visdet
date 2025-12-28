@@ -23,10 +23,10 @@ class DarknetBottleneck(BaseModule):
         expansion: float = 0.5,
         add_identity: bool = True,
         use_depthwise: bool = False,
-        conv_cfg: OptConfigType = None,
-        norm_cfg: ConfigType = dict(type="BN", momentum=0.03, eps=0.001),
-        act_cfg: ConfigType = dict(type="Swish"),
-        init_cfg: OptMultiConfig = None,
+        conv_cfg: dict | None = None,
+        norm_cfg: dict = dict(type="BN", momentum=0.03, eps=0.001),
+        act_cfg: dict = dict(type="Swish"),
+        init_cfg: dict | list[dict] | None = None,
     ) -> None:
         super().__init__(init_cfg=init_cfg)
         hidden_channels = int(out_channels * expansion)
@@ -69,10 +69,10 @@ class CSPNeXtBlock(BaseModule):
         add_identity: bool = True,
         use_depthwise: bool = False,
         kernel_size: int = 5,
-        conv_cfg: OptConfigType = None,
-        norm_cfg: ConfigType = dict(type="BN", momentum=0.03, eps=0.001),
-        act_cfg: ConfigType = dict(type="SiLU"),
-        init_cfg: OptMultiConfig = None,
+        conv_cfg: dict | None = None,
+        norm_cfg: dict = dict(type="BN", momentum=0.03, eps=0.001),
+        act_cfg: dict = dict(type="SiLU"),
+        init_cfg: dict | list[dict] | None = None,
     ) -> None:
         super().__init__(init_cfg=init_cfg)
         hidden_channels = int(out_channels * expansion)
@@ -118,10 +118,10 @@ class CSPLayer(BaseModule):
         use_depthwise: bool = False,
         use_cspnext_block: bool = False,
         channel_attention: bool = False,
-        conv_cfg: OptConfigType = None,
-        norm_cfg: ConfigType = dict(type="BN", momentum=0.03, eps=0.001),
-        act_cfg: ConfigType = dict(type="Swish"),
-        init_cfg: OptMultiConfig = None,
+        conv_cfg: dict | None = None,
+        norm_cfg: dict = dict(type="BN", momentum=0.03, eps=0.001),
+        act_cfg: dict = dict(type="Swish"),
+        init_cfg: dict | list[dict] | None = None,
     ) -> None:
         super().__init__(init_cfg=init_cfg)
         block = CSPNeXtBlock if use_cspnext_block else DarknetBottleneck

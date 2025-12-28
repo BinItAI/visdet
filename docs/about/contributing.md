@@ -28,7 +28,7 @@ visdet-worktrees/
 We use the following tools to maintain code quality:
 
 - `ruff` for linting and formatting
-- `pyright` for type checking
+- `zuban` for type checking
 - `prek` hooks for automated checks (faster Rust-based alternative to pre-commit)
 
 To set up the development environment:

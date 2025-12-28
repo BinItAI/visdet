@@ -1,11 +1,13 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 
+from typing import Any
+
 import torch.nn as nn
 from torch import Tensor
 
 from visdet.cv.cnn import ConvModule
 from visdet.engine.config import ConfigDict
-from visdet.models.roi_heads.bbox_heads.bbox_head import BBoxHead
+from visdet.models.roi_heads.bbox_heads.bbox_head import BBoxHead, _cfg_to_dict
 from visdet.registry import MODELS
 
 
@@ -31,13 +33,13 @@ class ConvFCBBoxHead(BBoxHead):
         num_reg_fcs: int = 0,
         conv_out_channels: int = 256,
         fc_out_channels: int = 1024,
-        conv_cfg: dict | ConfigDict | None = None,
-        norm_cfg: dict | ConfigDict | None = None,
-        init_cfg: dict | ConfigDict | None = None,
-        *args,
-        **kwargs,
+        conv_cfg: dict | None = None,
+        norm_cfg: dict | None = None,
+        init_cfg: dict | list[dict] | None = None,
+        **kwargs: Any,
     ) -> None:
-        super().__init__(*args, init_cfg=init_cfg, **kwargs)
+        kwargs.pop("init_cfg", None)
+        super().__init__(init_cfg=init_cfg, **kwargs)
         assert num_shared_convs + num_shared_fcs + num_cls_convs + num_cls_fcs + num_reg_convs + num_reg_fcs > 0
         if num_cls_convs > 0 or num_reg_convs > 0:
             assert num_shared_fcs == 0
@@ -85,18 +87,21 @@ class ConvFCBBoxHead(BBoxHead):
                 cls_channels = self.loss_cls.get_cls_channels(self.num_classes)
             else:
                 cls_channels = self.num_classes + 1
-            cls_predictor_cfg_ = self.cls_predictor_cfg.copy()
+            cls_predictor_cfg_ = _cfg_to_dict(self.cls_predictor_cfg).copy()
             cls_predictor_cfg_.update(in_features=self.cls_last_dim, out_features=cls_channels)
             self.fc_cls = MODELS.build(cls_predictor_cfg_)
         if self.with_reg:
             box_dim = self.bbox_coder.encode_size
             out_dim_reg = box_dim if self.reg_class_agnostic else box_dim * self.num_classes
-            reg_predictor_cfg_ = self.reg_predictor_cfg.copy()
-            if isinstance(reg_predictor_cfg_, (dict, ConfigDict)):
-                reg_predictor_cfg_.update(in_features=self.reg_last_dim, out_features=out_dim_reg)
+            reg_predictor_cfg_ = _cfg_to_dict(self.reg_predictor_cfg).copy()
+            reg_predictor_cfg_.update(in_features=self.reg_last_dim, out_features=out_dim_reg)
             self.fc_reg = MODELS.build(reg_predictor_cfg_)
 
         if init_cfg is None:
+            if self.init_cfg is None:
+                self.init_cfg = []
+            elif isinstance(self.init_cfg, dict):
+                self.init_cfg = [self.init_cfg]
             self.init_cfg += [
                 dict(
                     type="Xavier",
@@ -150,7 +155,7 @@ class ConvFCBBoxHead(BBoxHead):
             last_layer_dim = self.fc_out_channels
         return branch_convs, branch_fcs, last_layer_dim
 
-    def forward(self, x: tuple[Tensor]) -> tuple:
+    def forward(self, x: Tensor) -> tuple[Tensor | None, Tensor | None]:
         """Forward features from the upstream network.
 
         Args:
@@ -211,7 +216,7 @@ class ConvFCBBoxHead(BBoxHead):
 # reduce the dumb classifications errors
 @MODELS.register_module()
 class Shared2FCBBoxHead(ConvFCBBoxHead):
-    def __init__(self, fc_out_channels: int = 1024, *args, **kwargs) -> None:
+    def __init__(self, fc_out_channels: int = 1024, **kwargs: Any) -> None:
         super().__init__(
             num_shared_convs=0,
             num_shared_fcs=2,
@@ -220,14 +225,13 @@ class Shared2FCBBoxHead(ConvFCBBoxHead):
             num_reg_convs=0,
             num_reg_fcs=0,
             fc_out_channels=fc_out_channels,
-            *args,
             **kwargs,
         )
 
 
 @MODELS.register_module()
 class Shared4Conv1FCBBoxHead(ConvFCBBoxHead):
-    def __init__(self, fc_out_channels: int = 1024, *args, **kwargs) -> None:
+    def __init__(self, fc_out_channels: int = 1024, **kwargs: Any) -> None:
         super().__init__(
             num_shared_convs=4,
             num_shared_fcs=1,
@@ -236,6 +240,5 @@ class Shared4Conv1FCBBoxHead(ConvFCBBoxHead):
             num_reg_convs=0,
             num_reg_fcs=0,
             fc_out_channels=fc_out_channels,
-            *args,
             **kwargs,
         )
