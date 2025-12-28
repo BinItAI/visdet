@@ -3,10 +3,9 @@ import logging
 import warnings
 from typing import Any, cast
 
-from torch import Tensor
-
 import torch.nn as nn
 import torch.utils.checkpoint as cp
+from torch import Tensor
 from torch.nn.modules.batchnorm import _BatchNorm
 
 from visdet.cv.cnn import build_conv_layer, build_norm_layer

@@ -5,7 +5,6 @@ import torch
 from torch import Tensor
 
 from visdet.engine.structures import InstanceData
-
 from visdet.registry import TASK_UTILS
 
 from .assign_result import AssignResult

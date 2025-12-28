@@ -1,10 +1,11 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 from __future__ import annotations
 
+from typing import Any, cast
+
 import numpy as np
 import torch
 from torch import Tensor
-from typing import Any, cast
 
 from visdet.engine.structures import InstanceData
 from visdet.models.roi_heads.standard_roi_head import StandardRoIHead

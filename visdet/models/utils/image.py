@@ -1,7 +1,8 @@
+from typing import cast
+
 import numpy as np
 import torch
 from torch import Tensor
-from typing import cast
 
 
 def imrenormalize(img: Tensor | np.ndarray, img_norm_cfg: dict, new_img_norm_cfg: dict) -> Tensor | np.ndarray:

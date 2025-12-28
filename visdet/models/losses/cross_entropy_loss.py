@@ -5,10 +5,9 @@ import warnings
 from typing import Any, cast
 
 import torch
-from torch import Tensor
-
 import torch.nn as nn
 import torch.nn.functional as F
+from torch import Tensor
 
 from visdet.models.losses.accuracy import accuracy
 from visdet.models.losses.utils import weight_reduce_loss
