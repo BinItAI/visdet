@@ -14,7 +14,7 @@ from visdet.cv.cnn.bricks.depthwise_separable_conv_module import DepthwiseSepara
 from visdet.engine.model import BaseModule
 from visdet.models.layers import CSPLayer
 from visdet.registry import MODELS
-from visdet.utils.typing_utils import OptMultiConfig
+from visdet.utils.typing_utils import ConfigType, OptMultiConfig
 
 
 @MODELS.register_module()
@@ -28,11 +28,11 @@ class CSPNeXtPAFPN(BaseModule):
         num_csp_blocks: int = 3,
         use_depthwise: bool = False,
         expand_ratio: float = 0.5,
-        upsample_cfg: dict = dict(scale_factor=2, mode="nearest"),
+        upsample_cfg: ConfigType = dict(scale_factor=2, mode="nearest"),
         conv_cfg: dict | None = None,
-        norm_cfg: dict = dict(type="BN", momentum=0.03, eps=0.001),
-        act_cfg: dict = dict(type="Swish"),
-        init_cfg: dict | list[dict] | None = dict(
+        norm_cfg: ConfigType = dict(type="BN", momentum=0.03, eps=0.001),
+        act_cfg: ConfigType = dict(type="Swish"),
+        init_cfg: OptMultiConfig = dict(
             type="Kaiming",
             layer="Conv2d",
             a=math.sqrt(5),

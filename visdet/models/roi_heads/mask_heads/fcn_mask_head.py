@@ -1,7 +1,5 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 
-from typing import Any, cast
-
 import numpy as np
 import torch
 import torch.nn as nn
@@ -19,13 +17,6 @@ from visdet.registry import MODELS
 from visdet.structures.mask import mask_target
 from visdet.utils import ConfigType, InstanceList, OptConfigType, OptMultiConfig
 
-
-def _cfg_to_dict(cfg: ConfigType) -> dict[str, Any]:
-    if isinstance(cfg, dict):
-        return cfg
-    return {"type": cfg}
-
-
 BYTES_PER_FLOAT = 4
 # TODO: This memory limit may be too much or too little. It would be better to
 #  determine it based on available resources.
@@ -42,24 +33,24 @@ class FCNMaskHead(BaseModule):
         conv_kernel_size: int = 3,
         conv_out_channels: int = 256,
         num_classes: int = 80,
-        class_agnostic: bool = False,
+        class_agnostic: int = False,
         upsample_cfg: ConfigType = dict(type="deconv", scale_factor=2),
-        conv_cfg: dict | None = None,
-        norm_cfg: dict | None = None,
+        conv_cfg: OptConfigType = None,
+        norm_cfg: OptConfigType = None,
         predictor_cfg: ConfigType = dict(type="Conv"),
         loss_mask: ConfigType = dict(type="CrossEntropyLoss", use_mask=True, loss_weight=1.0),
-        init_cfg: dict | list[dict] | None = None,
+        init_cfg: OptMultiConfig = None,
     ) -> None:
         assert init_cfg is None, "To prevent abnormal initialization behavior, init_cfg is not allowed to be set"
         super().__init__(init_cfg=init_cfg)
-        self.upsample_cfg = _cfg_to_dict(upsample_cfg).copy()
+        self.upsample_cfg = upsample_cfg.copy()
         if self.upsample_cfg["type"] not in [None, "deconv", "nearest", "bilinear"]:
             raise ValueError(
                 f'Invalid upsample method {self.upsample_cfg["type"]}, accepted methods are "deconv", "nearest", "bilinear"'
             )
         self.num_convs = num_convs
         # WARN: roi_feat_size is reserved and not used
-        self.roi_feat_size = cast(tuple[int, int], _pair(roi_feat_size))
+        self.roi_feat_size = _pair(roi_feat_size)
         self.in_channels = in_channels
         self.conv_kernel_size = conv_kernel_size
         self.conv_out_channels = conv_out_channels
@@ -69,8 +60,8 @@ class FCNMaskHead(BaseModule):
         self.class_agnostic = class_agnostic
         self.conv_cfg = conv_cfg
         self.norm_cfg = norm_cfg
-        self.predictor_cfg = _cfg_to_dict(predictor_cfg)
-        self.loss_mask = MODELS.build(_cfg_to_dict(loss_mask))
+        self.predictor_cfg = predictor_cfg
+        self.loss_mask = MODELS.build(loss_mask)
 
         self.convs = ModuleList()
         for i in range(self.num_convs):
@@ -121,8 +112,8 @@ class FCNMaskHead(BaseModule):
             if m is None:
                 continue
             elif hasattr(m, "weight") and hasattr(m, "bias"):
-                nn.init.kaiming_normal_(cast(Tensor, m.weight), mode="fan_out", nonlinearity="relu")
-                nn.init.constant_(cast(Tensor, m.bias), 0)
+                nn.init.kaiming_normal_(m.weight, mode="fan_out", nonlinearity="relu")
+                nn.init.constant_(m.bias, 0)
 
     def forward(self, x: Tensor) -> Tensor:
         """Forward features from the upstream network.
@@ -166,7 +157,7 @@ class FCNMaskHead(BaseModule):
         pos_assigned_gt_inds = [res.pos_assigned_gt_inds for res in sampling_results]
         gt_masks = [getattr(res, "instance_masks", getattr(res, "masks", None)) for res in batch_gt_instances]
         mask_targets = mask_target(pos_proposals, pos_assigned_gt_inds, gt_masks, rcnn_train_cfg)
-        return cast(Tensor, mask_targets)
+        return mask_targets
 
     def loss_and_target(
         self,
@@ -252,7 +243,7 @@ class FCNMaskHead(BaseModule):
         for img_id in range(len(batch_img_metas)):
             img_meta = batch_img_metas[img_id]
             results = results_list[img_id]
-            bboxes = cast(Tensor, getattr(results, "bboxes"))
+            bboxes = results.bboxes
             if bboxes.shape[0] == 0:
                 results_list[img_id] = empty_instances(
                     [img_meta],
@@ -265,7 +256,7 @@ class FCNMaskHead(BaseModule):
                 im_mask = self._predict_by_feat_single(
                     mask_preds=mask_preds[img_id],
                     bboxes=bboxes,
-                    labels=cast(Tensor, getattr(results, "labels")),
+                    labels=results.labels,
                     img_meta=img_meta,
                     rcnn_test_cfg=rcnn_test_cfg,
                     rescale=rescale,
@@ -444,13 +435,8 @@ def _do_paste_mask(masks: Tensor, boxes: Tensor, img_h: int, img_w: int, skip_em
 
     N = masks.shape[0]
 
-    y0i = int(y0_int.item()) if isinstance(y0_int, torch.Tensor) else int(y0_int)
-    y1i = int(y1_int.item()) if isinstance(y1_int, torch.Tensor) else int(y1_int)
-    x0i = int(x0_int.item()) if isinstance(x0_int, torch.Tensor) else int(x0_int)
-    x1i = int(x1_int.item()) if isinstance(x1_int, torch.Tensor) else int(x1_int)
-
-    img_y = torch.arange(y0i, y1i, device=device).to(torch.float32) + 0.5
-    img_x = torch.arange(x0i, x1i, device=device).to(torch.float32) + 0.5
+    img_y = torch.arange(y0_int, y1_int, device=device).to(torch.float32) + 0.5
+    img_x = torch.arange(x0_int, x1_int, device=device).to(torch.float32) + 0.5
     img_y = (img_y - y0) / (y1 - y0) * 2 - 1
     img_x = (img_x - x0) / (x1 - x0) * 2 - 1
     # img_x, img_y have shapes (N, w), (N, h)

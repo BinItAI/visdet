@@ -1,6 +1,4 @@
 # Copyright (c) OpenMMLab. All rights reserved.
-from typing import Any
-
 from torch import nn as nn
 
 from visdet.cv.cnn import build_conv_layer, build_norm_layer
@@ -28,26 +26,26 @@ class ResLayer(Sequential):
 
     def __init__(
         self,
-        block: Any,
-        inplanes: int,
-        planes: int,
-        num_blocks: int,
-        stride: int = 1,
-        avg_down: bool = False,
-        conv_cfg: dict | None = None,
-        norm_cfg: dict = dict(type="BN"),
-        downsample_first: bool = True,
-        **kwargs: Any,
-    ) -> None:
+        block,
+        inplanes,
+        planes,
+        num_blocks,
+        stride=1,
+        avg_down=False,
+        conv_cfg=None,
+        norm_cfg=dict(type="BN"),
+        downsample_first=True,
+        **kwargs,
+    ):
         self.block = block
 
-        downsample: nn.Module | None = None
+        downsample = None
         if stride != 1 or inplanes != planes * block.expansion:
-            downsample_modules: list[nn.Module] = []
+            downsample = []
             conv_stride = stride
             if avg_down:
                 conv_stride = 1
-                downsample_modules.append(
+                downsample.append(
                     nn.AvgPool2d(
                         kernel_size=stride,
                         stride=stride,
@@ -55,7 +53,7 @@ class ResLayer(Sequential):
                         count_include_pad=False,
                     )
                 )
-            downsample_modules.extend(
+            downsample.extend(
                 [
                     build_conv_layer(
                         conv_cfg,
@@ -68,9 +66,9 @@ class ResLayer(Sequential):
                     build_norm_layer(norm_cfg, planes * block.expansion)[1],
                 ]
             )
-            downsample = nn.Sequential(*downsample_modules)
+            downsample = nn.Sequential(*downsample)
 
-        layers: list[nn.Module] = []
+        layers = []
         if downsample_first:
             layers.append(
                 block(
@@ -194,16 +192,12 @@ class SimplifiedBasicBlock(BaseModule):
 
         out = self.conv1(x)
         if self.with_norm:
-            norm1 = self.norm1
-            assert norm1 is not None
-            out = norm1(out)
+            out = self.norm1(out)
         out = self.relu(out)
 
         out = self.conv2(out)
         if self.with_norm:
-            norm2 = self.norm2
-            assert norm2 is not None
-            out = norm2(out)
+            out = self.norm2(out)
 
         if self.downsample is not None:
             identity = self.downsample(x)

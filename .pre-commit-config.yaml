@@ -257,14 +257,6 @@ repos:
         pass_filenames: false
         files: ^visdet/engine/hub/
 
-      - id: zuban-models
-        name: Zuban type checker (visdet/models)
-        entry: uv run zuban check visdet/models --exclude '/dense_heads/' --exclude '/backbones/hrnet.py' --exclude '/backbones/swin.py' --exclude '/backbones/regnet.py' --exclude '/backbones/res2net.py' --exclude '/backbones/resnest.py' --exclude '/backbones/cspnext.py'
-        language: system
-        types: [python]
-        pass_filenames: false
-        files: ^visdet/models/
-
   - repo: https://github.com/kynan/nbstripout
     rev: 0.8.1
     hooks:

@@ -38,7 +38,7 @@ class AssignResult(util_mixins.NiceRepr):
                       labels.shape=(7,))>
     """
 
-    def __init__(self, num_gts: int, gt_inds: Tensor, max_overlaps: Tensor, labels: Tensor | None = None) -> None:
+    def __init__(self, num_gts: int, gt_inds: Tensor, max_overlaps: Tensor, labels: Tensor) -> None:
         self.num_gts = num_gts
         self.gt_inds = gt_inds
         self.max_overlaps = max_overlaps
@@ -77,8 +77,14 @@ class AssignResult(util_mixins.NiceRepr):
         """str: a "nice" summary string describing this assign result"""
         parts = []
         parts.append(f"num_gts={self.num_gts!r}")
-        parts.append(f"gt_inds.shape={tuple(self.gt_inds.shape)!r}")
-        parts.append(f"max_overlaps.shape={tuple(self.max_overlaps.shape)!r}")
+        if self.gt_inds is None:
+            parts.append(f"gt_inds={self.gt_inds!r}")
+        else:
+            parts.append(f"gt_inds.shape={tuple(self.gt_inds.shape)!r}")
+        if self.max_overlaps is None:
+            parts.append(f"max_overlaps={self.max_overlaps!r}")
+        else:
+            parts.append(f"max_overlaps.shape={tuple(self.max_overlaps.shape)!r}")
         if self.labels is None:
             parts.append(f"labels={self.labels!r}")
         else:
@@ -107,7 +113,7 @@ class AssignResult(util_mixins.NiceRepr):
             >>> self = AssignResult.random()
             >>> print(self.info)
         """
-        from visdet.core.bbox.demodata import ensure_rng
+        from ..samplers.sampling_result import ensure_rng
 
         rng = ensure_rng(kwargs.get("rng", None))
 
@@ -180,15 +186,9 @@ class AssignResult(util_mixins.NiceRepr):
         Args:
             gt_labels (torch.Tensor): Labels of gt boxes
         """
-        old_num_preds = self.gt_inds.numel()
-
         self_inds = torch.arange(1, len(gt_labels) + 1, dtype=torch.long, device=gt_labels.device)
         self.gt_inds = torch.cat([self_inds, self.gt_inds])
 
         self.max_overlaps = torch.cat([self.max_overlaps.new_ones(len(gt_labels)), self.max_overlaps])
 
-        if self.labels is None:
-            old_labels = gt_labels.new_zeros((old_num_preds,), dtype=torch.long)
-        else:
-            old_labels = self.labels
-        self.labels = torch.cat([gt_labels, old_labels])
+        self.labels = torch.cat([gt_labels, self.labels])

@@ -1,7 +1,6 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import copy
 import logging
-from typing import cast
 
 import torch
 from torch import Tensor
@@ -26,7 +25,7 @@ def _perm_box(bboxes, iou_calculator, iou_thr=0.97, perm_range=0.01, counter=0, 
     Returns:
         Tensor: The permuted bboxes.
     """
-    ori_bboxes = bboxes.clone()
+    ori_bboxes = copy.deepcopy(bboxes)
     is_valid = True
     N = bboxes.size(0)
     perm_factor = bboxes.new_empty(N, 4).uniform_(1 - perm_range, 1 + perm_range)
@@ -62,7 +61,7 @@ def perm_repeat_bboxes(bboxes, iou_calculator=None, perm_repeat_cfg=None):
         import torchvision
 
         iou_calculator = torchvision.ops.box_iou
-    bboxes = bboxes.clone()
+    bboxes = copy.deepcopy(bboxes)
     unique_bboxes = bboxes.unique(dim=0)
     iou_thr = perm_repeat_cfg.get("iou_thr", 0.97)
     perm_range = perm_repeat_cfg.get("perm_range", 0.01)
@@ -195,11 +194,11 @@ class MaxIoUAssigner(BaseAssigner):
             >>> expected_gt_inds = torch.LongTensor([1, 0])
             >>> assert torch.all(assign_result.gt_inds == expected_gt_inds)
         """
-        gt_bboxes = cast(Tensor, getattr(gt_instances, "bboxes"))
-        priors = cast(Tensor, getattr(pred_instances, "priors"))
-        gt_labels = cast(Tensor, getattr(gt_instances, "labels"))
+        gt_bboxes = gt_instances.bboxes
+        priors = pred_instances.priors
+        gt_labels = gt_instances.labels
         if gt_instances_ignore is not None:
-            gt_bboxes_ignore = cast(Tensor, getattr(gt_instances_ignore, "bboxes"))
+            gt_bboxes_ignore = gt_instances_ignore.bboxes
         else:
             gt_bboxes_ignore = None
 

@@ -1,143 +1,234 @@
-# Installation
+# Prerequisites
 
-VisDet is published as a normal Python package. In most cases you **do not** need to clone this repository to use it.
+In this section we demonstrate how to prepare an environment with PyTorch.
 
-Cloning the repo is only needed if you want to:
+This framework works on Linux, Windows and macOS. It requires Python 3.7+, CUDA 9.2+ and PyTorch 1.5+.
 
-- Develop VisDet itself (editable install, tests, docs)
-- Use the repo’s training scripts under `tools/`
-- Use the repo’s example assets/configs as-is
+```{note}
+If you are experienced with PyTorch and have already installed it, just skip this part and jump to the [next section](#installation). Otherwise, you can follow these steps for the preparation.
+```
 
-## Requirements
-
-- Python `>=3.10,<3.13`
-- PyTorch + torchvision
-  - For CUDA / GPU support, install PyTorch following https://pytorch.org first (so you get the correct CUDA build).
-
-## Install with uv (recommended)
-
-**Step 0.** Install [uv](https://docs.astral.sh/uv/) (if you don’t already have it).
+**Step 0.** Install [uv](https://docs.astral.sh/uv/) - a fast Python package manager.
 
 ```shell
-# macOS / Linux
+# On macOS and Linux
 curl -LsSf https://astral.sh/uv/install.sh | sh
 
-# Windows
+# On Windows
 powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
 
-**Step 1.** Create a virtual environment.
+**Step 1.** uv will automatically manage Python versions and virtual environments for you. No separate setup needed!
 
-```shell
-uv venv --python 3.12
-```
+# Installation
 
-**Step 2.** Activate it.
+We recommend that users follow our best practices to install VisDet using uv. However, the whole process is highly customizable. See [Customize Installation](#customize-installation) section for more information.
 
-```shell
-# macOS / Linux
-source .venv/bin/activate
+## Best Practices
 
-# Windows (PowerShell)
-.venv\Scripts\Activate.ps1
-```
-
-**Step 3.** Install VisDet.
-
-```shell
-uv pip install visdet
-```
-
-### Optional extras
-
-```shell
-# Extra (optional) dependencies used by some features
-uv pip install "visdet[optional]"
-
-# Everything in the optional group
-uv pip install "visdet[all]"
-```
-
-## Install with pip
-
-If you prefer standard tooling:
-
-```shell
-python -m venv .venv
-source .venv/bin/activate  # or .venv\Scripts\activate on Windows
-pip install -U pip
-pip install visdet
-```
-
-## Verify the installation
-
-A minimal smoke-check (no repo clone required):
-
-```shell
-python -c "import visdet; print(visdet.__version__)"
-```
-
-Optional: run a quick inference using a built-in YAML preset (this may download model weights on first use):
-
-```python
-from visdet.apis import DetInferencer
-
-inferencer = DetInferencer(model="rtmdet-s", device="cpu")
-results = inferencer("path/to/your_image.jpg")
-print(results)
-```
-
-## Install from source (development)
-
-Only needed if you’re contributing to VisDet.
+**Step 0.** Clone the repository and navigate to it.
 
 ```shell
 git clone <your-repository-url>
 cd visdet
+```
+
+**Step 1.** Install dependencies using uv.
+
+For development (includes all dependencies):
+
+```shell
 uv sync
 ```
 
-That will:
+For specific extras (e.g., just documentation):
 
-- Create a virtual environment
-- Install dependencies from `pyproject.toml`
-- Install VisDet in editable mode
+```shell
+uv sync --extra mkdocs
+```
 
-## Install on Google Colab
+**Step 2.** That's it! uv has:
+- Created a virtual environment
+- Installed Python 3.12 (or the version specified in `.python-version`)
+- Installed all dependencies from `pyproject.toml`
+- Installed the package in editable mode
 
-Colab usually already has PyTorch installed.
+## Verify the installation
+
+To verify whether This framework installed correctly, we provide some sample codes to run an inference demo.
+
+**Step 1.** We need to download config and checkpoint files.
+
+```shell
+uv run mim download mmdet --config yolov3_mobilenetv2_320_300e_coco --dest .
+```
+
+The downloading will take several seconds or more, depending on your network environment. When it is done, you will find two files `yolov3_mobilenetv2_320_300e_coco.py` and `yolov3_mobilenetv2_320_300e_coco_20210719_215349-d18dff72.pth` in your current folder.
+
+**Step 2.** Verify the inference demo.
+
+```shell
+uv run python demo/image_demo.py demo/demo.jpg yolov3_mobilenetv2_320_300e_coco.py yolov3_mobilenetv2_320_300e_coco_20210719_215349-d18dff72.pth --device cpu --out-file result.jpg
+```
+
+You will see a new image `result.jpg` on your current folder, where bounding boxes are plotted on cars, benches, etc.
+
+Alternatively, you can run Python code directly:
+
+```python
+# Run with: uv run python
+from mmdet.apis import init_detector, inference_detector
+
+config_file = 'yolov3_mobilenetv2_320_300e_coco.py'
+checkpoint_file = 'yolov3_mobilenetv2_320_300e_coco_20210719_215349-d18dff72.pth'
+model = init_detector(config_file, checkpoint_file, device='cpu')  # or device='cuda:0'
+inference_detector(model, 'demo/demo.jpg')
+```
+
+You will see a list of arrays printed, indicating the detected bounding boxes.
+
+## Customize Installation
+
+### CUDA versions
+
+When installing PyTorch, you need to specify the version of CUDA. If you are not clear on which to choose, follow our recommendations:
+
+- For Ampere-based NVIDIA GPUs, such as GeForce 30 series and NVIDIA A100, CUDA 11 is a must.
+- For older NVIDIA GPUs, CUDA 11 is backward compatible, but CUDA 10.2 offers better compatibility and is more lightweight.
+
+Please make sure the GPU driver satisfies the minimum version requirements. See [this table](https://docs.nvidia.com/cuda/cuda-toolkit-release-notes/index.html#cuda-major-component-versions__table-cuda-toolkit-driver-versions) for more information.
+
+```{note}
+uv handles PyTorch installation automatically based on your `pyproject.toml` configuration. For specific CUDA versions, you may need to configure the PyTorch index URL in your project settings.
+```
+
+### Installing additional packages
+
+To add additional packages to your project:
+
+```shell
+# Add a new dependency
+uv add package-name
+
+# Add a development dependency
+uv add --dev package-name
+
+# Add an optional dependency to a specific group
+uv add --optional group-name package-name
+```
+
+### Install on CPU-only platforms
+
+This framework can be built for CPU only environment. In CPU mode you can train, test or inference a model.
+
+However some functionalities are gone in this mode:
+
+- Deformable Convolution
+- Modulated Deformable Convolution
+- ROI pooling
+- Deformable ROI pooling
+- CARAFE
+- SyncBatchNorm
+- CrissCrossAttention
+- MaskedConv2d
+- Temporal Interlace Shift
+- nms_cuda
+- sigmoid_focal_loss_cuda
+- bbox_overlaps
+
+If you try to train/test/inference a model containing above ops, an error will be raised.
+The following table lists affected algorithms.
+
+|                        Operator                         |                                          Model                                           |
+| :-----------------------------------------------------: | :--------------------------------------------------------------------------------------: |
+| Deformable Convolution/Modulated Deformable Convolution | DCN、Guided Anchoring、RepPoints、CentripetalNet、VFNet、CascadeRPN、NAS-FCOS、DetectoRS |
+|                      MaskedConv2d                       |                                     Guided Anchoring                                     |
+|                         CARAFE                          |                                          CARAFE                                          |
+|                      SyncBatchNorm                      |                                         ResNeSt                                          |
+
+### Install on Google Colab
+
+[Google Colab](https://research.google.com/) usually has PyTorch installed.
+Here's how to install visdet with uv on Colab:
+
+**Step 1.** Install uv in Colab.
 
 ```shell
 !curl -LsSf https://astral.sh/uv/install.sh | sh
-!uv venv --python 3.12
-!uv pip install visdet
 ```
 
+**Step 2.** Clone and install visdet.
+
+```shell
+!git clone <your-repository-url>
+%cd visdet
+!uv sync
+```
+
+**Step 3.** Verification.
+
 ```python
-import visdet
-print(visdet.__version__)
+!uv run python -c "import mmdet; print(mmdet.__version__)"
 ```
 
 ```{note}
-Within Jupyter, the exclamation mark `!` runs shell commands.
+Within Jupyter, the exclamation mark `!` is used to call external executables and `%cd` is a [magic command](https://ipython.readthedocs.io/en/stable/interactive/magics.html#magic-cd) to change the current working directory of Python.
 ```
 
-## Using VisDet with Docker
+### Using VisDet with Docker
 
-The repo contains a `docker/` folder with a Dockerfile. This path **does** require cloning the repository.
+We provide a Dockerfile in the `docker/` directory to build an image. Ensure that your [docker version](https://docs.docker.com/engine/install/) >=19.03.
 
 ```shell
+# build an image with PyTorch 1.6, CUDA 10.1
+# If you prefer other versions, just modified the Dockerfile
 docker build -t visdet docker/
 ```
 
-Run it with:
+Run it with
 
 ```shell
 docker run --gpus all --shm-size=8g -it -v {DATA_DIR}:/visdet/data visdet
 ```
 
-## Troubleshooting
+### Running commands with uv
 
-- **Import errors**: ensure you installed into the environment you’re running (`which python` / `python -V`).
-- **CUDA issues**: install PyTorch for your CUDA version (then reinstall `visdet` if needed).
-- **Version conflicts**: try a fresh env: `rm -rf .venv && uv venv && uv pip install visdet`.
+All commands should be prefixed with `uv run` to ensure they use the project's virtual environment:
+
+```shell
+# Running Python scripts
+uv run python your_script.py
+
+# Running installed CLI tools
+uv run pytest tests/
+
+# Running prek hooks
+uv run prek run --all-files
+
+# Building documentation
+uv run mkdocs build
+```
+
+Alternatively, you can activate the virtual environment manually:
+
+```shell
+source .venv/bin/activate  # On Linux/macOS
+# or
+.venv\Scripts\activate  # On Windows
+
+# Now you can run commands without 'uv run' prefix
+python your_script.py
+pytest tests/
+```
+
+## Trouble shooting
+
+If you have some issues during the installation, please check the documentation carefully.
+
+Common issues and solutions:
+
+- **Import errors**: Make sure you have installed the package with `uv sync`
+- **CUDA issues**: Verify your CUDA version matches your PyTorch installation
+- **Version conflicts**: Try creating a fresh virtual environment
+
+If you encounter problems not covered in the documentation, please refer to the [Contributing Guide](../development/contributing.md) for how to report issues.

@@ -1,10 +1,6 @@
 # Copyright (c) OpenMMLab. All rights reserved.
-from typing import Any, cast
-
 import torch
 from torch import Tensor
-
-from visdet.engine.structures import InstanceData
 
 from visdet.registry import TASK_UTILS
 
@@ -31,33 +27,6 @@ class ATSSAssigner(BaseAssigner):
         self.ignore_iof_thr = ignore_iof_thr
 
     def assign(
-        self,
-        pred_instances: InstanceData,
-        gt_instances: InstanceData,
-        gt_instances_ignore: InstanceData | None = None,
-        **kwargs: Any,
-    ) -> AssignResult:
-        num_level_bboxes = cast(list[int], kwargs.get("num_level_bboxes"))
-        if num_level_bboxes is None:
-            raise ValueError("ATSSAssigner requires `num_level_bboxes` in kwargs")
-
-        bboxes = cast(Tensor, getattr(pred_instances, "priors", getattr(pred_instances, "bboxes")))
-        gt_bboxes = cast(Tensor, getattr(gt_instances, "bboxes"))
-        gt_labels = cast(Tensor | None, getattr(gt_instances, "labels", None))
-
-        gt_bboxes_ignore: Tensor | None = None
-        if gt_instances_ignore is not None:
-            gt_bboxes_ignore = cast(Tensor, getattr(gt_instances_ignore, "bboxes"))
-
-        return self.assign_by_bboxes(
-            bboxes=bboxes,
-            num_level_bboxes=num_level_bboxes,
-            gt_bboxes=gt_bboxes,
-            gt_bboxes_ignore=gt_bboxes_ignore,
-            gt_labels=gt_labels,
-        )
-
-    def assign_by_bboxes(
         self,
         bboxes: Tensor,
         num_level_bboxes: list[int],

@@ -1,7 +1,5 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 
-from typing import Any, cast
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -18,12 +16,6 @@ from visdet.models.utils import empty_instances, multi_apply
 from visdet.registry import MODELS, TASK_UTILS
 from visdet.structures.bbox import get_box_tensor, scale_boxes
 from visdet.utils import ConfigType, InstanceList, OptMultiConfig
-
-
-def _cfg_to_dict(cfg: ConfigType) -> dict[str, Any]:
-    if isinstance(cfg, dict):
-        return cfg
-    return {"type": cfg}
 
 
 @MODELS.register_module()
@@ -52,14 +44,14 @@ class BBoxHead(BaseModule):
         cls_predictor_cfg: ConfigType = dict(type="Linear"),
         loss_cls: ConfigType = dict(type="CrossEntropyLoss", use_sigmoid=False, loss_weight=1.0),
         loss_bbox: ConfigType = dict(type="SmoothL1Loss", beta=1.0, loss_weight=1.0),
-        init_cfg: dict | list[dict] | None = None,
+        init_cfg: OptMultiConfig = None,
     ) -> None:
         super().__init__(init_cfg=init_cfg)
         assert with_cls or with_reg
         self.with_avg_pool = with_avg_pool
         self.with_cls = with_cls
         self.with_reg = with_reg
-        self.roi_feat_size = cast(tuple[int, int], _pair(roi_feat_size))
+        self.roi_feat_size = _pair(roi_feat_size)
         self.roi_feat_area = self.roi_feat_size[0] * self.roi_feat_size[1]
         self.in_channels = in_channels
         self.num_classes = num_classes
@@ -69,9 +61,9 @@ class BBoxHead(BaseModule):
         self.reg_predictor_cfg = reg_predictor_cfg
         self.cls_predictor_cfg = cls_predictor_cfg
 
-        self.bbox_coder = TASK_UTILS.build(_cfg_to_dict(bbox_coder))
-        self.loss_cls = MODELS.build(_cfg_to_dict(loss_cls))
-        self.loss_bbox = MODELS.build(_cfg_to_dict(loss_bbox))
+        self.bbox_coder = TASK_UTILS.build(bbox_coder)
+        self.loss_cls = MODELS.build(loss_cls)
+        self.loss_bbox = MODELS.build(loss_bbox)
 
         in_channels = self.in_channels
         if self.with_avg_pool:
@@ -84,14 +76,15 @@ class BBoxHead(BaseModule):
                 cls_channels = self.loss_cls.get_cls_channels(self.num_classes)
             else:
                 cls_channels = num_classes + 1
-            cls_predictor_cfg_ = _cfg_to_dict(self.cls_predictor_cfg).copy()
+            cls_predictor_cfg_ = self.cls_predictor_cfg.copy()
             cls_predictor_cfg_.update(in_features=in_channels, out_features=cls_channels)
             self.fc_cls = MODELS.build(cls_predictor_cfg_)
         if self.with_reg:
             box_dim = self.bbox_coder.encode_size
             out_dim_reg = box_dim if reg_class_agnostic else box_dim * num_classes
-            reg_predictor_cfg_ = _cfg_to_dict(self.reg_predictor_cfg).copy()
-            reg_predictor_cfg_.update(in_features=in_channels, out_features=out_dim_reg)
+            reg_predictor_cfg_ = self.reg_predictor_cfg.copy()
+            if isinstance(reg_predictor_cfg_, (dict, ConfigDict)):
+                reg_predictor_cfg_.update(in_features=in_channels, out_features=out_dim_reg)
             self.fc_reg = MODELS.build(reg_predictor_cfg_)
         self.debug_imgs = None
         if init_cfg is None:
@@ -119,7 +112,7 @@ class BBoxHead(BaseModule):
         """get custom_accuracy from loss_cls."""
         return getattr(self.loss_cls, "custom_accuracy", False)
 
-    def forward(self, x: Tensor) -> tuple[Tensor | None, Tensor | None]:
+    def forward(self, x: tuple[Tensor]) -> tuple:
         """Forward features from the upstream network.
 
         Args:
@@ -151,8 +144,8 @@ class BBoxHead(BaseModule):
     def get_bboxes(
         self,
         rois: Tensor,
-        cls_score: Tensor | None,
-        bbox_pred: Tensor | None,
+        cls_score: Tensor,
+        bbox_pred: Tensor,
         img_shape: tuple | None = None,
         scale_factor: Tensor | None = None,
         rescale: bool = False,
@@ -206,11 +199,7 @@ class BBoxHead(BaseModule):
         if cfg is None:
             return bboxes, scores
         else:
-            assert scores is not None
-            det_bboxes, det_labels = cast(
-                tuple[Tensor, Tensor],
-                multiclass_nms(bboxes, scores, cfg.score_thr, cfg.nms, cfg.max_per_img, return_inds=False),
-            )
+            det_bboxes, det_labels = multiclass_nms(bboxes, scores, cfg.score_thr, cfg.nms, cfg.max_per_img)
 
             return det_bboxes, det_labels
 
@@ -386,25 +375,17 @@ class BBoxHead(BaseModule):
                 The targets are only used for cascade rcnn.
         """
 
-        labels, label_weights, bbox_targets, bbox_weights = self.get_targets(
-            sampling_results,
-            rcnn_train_cfg,
-            concat=concat,
-        )
+        cls_reg_targets = self.get_targets(sampling_results, rcnn_train_cfg, concat=concat)
         losses = self.loss(
             cls_score,
             bbox_pred,
             rois,
-            labels,
-            label_weights,
-            bbox_targets,
-            bbox_weights,
+            *cls_reg_targets,
             reduction_override=reduction_override,
         )
 
         # cls_reg_targets is only for cascade rcnn
-        # bbox_targets is only for cascade rcnn
-        return dict(loss_bbox=losses, bbox_targets=(labels, label_weights, bbox_targets, bbox_weights))
+        return dict(loss_bbox=losses, bbox_targets=cls_reg_targets)
 
     def loss(
         self,
@@ -502,9 +483,9 @@ class BBoxHead(BaseModule):
 
     def predict_by_feat(
         self,
-        rois: tuple[Tensor, ...],
-        cls_scores: tuple[Tensor, ...],
-        bbox_preds: tuple[Tensor | None, ...],
+        rois: tuple[Tensor],
+        cls_scores: tuple[Tensor],
+        bbox_preds: tuple[Tensor],
         batch_img_metas: list[dict],
         rcnn_test_cfg: ConfigDict | None = None,
         rescale: bool = False,
@@ -557,8 +538,8 @@ class BBoxHead(BaseModule):
     def _predict_by_feat_single(
         self,
         roi: Tensor,
-        cls_score: Tensor | None,
-        bbox_pred: Tensor | None,
+        cls_score: Tensor,
+        bbox_pred: Tensor,
         img_meta: dict,
         rescale: bool = False,
         rcnn_test_cfg: ConfigDict | None = None,
@@ -626,9 +607,8 @@ class BBoxHead(BaseModule):
 
         if rescale and bboxes.size(0) > 0:
             assert img_meta.get("scale_factor") is not None
-            w_scale = float(img_meta["scale_factor"][0])
-            h_scale = float(img_meta["scale_factor"][1])
-            bboxes = scale_boxes(bboxes, (1.0 / w_scale, 1.0 / h_scale))
+            scale_factor = [1 / s for s in img_meta["scale_factor"]]
+            bboxes = scale_boxes(bboxes, scale_factor)
 
         # Get the inside tensor when `bboxes` is a box type
         bboxes = get_box_tensor(bboxes)
@@ -641,18 +621,13 @@ class BBoxHead(BaseModule):
             results.bboxes = bboxes
             results.scores = scores
         else:
-            assert scores is not None
-            det_bboxes, det_labels = cast(
-                tuple[Tensor, Tensor],
-                multiclass_nms(
-                    bboxes,
-                    scores,
-                    rcnn_test_cfg["score_thr"],
-                    rcnn_test_cfg["nms"],
-                    rcnn_test_cfg["max_per_img"],
-                    return_inds=False,
-                    box_dim=box_dim,
-                ),
+            det_bboxes, det_labels = multiclass_nms(
+                bboxes,
+                scores,
+                rcnn_test_cfg["score_thr"],
+                rcnn_test_cfg["nms"],
+                rcnn_test_cfg["max_per_img"],
+                box_dim=box_dim,
             )
             results.bboxes = det_bboxes[:, :-1]
             results.scores = det_bboxes[:, -1]

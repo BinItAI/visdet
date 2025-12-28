@@ -1,12 +1,7 @@
 # Copyright (c) OpenMMLab. All rights reserved.
-from __future__ import annotations
-
 import warnings
-from typing import Any, cast
 
 import torch
-from torch import Tensor
-
 import torch.nn as nn
 import torch.nn.functional as F
 
@@ -16,15 +11,15 @@ from visdet.registry import MODELS
 
 
 def cross_entropy(
-    pred: Tensor,
-    label: Tensor,
-    weight: Tensor | None = None,
-    reduction: str = "mean",
-    avg_factor: float | None = None,
-    class_weight: Tensor | None = None,
-    ignore_index: int | None = -100,
-    avg_non_ignore: bool = False,
-) -> Tensor:
+    pred,
+    label,
+    weight=None,
+    reduction="mean",
+    avg_factor=None,
+    class_weight=None,
+    ignore_index=-100,
+    avg_non_ignore=False,
+):
     """Calculate the CrossEntropy loss.
 
     Args:
@@ -53,7 +48,7 @@ def cross_entropy(
     # pytorch's official cross_entropy average loss over non-ignored elements
     # refer to https://github.com/pytorch/pytorch/blob/56b43f4fec1f76953f15a627694d4bba34588969/torch/nn/functional.py#L2660
     if (avg_factor is None) and avg_non_ignore and reduction == "mean":
-        avg_factor = float(label.numel() - (label == ignore_index).sum().item())
+        avg_factor = label.numel() - (label == ignore_index).sum().item()
 
     # apply weights and do the reduction
     if weight is not None:
@@ -63,12 +58,7 @@ def cross_entropy(
     return loss
 
 
-def _expand_onehot_labels(
-    labels: Tensor,
-    label_weights: Tensor | None,
-    label_channels: int,
-    ignore_index: int,
-) -> tuple[Tensor, Tensor, Tensor]:
+def _expand_onehot_labels(labels, label_weights, label_channels, ignore_index):
     """Expand onehot labels to match the size of prediction."""
     bin_labels = labels.new_full((labels.size(0), label_channels), 0)
     valid_mask = (labels >= 0) & (labels != ignore_index)
@@ -88,15 +78,15 @@ def _expand_onehot_labels(
 
 
 def binary_cross_entropy(
-    pred: Tensor,
-    label: Tensor,
-    weight: Tensor | None = None,
-    reduction: str = "mean",
-    avg_factor: float | None = None,
-    class_weight: Tensor | None = None,
-    ignore_index: int | None = -100,
-    avg_non_ignore: bool = False,
-) -> Tensor:
+    pred,
+    label,
+    weight=None,
+    reduction="mean",
+    avg_factor=None,
+    class_weight=None,
+    ignore_index=-100,
+    avg_non_ignore=False,
+):
     """Calculate the binary CrossEntropy loss.
 
     Args:
@@ -138,7 +128,7 @@ def binary_cross_entropy(
 
     # average loss over non-ignored elements
     if (avg_factor is None) and avg_non_ignore and reduction == "mean":
-        avg_factor = float(valid_mask.sum().item())
+        avg_factor = valid_mask.sum().item()
 
     # weighted element-wise losses
     weight = weight.float()
@@ -150,15 +140,15 @@ def binary_cross_entropy(
 
 
 def mask_cross_entropy(
-    pred: Tensor,
-    target: Tensor,
-    label: Tensor,
-    reduction: str = "mean",
-    avg_factor: float | None = None,
-    class_weight: Tensor | None = None,
-    ignore_index: int | None = None,
-    **kwargs: Any,
-) -> Tensor:
+    pred,
+    target,
+    label,
+    reduction="mean",
+    avg_factor=None,
+    class_weight=None,
+    ignore_index=None,
+    **kwargs,
+):
     """Calculate the CrossEntropy loss for masks.
 
     Args:
@@ -206,14 +196,14 @@ def mask_cross_entropy(
 class CrossEntropyLoss(nn.Module):
     def __init__(
         self,
-        use_sigmoid: bool = False,
-        use_mask: bool = False,
-        reduction: str = "mean",
-        class_weight: list[float] | None = None,
-        ignore_index: int | None = None,
-        loss_weight: float = 1.0,
-        avg_non_ignore: bool = False,
-    ) -> None:
+        use_sigmoid=False,
+        use_mask=False,
+        reduction="mean",
+        class_weight=None,
+        ignore_index=None,
+        loss_weight=1.0,
+        avg_non_ignore=False,
+    ):
         """CrossEntropyLoss.
 
         Args:
@@ -233,7 +223,6 @@ class CrossEntropyLoss(nn.Module):
         """
         super(CrossEntropyLoss, self).__init__()
         assert (use_sigmoid is False) or (use_mask is False)
-        self.cls_criterion: Any
         self.use_sigmoid = use_sigmoid
         self.use_mask = use_mask
         self.reduction = reduction
@@ -263,14 +252,14 @@ class CrossEntropyLoss(nn.Module):
 
     def forward(
         self,
-        cls_score: Tensor,
-        label: Tensor,
-        weight: Tensor | None = None,
-        avg_factor: float | None = None,
-        reduction_override: str | None = None,
-        ignore_index: int | None = None,
-        **kwargs: Any,
-    ) -> Tensor:
+        cls_score,
+        label,
+        weight=None,
+        avg_factor=None,
+        reduction_override=None,
+        ignore_index=None,
+        **kwargs,
+    ):
         """Forward function.
 
         Args:
@@ -313,15 +302,15 @@ class CrossEntropyLoss(nn.Module):
 class CrossEntropyCustomLoss(CrossEntropyLoss):
     def __init__(
         self,
-        use_sigmoid: bool = False,
-        use_mask: bool = False,
-        reduction: str = "mean",
-        num_classes: int = -1,
-        class_weight: list[float] | None = None,
-        ignore_index: int | None = None,
-        loss_weight: float = 1.0,
-        avg_non_ignore: bool = False,
-    ) -> None:
+        use_sigmoid=False,
+        use_mask=False,
+        reduction="mean",
+        num_classes=-1,
+        class_weight=None,
+        ignore_index=None,
+        loss_weight=1.0,
+        avg_non_ignore=False,
+    ):
         """CrossEntropyCustomLoss.
 
         Args:
@@ -342,7 +331,6 @@ class CrossEntropyCustomLoss(CrossEntropyLoss):
         """
         super(CrossEntropyCustomLoss, self).__init__()
         assert (use_sigmoid is False) or (use_mask is False)
-        self.cls_criterion: Any
         self.use_sigmoid = use_sigmoid
         self.use_mask = use_mask
         self.reduction = reduction
@@ -376,14 +364,14 @@ class CrossEntropyCustomLoss(CrossEntropyLoss):
         # custom accuracy of the classsifier
         self.custom_accuracy = True
 
-    def get_cls_channels(self, num_classes: int) -> int:
+    def get_cls_channels(self, num_classes):
         assert num_classes == self.num_classes
         if not self.use_sigmoid:
             return num_classes + 1
         else:
             return num_classes
 
-    def get_activation(self, cls_score: Tensor) -> Tensor:
+    def get_activation(self, cls_score):
         fine_cls_score = cls_score[:, : self.num_classes]
 
         if not self.use_sigmoid:
@@ -398,10 +386,11 @@ class CrossEntropyCustomLoss(CrossEntropyLoss):
 
         return scores
 
-    def get_accuracy(self, cls_score: Tensor, labels: Tensor) -> dict[str, Tensor]:
+    def get_accuracy(self, cls_score, labels):
         fine_cls_score = cls_score[:, : self.num_classes]
 
         pos_inds = labels < self.num_classes
-        acc_classes = cast(Tensor, accuracy(fine_cls_score[pos_inds], labels[pos_inds]))
-        acc: dict[str, Tensor] = {"acc_classes": acc_classes}
+        acc_classes = accuracy(fine_cls_score[pos_inds], labels[pos_inds])
+        acc = dict()
+        acc["acc_classes"] = acc_classes
         return acc

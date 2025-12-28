@@ -1,6 +1,4 @@
 # Copyright (c) OpenMMLab. All rights reserved.
-from typing import Any, Callable, cast
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -27,7 +25,7 @@ class NormedLinear(nn.Linear):
         self,
         *args,
         tempearture: float = 20,
-        power: float = 1.0,
+        power: int = 1.0,
         eps: float = 1e-6,
         **kwargs,
     ) -> None:
@@ -69,7 +67,7 @@ class NormedConv2d(nn.Conv2d):
         self,
         *args,
         tempearture: float = 20,
-        power: float = 1.0,
+        power: int = 1.0,
         eps: float = 1e-6,
         norm_over_kernel: bool = False,
         **kwargs,
@@ -92,10 +90,11 @@ class NormedConv2d(nn.Conv2d):
         x_ = x / (x.norm(dim=1, keepdim=True).pow(self.power) + self.eps)
         x_ = x_ * self.tempearture
 
-        conv2d_forward = getattr(self, "conv2d_forward", None)
-        if callable(conv2d_forward):
-            conv2d_forward_fn = cast(Callable[[Tensor, Tensor], Tensor], conv2d_forward)
-            x_ = conv2d_forward_fn(x_, weight_)
+        if hasattr(self, "conv2d_forward"):
+            x_ = self.conv2d_forward(x_, weight_)
         else:
-            x_ = self._conv_forward(x_, weight_, self.bias)
+            if digit_version(torch.__version__) >= digit_version("1.8"):
+                x_ = self._conv_forward(x_, weight_, self.bias)
+            else:
+                x_ = self._conv_forward(x_, weight_)
         return x_

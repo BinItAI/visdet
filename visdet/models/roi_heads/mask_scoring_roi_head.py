@@ -1,10 +1,9 @@
 # Copyright (c) OpenMMLab. All rights reserved.
-from typing import cast
-
 import torch
 
-from visdet.models.roi_heads.standard_roi_head import StandardRoIHead
 from visdet.registry import MODELS
+
+from .standard_roi_head import StandardRoIHead
 
 
 @MODELS.register_module()
@@ -32,6 +31,14 @@ class MaskScoringRoIHead(StandardRoIHead):
         mask_iou_pred = self.mask_iou_head(mask_results["mask_feats"], pos_mask_pred)
         pos_mask_iou_pred = mask_iou_pred[range(mask_iou_pred.size(0)), pos_labels]
 
+        # Get mask targets for mask iou head
+        # We need mask targets from standard mask head
+        # Wait, standard mask head might not return mask targets in its mask_loss results.
+        # Let's check FCNMaskHead.loss_and_target
+
+        # Actually, we can re-calculate them or ensure they are available.
+        # For now, assume we can get them.
+
         # Re-get mask targets as they are needed for MaskIoUHead
         mask_targets = self.mask_head.get_targets(sampling_results, batch_gt_instances, self.train_cfg)
         gt_masks = [getattr(res, "instance_masks", getattr(res, "masks", None)) for res in batch_gt_instances]
@@ -56,11 +63,9 @@ class MaskScoringRoIHead(StandardRoIHead):
             return results_list
 
         # Get mask scores
-        from visdet.structures.bbox import BaseBoxes, bbox2roi
+        from visdet.structures.bbox import bbox2roi
 
-        bboxes: list[torch.Tensor | BaseBoxes] = [
-            cast(torch.Tensor | BaseBoxes, getattr(res, "bboxes")) for res in results_list
-        ]
+        bboxes = [res.bboxes for res in results_list]
         mask_rois = bbox2roi(bboxes)
 
         # We need mask features and predictions to get mask IoU scores
@@ -68,7 +73,7 @@ class MaskScoringRoIHead(StandardRoIHead):
         mask_feats = mask_results["mask_feats"]
         mask_preds = mask_results["mask_preds"]
 
-        concat_det_labels = torch.cat([cast(torch.Tensor, getattr(res, "labels")) for res in results_list])
+        concat_det_labels = torch.cat([res.labels for res in results_list])
 
         mask_iou_pred = self.mask_iou_head(
             mask_feats,
@@ -82,10 +87,6 @@ class MaskScoringRoIHead(StandardRoIHead):
         for i in range(len(results_list)):
             if len(results_list[i]) > 0:
                 # Get mask scores from mask IoU head
-                self.mask_iou_head.get_mask_scores(
-                    mask_iou_preds[i],
-                    cast(torch.Tensor, getattr(results_list[i], "bboxes")),
-                    cast(torch.Tensor, getattr(results_list[i], "labels")),
-                )
+                self.mask_iou_head.get_mask_scores(mask_iou_preds[i], results_list[i].bboxes, results_list[i].labels)
 
         return results_list

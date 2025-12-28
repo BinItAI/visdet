@@ -1,5 +1,4 @@
 # Copyright (c) OpenMMLab. All rights reserved.
-import torch
 import torch.nn.functional as F
 from torch import Tensor, nn
 
@@ -50,12 +49,12 @@ class BFP(nn.Module):
                 norm_cfg=self.norm_cfg,
             )
 
-    def forward(self, inputs: tuple[Tensor, ...]) -> tuple[Tensor, ...]:
+    def forward(self, inputs: tuple[Tensor]) -> tuple[Tensor]:
         """Forward function."""
         assert len(inputs) == self.num_levels
 
         # step 1: gather multi-level features by resize and average
-        feats: list[Tensor] = []
+        feats = []
         gather_size = inputs[self.refine_level].size()[2:]
         for i in range(self.num_levels):
             if i < self.refine_level:
@@ -64,14 +63,14 @@ class BFP(nn.Module):
                 gathered = F.interpolate(inputs[i], size=gather_size, mode="nearest")
             feats.append(gathered)
 
-        bsf = torch.stack(feats, dim=0).mean(dim=0)
+        bsf = sum(feats) / len(feats)
 
         # step 2: refine gathered features
         if self.refine_type is not None:
             bsf = self.refine(bsf)
 
         # step 3: scatter refined features to multi-levels by a residual path
-        outs: list[Tensor] = []
+        outs = []
         for i in range(self.num_levels):
             out_size = inputs[i].size()[2:]
             if i < self.refine_level:

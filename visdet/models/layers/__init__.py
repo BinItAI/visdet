@@ -1,14 +1,8 @@
 # ruff: noqa
-from __future__ import annotations
-
 import math
-from typing import Any, cast
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch import Tensor
-
 from visdet.engine.model import BaseModule
 from visdet.engine.utils import to_2tuple
 from visdet.models.layers.bbox_nms import multiclass_nms
@@ -34,26 +28,20 @@ class AdaptivePadding(nn.Module):
             pad zero around input. Default: "corner".
     """
 
-    def __init__(
-        self,
-        kernel_size: int | tuple[int, int] = 1,
-        stride: int | tuple[int, int] = 1,
-        dilation: int | tuple[int, int] = 1,
-        padding: str = "corner",
-    ) -> None:
+    def __init__(self, kernel_size=1, stride=1, dilation=1, padding="corner"):
         super().__init__()
         assert padding in ("same", "corner")
 
-        kernel_size = cast(tuple[int, int], to_2tuple(kernel_size))
-        stride = cast(tuple[int, int], to_2tuple(stride))
-        dilation = cast(tuple[int, int], to_2tuple(dilation))
+        kernel_size = to_2tuple(kernel_size)
+        stride = to_2tuple(stride)
+        dilation = to_2tuple(dilation)
 
         self.padding = padding
         self.kernel_size = kernel_size
         self.stride = stride
         self.dilation = dilation
 
-    def get_pad_shape(self, input_shape: tuple[int, int]) -> tuple[int, int]:
+    def get_pad_shape(self, input_shape):
         input_h, input_w = input_shape
         kernel_h, kernel_w = self.kernel_size
         stride_h, stride_w = self.stride
@@ -69,8 +57,8 @@ class AdaptivePadding(nn.Module):
         )
         return pad_h, pad_w
 
-    def forward(self, x: Tensor) -> Tensor:
-        pad_h, pad_w = self.get_pad_shape((int(x.size(-2)), int(x.size(-1))))
+    def forward(self, x):
+        pad_h, pad_w = self.get_pad_shape(x.size()[-2:])
         if pad_h > 0 or pad_w > 0:
             if self.padding == "corner":
                 x = F.pad(x, [0, pad_w, 0, pad_h])
@@ -84,20 +72,20 @@ class PatchEmbed(BaseModule):
 
     def __init__(
         self,
-        img_size: int = 224,
-        patch_size: int = 4,
-        in_channels: int = 3,
-        embed_dims: int = 96,
-        norm_cfg: dict | None = None,
-        conv_type: str = "Conv2d",
-        kernel_size: int | None = None,
-        stride: int | None = None,
-        padding: str | int | tuple[int, int] = "corner",
-        dilation: int | tuple[int, int] = 1,
-        bias: bool = True,
-        input_size: tuple[int, int] | None = None,
-        init_cfg: dict | list[dict] | None = None,
-    ) -> None:
+        img_size=224,
+        patch_size=4,
+        in_channels=3,
+        embed_dims=96,
+        norm_cfg=None,
+        conv_type="Conv2d",
+        kernel_size=None,
+        stride=None,
+        padding="corner",
+        dilation=1,
+        bias=True,
+        input_size=None,
+        init_cfg=None,
+    ):
         super().__init__(init_cfg=init_cfg)
         # Handle different parameter names
         if kernel_size is not None:
@@ -108,16 +96,15 @@ class PatchEmbed(BaseModule):
         self.img_size = img_size
         self.patch_size = patch_size
 
-        kernel_size_tuple = cast(tuple[int, int], to_2tuple(patch_size))
-        stride_tuple = cast(tuple[int, int], to_2tuple(stride))
-        dilation_tuple = cast(tuple[int, int], to_2tuple(dilation))
+        kernel_size = to_2tuple(patch_size)
+        stride = to_2tuple(stride)
+        dilation = to_2tuple(dilation)
 
-        self.adap_padding: AdaptivePadding | None
         if isinstance(padding, str):
             self.adap_padding = AdaptivePadding(
-                kernel_size=kernel_size_tuple,
-                stride=stride_tuple,
-                dilation=dilation_tuple,
+                kernel_size=kernel_size,
+                stride=stride,
+                dilation=dilation,
                 padding=padding,
             )
             # disable the padding of conv
@@ -125,32 +112,31 @@ class PatchEmbed(BaseModule):
         else:
             self.adap_padding = None
 
-        padding_tuple = cast(tuple[int, int], to_2tuple(padding))
+        padding = to_2tuple(padding)
 
         self.proj = nn.Conv2d(
             in_channels,
             embed_dims,
-            kernel_size=kernel_size_tuple,
-            stride=stride_tuple,
-            padding=padding_tuple,
-            dilation=dilation_tuple,
+            kernel_size=kernel_size,
+            stride=stride,
+            padding=padding,
+            dilation=dilation,
             bias=bias,
         )
 
-        self.norm: nn.LayerNorm | None
         if norm_cfg is not None:
             self.norm = nn.LayerNorm(embed_dims)
         else:
             self.norm = None
 
-    def forward(self, x: Tensor) -> tuple[Tensor, tuple[int, int]]:
+    def forward(self, x):
         B, C, H, W = x.shape
 
         if self.adap_padding:
             x = self.adap_padding(x)
 
         x = self.proj(x)  # B, embed_dims, H/patch_size, W/patch_size
-        Hp, Wp = int(x.shape[2]), int(x.shape[3])
+        Hp, Wp = x.shape[2], x.shape[3]
         x = x.flatten(2).transpose(1, 2)  # B, H*W/patch_size^2, embed_dims
         if self.norm is not None:
             x = self.norm(x)

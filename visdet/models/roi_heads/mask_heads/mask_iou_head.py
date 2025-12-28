@@ -15,7 +15,7 @@ class MaskIoUHead(nn.Module):
         self,
         num_convs: int = 4,
         num_fcs: int = 2,
-        roi_feat_size: int | tuple[int, int] = 14,
+        roi_feat_size: int = 14,
         in_channels: int = 256,
         conv_out_channels: int = 256,
         fc_out_channels: int = 1024,
@@ -39,10 +39,8 @@ class MaskIoUHead(nn.Module):
             self.convs.append(nn.Conv2d(ch, self.conv_out_channels, 3, stride=stride, padding=1))
 
         if isinstance(roi_feat_size, int):
-            roi_feat_size_tuple = (roi_feat_size, roi_feat_size)
-        else:
-            roi_feat_size_tuple = roi_feat_size
-        pooled_area = (roi_feat_size_tuple[0] // 2) * (roi_feat_size_tuple[1] // 2)
+            roi_feat_size = (roi_feat_size, roi_feat_size)
+        pooled_area = (roi_feat_size[0] // 2) * (roi_feat_size[1] // 2)
         self.fcs = nn.ModuleList()
         for i in range(num_fcs):
             ch = self.conv_out_channels * pooled_area if i == 0 else self.fc_out_channels
@@ -106,17 +104,17 @@ class MaskIoUHead(nn.Module):
         if num_pos > 0:
             area_ratios = []
             proposals_np = pos_proposals.cpu().numpy()
-            pos_assigned_gt_inds_np = pos_assigned_gt_inds.cpu().numpy()
+            pos_assigned_gt_inds = pos_assigned_gt_inds.cpu().numpy()
             # compute mask areas of gt instances
             gt_instance_mask_area = gt_masks.areas
             for i in range(num_pos):
-                gt_mask = gt_masks[pos_assigned_gt_inds_np[i]]
+                gt_mask = gt_masks[pos_assigned_gt_inds[i]]
 
                 # crop the gt mask inside the proposal
                 bbox = proposals_np[i, :].astype(np.int32)
                 gt_mask_in_proposal = gt_mask.crop(bbox)
 
-                ratio = gt_mask_in_proposal.areas[0] / (gt_instance_mask_area[pos_assigned_gt_inds_np[i]] + 1e-7)
+                ratio = gt_mask_in_proposal.areas[0] / (gt_instance_mask_area[pos_assigned_gt_inds[i]] + 1e-7)
                 area_ratios.append(ratio)
             area_ratios = torch.from_numpy(np.stack(area_ratios)).float().to(pos_proposals.device)
         else:
@@ -127,6 +125,6 @@ class MaskIoUHead(nn.Module):
         """Get the mask scores."""
         inds = range(det_labels.size(0))
         mask_scores = mask_iou_pred[inds, det_labels] * det_bboxes[inds, -1]
-        mask_scores_np = mask_scores.cpu().numpy()
-        det_labels_np = det_labels.cpu().numpy()
-        return [mask_scores_np[det_labels_np == i] for i in range(self.num_classes)]
+        mask_scores = mask_scores.cpu().numpy()
+        det_labels = det_labels.cpu().numpy()
+        return [mask_scores[det_labels == i] for i in range(self.num_classes)]

@@ -1,9 +1,6 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import logging
 import warnings
-from typing import Any, cast
-
-from torch import Tensor
 
 import torch.nn as nn
 import torch.utils.checkpoint as cp
@@ -39,19 +36,19 @@ class BasicBlock(BaseModule):
 
     def __init__(
         self,
-        inplanes: int,
-        planes: int,
-        stride: int = 1,
-        dilation: int = 1,
-        downsample: nn.Module | None = None,
-        style: str = "pytorch",
-        with_cp: bool = False,
-        conv_cfg: dict | None = None,
-        norm_cfg: dict = dict(type="BN"),
-        dcn: dict | None = None,
-        plugins: list[dict] | None = None,
-        init_cfg: dict | list[dict] | None = None,
-    ) -> None:
+        inplanes,
+        planes,
+        stride=1,
+        dilation=1,
+        downsample=None,
+        style="pytorch",
+        with_cp=False,
+        conv_cfg=None,
+        norm_cfg=dict(type="BN"),
+        dcn=None,
+        plugins=None,
+        init_cfg=None,
+    ):
         super(BasicBlock, self).__init__(init_cfg=init_cfg)
         assert dcn is None, "DCN is not supported in BasicBlock"
         assert plugins is None, "Plugins are not supported yet"
@@ -89,11 +86,12 @@ class BasicBlock(BaseModule):
         """nn.Module: normalization layer after the second convolution layer"""
         return getattr(self, self.norm2_name)
 
-    def forward(self, x: Tensor) -> Tensor:
+    def forward(self, x):
         """Forward function."""
 
         def _inner_forward(x):
             identity = x
+
             out = self.conv1(x)
             out = self.norm1(out)
             out = self.relu(out)
@@ -140,19 +138,19 @@ class Bottleneck(BaseModule):
 
     def __init__(
         self,
-        inplanes: int,
-        planes: int,
-        stride: int = 1,
-        dilation: int = 1,
-        downsample: nn.Module | None = None,
-        style: str = "pytorch",
-        with_cp: bool = False,
-        conv_cfg: dict | None = None,
-        norm_cfg: dict = dict(type="BN"),
-        dcn: dict | None = None,
-        plugins: list[dict] | None = None,
-        init_cfg: dict | list[dict] | None = None,
-    ) -> None:
+        inplanes,
+        planes,
+        stride=1,
+        dilation=1,
+        downsample=None,
+        style="pytorch",
+        with_cp=False,
+        conv_cfg=None,
+        norm_cfg=dict(type="BN"),
+        dcn=None,
+        plugins=None,
+        init_cfg=None,
+    ):
         """Bottleneck block for ResNet.
 
         If style is "pytorch", the stride-two layer is the 3x3 conv layer, if
@@ -234,28 +232,21 @@ class Bottleneck(BaseModule):
         """nn.Module: normalization layer after the third convolution layer"""
         return getattr(self, self.norm3_name)
 
-    def forward(self, x: Tensor) -> Tensor:
+    def forward(self, x):
         """Forward function."""
 
-        def _inner_forward(x: Tensor) -> Tensor:
-            conv1 = cast(nn.Module, self.conv1)
-            conv2 = cast(nn.Module, self.conv2)
-            conv3 = cast(nn.Module, self.conv3)
-            norm1 = cast(nn.Module, self.norm1)
-            norm2 = cast(nn.Module, self.norm2)
-            norm3 = cast(nn.Module, self.norm3)
-
+        def _inner_forward(x):
             identity = x
-            out = conv1(x)
-            out = norm1(out)
+            out = self.conv1(x)
+            out = self.norm1(out)
             out = self.relu(out)
 
-            out = conv2(out)
-            out = norm2(out)
+            out = self.conv2(out)
+            out = self.norm2(out)
             out = self.relu(out)
 
-            out = conv3(out)
-            out = norm3(out)
+            out = self.conv3(out)
+            out = self.norm3(out)
 
             if self.downsample is not None:
                 identity = self.downsample(x)
@@ -521,7 +512,7 @@ class ResNet(BaseModule):
             for param in m.parameters():
                 param.requires_grad = False
 
-    def forward(self, x: Tensor) -> tuple[Tensor, ...]:
+    def forward(self, x):
         """Forward function."""
         if self.deep_stem:
             x = self.stem(x)
@@ -530,7 +521,7 @@ class ResNet(BaseModule):
             x = self.norm1(x)
             x = self.relu(x)
         x = self.maxpool(x)
-        outs: list[Tensor] = []
+        outs = []
         for i, layer_name in enumerate(self.res_layers):
             res_layer = getattr(self, layer_name)
             x = res_layer(x)
