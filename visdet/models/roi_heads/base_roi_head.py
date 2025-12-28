@@ -1,5 +1,6 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 from abc import ABCMeta, abstractmethod
+from typing import Any
 
 from torch import Tensor
 
@@ -21,13 +22,17 @@ class BaseRoIHead(BaseModule, metaclass=ABCMeta):
         shared_head: OptConfigType = None,
         train_cfg: OptConfigType = None,
         test_cfg: OptConfigType = None,
-        init_cfg: OptMultiConfig = None,
+        init_cfg: dict | list[dict] | None = None,
     ) -> None:
         super().__init__(init_cfg=init_cfg)
         self.train_cfg = train_cfg
         self.test_cfg = test_cfg
         if shared_head is not None:
-            self.shared_head = MODELS.build(shared_head)
+            if isinstance(shared_head, dict):
+                shared_head_cfg: dict[Any, Any] = shared_head
+            else:
+                shared_head_cfg = {"type": shared_head}
+            self.shared_head = MODELS.build(shared_head_cfg)
 
         if bbox_head is not None:
             self.init_bbox_head(bbox_roi_extractor, bbox_head)
@@ -68,9 +73,30 @@ class BaseRoIHead(BaseModule, metaclass=ABCMeta):
         pass
 
     @abstractmethod
+    def predict_bbox(
+        self,
+        x: tuple[Tensor, ...],
+        batch_img_metas: list[dict],
+        rpn_results_list: InstanceList,
+        rcnn_test_cfg: OptConfigType,
+        rescale: bool = False,
+    ) -> InstanceList:
+        """Predict bbox results from features."""
+
+    @abstractmethod
+    def predict_mask(
+        self,
+        x: tuple[Tensor, ...],
+        batch_img_metas: list[dict],
+        results_list: InstanceList,
+        rescale: bool = False,
+    ) -> InstanceList:
+        """Predict mask results from features."""
+
+    @abstractmethod
     def loss(
         self,
-        x: tuple[Tensor],
+        x: tuple[Tensor, ...],
         rpn_results_list: InstanceList,
         batch_data_samples: SampleList,
         **kwargs,
@@ -80,7 +106,7 @@ class BaseRoIHead(BaseModule, metaclass=ABCMeta):
 
     def predict(
         self,
-        x: tuple[Tensor],
+        x: tuple[Tensor, ...],
         rpn_results_list: InstanceList,
         batch_data_samples: SampleList,
         rescale: bool = False,

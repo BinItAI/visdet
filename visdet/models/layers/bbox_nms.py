@@ -1,11 +1,19 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 
+from typing import Any
+
 import torch
 from torch import Tensor
 
 from visdet.cv.ops.nms import batched_nms
 from visdet.structures.bbox import bbox_overlaps
 from visdet.utils import ConfigType
+
+
+def _cfg_to_dict(cfg: ConfigType) -> dict[str, Any]:
+    if isinstance(cfg, dict):
+        return cfg
+    return {"type": cfg}
 
 
 def multiclass_nms(
@@ -89,7 +97,7 @@ def multiclass_nms(
         else:
             return dets, labels
 
-    dets, keep = batched_nms(bboxes, scores, labels, nms_cfg)
+    dets, keep = batched_nms(bboxes, scores, labels, _cfg_to_dict(nms_cfg))
 
     if max_num > 0:
         dets = dets[:max_num]

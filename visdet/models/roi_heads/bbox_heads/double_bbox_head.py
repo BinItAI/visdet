@@ -1,5 +1,6 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import torch.nn as nn
+from torch import Tensor
 
 from visdet.cv.cnn import ConvModule
 from visdet.models.backbones.resnet import Bottleneck
@@ -117,9 +118,11 @@ class DoubleConvFCBBoxHead(BBoxHead):
         self.fc_cls = nn.Linear(self.fc_out_channels, self.num_classes + 1)
         self.relu = nn.ReLU(inplace=True)
 
-    def forward(self, x_cls, x_reg):
+    def forward(self, x_cls: Tensor, x_reg: Tensor | None = None):
+        x_reg_tensor = x_cls if x_reg is None else x_reg
+
         # conv head
-        x_conv = self.res_block(x_reg)
+        x_conv = self.res_block(x_reg_tensor)
 
         for conv in self.conv_branch:
             x_conv = conv(x_conv)

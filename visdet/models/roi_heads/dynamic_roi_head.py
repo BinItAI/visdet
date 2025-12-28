@@ -1,10 +1,15 @@
 # Copyright (c) OpenMMLab. All rights reserved.
+from __future__ import annotations
+
 import numpy as np
 import torch
+from torch import Tensor
+from typing import Any, cast
 
+from visdet.engine.structures import InstanceData
+from visdet.models.roi_heads.standard_roi_head import StandardRoIHead
 from visdet.registry import MODELS
-
-from .standard_roi_head import StandardRoIHead
+from visdet.structures import DetDataSample
 
 EPS = 1e-15
 
@@ -20,13 +25,27 @@ class DynamicRoIHead(StandardRoIHead):
         # the beta history of the past `update_iter_interval` iterations
         self.beta_history = []
 
-    def loss(self, x, rpn_results_list, batch_data_samples):
+    def loss(
+        self,
+        x: tuple[Tensor, ...],
+        rpn_results_list: list[InstanceData],
+        batch_data_samples: list[DetDataSample],
+        **kwargs: Any,
+    ) -> dict[Any, Any]:
         """Calculate losses from a batch of inputs and data samples."""
         num_imgs = len(batch_data_samples)
         batch_gt_instances = [data_samples.gt_instances for data_samples in batch_data_samples]
         batch_gt_instances_ignore = [
             getattr(data_samples, "ignored_instances", None) for data_samples in batch_data_samples
         ]
+
+        assert self.train_cfg is not None
+        assert self.bbox_assigner is not None
+        assert self.bbox_sampler is not None
+
+        train_cfg = cast(dict[str, Any], self.train_cfg)
+        bbox_assigner = self.bbox_assigner
+        bbox_sampler = self.bbox_sampler
 
         sampling_results = []
         cur_iou = []
@@ -36,12 +55,12 @@ class DynamicRoIHead(StandardRoIHead):
             if "bboxes" in rpn_results:
                 rpn_results.priors = rpn_results.pop("bboxes")
 
-            assign_result = self.bbox_assigner.assign(rpn_results, batch_gt_instances[i], batch_gt_instances_ignore[i])
-            sampling_result = self.bbox_sampler.sample(assign_result, rpn_results, batch_gt_instances[i])
+            assign_result = bbox_assigner.assign(rpn_results, batch_gt_instances[i], batch_gt_instances_ignore[i])
+            sampling_result = bbox_sampler.sample(assign_result, rpn_results, batch_gt_instances[i])
             sampling_results.append(sampling_result)
 
             # record the `iou_topk`-th largest IoU in an image
-            dynamic_cfg = self.train_cfg.get("dynamic_rcnn", self.train_cfg)
+            dynamic_cfg = train_cfg.get("dynamic_rcnn", train_cfg)
             iou_topk = min(
                 dynamic_cfg.get("iou_topk", 75),
                 len(assign_result.max_overlaps),
@@ -60,7 +79,7 @@ class DynamicRoIHead(StandardRoIHead):
         bbox_results = self.bbox_loss(x, sampling_results)
 
         # update IoU threshold and SmoothL1 beta
-        dynamic_cfg = self.train_cfg.get("dynamic_rcnn", self.train_cfg)
+        dynamic_cfg = train_cfg.get("dynamic_rcnn", train_cfg)
         update_iter_interval = dynamic_cfg.get("update_iter_interval", 100)
         if len(self.iou_history) % update_iter_interval == 0:
             self.update_hyperparameters()
@@ -68,6 +87,9 @@ class DynamicRoIHead(StandardRoIHead):
         return bbox_results
 
     def bbox_loss(self, x, sampling_results):
+        assert self.train_cfg is not None
+        train_cfg = cast(dict[str, Any], self.train_cfg)
+
         from visdet.models.task_modules.assigners import get_box_tensor
         from visdet.structures.bbox import bbox2roi
 
@@ -86,7 +108,7 @@ class DynamicRoIHead(StandardRoIHead):
         num_pos = len(pos_inds)
         if num_pos > 0:
             cur_target = bbox_targets_vals[pos_inds, :2].abs().mean(dim=1)
-            dynamic_cfg = self.train_cfg.get("dynamic_rcnn", self.train_cfg)
+            dynamic_cfg = train_cfg.get("dynamic_rcnn", train_cfg)
             beta_topk = min(dynamic_cfg.get("beta_topk", 10) * len(sampling_results), num_pos)
             cur_target = torch.kthvalue(cur_target, beta_topk)[0].item()
             self.beta_history.append(cur_target)
@@ -94,14 +116,19 @@ class DynamicRoIHead(StandardRoIHead):
         loss_bbox = self.bbox_head.loss(bbox_results["cls_score"], bbox_results["bbox_pred"], rois, *bbox_targets)
         return loss_bbox
 
-    def update_hyperparameters(self):
+    def update_hyperparameters(self) -> None:
         """Update hyperparameters."""
-        dynamic_cfg = self.train_cfg.get("dynamic_rcnn", self.train_cfg)
+        assert self.train_cfg is not None
+        train_cfg = cast(dict[str, Any], self.train_cfg)
+        dynamic_cfg = train_cfg.get("dynamic_rcnn", train_cfg)
         new_iou_thr = max(dynamic_cfg.get("initial_iou", 0.4), np.mean(self.iou_history))
         self.iou_history = []
-        self.bbox_assigner.pos_iou_thr = new_iou_thr
-        self.bbox_assigner.neg_iou_thr = new_iou_thr
-        self.bbox_assigner.min_pos_iou = new_iou_thr
+
+        assert self.bbox_assigner is not None
+        bbox_assigner = self.bbox_assigner
+        bbox_assigner.pos_iou_thr = new_iou_thr
+        bbox_assigner.neg_iou_thr = new_iou_thr
+        bbox_assigner.min_pos_iou = new_iou_thr
 
         if len(self.beta_history) > 0:
             if np.median(self.beta_history) < EPS:

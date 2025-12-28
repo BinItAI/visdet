@@ -1,5 +1,6 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 from abc import ABCMeta, abstractmethod
+from typing import Any
 
 import torch
 import torch.nn as nn
@@ -27,7 +28,7 @@ class BaseRoIExtractor(BaseModule, metaclass=ABCMeta):
         roi_layer: ConfigType,
         out_channels: int,
         featmap_strides: list[int],
-        init_cfg: OptMultiConfig = None,
+        init_cfg: dict | list[dict] | None = None,
     ) -> None:
         super().__init__(init_cfg=init_cfg)
         self.roi_layers = self.build_roi_layers(roi_layer, featmap_strides)
@@ -56,7 +57,11 @@ class BaseRoIExtractor(BaseModule, metaclass=ABCMeta):
                 feature map.
         """
 
-        cfg = layer_cfg.copy()
+        cfg: dict[str, Any]
+        if isinstance(layer_cfg, dict):
+            cfg = layer_cfg.copy()
+        else:
+            cfg = {"type": layer_cfg}
         layer_type = cfg.pop("type")
         if isinstance(layer_type, str):
             assert hasattr(ops, layer_type)

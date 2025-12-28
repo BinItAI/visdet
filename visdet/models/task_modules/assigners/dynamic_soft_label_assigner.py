@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Optional
+from typing import Any, Optional, cast
 
 import torch
 import torch.nn.functional as F
@@ -56,14 +56,18 @@ class DynamicSoftLabelAssigner(BaseAssigner):
         gt_instances_ignore: Optional[InstanceData] = None,
         **kwargs,
     ) -> AssignResult:
-        gt_bboxes = gt_instances.bboxes
-        gt_labels = gt_instances.labels
-        num_gt = gt_bboxes.size(0)
+        gt_bboxes = cast(Tensor | BaseBoxes, getattr(gt_instances, "bboxes"))
+        gt_labels = cast(Tensor, getattr(gt_instances, "labels"))
+        if isinstance(gt_bboxes, BaseBoxes):
+            num_gt = len(gt_bboxes)
+        else:
+            num_gt = gt_bboxes.size(0)
+        num_gt = int(num_gt)
 
-        decoded_bboxes = pred_instances.bboxes
-        pred_scores = pred_instances.scores
-        priors = pred_instances.priors
-        num_bboxes = decoded_bboxes.size(0)
+        decoded_bboxes = cast(Tensor, getattr(pred_instances, "bboxes"))
+        pred_scores = cast(Tensor, getattr(pred_instances, "scores"))
+        priors = cast(Tensor, getattr(pred_instances, "priors"))
+        num_bboxes = int(decoded_bboxes.size(0))
 
         assigned_gt_inds = decoded_bboxes.new_full((num_bboxes,), 0, dtype=torch.long)
 
@@ -85,7 +89,7 @@ class DynamicSoftLabelAssigner(BaseAssigner):
 
         valid_decoded_bbox = decoded_bboxes[valid_mask]
         valid_pred_scores = pred_scores[valid_mask]
-        num_valid = valid_decoded_bbox.size(0)
+        num_valid = int(valid_decoded_bbox.size(0))
 
         if num_valid == 0:
             max_overlaps = decoded_bboxes.new_zeros((num_bboxes,))
@@ -144,7 +148,7 @@ class DynamicSoftLabelAssigner(BaseAssigner):
         topk_ious, _ = torch.topk(pairwise_ious, candidate_topk, dim=0)
         dynamic_ks = torch.clamp(topk_ious.sum(0).int(), min=1)
         for gt_idx in range(num_gt):
-            _, pos_idx = torch.topk(cost[:, gt_idx], k=dynamic_ks[gt_idx], largest=False)
+            _, pos_idx = torch.topk(cost[:, gt_idx], k=int(dynamic_ks[gt_idx].item()), largest=False)
             matching_matrix[:, gt_idx][pos_idx] = 1
 
         prior_match_gt_mask = matching_matrix.sum(1) > 1

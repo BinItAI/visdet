@@ -1,10 +1,13 @@
 # ruff: noqa
 from abc import ABCMeta, abstractmethod
-import torch
+from typing import Any, cast
+
 import numpy as np
+import torch
+
+from visdet.engine.structures import InstanceData
 from visdet.registry import TASK_UTILS
 from visdet.utils import util_mixins
-from visdet.engine.structures import InstanceData
 
 
 class SamplingResult(util_mixins.NiceRepr):
@@ -66,7 +69,14 @@ class SamplingResult(util_mixins.NiceRepr):
 class BaseSampler(metaclass=ABCMeta):
     """Base class of samplers."""
 
-    def __init__(self, num, pos_fraction, neg_pos_ub=-1, add_gt_as_proposals=True, **kwargs):
+    def __init__(
+        self,
+        num: int,
+        pos_fraction: float,
+        neg_pos_ub: int = -1,
+        add_gt_as_proposals: bool = True,
+        **kwargs: Any,
+    ) -> None:
         self.num = num
         self.pos_fraction = pos_fraction
         self.neg_pos_ub = neg_pos_ub
@@ -76,19 +86,21 @@ class BaseSampler(metaclass=ABCMeta):
         self.context = kwargs.pop("context", None)
 
     @abstractmethod
-    def _sample_pos(self, assign_result, num_expected, **kwargs):
+    def _sample_pos(self, assign_result: Any, num_expected: int, **kwargs: Any) -> torch.Tensor:
         """Sample positive samples."""
-        pass
+        raise NotImplementedError
 
     @abstractmethod
-    def _sample_neg(self, assign_result, num_expected, **kwargs):
+    def _sample_neg(self, assign_result: Any, num_expected: int, **kwargs: Any) -> torch.Tensor:
         """Sample negative samples."""
-        pass
+        raise NotImplementedError
 
-    def sample(self, assign_result, pred_instances: InstanceData, gt_instances: InstanceData, **kwargs):
+    def sample(
+        self, assign_result: Any, pred_instances: InstanceData, gt_instances: InstanceData, **kwargs: Any
+    ) -> SamplingResult:
         """Sample positive and negative bboxes."""
-        bboxes = pred_instances.priors
-        gt_bboxes = gt_instances.bboxes
+        bboxes = cast(torch.Tensor, getattr(pred_instances, "priors"))
+        gt_bboxes = cast(torch.Tensor, getattr(gt_instances, "bboxes"))
         gt_labels = getattr(gt_instances, "labels", None)
 
         if len(bboxes.shape) < 2:
@@ -135,10 +147,12 @@ class PseudoSampler(BaseSampler):
     def _sample_neg(self, assign_result, num_expected, **kwargs):
         return torch.nonzero(assign_result.gt_inds == 0, as_tuple=False).squeeze(-1)
 
-    def sample(self, assign_result, pred_instances: InstanceData, gt_instances: InstanceData, **kwargs):
+    def sample(
+        self, assign_result: Any, pred_instances: InstanceData, gt_instances: InstanceData, **kwargs: Any
+    ) -> SamplingResult:
         """Directly returns the positive and negative indices."""
-        priors = pred_instances.priors
-        gt_bboxes = gt_instances.bboxes
+        priors = cast(torch.Tensor, getattr(pred_instances, "priors"))
+        gt_bboxes = cast(torch.Tensor, getattr(gt_instances, "bboxes"))
 
         pos_inds = self._sample_pos(assign_result, 0)
         neg_inds = self._sample_neg(assign_result, 0)
@@ -163,7 +177,7 @@ class RandomSampler(BaseSampler):
     def __init__(self, num, pos_fraction, neg_pos_ub=-1, add_gt_as_proposals=True, **kwargs):
         super().__init__(num, pos_fraction, neg_pos_ub, add_gt_as_proposals, **kwargs)
 
-    def random_choice(self, gallery, num):
+    def random_choice(self, gallery: Any, num: int) -> torch.Tensor | np.ndarray:
         """Random select some elements from the gallery."""
         assert len(gallery) >= num
 
@@ -203,7 +217,15 @@ class RandomSampler(BaseSampler):
 class IoUBalancedNegSampler(RandomSampler):
     """IoU Balanced Sampling."""
 
-    def __init__(self, num, pos_fraction, floor_thr=-1, floor_fraction=0, num_bins=3, **kwargs):
+    def __init__(
+        self,
+        num: int,
+        pos_fraction: float,
+        floor_thr: int = -1,
+        floor_fraction: float = 0.0,
+        num_bins: int = 3,
+        **kwargs: Any,
+    ) -> None:
         super().__init__(num, pos_fraction, **kwargs)
         self.floor_thr = floor_thr
         self.floor_fraction = floor_fraction
@@ -305,14 +327,17 @@ class InstanceBalancedPosSampler(RandomSampler):
             unique_gt_inds = gt_inds.unique()
             num_gts = unique_gt_inds.numel()
 
-            pos_inds_from_instance = []
+            pos_inds_from_instance: list[torch.Tensor] = []
             if num_expected >= num_gts:
                 # at least one sample per instance
                 avg_num_per_instance = int(num_expected / num_gts)
                 for i in range(num_gts):
                     instance_pos_inds = pos_inds[gt_inds == unique_gt_inds[i]]
                     if instance_pos_inds.numel() > avg_num_per_instance:
-                        sampled_instance_pos_inds = self.random_choice(instance_pos_inds, avg_num_per_instance)
+                        sampled_instance_pos_inds = cast(
+                            torch.Tensor,
+                            self.random_choice(instance_pos_inds, avg_num_per_instance),
+                        )
                     else:
                         sampled_instance_pos_inds = instance_pos_inds
                     pos_inds_from_instance.append(sampled_instance_pos_inds)
@@ -326,13 +351,23 @@ class InstanceBalancedPosSampler(RandomSampler):
                         extra_inds = self.random_choice(gallery_inds, remaining_num)
                     else:
                         extra_inds = np.array(gallery_inds, dtype=int)
-                    pos_inds_from_instance.append(torch.from_numpy(extra_inds).to(pos_inds.device))
+
+                    if isinstance(extra_inds, torch.Tensor):
+                        extra_inds_tensor = extra_inds.to(pos_inds.device)
+                    else:
+                        extra_inds_tensor = torch.from_numpy(extra_inds).to(pos_inds.device)
+                    pos_inds_from_instance.append(extra_inds_tensor)
             else:
                 # sample instances and then sample one bbox per instance
-                sampled_instance_indices = self.random_choice(range(num_gts), num_expected)
-                for i in sampled_instance_indices:
+                sampled_instance_indices = self.random_choice(list(range(num_gts)), num_expected)
+                if isinstance(sampled_instance_indices, torch.Tensor):
+                    sampled_instance_indices_list = [int(i) for i in sampled_instance_indices.cpu().tolist()]
+                else:
+                    sampled_instance_indices_list = [int(i) for i in sampled_instance_indices.tolist()]
+
+                for i in sampled_instance_indices_list:
                     instance_pos_inds = pos_inds[gt_inds == unique_gt_inds[i]]
-                    pos_inds_from_instance.append(self.random_choice(instance_pos_inds, 1))
+                    pos_inds_from_instance.append(cast(torch.Tensor, self.random_choice(instance_pos_inds, 1)))
 
             return torch.cat(pos_inds_from_instance)
 
