@@ -109,43 +109,6 @@ This framework is going to be designed for much better usability than your avera
 
 ---
 
-## ⚡ Modern Python Tooling
-
-visdet embraces the next generation of Python development tools that are redefining the ecosystem. These tools share a common philosophy: **rewrite it in Rust** for 10-100x performance improvements, better error messages, and zero-config defaults.
-
-### [uv](https://docs.astral.sh/uv/)
-The Python package installer and resolver that's 10-100x faster than pip. Created by Astral (the Ruff team), uv is becoming the standard for Python package management. We use it for all development and recommend it for installation.
-
-```bash
-uv pip install visdet  # Installs in seconds, not minutes
-```
-
-### [Ruff](https://docs.astral.sh/ruff/)
-An extremely fast Python linter and formatter written in Rust. Replaces Flake8, Black, isort, pyupgrade, and dozens of other tools with a single, blazingly fast binary. Configured in `pyproject.toml`.
-
-```bash
-uv run ruff check --fix .  # Lint and auto-fix
-uv run ruff format .       # Format code
-```
-
-### [prek](https://github.com/j178/prek)
-A faster, drop-in replacement for pre-commit, written in Rust. Single binary with no dependencies, fully compatible with existing `.pre-commit-config.yaml` files. Runs hooks in parallel with better caching and uses uv for Python environments. Already powering projects like Apache Airflow.
-
-```bash
-uv run prek run              # Run on staged files
-uv run prek run --all-files  # Run on entire repo
-```
-
-### [ty](https://github.com/astral-sh/ty) & [Zuban](https://github.com/zubanls/zuban)
-The new generation of Rust-based Python type checkers. **ty** is Astral's entry (from the uv/Ruff team), while **Zuban** is by the author of Jedi. Both are 20-200x faster than Mypy. We currently use Zuban for its Mypy compatibility (95%+ test suite pass rate) and leading conformance scores, but ty is maturing rapidly and worth watching.
-
-### [Skylos](https://github.com/duriantaco/skylos)
-Dead code detection and security vulnerability scanning. Uses confidence-based analysis to handle Python's dynamic nature, with built-in secrets scanning and dangerous pattern detection (eval, exec, shell injection, etc.).
-
-> **Philosophy**: Life is too short for slow tools. The Rust-based Python tooling revolution (led by Astral) is making Python development faster and more enjoyable. We're early adopters because these tools genuinely improve developer experience.
-
----
-
 ## 🚀 Quick Start
 
 ### Installation
