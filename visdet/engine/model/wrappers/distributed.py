@@ -19,6 +19,29 @@ MODEL_WRAPPERS.register_module(module=DataParallel)
 
 
 @MODEL_WRAPPERS.register_module(force=True)
+class MMDataParallel(DataParallel):
+    """A data parallel model wrapper for inference.
+
+    Compared with :class:`torch.nn.parallel.DataParallel`, this wrapper adds
+    :meth:`val_step` and :meth:`test_step` so it can be used with visdet's
+    higher-level APIs that expect these methods.
+
+    Note:
+        This wrapper parallelizes the model forward pass across multiple GPUs
+        within a single process. For best performance, pass a batch of images
+        (e.g. a list of image paths/arrays) to :func:`visdet.apis.inference_detector`.
+    """
+
+    def val_step(self, data: dict | tuple | list) -> list:
+        data = self.module.data_preprocessor(data, False)
+        return self(**data, mode="predict")
+
+    def test_step(self, data: dict | tuple | list) -> list:
+        data = self.module.data_preprocessor(data, False)
+        return self(**data, mode="predict")
+
+
+@MODEL_WRAPPERS.register_module(force=True)
 class MMDistributedDataParallel(DistributedDataParallel):
     """A distributed model wrapper used for training,testing and validation in
     loop.

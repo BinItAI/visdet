@@ -16,7 +16,7 @@ from visdet import models as _  # noqa: F401
 # from visdet.cv.ops import RoIPool  # Removed - eliminating C++ ops
 from visdet.cv.transforms import Compose
 from visdet.engine.config import Config
-from visdet.engine.dataset import default_collate
+from visdet.engine.dataset import default_collate, pseudo_collate
 from visdet.engine.model.utils import revert_sync_batchnorm
 from visdet.engine.registry import init_default_scope
 from visdet.engine.runner import load_checkpoint
@@ -27,11 +27,42 @@ from visdet.structures import DetDataSample, SampleList
 from visdet.utils import ConfigType, get_test_pipeline_cfg
 
 
+def _parse_inference_devices(device: str | Sequence[str] | Sequence[int]) -> tuple[str, list[int] | None]:
+    if isinstance(device, str):
+        if device.startswith("cuda") and "," in device:
+            parts = [p.strip() for p in device.split(",") if p.strip()]
+            device_ids = [_device_to_id(p) for p in parts]
+            return f"cuda:{device_ids[0]}", device_ids
+        return device, None
+
+    device_ids = [_device_to_id(d) for d in device]
+    return f"cuda:{device_ids[0]}", device_ids
+
+
+def _device_to_id(device: str | int) -> int:
+    if isinstance(device, int):
+        return device
+
+    if device.isdigit():
+        return int(device)
+
+    if device == "cuda":
+        return 0
+
+    if device.startswith("cuda:"):
+        return int(device.split(":", 1)[1])
+
+    raise ValueError(
+        "Multi-device inference only supports CUDA devices. "
+        f"Got device={device!r}; expected e.g. 'cuda:0' or an int device id"
+    )
+
+
 def init_detector(
     config: str | Path | Config,
     checkpoint: str | None = None,
     palette: str = "none",
-    device: str = "cuda:0",
+    device: str | Sequence[str] | Sequence[int] = "cuda:0",
     cfg_options: dict | None = None,
 ) -> nn.Module:
     """Initialize a detector from config file.
@@ -45,8 +76,15 @@ def init_detector(
             is stored in checkpoint, use checkpoint's palette first, otherwise
             use externally passed palette. Currently, supports 'coco', 'voc',
             'citys' and 'random'. Defaults to none.
-        device (str): The device where the anchors will be put on.
-            Defaults to cuda:0.
+        device (str | Sequence[str] | Sequence[int]):
+            The device(s) to run inference on.
+
+            - Single device examples: ``"cpu"``, ``"cuda:0"``
+            - Multi-GPU single-process example: ``"cuda:0,1"`` or
+              ``["cuda:0", "cuda:1"]``
+
+            When multiple CUDA devices are provided, the model is wrapped in
+            :class:`visdet.engine.model.wrappers.MMDataParallel`.
         cfg_options (dict, optional): Options to override some settings in
             the used config.
 
@@ -113,7 +151,22 @@ def init_detector(
                 model.dataset_meta["palette"] = "random"
 
     model.cfg = config  # save the config in the model for convenience
-    model.to(device)
+
+    primary_device, device_ids = _parse_inference_devices(device)
+    model.to(primary_device)
+
+    if device_ids is not None and len(device_ids) > 1:
+        if not torch.cuda.is_available():
+            raise RuntimeError(f"CUDA is not available, cannot use multi-GPU device={device!r}")
+        if max(device_ids) >= torch.cuda.device_count():
+            raise RuntimeError(
+                f"Requested device_ids={device_ids} but only {torch.cuda.device_count()} CUDA device(s) are available"
+            )
+
+        from visdet.engine.model import MMDataParallel
+
+        model = MMDataParallel(model, device_ids=device_ids, output_device=device_ids[0])
+
     model.eval()
     return model
 
@@ -162,8 +215,8 @@ def inference_detector(
 
     # RoIPool check removed - eliminating C++ ops
 
-    result_list = []
-    for _i, img in enumerate(imgs):
+    data_list = []
+    for img in imgs:
         # prepare data
         if isinstance(img, np.ndarray):
             # TODO: remove img_id.
@@ -176,22 +229,18 @@ def inference_detector(
             data_["text"] = text_prompt
             data_["custom_entities"] = custom_entities
 
-        # build the data pipeline
-        data_ = test_pipeline(data_)
+        data_list.append(test_pipeline(data_))
 
-        data_["inputs"] = [data_["inputs"]]
-        data_["data_samples"] = [data_["data_samples"]]
+    batch = pseudo_collate(data_list)
 
-        # forward the model
-        with torch.inference_mode():
-            results = model.test_step(data_)[0]
-
-        result_list.append(results)
+    # forward the model
+    with torch.inference_mode():
+        results = model.test_step(batch)
 
     if not is_batch:
-        return result_list[0]
+        return results[0]
     else:
-        return result_list
+        return results
 
 
 # TODO: Awaiting refactoring

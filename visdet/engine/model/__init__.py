@@ -34,6 +34,7 @@ from visdet.engine.model.weight_init import (
     xavier_init,
 )
 from visdet.engine.model.wrappers import (
+    MMDataParallel,
     MMDistributedDataParallel,
     MMSeparateDistributedDataParallel,
     is_model_wrapper,
@@ -49,6 +50,7 @@ __all__ = [
     # "ExponentialMovingAverage",  # Not imported - EMA is in hooks module
     "ImgDataPreprocessor",
     "KaimingInit",
+    "MMDataParallel",
     "MMDistributedDataParallel",
     "MMSeparateDistributedDataParallel",
     "ModuleDict",

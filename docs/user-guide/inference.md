@@ -54,6 +54,84 @@ for image_file in image_files:
     # Process result...
 ```
 
+### Multi-GPU Inference
+
+To run inference on multiple GPUs in a single process, pass multiple CUDA devices to `init_detector` and then infer a batch (a list) of images:
+
+```python
+from visdet.apis import inference_detector, init_detector
+
+model = init_detector(config_file, checkpoint_file, device="cuda:0,1")
+results = inference_detector(model, image_files)  # list[DetDataSample]
+```
+
+## FiftyOne (Voxel51) Dataset
+
+If you use [FiftyOne](https://voxel51.com/fiftyone/) for dataset management and visualization, you can run `visdet` inference over a `fiftyone.Dataset` and attach the predictions back onto each sample.
+
+```python
+import fiftyone as fo
+
+from visdet.apis import inference_detector, init_detector
+from visdet.utils import detections_to_fiftyone
+
+# 1) Load your model
+config_file = "configs/faster_rcnn/faster_rcnn_r50_fpn_1x_coco.py"
+checkpoint_file = "checkpoints/faster_rcnn_r50_fpn_1x_coco.pth"
+model = init_detector(config_file, checkpoint_file, device="cuda:0")
+
+# 2) Create (or load) a FiftyOne dataset
+#    You can also do: dataset = fo.load_dataset("my-dataset")
+dataset = fo.Dataset.from_images_dir(
+    "path/to/images",
+    name="my-images",
+    overwrite=True,
+)
+dataset.compute_metadata()  # populates sample.metadata.width/height
+
+classes = model.dataset_meta.get("classes", [])
+score_thr = 0.3
+
+# 3) Run inference and attach detections
+for sample in dataset.iter_samples(progress=True):
+    data_sample = inference_detector(model, sample.filepath)
+
+    pred = data_sample.pred_instances
+    pred = pred[pred.scores > score_thr]
+
+    width = sample.metadata.width
+    height = sample.metadata.height
+
+    dets = []
+    for bbox, label_id, score in zip(
+        pred.bboxes.cpu().numpy(),
+        pred.labels.cpu().numpy(),
+        pred.scores.cpu().numpy(),
+        strict=False,
+    ):
+        x1, y1, x2, y2 = bbox.tolist()
+
+        dets.append(
+            {
+                "label": classes[int(label_id)] if classes else str(int(label_id)),
+                "bounding_box": [
+                    x1 / width,
+                    y1 / height,
+                    (x2 - x1) / width,
+                    (y2 - y1) / height,
+                ],
+                "confidence": float(score),
+            }
+        )
+
+    sample["predictions"] = detections_to_fiftyone(dets)
+    sample.save()
+
+# 4) Visualize in the FiftyOne App
+session = fo.launch_app(dataset)
+session.wait()
+```
+
 ## Test Dataset
 
 Evaluate model on a test dataset:
