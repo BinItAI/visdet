@@ -98,46 +98,51 @@ dataset.compute_metadata()  # populates sample.metadata.width/height
 classes = model.dataset_meta.get("classes", [])
 score_thr = 0.3
 
-# 3) Run batched inference and attach detections
+# 3) Run streaming batched inference and attach detections
 #    (Batching is important for performance, and required for multi-GPU inference)
-filepaths = dataset.values("filepath")
+import itertools
 
 batch_size = 8
-predictions = []
-for i in range(0, len(filepaths), batch_size):
-    predictions.extend(inference_detector(model, filepaths[i : i + batch_size]))
+sample_iter = dataset.iter_samples(progress=True)
 
-for sample, data_sample in zip(dataset.iter_samples(progress=True), predictions, strict=True):
-    pred = data_sample.pred_instances
-    pred = pred[pred.scores > score_thr]
+while True:
+    sample_batch = list(itertools.islice(sample_iter, batch_size))
+    if not sample_batch:
+        break
 
-    width = sample.metadata.width
-    height = sample.metadata.height
+    data_samples = inference_detector(model, [s.filepath for s in sample_batch])
 
-    dets = []
-    for bbox, label_id, score in zip(
-        pred.bboxes.cpu().numpy(),
-        pred.labels.cpu().numpy(),
-        pred.scores.cpu().numpy(),
-        strict=True,
-    ):
-        x1, y1, x2, y2 = bbox.tolist()
+    for sample, data_sample in zip(sample_batch, data_samples, strict=True):
+        pred = data_sample.pred_instances
+        pred = pred[pred.scores > score_thr]
 
-        dets.append(
-            {
-                "label": classes[int(label_id)] if classes else str(int(label_id)),
-                "bounding_box": [
-                    x1 / width,
-                    y1 / height,
-                    (x2 - x1) / width,
-                    (y2 - y1) / height,
-                ],
-                "confidence": float(score),
-            }
-        )
+        width = sample.metadata.width
+        height = sample.metadata.height
 
-    sample["predictions"] = detections_to_fiftyone(dets)
-    sample.save()
+        dets = []
+        for bbox, label_id, score in zip(
+            pred.bboxes.cpu().numpy(),
+            pred.labels.cpu().numpy(),
+            pred.scores.cpu().numpy(),
+            strict=True,
+        ):
+            x1, y1, x2, y2 = bbox.tolist()
+
+            dets.append(
+                {
+                    "label": classes[int(label_id)] if classes else str(int(label_id)),
+                    "bounding_box": [
+                        x1 / width,
+                        y1 / height,
+                        (x2 - x1) / width,
+                        (y2 - y1) / height,
+                    ],
+                    "confidence": float(score),
+                }
+            )
+
+        sample["predictions"] = detections_to_fiftyone(dets)
+        sample.save()
 
 # 4) Visualize in the FiftyOne App
 session = fo.launch_app(dataset)
