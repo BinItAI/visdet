@@ -18,6 +18,7 @@ from visdet.engine.runner.checkpoint import (
     save_checkpoint,
     weights_to_cpu,
 )
+from visdet.engine.runner.auto_train import auto_train
 from visdet.engine.runner.log_processor import LogProcessor
 from visdet.engine.runner.loops import EpochBasedTrainLoop, IterBasedTrainLoop, TestLoop, ValLoop
 from visdet.engine.runner.priority import Priority, get_priority
@@ -35,6 +36,7 @@ __all__ = [
     "Runner",
     "TestLoop",
     "ValLoop",
+    "auto_train",
     "autocast",
     "find_latest_checkpoint",
     "get_deprecated_model_names",

@@ -10,6 +10,12 @@ __pycache__/
 build/
 develop-eggs/
 dist/
+
+# Keep visdet runtime dist package tracked
+!visdet/engine/dist/
+!visdet/engine/dist/**
+visdet/engine/dist/__pycache__/
+
 downloads/
 eggs/
 .eggs/
