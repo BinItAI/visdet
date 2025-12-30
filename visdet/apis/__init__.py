@@ -4,10 +4,11 @@
 from visdet import models as _  # noqa: F401
 
 from visdet.apis.det_inferencer import DetInferencer
-from visdet.apis.inference import inference_detector, init_detector
+from visdet.apis.inference import async_inference_detector, inference_detector, init_detector
 
 __all__ = [
     "DetInferencer",
+    "async_inference_detector",
     "inference_detector",
     "init_detector",
 ]
