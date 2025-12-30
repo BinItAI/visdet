@@ -92,10 +92,16 @@ dataset.compute_metadata()  # populates sample.metadata.width/height
 classes = model.dataset_meta.get("classes", [])
 score_thr = 0.3
 
-# 3) Run inference and attach detections
-for sample in dataset.iter_samples(progress=True):
-    data_sample = inference_detector(model, sample.filepath)
+# 3) Run batched inference and attach detections
+#    (Batching is important for performance, and required for multi-GPU inference)
+filepaths = dataset.values("filepath")
 
+batch_size = 8
+predictions = []
+for i in range(0, len(filepaths), batch_size):
+    predictions.extend(inference_detector(model, filepaths[i : i + batch_size]))
+
+for sample, data_sample in zip(dataset.iter_samples(progress=True), predictions, strict=True):
     pred = data_sample.pred_instances
     pred = pred[pred.scores > score_thr]
 
@@ -107,7 +113,7 @@ for sample in dataset.iter_samples(progress=True):
         pred.bboxes.cpu().numpy(),
         pred.labels.cpu().numpy(),
         pred.scores.cpu().numpy(),
-        strict=False,
+        strict=True,
     ):
         x1, y1, x2, y2 = bbox.tolist()
 
