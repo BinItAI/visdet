@@ -2,6 +2,7 @@
 # type: ignore
 # Copyright (c) OpenMMLab. All rights reserved.
 import copy
+import logging
 import warnings
 from collections.abc import Sequence
 from pathlib import Path
@@ -27,12 +28,27 @@ from visdet.structures import DetDataSample, SampleList
 from visdet.utils import ConfigType, get_test_pipeline_cfg
 
 
+logger = logging.getLogger(__name__)
+
+
 def _parse_inference_devices(device: str | Sequence[str] | Sequence[int]) -> tuple[str, list[int] | None]:
     if isinstance(device, str):
+        if device == "cuda":
+            if not torch.cuda.is_available():
+                return "cpu", None
+
+            device_count = torch.cuda.device_count()
+            if device_count <= 1:
+                return "cuda:0", None
+
+            device_ids = list(range(device_count))
+            return "cuda:0", device_ids
+
         if device.startswith("cuda") and "," in device:
             parts = [p.strip() for p in device.split(",") if p.strip()]
             device_ids = [_device_to_id(p) for p in parts]
             return f"cuda:{device_ids[0]}", device_ids
+
         return device, None
 
     device_ids = [_device_to_id(d) for d in device]
@@ -62,7 +78,7 @@ def init_detector(
     config: str | Path | Config,
     checkpoint: str | None = None,
     palette: str = "none",
-    device: str | Sequence[str] | Sequence[int] = "cuda:0",
+    device: str | Sequence[str] | Sequence[int] = "cuda",
     cfg_options: dict | None = None,
 ) -> nn.Module:
     """Initialize a detector from config file.
@@ -79,11 +95,13 @@ def init_detector(
         device (str | Sequence[str] | Sequence[int]):
             The device(s) to run inference on.
 
+            - Default: ``"cuda"`` (use all available GPUs if CUDA is available,
+              otherwise fall back to CPU)
             - Single device examples: ``"cpu"``, ``"cuda:0"``
-            - Multi-GPU single-process example: ``"cuda:0,1"`` or
+            - Multi-GPU single-process examples: ``"cuda:0,1"`` or
               ``["cuda:0", "cuda:1"]``
 
-            When multiple CUDA devices are provided, the model is wrapped in
+            When multiple CUDA devices are used, the model is wrapped in
             :class:`visdet.engine.model.wrappers.MMDataParallel`.
         cfg_options (dict, optional): Options to override some settings in
             the used config.
@@ -151,6 +169,10 @@ def init_detector(
                 model.dataset_meta["palette"] = "random"
 
     model.cfg = config  # save the config in the model for convenience
+
+    if device == "cuda":
+        gpu_count = torch.cuda.device_count() if torch.cuda.is_available() else 0
+        logger.info("found %d GPUs", gpu_count)
 
     primary_device, device_ids = _parse_inference_devices(device)
     model.to(primary_device)
