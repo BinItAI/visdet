@@ -280,6 +280,22 @@ GPU-accelerated preprocessing for NVIDIA hardware:
 - Pipeline-parallel execution
 - Best for high GPU:CPU ratio systems
 
+### DoRA (Weight-Decomposed Low-Rank Adaptation)
+
+**Status**: Under evaluation
+
+[DoRA](https://github.com/NVlabs/DoRA) is a parameter-efficient fine-tuning method that improves upon LoRA by decomposing pre-trained weights into magnitude and direction components:
+- **Superior to LoRA** especially at lower ranks, allowing reduced memory consumption
+- **No inference overhead** - zero additional computational cost during inference
+- **Enhanced training stability** through weight decomposition approach
+- **ICML 2024 Oral** (top 1.5% acceptance rate)
+- **HuggingFace PEFT integration** - supports Linear, Conv1d, Conv2d layers and quantized models
+
+Potential applications for visdet:
+- Efficient fine-tuning of vision transformer backbones (Swin, ViT)
+- Adaptation of detection heads for domain-specific tasks
+- Low-resource model customization with minimal trainable parameters
+
 ---
 
 ## Timeline Summary
