@@ -105,11 +105,24 @@ Documentation = "https://binitai.github.io/visdet/"
 # Exclude nested pyproject.toml that was part of old workspace structure
 exclude = [
     "visdet/pyproject.toml",
+    # Don't ship build intermediates
+    ".hatch-ext/**",
+    # Don't ship macOS debug bundles
+    "visdet/_ext_demo/*.dSYM/**",
+]
+
+# Hatchling has built-in ignores for directories like `dist/`, which clashes
+# with our internal module path `visdet/engine/dist/`. Force-include it.
+artifacts = [
+    "visdet/engine/dist/**",
 ]
 
 [tool.hatch.build.targets.wheel]
 # The package code is in visdet/ - tell hatchling where to find it
 packages = ["visdet"]
+
+[tool.hatch.build.hooks.custom]
+path = "hatch_build.py"
 
 [tool.ruff]
 line-length = 120

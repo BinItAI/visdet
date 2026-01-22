@@ -44,6 +44,13 @@ venv.bak/
 .coverage
 htmlcov/
 
+# Grog
+.grog/
+.grog-cache/
+
+# Hatch build hook intermediates
+.hatch-ext/
+
 # Jupyter Notebook
 .ipynb_checkpoints
 
