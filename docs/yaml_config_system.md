@@ -224,7 +224,7 @@ python tools/convert_config.py \
 Run the test suite to verify the YAML system:
 
 ```bash
-python scripts/test_yaml_simple.py
+python scripts/test_yaml_config.py
 ```
 
 This tests:

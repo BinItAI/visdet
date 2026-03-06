@@ -53,7 +53,7 @@ jobs:
             ## Installation
 
             ```bash
-            pip install mmdet==${{ steps.get_version.outputs.version }}
+            pip install visdet==${{ steps.get_version.outputs.version }}
             ```
 
             ## Documentation

@@ -1,7 +1,6 @@
 # ruff: noqa
 # type: ignore
 # Copyright (c) OpenMMLab. All rights reserved.
-import pkgutil
 
 import numpy as np
 import torch
@@ -96,16 +95,3 @@ def has_batch_norm(model: nn.Module) -> bool:
             return True
     return False
 
-
-def mmcv_full_available() -> bool:
-    """Check whether mmcv-full is installed.
-
-    Returns:
-        bool: True if mmcv-full is installed else False.
-    """
-    try:
-        import mmcv  # noqa: F401
-    except ImportError:
-        return False
-    ext_loader = pkgutil.find_loader("mmcv._ext")
-    return ext_loader is not None

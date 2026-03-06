@@ -1,5 +1,6 @@
 """Generate comprehensive model zoo documentation from config READMEs."""
 
+import argparse
 import re
 from pathlib import Path
 from typing import Dict, List, Tuple
@@ -185,18 +186,17 @@ def generate_model_zoo_page() -> str:
         [
             "## Using Pre-trained Models",
             "",
-            "To use any pre-trained model from the model zoo:",
+            "To train with a preset from the model zoo:",
             "",
             "```python",
-            "from mmdet.apis import init_detector, inference_detector",
+            "from visdet import SimpleRunner",
             "",
-            "# Load model",
-            "config_file = 'configs/models/faster_rcnn_r50.yaml'",
-            "checkpoint_file = 'checkpoints/faster_rcnn_r50_fpn_1x_coco.pth'",
-            "model = init_detector(config_file, checkpoint_file, device='cuda:0')",
-            "",
-            "# Run inference",
-            "result = inference_detector(model, 'demo/demo.jpg')",
+            "runner = SimpleRunner(",
+            "    model='mask_rcnn_swin_s',",
+            "    dataset='coco_instance_segmentation',",
+            "    epochs=12,",
+            ")",
+            "runner.train()",
             "```",
             "",
             "## Training Custom Models",
@@ -213,12 +213,25 @@ def generate_model_zoo_page() -> str:
     return "\n".join(lines)
 
 
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Generate model-zoo documentation page.")
+    parser.add_argument(
+        "--output",
+        default="docs/model-zoo.md",
+        help="Output markdown path (default: docs/model-zoo.md)",
+    )
+    return parser.parse_args()
+
+
 if __name__ == "__main__":
+    args = parse_args()
+
     # Generate the page
     content = generate_model_zoo_page()
 
     # Write to docs
-    output_path = Path("mkdocs_docs/model-zoo.md")
+    output_path = Path(args.output)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(content)
 
     print(f"✓ Generated model zoo documentation: {output_path}")
