@@ -68,7 +68,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--cfg-options",
         nargs="+",
-        help='override config in key=value format (e.g. test_dataloader.batch_size=1)',
+        help="override config in key=value format (e.g. test_dataloader.batch_size=1)",
     )
     parser.add_argument(
         "--options",

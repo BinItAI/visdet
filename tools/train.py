@@ -72,7 +72,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--cfg-options",
         nargs="+",
-        help='override config in key=value format (e.g. optimizer.lr=0.001 data.train.batch_size=2)',
+        help="override config in key=value format (e.g. optimizer.lr=0.001 data.train.batch_size=2)",
     )
     parser.add_argument(
         "--launcher",

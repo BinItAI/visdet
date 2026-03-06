@@ -94,4 +94,3 @@ def has_batch_norm(model: nn.Module) -> bool:
         if has_batch_norm(m):
             return True
     return False
-
