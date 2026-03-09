@@ -208,15 +208,12 @@ def revert_sync_batchnorm(module: nn.Module) -> nn.Module:
 
 def convert_sync_batchnorm(module: nn.Module, implementation="torch") -> nn.Module:
     """Helper function to convert all `BatchNorm` layers in the model to
-    `SyncBatchNorm` (SyncBN) or `mmcv.ops.sync_bn.SyncBatchNorm` (MMSyncBN)
-    layers. Adapted from `PyTorch convert sync batchnorm`_.
+    `SyncBatchNorm` (SyncBN) layers.
 
     Args:
         module (nn.Module): The module containing `SyncBatchNorm` layers.
-        implementation (str): The type of `SyncBatchNorm` to convert to.
-
-            - 'torch': convert to `torch.nn.modules.batchnorm.SyncBatchNorm`.
-            - 'mmcv': convert to `mmcv.ops.sync_bn.SyncBatchNorm`.
+        implementation (str): SyncBatchNorm implementation.
+            Only ``torch`` is supported.
 
     Returns:
         nn.Module: The converted module with `SyncBatchNorm` layers.
@@ -226,15 +223,11 @@ def convert_sync_batchnorm(module: nn.Module, implementation="torch") -> nn.Modu
     """
     module_output = module
 
+    if implementation != "torch":
+        raise ValueError(f'Only sync_bn="torch" is supported, but got {implementation}')
+
     if isinstance(module, torch.nn.modules.batchnorm._BatchNorm):
-        if implementation == "torch":
-            SyncBatchNorm = torch.nn.modules.batchnorm.SyncBatchNorm
-        elif implementation == "mmcv":
-            # MMCV is not a dependency in visdet; keep this option as an alias
-            # for backwards compatibility with upstream configs.
-            SyncBatchNorm = torch.nn.modules.batchnorm.SyncBatchNorm
-        else:
-            raise ValueError(f'sync_bn should be "torch" or "mmcv", but got {implementation}')
+        SyncBatchNorm = torch.nn.modules.batchnorm.SyncBatchNorm
 
         module_output = SyncBatchNorm(
             module.num_features,

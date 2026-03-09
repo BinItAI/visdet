@@ -144,7 +144,7 @@ addopts = "-v --tb=short --strict-markers"
 norecursedirs = ["archive", ".git", ".venv", "build", "dist"]
 
 [tool.coverage.run]
-source = ["mmdet"]
+source = ["visdet"]
 omit = ["*/tests/*", "*/test_*.py"]
 
 [tool.coverage.report]

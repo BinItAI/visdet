@@ -40,7 +40,7 @@ jobs:
 
       - name: Run tests with coverage
         if: matrix.python-version == '3.14'
-        run: uv run pytest --cov=mmdet --cov-report=term-missing --cov-report=xml --ignore tests/test_modal_coco_training_on_modal.py
+        run: uv run pytest --cov=visdet --cov-report=term-missing --cov-report=xml --ignore tests/test_modal_coco_training_on_modal.py
 
       - name: Upload coverage to Codecov
         if: matrix.python-version == '3.14'
